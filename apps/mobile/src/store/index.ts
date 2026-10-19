@@ -42,6 +42,7 @@ interface Settings {
   onboarded: boolean;
   /** Honor system: we never verify student status. */
   isStudent: boolean;
+  /** Legacy beta preference only. Never use this to grant paid access; check RevenueCat semli_pro. */
   planIntent: PlanId | null;
   weekKinds: string[];
   appearance: Appearance;

@@ -64,26 +64,16 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (purchasesUnavailableReason) return;
-    let disposed = false;
-    let listening = false;
-    void initializePurchases().then(() => {
-      if (disposed) return;
-      Purchases.addCustomerInfoUpdateListener(updateCustomerInfo);
-      listening = true;
-      void refresh();
-    }).catch((failure: unknown) => {
-      if (!disposed) {
-        setError(purchaseErrorMessage(failure));
-        setLoading(false);
-      }
-    });
+    // This SDK listener is registered in JS and can be attached before configuration.
+    // Keep it attached if initial configuration fails and the user later retries.
+    Purchases.addCustomerInfoUpdateListener(updateCustomerInfo);
+    void refresh();
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') void refresh();
     });
     return () => {
-      disposed = true;
       subscription.remove();
-      if (listening) Purchases.removeCustomerInfoUpdateListener(updateCustomerInfo);
+      Purchases.removeCustomerInfoUpdateListener(updateCustomerInfo);
     };
   }, [refresh, updateCustomerInfo]);
 
@@ -129,18 +119,30 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     if (!current || current.availablePackages.length === 0) {
       throw new SubscriptionError('Plans aren’t available right now. Please try again later.');
     }
+    let completedInfo: CustomerInfo | null = null;
+    const onCompleted = ({ customerInfo: updated }: { customerInfo: CustomerInfo }) => {
+      completedInfo = updated;
+      updateCustomerInfo(updated);
+    };
     const result = await RevenueCatUI.presentPaywallIfNeeded({
       requiredEntitlementIdentifier: PRO_ENTITLEMENT,
       offering: current,
       displayCloseButton: true,
       callbacks: {
-        onPurchaseCompleted: ({ customerInfo: updated }) => updateCustomerInfo(updated),
-        onRestoreCompleted: ({ customerInfo: updated }) => updateCustomerInfo(updated),
+        onPurchaseCompleted: onCompleted,
+        onRestoreCompleted: onCompleted,
       },
     });
+    if (result === PAYWALL_RESULT.CANCELLED) return false;
     if (result === PAYWALL_RESULT.ERROR) throw new SubscriptionError('We couldn’t open the plans. Please try again.');
-    // A paywall result alone never grants access. Verify semli_pro, including after restores.
-    return hasSemliPro(await refreshCustomerInfo());
+    // Use the transaction's CustomerInfo even if a subsequent network refresh fails.
+    // A paywall result alone never grants access, including after restores.
+    const updated = completedInfo ?? await refreshCustomerInfo();
+    if (completedInfo) void refreshCustomerInfo().catch(() => {});
+    if (!hasSemliPro(updated) && (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED)) {
+      throw new SubscriptionError('Your purchase finished, but Semli Pro is not active. Try Restore purchases or contact support.');
+    }
+    return hasSemliPro(updated);
   }), [refreshCustomerInfo, run, updateCustomerInfo]);
 
   const manageSubscription = useCallback(() => run(async () => {

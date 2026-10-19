@@ -33,21 +33,21 @@ export default function RootLayout() {
   const theme = dark ? DarkTheme : DefaultTheme;
   return (
     <PurchasesProvider>
-    <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas } }}>
-        <Stack.Protected guard={!onboarded}>
-          <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
-        </Stack.Protected>
-        <Stack.Protected guard={onboarded}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="capture" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="review" options={{ presentation: 'modal', gestureEnabled: false }} />
-          <Stack.Screen name="item/[id]" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
-        </Stack.Protected>
-      </Stack>
-      <StatusBar style={dark ? 'light' : 'dark'} />
-    </ThemeProvider>
+      <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas } }}>
+          <Stack.Protected guard={!onboarded}>
+            <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
+          </Stack.Protected>
+          <Stack.Protected guard={onboarded}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="capture" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="review" options={{ presentation: 'modal', gestureEnabled: false }} />
+            <Stack.Screen name="item/[id]" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
+          </Stack.Protected>
+        </Stack>
+        <StatusBar style={dark ? 'light' : 'dark'} />
+      </ThemeProvider>
     </PurchasesProvider>
   );
 }
