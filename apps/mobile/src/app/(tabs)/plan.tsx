@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { PanResponder, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { CategoryDot, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
+import { CategoryDot, IconButton, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { ItemRow } from '@/components/ItemRow';
 import { TimeField } from '@/components/Native';
 import { PlanCalendarControl, PlanMonthCalendar } from '@/components/PlanCalendar';
@@ -122,6 +122,7 @@ export default function PlanScreen() {
   const openCapture = () => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } });
   const header = (
     <TabHeader date={selected} label="" title="Plan"
+      trailing={<IconButton icon="share" label="Preview schedule sharing" tone="glass" onPress={() => router.push({ pathname: '/share-schedule', params: { date: selected } })} />}
       context={<PlanCalendarControl selected={selected} expanded={calendarOpen} onToggle={() => setCalendarOpen((open) => !open)}
         onPreviousWeek={() => setSelected(addDays(selected, -7))} onNextWeek={() => setSelected(addDays(selected, 7))} />}
       details={<>

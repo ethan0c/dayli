@@ -23,6 +23,7 @@ export type IconKey =
   | 'vibrate'
   | 'bell'
   | 'send'
+  | 'share'
   | 'remove'
   | 'appearance'
   | 'list'
@@ -54,6 +55,7 @@ const GLYPHS: Record<IconKey, El[]> = {
   mic: [{ d: 'M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z' }, { d: 'M19 10v2a7 7 0 0 1-14 0v-2M12 19v4' }],
   chevronLeft: [{ d: 'm15 18-6-6 6-6' }],
   chevronRight: [{ d: 'm9 18 6-6-6-6' }],
+  share: [{ d: 'M12 15V3m-4 4 4-4 4 4M7 10H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2' }],
   undo: [{ d: 'M3 7v6h6' }, { d: 'M21 17a9 9 0 0 0-15-6.7L3 13' }],
   tick: [{ d: 'm5 12 5 5L20 7' }],
   user: [{ circle: [12, 8, 4] }, { d: 'M4 21a8 8 0 0 1 16 0' }],

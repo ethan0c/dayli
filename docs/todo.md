@@ -53,6 +53,12 @@ October 19, 2026. The mobile UI pass against the design canvas (https://claude.a
 - Keeping the real screenshot for the import screen (it shows the sample image).
 - Canvas sync, iCloud backup, the share extension.
 
+**Account and sharing frontend previews**
+- Built `/account`: guest welcome, email entry, six-digit code layout, signed-in account layout, and logout-of-preview. Entry from You → Account → Save your plan. All account state is local to this screen; no authentication, sessions, emails, uploads or billing changes occur.
+- Built `/share-schedule`: day/week selection, category filters, title redaction, a message preview with Open preview, and a read-only schedule. Entry from the glass share button in Plan or You → Account → Share your schedule. Create share link remains unavailable until a backend exists; there are no public URLs yet.
+- Preview rendering uses an explicit field allowlist. Notes, source files, employer metadata, account data, private IDs and completed entries are excluded. The title switch substitutes Busy/To-do before the viewer receives data.
+- Backend/auth/database setup is intentionally skipped at the user's request. Accounts, cloud backup, permanent links, recipient access/revocation and cross-device sync remain future work. Existing guest data and RevenueCat access are untouched by the previews.
+
 **UI still to do**
 - Mic on the composer (speech).
 - Scrubbing the day bar to change the countdown.

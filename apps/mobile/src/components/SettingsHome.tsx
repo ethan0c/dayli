@@ -62,6 +62,11 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
           <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
         </Group>
 
+        <Group title="Account" footer="Accounts are coming soon. Keep planning as a guest for now.">
+          <Row label="Save your plan" value="Preview" onPress={() => router.push('/account')} />
+          <Row label="Share your schedule" value="Preview" onPress={() => router.push('/share-schedule')} last />
+        </Group>
+
         <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
           <Row label="Your plan" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
           <Row label="Manage subscription" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
