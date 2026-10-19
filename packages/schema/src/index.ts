@@ -107,6 +107,7 @@ export type ScheduleVersion = z.infer<typeof ScheduleVersion>;
 // ---------------------------------------------------------------------------
 
 export const ExtractContext = z.object({
+  name: z.string().optional(),
   today: LocalDate,
   timezone: z.string(),
   courses: z.array(z.object({ code: z.string().nullable(), title: z.string() })),

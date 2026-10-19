@@ -3,7 +3,7 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { Extraction, type ExtractContext, type ExtractRequest } from '@dayli/schema';
 
 export const MODEL = 'claude-opus-5-5';
-export const PROMPT_VERSION = '2026-10-19.2';
+export const PROMPT_VERSION = '2026-10-19.3';
 
 const SYSTEM = `You read the things busy students and shift workers send to their planner app, Semli, and turn them into calendar events and to-dos.
 
@@ -26,6 +26,7 @@ How to read them:
 
 function contextBlock(ctx: ExtractContext): string {
   const lines = [
+    ...(ctx.name?.trim() ? [`User's name (extract only this person's shifts): ${ctx.name.trim()}`] : []),
     `Reference date: ${ctx.today}`,
     `Timezone: ${ctx.timezone}`,
     `Known courses: ${ctx.courses.length ? ctx.courses.map((c) => [c.code, c.title].filter(Boolean).join(' ')).join('; ') : 'none yet'}`,

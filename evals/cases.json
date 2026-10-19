@@ -948,5 +948,615 @@
         }
       ]
     }
+  },
+  {
+    "id": "image-7shifts-split",
+    "provenance": "public",
+    "source": "https://kb.7shifts.com/hc/en-us/articles/4417513470099-How-to-Print-a-Schedule",
+    "format": "7shifts",
+    "notes": "Two departments; multiple names; Saturday has two shifts. Gold read from Jabari row.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/7shifts-week.png",
+      "mediaType": "image/png"
+    },
+    "context": {
+      "today": "2022-09-18",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "Leslieville"
+      ],
+      "name": "Jabari Young"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule",
+        "covers_from": "2022-09-18",
+        "covers_to": "2022-09-24"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2022-09-18",
+          "start": "15:00",
+          "end": "22:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2022-09-19",
+          "start": "07:00",
+          "end": "15:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2022-09-21",
+          "start": "07:00",
+          "end": "15:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2022-09-23",
+          "start": "15:00",
+          "end": "22:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2022-09-24",
+          "start": "07:00",
+          "end": "12:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2022-09-24",
+          "start": "19:00",
+          "end": "22:00",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
+  },
+  {
+    "id": "image-wiw-user",
+    "provenance": "public",
+    "source": "https://help.wheniwork.com/articles/user-view-reference-guide/",
+    "format": "when-i-work",
+    "notes": "Dense grid, open shifts, training and unconfirmed stripes. Only Cedric row.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/wiw-user.png",
+      "mediaType": "image/png"
+    },
+    "context": {
+      "today": "2025-09-15",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "Default"
+      ],
+      "name": "Cedric Simpson"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule",
+        "covers_from": "2025-09-15",
+        "covers_to": "2025-09-21"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-15",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-16",
+          "start": "16:00",
+          "end": "23:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-17",
+          "start": "16:00",
+          "end": "23:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-18",
+          "start": "16:00",
+          "end": "23:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-19",
+          "start": "10:00",
+          "end": "18:00",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
+  },
+  {
+    "id": "image-wiw-coverage",
+    "provenance": "public",
+    "source": "https://help.wheniwork.com/articles/coverage-view-reference-guide/",
+    "format": "when-i-work",
+    "notes": "Chronological columns, truncated names, crowded colored shifts. Only Arthur Carter.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/wiw-coverage.png",
+      "mediaType": "image/png"
+    },
+    "context": {
+      "today": "2025-09-15",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "Default"
+      ],
+      "name": "Arthur Carter"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule",
+        "covers_from": "2025-09-15",
+        "covers_to": "2025-09-21"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-15",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-17",
+          "start": "10:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-18",
+          "start": "10:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-19",
+          "start": "10:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-20",
+          "start": "10:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-21",
+          "start": "10:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
+  },
+  {
+    "id": "image-wiw-jobsite",
+    "provenance": "public",
+    "source": "https://help.wheniwork.com/articles/scheduler-job-site-view-reference-guide/",
+    "format": "when-i-work",
+    "notes": "Same person appears under two different job sites; open shifts must be ignored.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/wiw-jobsite.png",
+      "mediaType": "image/png"
+    },
+    "context": {
+      "today": "2025-09-15",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "Default"
+      ],
+      "name": "Fleur Francis"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule",
+        "covers_from": "2025-09-15",
+        "covers_to": "2025-09-21"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-16",
+          "start": "16:00",
+          "end": "23:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-17",
+          "start": "16:00",
+          "end": "23:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-19",
+          "start": "16:00",
+          "end": "23:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2025-09-20",
+          "start": "16:00",
+          "end": "23:00",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
+  },
+  {
+    "id": "image-wiw-android",
+    "provenance": "public",
+    "source": "https://help.wheniwork.com/articles/viewing-your-coworkers-schedules/",
+    "format": "when-i-work",
+    "notes": "Dark mobile list; year absent. Anchor year from reference date; do not import coworkers.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/wiw-android.jpg",
+      "mediaType": "image/jpeg"
+    },
+    "context": {
+      "today": "2026-01-12",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "Downtown"
+      ],
+      "name": "Olivia Johnson"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2026-01-15",
+          "start": "09:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
+  },
+  {
+    "id": "image-wiw-ios",
+    "provenance": "public",
+    "source": "https://help.wheniwork.com/articles/viewing-your-coworkers-schedules/",
+    "format": "when-i-work",
+    "notes": "iOS list with explicit date and wrapped employee/role labels.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/wiw-ios.png",
+      "mediaType": "image/png"
+    },
+    "context": {
+      "today": "2026-01-12",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "Downtown"
+      ],
+      "name": "Alastor Stephens"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2026-01-15",
+          "start": "09:00",
+          "end": "18:00",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
+  },
+  {
+    "id": "image-deputy-area",
+    "provenance": "public",
+    "source": "https://help.deputy.com/hc/en-au/articles/4688737187343-Printing-your-schedule",
+    "format": "deputy",
+    "notes": "Grouped by work area; DD/MM dates; meal/rest breaks are not separate shifts.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/deputy-area-week.png",
+      "mediaType": "image/png"
+    },
+    "context": {
+      "today": "2024-10-21",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "The Azure"
+      ],
+      "name": "Wendy Lowe"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule",
+        "covers_from": "2024-10-21",
+        "covers_to": "2024-10-27"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-10-21",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-10-22",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-10-23",
+          "start": "14:30",
+          "end": "22:30",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-10-24",
+          "start": "09:30",
+          "end": "18:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-10-27",
+          "start": "17:30",
+          "end": "23:00",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
+  },
+  {
+    "id": "image-deputy-split",
+    "provenance": "public",
+    "source": "https://help.deputy.com/hc/en-au/articles/4688737187343-Printing-your-schedule",
+    "format": "deputy",
+    "notes": "Weekly person grid, split shifts, break durations, partially clipped bottom rows.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/deputy-person-week.png",
+      "mediaType": "image/png"
+    },
+    "context": {
+      "today": "2024-10-21",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "The Azure"
+      ],
+      "name": "Grace Liu"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule",
+        "covers_from": "2024-10-21",
+        "covers_to": "2024-10-27"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-10-21",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-10-21",
+          "start": "17:15",
+          "end": "21:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-10-23",
+          "start": "14:30",
+          "end": "22:30",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
+  },
+  {
+    "id": "image-deputy-day",
+    "provenance": "public",
+    "source": "https://help.deputy.com/hc/en-au/articles/4688737187343-Printing-your-schedule",
+    "format": "deputy",
+    "notes": "Daily paper export with totals excluding breaks; retain actual start and end.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/deputy-person-day.png",
+      "mediaType": "image/png"
+    },
+    "context": {
+      "today": "2024-10-24",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "The Azure"
+      ],
+      "name": "Susan Peng"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule",
+        "covers_from": "2024-10-24",
+        "covers_to": "2024-10-24"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-10-24",
+          "start": "16:15",
+          "end": "23:30",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
+  },
+  {
+    "id": "image-deputy-excel",
+    "provenance": "public",
+    "source": "https://help.deputy.com/hc/en-au/articles/4688737187343-Printing-your-schedule",
+    "format": "deputy",
+    "notes": "Dense Excel printout with merged cells, split shifts, break totals.",
+    "input": {
+      "kind": "image",
+      "file": "inputs/public/deputy-excel-week.png",
+      "mediaType": "image/png"
+    },
+    "context": {
+      "today": "2024-09-23",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": [
+        "The Azure"
+      ],
+      "name": "David Johnson"
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {
+        "detected_type": "work_schedule",
+        "covers_from": "2024-09-23",
+        "covers_to": "2024-09-29"
+      },
+      "items": [
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-09-25",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-09-26",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-09-27",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-09-28",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-09-28",
+          "start": "19:00",
+          "end": "20:45",
+          "kind": "event",
+          "category": "work"
+        },
+        {
+          "match": "shift|work|cook|host|bar|server|training|kitchen|front|pop|floor|dishwash|prep|azure|default|leslieville",
+          "date": "2024-09-29",
+          "start": "08:00",
+          "end": "16:00",
+          "kind": "event",
+          "category": "work"
+        }
+      ]
+    }
   }
 ]

@@ -81,6 +81,7 @@ export function score(test: EvalCase, actual: Extraction | null) {
   const extra = items.filter((_, index) => !matched.has(index));
   if (test.expected.complete) extra.forEach((item) => failures.push(`Extra: ${item.title} (${item.date} ${item.start})`));
   return {
+    successful: actual !== null,
     expected: expected.length, actual: items.length, matched: matched.size,
     timeCorrect, timeTotal: expected.length * 3, otherCorrect, otherTotal,
     // Extra output on partially annotated cases is ungraded, never claimed to be hallucination-free.
@@ -95,13 +96,13 @@ export function aggregate(scores: Score[]) {
   const sum = (key: 'expected' | 'actual' | 'matched' | 'timeCorrect' | 'timeTotal' | 'otherCorrect' | 'otherTotal' | 'questions') => scores.reduce((n, s) => n + s[key], 0);
   const ratio = (a: number, b: number) => b ? a / b : 1;
   const fullyAnnotated = scores.every((s) => s.extra !== null);
-  const dateTimeAccuracy = ratio(sum('timeCorrect'), sum('timeTotal'));
-  const recall = ratio(sum('matched'), sum('expected'));
-  const otherAccuracy = ratio(sum('otherCorrect'), sum('otherTotal'));
-  const extraRate = fullyAnnotated ? ratio(scores.reduce((n, s) => n + s.extra!, 0), sum('actual')) : null;
+  const dateTimeAccuracy = sum('timeTotal') ? ratio(sum('timeCorrect'), sum('timeTotal')) : null;
+  const recall = scores.length ? ratio(sum('matched'), sum('expected')) : null;
+  const otherAccuracy = scores.length ? ratio(sum('otherCorrect'), sum('otherTotal')) : null;
+  const extraRate = scores.length && fullyAnnotated ? (sum('actual') ? scores.reduce((n, s) => n + s.extra!, 0) / sum('actual') : 0) : null;
   return {
     cases: scores.length, expectedItems: sum('expected'), actualItems: sum('actual'),
-    dateTimeAccuracy, recall, otherAccuracy, extraRate, questionRate: ratio(sum('questions'), sum('actual')),
-    pass: scores.length > 0 && fullyAnnotated && dateTimeAccuracy >= .95 && recall >= .95 && otherAccuracy >= .95 && extraRate! <= .02,
+    dateTimeAccuracy, recall, otherAccuracy, extraRate, questionRate: sum('actual') ? sum('questions') / sum('actual') : null,
+    pass: scores.length > 0 && scores.every((s) => s.successful) && fullyAnnotated && dateTimeAccuracy !== null && dateTimeAccuracy >= .95 && recall! >= .95 && otherAccuracy! >= .95 && extraRate! <= .02,
   };
 }

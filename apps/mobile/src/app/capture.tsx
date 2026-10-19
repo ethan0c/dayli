@@ -41,6 +41,7 @@ export default function CaptureScreen() {
     const res = await requestExtraction(settings.apiUrl, {
       input,
       context: {
+        name: settings.name,
         today: localParts(new Date()).date,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         courses: courses.map((k) => ({ code: k.code, title: k.title })),

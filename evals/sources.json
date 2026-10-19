@@ -1,0 +1,77 @@
+[
+  {
+    "file": "inputs/public/7shifts-week.png",
+    "url": "https://kb.7shifts.com/hc/article_attachments/9652407170323",
+    "sha256": "acda1f675cd2a45f7cfec0256a3a0e2a6ce8a10f26829a809e2550991b179397"
+  },
+  {
+    "file": "inputs/public/wiw-user.png",
+    "url": "https://d1fc5y2qmnxpnr.cloudfront.net/assets/User-View-Reference-scaled-e1758289532888.png",
+    "sha256": "0b7c729c3c7c384ed72df018e1bdac30f632c87b676d3517d6c18c9554264cc7"
+  },
+  {
+    "file": "inputs/public/wiw-coverage.png",
+    "url": "https://d1fc5y2qmnxpnr.cloudfront.net/assets/Coverage-view-reference-1-scaled-e1758290060954.png",
+    "sha256": "7b095914c6a5c04f45f32e9d3e37224e4dcef36d302076873cc23e93289675c3"
+  },
+  {
+    "file": "inputs/public/wiw-jobsite.png",
+    "url": "https://d1fc5y2qmnxpnr.cloudfront.net/assets/job-site-view-reference-1024x603.png",
+    "sha256": "4f0ad77134a84892437ca2ef061ccf21a7e08db2df42c19fb4731ae96b213a93"
+  },
+  {
+    "file": "inputs/public/wiw-android.jpg",
+    "url": "https://d1fc5y2qmnxpnr.cloudfront.net/assets/All-shifts-Android-478x1024.jpg",
+    "sha256": "46b50f53b0181b0fd94eedfbdb0ed7537abfb13f5436dc56f9b6e31202978f3e"
+  },
+  {
+    "file": "inputs/public/wiw-ios.png",
+    "url": "https://d1fc5y2qmnxpnr.cloudfront.net/assets/All-shifts-iOS.png",
+    "sha256": "85817388b6210599c7a82923b30f1bcb1babcdf2ea4ca7cb0353c8003ee542ce"
+  },
+  {
+    "file": "inputs/public/deputy-area-week.png",
+    "url": "https://help.deputy.com/hc/article_attachments/11049564326415",
+    "sha256": "cf7a4500c46e2feb7e2551f94f4ca9e83b1b1754b947914457ea9cf99eb3cd57"
+  },
+  {
+    "file": "inputs/public/deputy-person-week.png",
+    "url": "https://help.deputy.com/hc/article_attachments/11049564329999",
+    "sha256": "fdd3c5a0d9e9f00448f51fef25b1f6a700c21653f49b7f19b49997f42c660583"
+  },
+  {
+    "file": "inputs/public/deputy-person-day.png",
+    "url": "https://help.deputy.com/hc/article_attachments/11049564329615",
+    "sha256": "36f584d9753d8d47852580e530cf7c6dfcc0949c55c2865f622393209091ca6a"
+  },
+  {
+    "file": "inputs/public/deputy-excel-week.png",
+    "url": "https://help.deputy.com/hc/article_attachments/11049564332303",
+    "sha256": "4e2349d329cf4382240d2e01c0a345a7c06866aa0abc2a78336d56fd6ecba5a4"
+  },
+  {
+    "file": "inputs/public/njit-biology.pdf",
+    "url": "https://archives.njit.edu/vhlib/syllabi/bio/bio-2025-01-01-Sp-2025/BIOL-205-H02-Spring-2025-Barden.pdf",
+    "sha256": "83501bfb57787e75584bdfd9f142de118c81e564e0916e9626a9a3c826fb0a66"
+  },
+  {
+    "file": "inputs/public/east-texas-nursing.pdf",
+    "url": "https://inside.tamuc.edu/academics/cvSyllabi/syllabi/202520/22283.pdf",
+    "sha256": "d5704eb33b4c16f42a1ad500b508d141b1ad7ec55d957d9257e952ffb139f88c"
+  },
+  {
+    "file": "inputs/public/camosun-nursing.pdf",
+    "url": "https://legacy.camosun.ca/learn/course-outlines/Nursing%20%28NURS%29/NURS-143-X04-Various-2025W.pdf",
+    "sha256": "b3c634517706fb157aae80d207dd2770e5d38d75e9a46417c1b2e270ac811660"
+  },
+  {
+    "file": "inputs/public/msutexas-psychology.pdf",
+    "url": "https://directory.msutexas.edu/storage/files/syllabus_20250113021948.pdf",
+    "sha256": "af7b119057c3143172f7c785a96e4223ba13ea583cc7ad91ec21238fc5e0951b"
+  },
+  {
+    "file": "inputs/public/florida-economics.pdf",
+    "url": "https://fred.ifas.ufl.edu/media/fredifasufledu/undergradsyll/fall2024/AEB4283Mullally.pdf",
+    "sha256": "81679146072b5d21500e23b04598376960cdd8d62b4d2b147128bc6f688ac77c"
+  }
+]
