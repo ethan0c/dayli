@@ -1,5 +1,5 @@
 import { motion } from '@dayli/tokens';
-import { Pressable, type GestureResponderEvent, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, type GestureResponderEvent, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { feedback, type Cue } from '@/lib/feedback';
@@ -21,9 +21,10 @@ type Props = Omit<PressableProps, 'style'> & {
  */
 export function Press({ style, scale = motion.press.scale, haptic, onPressIn, onPressOut, onPress, ...rest }: Props) {
   const down = useSharedValue(0);
+  const baseOpacity = StyleSheet.flatten(style)?.opacity ?? 1;
   const animated = useAnimatedStyle(() => ({
     transform: [{ scale: 1 - (1 - scale) * down.value }],
-    opacity: 1 - (1 - motion.press.opacity) * down.value,
+    opacity: baseOpacity * (1 - (1 - motion.press.opacity) * down.value),
   }));
   return (
     <AnimatedPressable
