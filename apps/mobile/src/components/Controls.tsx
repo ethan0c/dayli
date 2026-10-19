@@ -31,7 +31,7 @@ export function TextButton({ label, onPress, tone = 'accent', haptic = 'select',
   );
 }
 
-/** Icon button: a 44 circle, grey or ink. `glass` is for chrome at the top of a screen: Liquid Glass on iOS 26, the grey circle elsewhere. */
+/** Icon button: a 44 circle, grey, ink or purple. `glass` is for chrome at the top of a screen: Liquid Glass on iOS 26, the grey circle elsewhere. */
 export function IconButton({ icon, onPress, label, tone = 'grey', size = 44, haptic = 'tap', disabled, style }: {
   icon: IconKey; onPress: () => void; label: string; tone?: 'grey' | 'ink' | 'accent' | 'bare' | 'glass'; size?: number; haptic?: Cue; disabled?: boolean; style?: StyleProp<ViewStyle>;
 }) {

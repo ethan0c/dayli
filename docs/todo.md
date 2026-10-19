@@ -48,6 +48,7 @@ October 19, 2026. The mobile UI pass against the design canvas (https://claude.a
 ## Outstanding
 
 **Needs the backend**
+- Schedule sharing direction: a named, private read-only link that friends or parents can open in a browser without installing Semli. Show a useful message preview (owner and date range); allow hiding titles or sharing school/work only, and let the owner revoke access. A live view should show when it last updated. Image/PDF export can be a fallback; links are not implemented yet.
 - Streaming "Found so far" while reading (Capture board).
 - Keeping the real screenshot for the import screen (it shows the sample image).
 - Canvas sync, iCloud backup, the share extension.

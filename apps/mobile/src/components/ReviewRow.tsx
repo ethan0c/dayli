@@ -3,7 +3,6 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CategoryDot } from '@/components/Controls';
-import { Icon } from '@/components/Icon';
 import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';

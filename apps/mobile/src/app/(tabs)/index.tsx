@@ -8,7 +8,6 @@ import { GroupLabel, IconButton, ListRow, SectionTitle, TextButton } from '@/com
 import { DayBar } from '@/components/DayBar';
 import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { HourView } from '@/components/HourView';
-import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { PhotoHeader } from '@/components/PhotoHeader';
 import { T } from '@/components/Text';
