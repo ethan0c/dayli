@@ -122,7 +122,7 @@ export default function OnboardingScreen() {
     <View style={[styles.root, { backgroundColor: bg, paddingTop: insets.top + 8, paddingBottom: Math.max(insets.bottom, 24) }]}>
       {step === "demo" ? <Backdrop source={PHOTOS.demo} height={560} fadeFrom={300} /> : null}
       {step === "heads-up" ? <Backdrop source={PHOTOS.headsup} full /> : null}
-      {step === "plus" ? <Backdrop source={PHOTOS.plus} height={460} fadeFrom={200} /> : null}
+      {step === "plus" ? <Backdrop source={PHOTOS.plus} height={460} fadeFrom={120} dim={0.3} /> : null}
       <View style={styles.header}>
         {history.length > 0 ? (
           <Animated.View entering={FadeIn.duration(160)} exiting={FadeOut.duration(120)}>
@@ -221,7 +221,7 @@ const FADE_STEPS = 28;
  * A full-bleed photo behind a showcase step, fading into the dark canvas the way the boards do.
  * The fade is stacked strips, so no native gradient module is needed.
  */
-function Backdrop({ source, height, fadeFrom = 0, full = false }: { source: number; height?: number; fadeFrom?: number; full?: boolean }) {
+function Backdrop({ source, height, fadeFrom = 0, full = false, dim = 0 }: { source: number; height?: number; fadeFrom?: number; full?: boolean; dim?: number }) {
   const { height: screen } = useWindowDimensions();
   const h = full ? screen : (height ?? screen);
   const dark = palettes.dark.canvas;
@@ -231,10 +231,11 @@ function Backdrop({ source, height, fadeFrom = 0, full = false }: { source: numb
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { height: h }]}>
       <Image source={source} resizeMode="cover" style={{ width: "100%", height: h }} />
       {full ? <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: screen * 0.3, backgroundColor: "rgba(21,21,21,0.15)" }} /> : null}
+      {dim > 0 ? <View style={[StyleSheet.absoluteFill, { backgroundColor: dark, opacity: dim }]} /> : null}
       <View style={{ position: "absolute", left: 0, right: 0, top: fadeTop, height: fadeH }}>
         {Array.from({ length: FADE_STEPS }, (_, i) => {
           const t = (i + 1) / FADE_STEPS;
-          const alpha = full ? 0.2 + 0.72 * t * t : t * t;
+          const alpha = full ? 0.2 + 0.72 * t * t : Math.pow(t, 1.4);
           return <View key={i} style={{ flex: 1, backgroundColor: dark, opacity: Math.min(1, alpha) }} />;
         })}
       </View>
@@ -642,7 +643,7 @@ const styles = StyleSheet.create({
   page: { flexGrow: 1, gap: 24 },
   titleBlock: { gap: 6 },
   /** Light 30/36, the question size on every onboarding board. */
-  h1: { fontFamily: "Geist-Light", fontSize: 30, lineHeight: 36, letterSpacing: -0.6 },
+  h1: { fontFamily: "Geist-Medium", fontSize: 30, lineHeight: 36, letterSpacing: -0.6 },
   footer: { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
   choice: { flexDirection: "row", alignItems: "center", gap: 14, borderBottomWidth: StyleSheet.hairlineWidth },
   input: { height: 52, borderRadius: 999, paddingHorizontal: 20 },

@@ -1,13 +1,19 @@
-import { AssetField, MediaSubtype, MediaType, Query, getPermissionsAsync, requestPermissionsAsync } from 'expo-media-library';
+import { AssetField, MediaSubtype, MediaType, Query, getPermissionsAsync } from 'expo-media-library';
 import { useEffect, useState } from 'react';
 import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
-import { GroupLabel, ListRow, TextButton } from '@/components/Controls';
-import { Icon } from '@/components/Icon';
+import { GroupLabel, TextButton } from '@/components/Controls';
 import { Press } from '@/components/Press';
 import { useTheme } from '@/theme';
 
-type Shot = { id: string; uri: string };
+type Shot = { id: string; uri: string; sample?: number };
+
+/** Stand-ins shown until the person grants photo access or has screenshots; tapping one opens the picker. */
+const SAMPLES: Shot[] = [
+  { id: 's1', uri: '', sample: require('../../assets/showcase/demo.jpg') },
+  { id: 's2', uri: '', sample: require('../../assets/showcase/headsup.jpg') },
+  { id: 's3', uri: '', sample: require('../../assets/showcase/plus.jpg') },
+];
 
 /** iOS reports limited access separately from `granted`. */
 const usable = (p: { granted: boolean; accessPrivileges?: 'all' | 'limited' | 'none' }) => p.granted || p.accessPrivileges === 'limited';
@@ -47,23 +53,7 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
 
   if (Platform.OS === 'web' || allowed === null) return null;
 
-  if (!allowed) {
-    return (
-      <ListRow
-        leading={<Icon name="image" size={20} color={c.inkPrimary} />}
-        title="Show recent screenshots"
-        sub="Pick a schedule in one tap. Nothing leaves your phone until you confirm."
-        last
-        onPress={() => void requestPermissionsAsync(false, ['photo']).then((p) => {
-          const ok = usable(p);
-          setAllowed(ok);
-          if (ok) void load();
-        })}
-      />
-    );
-  }
-
-  if (!shots || shots.length === 0) return null;
+  const list = allowed && shots && shots.length ? shots : SAMPLES;
 
   return (
     <View style={{ gap: 10 }}>
@@ -72,9 +62,9 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
         <TextButton label="All photos" tone="muted" onPress={() => onPick('')} />
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip} style={styles.stripWrap}>
-        {shots.map((s) => (
-          <Press key={s.id} accessibilityRole="button" accessibilityLabel="Use this screenshot" haptic="tap" disabled={disabled} onPress={() => onPick(s.uri)} scale={0.96} style={[styles.shot, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
-            <Image source={{ uri: s.uri }} style={styles.img} accessibilityIgnoresInvertColors />
+        {list.map((s) => (
+          <Press key={s.id} accessibilityRole="button" accessibilityLabel={s.sample ? 'Choose a screenshot' : 'Use this screenshot'} haptic="tap" disabled={disabled} onPress={() => onPick(s.uri)} scale={0.96} style={[styles.shot, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
+            <Image source={s.sample ?? { uri: s.uri }} style={styles.img} accessibilityIgnoresInvertColors />
           </Press>
         ))}
       </ScrollView>

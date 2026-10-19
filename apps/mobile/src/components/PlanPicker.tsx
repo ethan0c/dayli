@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
 
-import { ListRow, StatusPill, TextButton } from '@/components/Controls';
+import { StatusPill } from '@/components/Controls';
 import { NativeToggle } from '@/components/Native';
 import { Press } from '@/components/Press';
 import { Button } from '@/components/Sheet';
@@ -102,7 +102,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
       <View style={{ gap: 22 }}>
         <View style={{ gap: 2 }}>
           <T token="callout" color={c.inkSecondary}>Semli <T token="callout" color={c.accentInk}>Plus</T> · active</T>
-          <T token="displayXl">Unlimited</T>
+          <T token="displayXl" color={c.inkPrimary}>Unlimited</T>
           <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
             {entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}.` : 'Every syllabus, schedule and screenshot read for you.'}
           </T>
@@ -111,7 +111,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
           <Button label={busy ? 'Opening…' : 'Manage subscription'} variant="secondary" disabled={disabled} onPress={() => { setNotice(null); void manageSubscription().catch(() => {}); }} />
         ) : null}
         {notice || error ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{notice ?? error}</T> : null}
-        <Links onRestore={() => void restorePlan()} onLegal={legal} disabled={disabled} />
+        <Links onRestore={() => void restorePlan()} onLegal={legal} disabled={disabled} c={c} />
       </View>
     );
   }
@@ -126,7 +126,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
           <Skeleton width={180} height={48} round={12} />
         ) : (
           <View style={styles.priceRow}>
-            <T token="displayXl" tabular adjustsFontSizeToFit minimumFontScale={0.6} numberOfLines={1} style={{ flexShrink: 1 }}>{selected?.product.priceString ?? '—'}</T>
+            <T token="displayXl" color={c.inkPrimary} tabular adjustsFontSizeToFit minimumFontScale={0.6} numberOfLines={1} style={{ flexShrink: 1 }}>{selected?.product.priceString ?? '—'}</T>
             {current ? <T token="title" color={c.inkSecondary} style={{ paddingBottom: 6 }}>{current.period}</T> : null}
           </View>
         )}
@@ -147,19 +147,19 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
               <View style={[styles.radio, on ? { backgroundColor: c.inkPrimary } : { borderWidth: 1.5, borderColor: c.controlOutline }]}>
                 {on ? <View style={[styles.radioDot, { backgroundColor: c.onPrimary }]} /> : null}
               </View>
-              <T token="body" style={{ flex: 1 }}>{label}</T>
+              <T token="body" color={c.inkPrimary} style={{ flex: 1 }}>{label}</T>
               {saving >= 5 ? <StatusPill label={`Save ${saving}%`} tone="green" tabular={false} /> : null}
               <T token="callout" color={c.inkSecondary} tabular>{pack ? (months > 1 ? perMonth(pack, months) : `${pack.product.priceString} / mo`) : loading ? '…' : 'Unavailable'}</T>
             </Pressable>
           );
         })}
-        <ListRow
-          title="I'm a college student"
-          sub={`We don't check. ${current?.otherPack && student ? `Regular price is ${current.otherPack.product.priceString}.` : current?.otherPack && !student ? `Students pay ${current.otherPack.product.priceString}.` : 'Regular pricing is a little higher.'}`}
-          chevron={false}
-          last
-          trailing={<NativeToggle label="I'm a college student" value={student} onChange={(v) => { feedback('select'); setNotice(null); setSettings({ isStudent: v }); }} />}
-        />
+        <View style={styles.studentRow}>
+          <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+            <T token="body" color={c.inkPrimary}>{"I'm a college student"}</T>
+            <T token="caption" color={c.inkSecondary}>{`We don't check. ${current?.otherPack && student ? `Regular price is ${current.otherPack.product.priceString}.` : current?.otherPack && !student ? `Students pay ${current.otherPack.product.priceString}.` : 'Regular pricing is a little higher.'}`}</T>
+          </View>
+          <NativeToggle label="I'm a college student" value={student} onChange={(v) => { feedback('select'); setNotice(null); setSettings({ isStudent: v }); }} />
+        </View>
       </View>
 
       {days && selected && current ? (
@@ -171,7 +171,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
           ].map((r) => (
             <View key={r.when} style={styles.timelineRow}>
               <View style={[styles.timelineDot, { backgroundColor: r.color }]} />
-              <T token="subhead" style={{ width: 54 }}>{r.when}</T>
+              <T token="subhead" color={c.inkPrimary} style={{ width: 54 }}>{r.when}</T>
               <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>{r.what}</T>
             </View>
           ))}
@@ -192,18 +192,23 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
           {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.period.replace('/ ', 'per ')}. Auto-renews. Cancel any time.` : 'Prices are shown before you confirm.'}
         </T>
         {onContinueFree ? (
-          <TextButton tone="muted" onPress={onContinueFree} label={`Continue free${freeImportsLeft !== undefined ? ` · ${freeImportsLeft} ${freeImportsLeft === 1 ? 'import' : 'imports'} left this month` : ' · 3 imports a month'}`} />
+          <Pressable accessibilityRole="button" onPress={onContinueFree} style={styles.textBtn}>
+            <T token="subhead" color={c.inkSecondary}>{`Continue free${freeImportsLeft !== undefined ? ` · ${freeImportsLeft} ${freeImportsLeft === 1 ? 'import' : 'imports'} left this month` : ' · 3 imports a month'}`}</T>
+          </Pressable>
         ) : null}
-        {!unavailableReason && (error || !offering) ? <TextButton tone="muted" label="Refresh plans" onPress={() => { setNotice(null); void refresh(); }} /> : null}
-        <Links onRestore={() => void restorePlan()} onLegal={legal} disabled={disabled} />
+        {!unavailableReason && (error || !offering) ? (
+          <Pressable accessibilityRole="button" onPress={() => { setNotice(null); void refresh(); }} style={styles.textBtn}>
+            <T token="subhead" color={c.inkSecondary}>Refresh plans</T>
+          </Pressable>
+        ) : null}
+        <Links onRestore={() => void restorePlan()} onLegal={legal} disabled={disabled} c={c} />
         {usingTestStore && !unavailableReason ? <T token="caption" color={c.inkSecondary} style={styles.center}>Test purchases don’t charge you.</T> : null}
       </View>
     </View>
   );
 }
 
-function Links({ onRestore, onLegal, disabled }: { onRestore: () => void; onLegal: (url: string) => void; disabled: boolean }) {
-  const { c } = useTheme();
+function Links({ onRestore, onLegal, disabled, c }: { onRestore: () => void; onLegal: (url: string) => void; disabled: boolean; c: Palette }) {
   return (
     <View style={styles.links}>
       <Pressable accessibilityRole="button" disabled={disabled} onPress={onRestore} style={styles.link}><T token="caption" color={c.inkSecondary}>Restore</T></Pressable>
@@ -225,11 +230,13 @@ const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
   cta: { alignSelf: 'stretch', height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
+  studentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingVertical: 8 },
   radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   radioDot: { width: 7, height: 7, borderRadius: 4 },
   timelineRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   timelineDot: { width: 8, height: 8, borderRadius: 4 },
   center: { textAlign: 'center' },
+  textBtn: { minHeight: 44, justifyContent: 'center' },
   links: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   link: { minHeight: 36, paddingHorizontal: 12, justifyContent: 'center' },
 });
