@@ -26,7 +26,7 @@ export function ClockHeader({ time, date, onPressDate }: { time: string; date: s
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingTop: 4, paddingBottom: 12 },
-  date: { paddingTop: 6 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: 4, paddingBottom: 14 },
+  date: { paddingBottom: 6 },
   right: { textAlign: 'right' },
 });

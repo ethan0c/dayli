@@ -42,7 +42,7 @@ export default function PlanScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
-      <View style={[styles.head, { backgroundColor: c.header, paddingTop: insets.top + 4 }]}>
+      <View style={[styles.head, { backgroundColor: c.header, paddingTop: insets.top + 12 }]}>
         <ClockHeader time={now.time} date={selected} onPressDate={() => setSelected(now.date)} />
         <WeekStrip
           week={week}

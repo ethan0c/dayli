@@ -49,7 +49,7 @@ export function NativeToggle({ value, onChange }: ToggleProps) {
 /** A real SwiftUI button for secondary actions (delete, done). Primary CTAs stay brand-styled. */
 export function NativeButton({ label, onPress, role, color, systemImage }: NativeButtonProps) {
   return (
-    <Host style={{ height: 50 }} matchContents>
+    <Host style={{ height: 50, alignSelf: 'center' }} matchContents>
       <SwiftButton
         label={label}
         onPress={onPress}
