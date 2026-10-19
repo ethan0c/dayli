@@ -32,7 +32,7 @@ describe('friendly import failures', () => {
     expect(await requestExtraction('https://dayli.test', request)).toEqual({ ok: false, error: IMPORT_MESSAGES.unavailable });
   });
 
-  it('keeps a helpful error returned by Nowli', async () => {
+  it('keeps a helpful error returned by Semli', async () => {
     const body = { ok: false, error: IMPORT_MESSAGES.request };
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(body, { status: 400 })));
     expect(await requestExtraction('https://dayli.test', request)).toEqual(body);

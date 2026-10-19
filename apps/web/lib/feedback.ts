@@ -13,7 +13,7 @@ const CUES: Record<Cue, { vibrate: number | number[]; sound?: string }> = {
   error: { vibrate: [20, 60, 20], sound: 'error' },
 };
 
-const KEY = 'nowli:sounds';
+const KEY = 'semli:sounds';
 const listeners = new Set<() => void>();
 
 export function soundsOn(): boolean {

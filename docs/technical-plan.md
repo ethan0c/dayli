@@ -1,4 +1,4 @@
-# Nowli — Technical plan
+# Semli — Technical plan
 
 Status: draft · October 2026
 
@@ -9,11 +9,13 @@ Status: draft · October 2026
 | App | **Expo (React Native) + TypeScript**, iOS first | One codebase for iOS now and Android later; share extension, push, and on-device dictation all supported; fast iteration via EAS updates |
 | UI | Custom components on design tokens (no UI kit); Reanimated for motion; FlashList for lists | Reference UI is simple and custom; kits would fight it |
 | State / data | TanStack Query + local SQLite cache (expo-sqlite) | Offline-first reads; capture works offline and syncs later |
-| Backend | **Supabase**: Postgres, Auth (Apple/Google/email), Storage, Edge Functions, Row Level Security | Low ops, Postgres for relational calendar data, RLS for per-user isolation |
-| Jobs | Supabase queues (pgmq) or a small worker for extraction | Extraction is async; retries |
+| Backend | **None in the MVP.** Everything is on the phone (AsyncStorage); the only server is the Next.js API route. Accounts + sync are a phase-2 decision (Supabase, Convex, or plain Postgres; pick the smallest thing that gives auth + sync + per-user isolation) | No ops to run while we test whether people pay |
+| Jobs | None; extraction is a synchronous API call (< 15 s) | Keep it simple until volume says otherwise |
 | AI | **Claude API** (`claude-opus-5-5`) with structured outputs; vision for screenshots, native PDF input for syllabi | One model handles text, images and PDFs in the same schema |
 | SMS (stretch) | Twilio Messaging (A2P 10DLC registered) | Inbound webhook → same capture pipeline |
-| Push | Expo Notifications (APNs) | |
+| Reminders | expo-notifications, local only in the MVP (no push server) | Events, deadlines, daily briefing, quiet hours |
+| Purchases | RevenueCat + StoreKit (MVP); Stripe on web (phase 2) | The beta measures payment |
+| Analytics / errors | PostHog, Sentry | Funnel: import → review → paywall → trial → paid |
 | Calendar (V1.1) | Google Calendar API, iOS EventKit | |
 | Analytics / errors | PostHog (product), Sentry (errors) | |
 
@@ -142,8 +144,8 @@ weeks after the latest version's covers_to → render "pending" on Plan
 - Quiet hours respected; batching so a 15-item import doesn't produce 15 notifications.
 
 ## 8. SMS (stretch)
-- One Nowli number; users verify their phone in You → SMS.
-- Inbound text/MMS → source (kind = sms) → pipeline → reply: "Got 3 things: Fri shift 4–10, exam Mon, buy scrubs Wed. Confirm: nowli.app/r/abc" (deep link to review). Optional "YES" reply to confirm when all items are high-confidence.
+- One Semli number; users verify their phone in You → SMS.
+- Inbound text/MMS → source (kind = sms) → pipeline → reply: "Got 3 things: Fri shift 4–10, exam Mon, buy scrubs Wed. Confirm: semli.app/r/abc" (deep link to review). Optional "YES" reply to confirm when all items are high-confidence.
 - Requires A2P 10DLC brand + campaign registration (start week 1); STOP/HELP handling; rate limits per user.
 
 ## 9. Privacy & security
@@ -157,7 +159,7 @@ weeks after the latest version's covers_to → render "pending" on Plan
 ## 10. Repo layout (proposed)
 
 ```
-nowli/
+semli/
   apps/mobile/            Expo app (expo-router)
     app/(tabs)/today|plan|school
     components/           ClockHeader, WeekStrip, TaskRow, EventRow, NavPill, ...

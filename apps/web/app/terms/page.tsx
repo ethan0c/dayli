@@ -5,7 +5,7 @@ import { LEGAL_EFFECTIVE, LEGAL_UPDATED, SUPPORT_EMAIL, TRIAL_DAYS } from '@/lib
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'The terms that govern your use of the Nowli app and website.',
+  description: 'The terms that govern your use of the Semli app and website.',
   alternates: { canonical: '/terms' },
 };
 
@@ -14,7 +14,7 @@ export default function TermsPage() {
     <main className="page">
       <Prose
         title="Terms of Service"
-        lede="Plain terms for a planner. The short version: use Nowli for your own schedule, pay for Plus if you want it, and we'll do our best to read your dates right, with no promise of perfection."
+        lede="Plain terms for a planner. The short version: use Semli for your own schedule, pay for Plus if you want it, and we'll do our best to read your dates right, with no promise of perfection."
         meta={
           <>
             <span>Effective {LEGAL_EFFECTIVE}</span>
@@ -25,8 +25,8 @@ export default function TermsPage() {
         <section>
           <h2>1. Agreement</h2>
           <p>
-            These Terms of Service (&ldquo;Terms&rdquo;) are between you and Nowli (&ldquo;Nowli&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;). They cover the Nowli
-            iPhone app, the Nowli web app, this website, and the services behind them (together, the &ldquo;Service&rdquo;). By using the
+            These Terms of Service (&ldquo;Terms&rdquo;) are between you and Semli (&ldquo;Semli&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;). They cover the Semli
+            iPhone app, the Semli web app, this website, and the services behind them (together, the &ldquo;Service&rdquo;). By using the
             Service you agree to these Terms. If you don&apos;t agree, don&apos;t use the Service.
           </p>
           <p>
@@ -36,23 +36,23 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>2. What Nowli does</h2>
-          <p>Nowli is a daily planner. You can:</p>
+          <h2>2. What Semli does</h2>
+          <p>Semli is a daily planner. You can:</p>
           <ul>
             <li>Keep a calendar and a list of tasks, and see what matters today.</li>
-            <li>Send Nowli a message, a screenshot, or a document (such as a syllabus or a work schedule) and have it read the dates, times, and tasks out of it.</li>
+            <li>Send Semli a message, a screenshot, or a document (such as a syllabus or a work schedule) and have it read the dates, times, and tasks out of it.</li>
             <li>Review what it found, fix anything, and confirm it. Nothing is added until you confirm.</li>
             <li>Compare a new work schedule with the old one and see what changed.</li>
             <li>Get reminders for the things you&apos;ve added.</li>
           </ul>
           <p>
             Reading your documents is done by an AI model. It is good, not perfect. It can miss a date, misread a time, or get a day
-            wrong. The review step exists so you can catch that. You are responsible for checking what Nowli adds before you rely on it.
+            wrong. The review step exists so you can catch that. You are responsible for checking what Semli adds before you rely on it.
           </p>
         </section>
 
         <section>
-          <h2>3. Who can use Nowli</h2>
+          <h2>3. Who can use Semli</h2>
           <p>
             You must be at least 13 years old. If you are under 18, you need a parent or guardian&apos;s permission. You may use the
             Service only for your own schedule, or for someone who has asked you to manage theirs.
@@ -62,12 +62,12 @@ export default function TermsPage() {
         <section>
           <h2>4. Your content</h2>
           <p>
-            Everything you send to Nowli stays yours: your messages, screenshots, documents, and the calendar that comes out of them. You
+            Everything you send to Semli stays yours: your messages, screenshots, documents, and the calendar that comes out of them. You
             give us permission to process that content only as needed to run the Service for you, as described in our{' '}
             <Link href="/privacy">Privacy Policy</Link>.
           </p>
           <p>
-            Only send content you have the right to share. Don&apos;t upload other people&apos;s private information, and don&apos;t use Nowli
+            Only send content you have the right to share. Don&apos;t upload other people&apos;s private information, and don&apos;t use Semli
             to store anything unlawful.
           </p>
         </section>
@@ -75,14 +75,14 @@ export default function TermsPage() {
         <section>
           <h2>5. Accounts</h2>
           <p>
-            The current version of Nowli keeps your data on your device and does not require an account. When accounts and sync arrive,
+            The current version of Semli keeps your data on your device and does not require an account. When accounts and sync arrive,
             you will be responsible for keeping your sign-in private and for what happens under your account. Tell us at{' '}
             <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> if you think someone else is using it.
           </p>
         </section>
 
         <section>
-          <h2>6. Free plan and Nowli Plus</h2>
+          <h2>6. Free plan and Semli Plus</h2>
           <h3>6.1 Free</h3>
           <p>
             The free plan has no time limit and needs no payment details. It includes a limited number of AI imports per month. We may
@@ -90,7 +90,7 @@ export default function TermsPage() {
           </p>
           <h3>6.2 Plus</h3>
           <p>
-            Nowli Plus is a paid subscription. The current prices and plans (monthly, semester, yearly) are shown on our{' '}
+            Semli Plus is a paid subscription. The current prices and plans (monthly, semester, yearly) are shown on our{' '}
             <Link href="/pricing">pricing page</Link> and in the app. Prices are in US dollars and may differ by region.
           </p>
           <p>
@@ -131,7 +131,7 @@ export default function TermsPage() {
           <p>Don&apos;t:</p>
           <ul>
             <li>Break, overload, or probe the Service, or try to get around import limits.</li>
-            <li>Use automated tools to send content to Nowli in bulk, or resell access to the Service.</li>
+            <li>Use automated tools to send content to Semli in bulk, or resell access to the Service.</li>
             <li>Reverse engineer the app, except where the law allows it.</li>
             <li>Use the Service to harass anyone, or to process content you have no right to process.</li>
           </ul>
@@ -141,7 +141,7 @@ export default function TermsPage() {
         <section>
           <h2>8. Our rights</h2>
           <p>
-            The Nowli app, website, name, wordmark, and design are ours. These Terms give you a personal, non-transferable license to use
+            The Semli app, website, name, wordmark, and design are ours. These Terms give you a personal, non-transferable license to use
             the app on devices you own. Nothing here transfers any of our intellectual property to you.
           </p>
         </section>
@@ -149,7 +149,7 @@ export default function TermsPage() {
         <section>
           <h2>9. Third-party services</h2>
           <p>
-            Nowli uses third-party services to work, including an AI provider to read your content, hosting providers, Apple&apos;s App
+            Semli uses third-party services to work, including an AI provider to read your content, hosting providers, Apple&apos;s App
             Store, and a payment processor. Those services have their own terms. We are not responsible for them, and we don&apos;t control
             schools, employers, or scheduling systems whose documents you send us.
           </p>
@@ -166,7 +166,7 @@ export default function TermsPage() {
         <section>
           <h2>11. Limitation of liability</h2>
           <p>
-            Nowli is a planning tool, not a guarantee. To the fullest extent the law allows, we are not liable for a missed deadline, a
+            Semli is a planning tool, not a guarantee. To the fullest extent the law allows, we are not liable for a missed deadline, a
             missed shift, a missed exam, or any indirect, incidental, special, or consequential damages arising from the Service. Our total
             liability for any claim is limited to the amount you paid us in the 12 months before the claim, or $50 if you paid nothing.
           </p>
@@ -175,7 +175,7 @@ export default function TermsPage() {
         <section>
           <h2>12. Ending things</h2>
           <p>
-            You can stop using Nowli at any time. See <Link href="/delete-account">Delete your data</Link> for how to remove what&apos;s
+            You can stop using Semli at any time. See <Link href="/delete-account">Delete your data</Link> for how to remove what&apos;s
             stored. We may suspend or end your access if you break these Terms. Sections 4, 8, 10, 11, and 13 survive.
           </p>
         </section>
@@ -183,7 +183,7 @@ export default function TermsPage() {
         <section>
           <h2>13. Disputes</h2>
           <p>
-            These Terms are governed by the laws of the United States and the state where Nowli is based, without regard to conflict-of-law
+            These Terms are governed by the laws of the United States and the state where Semli is based, without regard to conflict-of-law
             rules. If something goes wrong, write to us first; most problems can be sorted out by email. Any claim that can&apos;t be resolved
             that way will be brought in the courts of that state.
           </p>

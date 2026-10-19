@@ -21,7 +21,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
       <Stack.Screen name="plan" options={{ title: 'Your plan' }} />
       <Stack.Screen name="data" options={{ title: 'Your data' }} />
-      <Stack.Screen name="server" options={{ title: 'Nowli server' }} />
+      <Stack.Screen name="server" options={{ title: 'Semli server' }} />
     </Stack>
   );
 }

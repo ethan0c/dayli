@@ -1,4 +1,4 @@
-# Nowli docs
+# Semli docs
 
 | Doc | What it covers |
 |---|---|
@@ -7,13 +7,18 @@
 | [design-system.md](design-system.md) | Visual language derived from the reference UI: tokens, type, components, motion, accessibility |
 | [brand-and-logo.md](brand-and-logo.md) | Brand platform, voice, logo concepts, the recommended mark, app icon, deliverables |
 | [technical-plan.md](technical-plan.md) | Stack, architecture, data model, AI capture pipeline, schedule diffing, integrations, privacy |
+| [mvp.md](mvp.md) | **The working checklist**: what must ship for the paid beta, in order, with exit criteria |
+| [phase-2.md](phase-2.md) | What comes after the beta pays: retention, monetization, acquisition, audience |
+| [strategy.md](strategy.md) | Reconciles the goal ($20K MRR) and the Structured study with our plan; App Store review mining of Structured, MyStudyLife, Tiimo; the purchase test |
 | [pricing-and-positioning.md](pricing-and-positioning.md) | Survey results (n=66), competitor prices, positioning as the daily planner for college students, price points, iOS + web only |
 
-## Open decisions (need an owner)
+## Decisions log
+- Platform: iOS + web (Expo app for both; Next.js site for landing, try-it, API, checkout). No Android. No backend until phase 2.
+- Typeface Onest. Icon: the two-dots mark. Wordmark for splash, site, social.
+- Pricing: Free (3 AI imports/mo, basics always free) · Plus $4.99/mo · $14.99/semester · $29.99/yr, student prices on the honor system; regular $7.99 / $24.99 / $49.99.
+- Name: Semli (decided).
+- SMS: cut from the MVP.
 
-1. **Platform** — decided: iOS + web, no Android. The Expo app runs on both; Next.js is only the landing page, try-it, API, and checkout. Backend/sync deferred until the beta shows it is needed; everything is on-device for now.
-2. **Logo** — decided: wordmark only, app icon is a `d.` crop of it. See brand-and-logo §3.
-3. **Typeface** — decided: Onest.
-4. **Name** — decided Oct 19, 2026: **Nowli** (was Dayli, which collided with Daylio and an existing "Dayli" photo journal). The App Store search API shows no app starting with "Nowli"; nowli.app looked unregistered. Still to do: USPTO search and registering the domain before any public brand spend. Store title: "Nowli: Student Daily Planner".
-5. **SMS in MVP** — keep (strong differentiator) or move to V1.1 (A2P 10DLC registration takes weeks and costs money). See product-plan §7.
-6. **Pricing** — proposed: Free (3 imports/mo) · Plus $4.99/mo · $14.99/semester · $29.99/yr, web checkout for the longer plans. See pricing-and-positioning §5.
+## Still open
+1. Trademark search and domain registration for Semli.
+2. Backend choice, deferred to phase 2.

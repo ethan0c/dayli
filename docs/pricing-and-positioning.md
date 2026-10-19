@@ -1,10 +1,10 @@
-# Nowli — Positioning, pricing, platforms
+# Semli — Positioning, pricing, platforms
 
 Status: decided Oct 19, 2026 · Sources: the Jan–Mar 2026 student survey (66 responses, `docs/Student Survey (Responses) - dayli.pdf`) and competitor pricing checked Oct 2026.
 
 ## 1. Positioning
 
-**Nowli is the daily planner for college students.** Drop in a syllabus, a work schedule, or a text, and Nowli tells you what matters today.
+**Semli is the daily planner for college students.** Drop in a syllabus, a work schedule, or a text, and Semli tells you what matters today.
 
 Why "daily planner" and not "life organizer" or "AI assistant":
 - Students already search for "planner". Nobody searches for "life organizer".
@@ -15,7 +15,7 @@ One-liner for the store: *The daily planner that reads your syllabus so you don'
 
 ## 2. What the survey says (n = 66)
 
-| Question | Result | What it means for Nowli |
+| Question | Result | What it means for Semli |
 |---|---|---|
 | Missed or almost missed an assignment because it got buried | **83%** yes (42% multiple times) | The core promise, "never miss one", is a felt problem |
 | What's harder | 42% both · 32% too many tasks at once · 26% not knowing what matters today | Today screen must rank, not list |
@@ -53,9 +53,9 @@ Takeaway: the student planner market has settled at **$30–40 per year**, with 
 ## 5. Pricing (recommended)
 
 ### Free
-Calendar, tasks, Today, reminders, manual add, **3 AI imports per month** (text, screenshot, or PDF). Enough to feel it work; not enough to run a semester.
+Calendar, tasks, Today, reminders, repeating classes, manual add, **3 AI imports per month** (text, screenshot, or PDF). Enough to feel it work; not enough to run a semester. Never meter the basics: Structured's single loudest complaint (Oct 2026 reviews) is recurring events locked behind Pro. Say "always free" in the listing.
 
-### Nowli Plus
+### Semli Plus
 | Plan | Student | Regular | Student effective | Why |
 |---|---|---|---|---|
 | Monthly | **$4.99** | $7.99 | $4.99/mo | Sits at the top of the "$1–5" band; under Structured and MyStudyLife monthly |

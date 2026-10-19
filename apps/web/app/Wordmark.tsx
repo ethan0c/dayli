@@ -1,6 +1,6 @@
 import { WORDMARK_RATIO, wordmark } from '@dayli/tokens';
 
-/** The nowli. wordmark from the Onest outlines; colors come from CSS so it follows the theme. */
+/** The semli. wordmark from the Onest outlines; colors come from CSS so it follows the theme. */
 export function Wordmark({ width = 120 }: { width?: number }) {
   const [x, y, w, h] = wordmark.viewBox;
   return (
@@ -9,7 +9,7 @@ export function Wordmark({ width = 120 }: { width?: number }) {
       height={width / WORDMARK_RATIO}
       viewBox={`${x} ${y} ${w} ${h}`}
       role="img"
-      aria-label="nowli"
+      aria-label="semli"
       style={{ display: 'block' }}>
       <path d={wordmark.letters} fill="currentColor" />
       {wordmark.dots.map((d, i) => (

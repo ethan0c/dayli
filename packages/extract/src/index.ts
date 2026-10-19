@@ -5,7 +5,7 @@ import { Extraction, type ExtractContext, type ExtractRequest } from '@dayli/sch
 export const MODEL = 'claude-opus-5-5';
 export const PROMPT_VERSION = '2026-10-19.2';
 
-const SYSTEM = `You read the things busy students and shift workers send to their planner app, Nowli, and turn them into calendar events and to-dos.
+const SYSTEM = `You read the things busy students and shift workers send to their planner app, Semli, and turn them into calendar events and to-dos.
 
 Inputs can be a typed or dictated message, a screenshot (work schedule apps, printed schedules, school portals, texts), or a PDF (syllabi, course schedules).
 

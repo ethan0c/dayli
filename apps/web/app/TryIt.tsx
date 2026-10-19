@@ -108,7 +108,7 @@ export function TryIt() {
       if (file.type === 'application/pdf') input = { kind: 'pdf', data };
       else if (ACCEPT.includes(file.type)) input = { kind: 'image', mediaType: file.type as 'image/png', data };
       else {
-        fail('Nowli reads PDFs and images (PNG, JPEG, WebP, GIF).');
+        fail('Semli reads PDFs and images (PNG, JPEG, WebP, GIF).');
         return;
       }
     } else if (text.trim()) {
@@ -141,7 +141,7 @@ export function TryIt() {
       feedback(drafts.length > 0 ? 'success' : 'ready');
       setResult({ extraction: parsed.data.extraction, drafts });
     } catch {
-      fail("Nowli couldn't read that right now. Try again.");
+      fail("Semli couldn't read that right now. Try again.");
     } finally {
       setBusy(false);
     }
@@ -176,7 +176,7 @@ export function TryIt() {
         onDrop={onDrop}
       >
         <h2>Try it with your own week</h2>
-        <p className="sub">Paste a message, or drop in a screenshot or syllabus. You&apos;ll see what Nowli would add.</p>
+        <p className="sub">Paste a message, or drop in a screenshot or syllabus. You&apos;ll see what Semli would add.</p>
         <textarea
           id="try-text"
           className={typing ? 'typing' : undefined}
@@ -250,7 +250,7 @@ export function TryIt() {
           </>
         ) : !result ? (
           <>
-            <div className="ov">What Nowli would add</div>
+            <div className="ov">What Semli would add</div>
             <p className="empty">Results show up here, one row per event or to-do, grouped by day.</p>
           </>
         ) : (

@@ -88,7 +88,7 @@ export default function SchoolScreen() {
               Drop in a syllabus
             </T>
             <T token="callout" color={c.inkSecondary} style={{ textAlign: 'center' }}>
-              Nowli finds your course, exams, and due dates. Review the details before adding them to your plan.
+              Semli finds your course, exams, and due dates. Review the details before adding them to your plan.
             </T>
             <Button label="Add a syllabus" onPress={() => router.push('/capture')} />
           </View>

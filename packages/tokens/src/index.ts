@@ -1,4 +1,4 @@
-// Nowli design tokens. Source of truth for the mobile app and the website.
+// Semli design tokens. Source of truth for the mobile app and the website.
 // See docs/design-system.md for usage rules.
 
 export const lavender = {

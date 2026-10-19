@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "Nowli",
-    "slug": "nowli",
+    "name": "Semli",
+    "slug": "semli",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "nowli",
+    "scheme": "semli",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "app.nowli.mobile",
+      "bundleIdentifier": "app.semli.mobile",
       "supportsTablet": false,
       "infoPlist": {
-        "NSCameraUsageDescription": "Nowli uses the camera to read printed schedules.",
-        "NSPhotoLibraryUsageDescription": "Nowli reads screenshots of schedules and syllabi you choose."
+        "NSCameraUsageDescription": "Semli uses the camera to read printed schedules.",
+        "NSPhotoLibraryUsageDescription": "Semli reads screenshots of schedules and syllabi you choose."
       }
     },
     "web": {
@@ -32,8 +32,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Nowli reads screenshots of schedules and syllabi you choose.",
-          "cameraPermission": "Nowli uses the camera to read printed schedules."
+          "photosPermission": "Semli reads screenshots of schedules and syllabi you choose.",
+          "cameraPermission": "Semli uses the camera to read printed schedules."
         }
       ],
       [

@@ -221,7 +221,7 @@ export const useStore = create<State>()(
       clearAll: () => set({ items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null }),
     }),
     {
-      name: 'nowli',
+      name: 'semli',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (s) => ({ items: s.items, courses: s.courses, schedules: s.schedules, batches: s.batches, settings: s.settings, usage: s.usage }),
       merge: (persisted, current) => {

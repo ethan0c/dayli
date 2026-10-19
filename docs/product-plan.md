@@ -1,10 +1,10 @@
-# Nowli — Product plan
+# Semli — Product plan
 
 Status: draft · October 2026 · Companion to [overview.md](overview.md)
 
 ## 1. North star
 
-> Nowli should never become another responsibility its users have to manage.
+> Semli should never become another responsibility its users have to manage.
 
 Every scope decision below is tested against one question: **does this reduce the effort it takes a user to get an accurate picture of their week?**
 
@@ -35,7 +35,7 @@ Secondary personas (post-MVP): shift workers without school, working parents, fr
 | Capture | Screenshot/photo-to-add | Work schedules, portal screenshots, flyers |
 | Capture | PDF/document-to-add | Syllabi, course schedules |
 | Capture | Voice-to-add | On-device speech-to-text → same text pipeline (cheap to add) |
-| Capture | Share sheet extension | "Share to Nowli" from Photos/Files/Safari — critical for low effort |
+| Capture | Share sheet extension | "Share to Semli" from Photos/Files/Safari — critical for low effort |
 | Organize | Today (dashboard) | Today's timeline, coming up, changes, suggestions |
 | Organize | Plan (day/week/month) | The reference screen: week strip + list of tasks & events |
 | Organize | School | Courses, each with meeting times, assignments, exams, source syllabus |
@@ -55,7 +55,7 @@ Study-session suggestions and auto-replanning, Google/Outlook two-way sync, Canv
 
 ## 4. Information architecture
 
-The reference design has a floating dark nav pill (Home · Plan · timer) plus a separate round action button. Nowli keeps that structure and maps the overview's four areas onto it:
+The reference design has a floating dark nav pill (Home · Plan · timer) plus a separate round action button. Semli keeps that structure and maps the overview's four areas onto it:
 
 ```
 ┌─ Floating nav pill ───────────────────────┐   ┌───┐
@@ -66,7 +66,7 @@ Profile ("You") = avatar in the Today header, not a tab.
 
 | Destination | Purpose | Primary content |
 |---|---|---|
-| **Today** | "What matters right now" | Greeting, today's timeline, Coming up, Changes to review, Nowli suggests |
+| **Today** | "What matters right now" | Greeting, today's timeline, Coming up, Changes to review, Semli suggests |
 | **Plan** | Browse and manage time | Week strip, day list (reference screen), toggle Day / Week / Month |
 | **School** | Semester structure | Courses → course detail (times, syllabus, assignments, exams) |
 | **Capture (+)** | Get things in | Opens capture sheet: text field, mic, camera, photo library, file |
@@ -111,7 +111,7 @@ Rules: nothing from AI is saved without user confirmation in MVP; relative dates
 
 ### 6.2 New work schedule (diffing)
 1. Import a screenshot of next week's schedule.
-2. Nowli detects it's a work schedule for employer "Olive Garden" covering Oct 27–Nov 2.
+2. Semli detects it's a work schedule for employer "Olive Garden" covering Oct 27–Nov 2.
 3. It compares against the stored version for overlapping dates and shows:
    - **New** Thu 4–10 PM
    - **Changed** Fri 4–10 → 5–11 PM
@@ -121,7 +121,7 @@ Rules: nothing from AI is saved without user confirmation in MVP; relative dates
 5. Weeks with no published schedule show a hatched **Pending** band on Plan — never "free".
 
 ### 6.3 Syllabus import
-1. Upload PDF → Nowli detects course code, title, instructor, meeting pattern, term dates.
+1. Upload PDF → Semli detects course code, title, instructor, meeting pattern, term dates.
 2. Proposes a **Course** + N assignments/exams; matches to an existing course if the code matches.
 3. Review grouped by month; confirm.
 
@@ -129,7 +129,11 @@ Rules: nothing from AI is saved without user confirmation in MVP; relative dates
 - **Conflict** = two fixed items overlap (e.g., shift vs. clinical). Shown as a coral badge on both items and a card on Today.
 - **Overload** = committed hours in the 72 h before an exam/deadline exceed a threshold (default: < 4 free waking hours). Card on Today: "Busy weekend before your Pharm exam. Want help planning study time?" In MVP this links to the day view; automated suggestions are V1.1.
 
-## 7. Milestones (12 weeks to private beta)
+## 7. Milestones
+
+Superseded by [mvp.md](mvp.md) (4 weeks to a paid beta) and [phase-2.md](phase-2.md). The original 12-week table is kept for reference.
+
+### Original 12-week table
 
 | Wk | Milestone | Exit criteria |
 |---|---|---|
@@ -139,10 +143,10 @@ Rules: nothing from AI is saved without user confirmation in MVP; relative dates
 | 6 | **Screenshot & PDF capture** | Share extension; image & PDF extraction; source retention |
 | 7 | **School** | Courses from syllabi; course detail; assignment list |
 | 8 | **Work schedules** | Employer, schedule versions, diff screen, pending weeks |
-| 9 | **Conflicts, reminders** | Conflict & overload detection; push reminders; quiet hours |
+| 9 | **Conflicts, reminders, purchases** | Conflict & overload detection; push reminders; quiet hours; **StoreKit via RevenueCat, 7-day trial with day-before reminder, paywall after first confirmed import** (so the beta measures payment, see strategy.md) |
 | 10 | **SMS (stretch) + voice** | SMS round-trip with confirm link; on-device dictation |
 | 11 | **Polish, privacy, onboarding** | Onboarding with first-import activation; data export/delete; accessibility pass |
-| 12 | **TestFlight beta** | 15–25 working students; weekly interviews |
+| 12 | **TestFlight beta** | 50 engaged working students; weekly interviews; exit: ≥10 subscribe within two weeks of trial end |
 
 ## 8. Success metrics
 
@@ -154,10 +158,12 @@ Rules: nothing from AI is saved without user confirmation in MVP; relative dates
 | Undo rate on imports | < 5% |
 | Imports per active user per week | ≥ 2 |
 | W4 retention (beta) | ≥ 40% |
-| "Would be very disappointed without Nowli" (Sean Ellis) | ≥ 40% |
+| "Would be very disappointed without Semli" (Sean Ellis) | ≥ 40% |
+| Beta trial → paid conversion (50 testers) | ≥ 20% (10+) |
+| Revenue goal (strategy.md) | $20K MRR ≈ 5–6k payers at our price mix |
 
 ## 9. Monetization checkpoints
-Free during beta. Track per-user AI and SMS cost from day one (cost per import, per SMS) so Nowli Plus limits are set from data. Candidate Plus line: higher import limits, SMS assistant, planning suggestions, calendar sync.
+Free during beta. Track per-user AI and SMS cost from day one (cost per import, per SMS) so Semli Plus limits are set from data. Candidate Plus line: higher import limits, SMS assistant, planning suggestions, calendar sync.
 
 ## 10. Risks & mitigations
 
@@ -165,7 +171,7 @@ Free during beta. Track per-user AI and SMS cost from day one (cost per import, 
 |---|---|
 | AI misreads a date → user misses a shift | Mandatory review step; highlight low-confidence fields; keep source one tap away; eval set gates every prompt change |
 | Duplicate events from repeated imports | Fingerprint matching + schedule versioning (technical-plan §5) |
-| "Nowli" vs. "daily" searchability | Always style as "Nowli" with distinctive wordmark; ASO keywords ("Nowli planner"); pursue clearance before spend |
+| "Semli" vs. "daily" searchability | Always style as "Semli" with distinctive wordmark; ASO keywords ("Semli planner"); pursue clearance before spend |
 | SMS registration delays / cost | Treat as stretch; in-app + share sheet cover the same job |
 | Users don't come back after setup | Daily briefing, schedule-change pings, weekly "next week" prompt on Sundays |
 | Privacy concerns (screenshots of personal info) | Clear data policy; delete-source option; no training on user data; encryption at rest |

@@ -9,8 +9,8 @@ export default function ServerScreen() {
   return (
     <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="automatic">
       <Group
-        title="Where Nowli reads your imports"
-        footer="For local development, this is the address where the Nowli web app is running. On a real phone, use your computer's network address, for example http://192.168.1.10:3000. The TestFlight build will set this for you.">
+        title="Where Semli reads your imports"
+        footer="For local development, this is the address where the Semli web app is running. On a real phone, use your computer's network address, for example http://192.168.1.10:3000. The TestFlight build will set this for you.">
         <FieldRow label="Address" value={apiUrl} onChange={(apiUrl) => setSettings({ apiUrl })} placeholder="http://localhost:3000" last />
       </Group>
     </ScrollView>

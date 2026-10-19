@@ -1,5 +1,5 @@
 {
-  "name": "nowli",
+  "name": "semli",
   "private": true,
   "workspaces": [
     "apps/*",

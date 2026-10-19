@@ -97,7 +97,7 @@ export default function Home() {
         <div>
           <h1>The daily planner for college students.</h1>
           <p>
-            Drop in a syllabus, a work schedule, or a quick message. Nowli reads the dates, spots what changed, and
+            Drop in a syllabus, a work schedule, or a quick message. Semli reads the dates, spots what changed, and
             helps you see what’s coming up today.
           </p>
           <div className="cta">
@@ -122,7 +122,7 @@ export default function Home() {
         </div>
         <div className="step">
           <h3>Check what it found</h3>
-          <p>Review the dates and times alongside the text they came from. Nowli asks you to check details that look unclear.</p>
+          <p>Review the dates and times alongside the text they came from. Semli asks you to check details that look unclear.</p>
         </div>
         <div className="step">
           <h3>See what changed</h3>

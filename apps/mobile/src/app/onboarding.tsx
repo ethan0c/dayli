@@ -200,7 +200,7 @@ function Welcome({ onNext }: { onNext: () => void }) {
             color={c.inkSecondary}
             style={{ textAlign: "center", maxWidth: 300 }}
           >
-            Drop in a syllabus, a work schedule, or a text. Nowli tells you what
+            Drop in a syllabus, a work schedule, or a text. Semli tells you what
             matters today.
           </T>
         </Animated.View>
@@ -235,7 +235,7 @@ function WeekStep({
     >
       <T token="display">First, the basics.</T>
       <T token="overline" color={c.inkSecondary} style={styles.ov}>
-        What should Nowli call you?
+        What should Semli call you?
       </T>
       <TextInput
         value={name}
@@ -281,7 +281,7 @@ function WeekStep({
       </View>
       {kinds.includes("chaos") ? (
         <T token="callout" color={c.accentInk}>
-          {"A busy week is a good place to start. Nowli can help you keep track."}
+          {"A busy week is a good place to start. Semli can help you keep track."}
         </T>
       ) : null}
       <View style={styles.footer}>
@@ -356,7 +356,7 @@ function DemoStep({ onNext }: { onNext: () => void }) {
     <View style={styles.page}>
       <T token="display">Just tell it.</T>
       <T token="callout" color={c.inkSecondary}>
-        Type what’s coming up, or send a screenshot. Nowli finds the dates for you.
+        Type what’s coming up, or send a screenshot. Semli finds the dates for you.
       </T>
       <View style={[styles.bubble, { backgroundColor: c.inkPrimary }]}>
         <T color={c.canvas}>{typed}</T>

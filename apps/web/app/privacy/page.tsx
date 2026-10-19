@@ -5,7 +5,7 @@ import { LEGAL_EFFECTIVE, LEGAL_UPDATED, SUPPORT_EMAIL } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'What Nowli collects, what it does with your schedules and syllabi, and what it never does.',
+  description: 'What Semli collects, what it does with your schedules and syllabi, and what it never does.',
   alternates: { canonical: '/privacy' },
 };
 
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
     <main className="page">
       <Prose
         title="Privacy Policy"
-        lede="Your schedule is personal. Nowli reads your documents to build your plan, keeps that plan on your device, and does not sell, share, or train on what you send."
+        lede="Your schedule is personal. Semli reads your documents to build your plan, keeps that plan on your device, and does not sell, share, or train on what you send."
         meta={
           <>
             <span>Effective {LEGAL_EFFECTIVE}</span>
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
         <section>
           <h2>1. Who we are</h2>
           <p>
-            Nowli (&ldquo;we&rdquo;, &ldquo;us&rdquo;) makes the Nowli iPhone app, the Nowli web app, and this website (together, the
+            Semli (&ldquo;we&rdquo;, &ldquo;us&rdquo;) makes the Semli iPhone app, the Semli web app, and this website (together, the
             &ldquo;Service&rdquo;). This policy explains what information the Service handles and why. If you have a question it doesn&apos;t
             answer, email <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
           </p>
@@ -35,13 +35,13 @@ export default function PrivacyPage() {
           <h2>2. What we handle</h2>
           <h3>2.1 Content you send to be read</h3>
           <p>
-            When you ask Nowli to read something, you send it one of: a typed message, a screenshot or photo, or a PDF. Nowli reads the
+            When you ask Semli to read something, you send it one of: a typed message, a screenshot or photo, or a PDF. Semli reads the
             dates, times, courses, employers, and tasks in it. Along with the content, the app sends today&apos;s date, your time zone, and
             the names of courses and employers you already have, so the result lines up with your existing plan.
           </p>
           <h3>2.2 Your plan</h3>
           <p>
-            The events, tasks, courses, and work schedules Nowli creates, plus your name if you enter one. In the current version this is
+            The events, tasks, courses, and work schedules Semli creates, plus your name if you enter one. In the current version this is
             stored on your device only. It is not sent to us.
           </p>
           <h3>2.3 Things we don&apos;t collect</h3>
@@ -53,7 +53,7 @@ export default function PrivacyPage() {
           </ul>
           <h3>2.4 Permissions on iPhone</h3>
           <p>
-            Nowli asks for the photo library only when you choose a screenshot, and for the camera only when you choose to photograph a
+            Semli asks for the photo library only when you choose a screenshot, and for the camera only when you choose to photograph a
             printed schedule. It reads the image you pick and nothing else.
           </p>
         </section>
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
         <section>
           <h2>3. How reading works, and who sees it</h2>
           <p>
-            To read your content, the app sends it to our server, which passes it to Anthropic&apos;s Claude API, the AI model Nowli uses.
+            To read your content, the app sends it to our server, which passes it to Anthropic&apos;s Claude API, the AI model Semli uses.
             The model returns a structured list of dates and items, and our server passes it back to you.
           </p>
           <ul>
@@ -93,7 +93,7 @@ export default function PrivacyPage() {
 
         <section>
           <h2>5. Who we share with</h2>
-          <p>Only the services needed to run Nowli:</p>
+          <p>Only the services needed to run Semli:</p>
           <ul>
             <li>
               <strong>Anthropic</strong> reads the content you send, as described in section 3.
@@ -128,7 +128,7 @@ export default function PrivacyPage() {
           <h2>7. Your choices</h2>
           <ul>
             <li>
-              <strong>Review before it&apos;s added.</strong> Nothing Nowli reads becomes part of your plan until you confirm it.
+              <strong>Review before it&apos;s added.</strong> Nothing Semli reads becomes part of your plan until you confirm it.
             </li>
             <li>
               <strong>Undo.</strong> Every import can be undone from the You screen.
@@ -147,8 +147,8 @@ export default function PrivacyPage() {
         <section>
           <h2>8. Children</h2>
           <p>
-            Nowli is for people 13 and older. We don&apos;t knowingly collect information from children under 13. If you think a child has
-            used Nowli, email us and we&apos;ll remove what we can.
+            Semli is for people 13 and older. We don&apos;t knowingly collect information from children under 13. If you think a child has
+            used Semli, email us and we&apos;ll remove what we can.
           </p>
         </section>
 

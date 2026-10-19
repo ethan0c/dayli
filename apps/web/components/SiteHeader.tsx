@@ -4,7 +4,7 @@ import { Wordmark } from '@/app/Wordmark';
 export function SiteHeader() {
   return (
     <header className="topbar">
-      <Link href="/" className="wm-link" aria-label="Nowli home">
+      <Link href="/" className="wm-link" aria-label="Semli home">
         <Wordmark width={104} />
       </Link>
       <nav className="nav" aria-label="Main">

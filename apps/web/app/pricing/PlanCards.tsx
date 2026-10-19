@@ -76,7 +76,7 @@ export function PlanCards() {
               <li key={f}>{f}</li>
             ))}
           </ul>
-          <span className="btn" aria-disabled="true" title="Nowli Plus will be available with the iPhone beta">
+          <span className="btn" aria-disabled="true" title="Semli Plus will be available with the iPhone beta">
             {TRIAL_DAYS}-day free trial, soon
           </span>
         </div>
