@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
+import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
 import { useTheme } from '@/theme';
 
@@ -16,7 +17,10 @@ export function CaptureFab({ offset }: { offset: number }) {
   const insets = useSafeAreaInsets();
   return (
     <Pressable
-      onPress={() => router.push('/capture')}
+      onPress={() => {
+        feedback('tap');
+        router.push('/capture');
+      }}
       accessibilityLabel="Add"
       style={({ pressed }) => [styles.fab, { bottom: insets.bottom + offset, backgroundColor: c.nav, opacity: pressed ? 0.85 : 1 }]}>
       <Icon name="plus" size={22} color="#FFFFFF" strokeWidth={2} />
@@ -42,7 +46,10 @@ export function Toast({ offset }: { offset: number }) {
         {toast.message}
       </T>
       {toast.batchId ? (
-        <Pressable onPress={() => undo(toast.batchId!)} hitSlop={8} style={styles.undo}>
+        <Pressable onPress={() => {
+            feedback('undo');
+            undo(toast.batchId!);
+          }} hitSlop={8} style={styles.undo}>
           <Icon name="undo" size={14} color="#FFFFFF" />
           <T token="subhead" color="#FFFFFF">
             Undo

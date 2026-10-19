@@ -44,6 +44,9 @@ interface Settings {
   planIntent: PlanId | null;
   weekKinds: string[];
   appearance: Appearance;
+  /** UI sounds; they also follow the ring/silent switch. */
+  sounds: boolean;
+  haptics: boolean;
 }
 
 /** AI imports used this calendar month (free tier allows a few). */
@@ -94,7 +97,7 @@ export const useStore = create<State>()(
       batches: [],
       pending: null,
       toast: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system' },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true },
       usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),

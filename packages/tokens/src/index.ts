@@ -43,7 +43,7 @@ const darkTint: Record<TintName, Tint> = {
   apricot: { fill: '#4A2C1C', ink: '#FFD9C2' },
   mint: { fill: '#1C3A2D', ink: '#CDEBDD' },
   sky: { fill: '#1B2E4A', ink: '#CFE3FF' },
-  butter: { fill: '#3D3512', ink: '#FBEFC4' },
+  butter: { fill: '#433714', ink: '#FFE9A8' },
   rose: { fill: '#45202E', ink: '#FFD6E2' },
 };
 

@@ -3,6 +3,7 @@ import { Pressable, StyleSheet } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { T } from '@/components/Text';
+import { feedback } from '@/lib/feedback';
 import { radius, useTheme } from '@/theme';
 
 type Props = Omit<TabTriggerSlotProps, 'ref'> & {
@@ -12,11 +13,15 @@ type Props = Omit<TabTriggerSlotProps, 'ref'> & {
 };
 
 /** One segment of the floating nav pill. Active: light pill with icon and label. Inactive: icon only. */
-export function NavButton({ icon, label, isFocused, ...props }: Props) {
+export function NavButton({ icon, label, isFocused, onPress, ...props }: Props) {
   const { c } = useTheme();
   return (
     <Pressable
       {...props}
+      onPress={(e) => {
+        if (!isFocused) feedback('select');
+        onPress?.(e);
+      }}
       accessibilityRole="tab"
       accessibilityState={{ selected: !!isFocused }}
       accessibilityLabel={label}

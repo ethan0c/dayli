@@ -1,4 +1,3 @@
-import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,6 +16,7 @@ import { PlanPicker } from "@/components/PlanPicker";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
 import { Wordmark } from "@/components/Wordmark";
+import { feedback } from "@/lib/feedback";
 import { FREE_IMPORTS_PER_MONTH, PLANS } from "@/lib/plans";
 import { useStore, type PlanId } from "@/store";
 import { radius, textStyle, useTheme } from "@/theme";
@@ -54,7 +54,7 @@ export default function OnboardingScreen() {
   const [plan, setPlan] = useState<PlanId | null>(settings.planIntent);
 
   const next = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    feedback("tap");
     setStep((s) => Math.min(s + 1, STEPS - 1));
   };
 
@@ -68,7 +68,7 @@ export default function OnboardingScreen() {
       seeded: true,
     });
     if (withSample) loadSample();
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    feedback("success");
     router.replace("/");
   };
 
@@ -102,7 +102,7 @@ export default function OnboardingScreen() {
           onName={setName}
           kinds={kinds}
           onToggle={(k) => {
-            Haptics.selectionAsync();
+            feedback("select");
             setKinds((ks) =>
               ks.includes(k) ? ks.filter((x) => x !== k) : [...ks, k],
             );
@@ -336,7 +336,7 @@ function DemoStep({ onNext }: { onNext: () => void }) {
           setTimeout(
             () => {
               setShown(idx + 1);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              feedback("select");
               Animated.spring(anims[idx]!, {
                 toValue: 1,
                 friction: 6,

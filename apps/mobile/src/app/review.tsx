@@ -1,5 +1,4 @@
 import { isLocalDate, localParts, monthDay, planCommit, toDrafts, weekdayLong, type Draft } from '@dayli/core';
-import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -8,6 +7,7 @@ import { Icon } from '@/components/Icon';
 import { DateField, NativeToggle, TimeField } from '@/components/Native';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
+import { feedback } from '@/lib/feedback';
 import { newId, useItemList, useStore } from '@/store';
 import { radius, textStyle, useTheme } from '@/theme';
 
@@ -78,7 +78,7 @@ export default function ReviewScreen() {
       source: pending.source,
       course: newCourse ? { id: courseId, ...newCourse, sourceId: null } : undefined,
     });
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    feedback('success');
     const parts = [
       plan.create.length ? `${plan.create.length} added` : null,
       plan.update.length ? `${plan.update.length} updated` : null,
@@ -192,7 +192,10 @@ function DraftCard({ draft: d, onEdit }: { draft: Draft; onEdit: (patch: Partial
           editable={on}
           style={[textStyle('body', d.kind === 'event' ? cat.ink : c.inkPrimary), { flex: 1, minWidth: 0, padding: 0 }]}
         />
-        <NativeToggle value={on} onChange={(include) => onEdit({ include })} />
+        <NativeToggle value={on} onChange={(include) => {
+            feedback('select');
+            onEdit({ include });
+          }} />
       </View>
       <View style={[styles.cardRow, { flexWrap: 'wrap' }]}>
         <DateField date={d.date} time={d.start} onChange={(date) => onEdit({ date: date || null })} disabled={!on} />

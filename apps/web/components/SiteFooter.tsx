@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { SUPPORT_EMAIL } from '@/lib/site';
 import { Wordmark } from '@/app/Wordmark';
+import { SoundToggle } from '@/components/SoundToggle';
 
 const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -52,6 +53,7 @@ export function SiteFooter() {
       <div className="foot-base">
         <span>© 2026 Dayli</span>
         <span>iPhone and web. No Android for now.</span>
+        <SoundToggle />
       </div>
     </footer>
   );

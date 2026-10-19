@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -6,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { Group, Row } from '@/components/Settings';
 import { T } from '@/components/Text';
+import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
 import { radius, useTheme } from '@/theme';
 
@@ -39,7 +39,7 @@ export default function DataScreen() {
                 </T>
               </View>
               {!b.undone && b.changes.length > 0 ? (
-                <Pressable onPress={() => undoBatch(b.id)} hitSlop={8} style={styles.undo}>
+                <Pressable onPress={() => { feedback('undo'); undoBatch(b.id); }} hitSlop={8} style={styles.undo}>
                   <Icon name="undo" size={14} color={c.accent} />
                   <T token="subhead" color={c.accent}>
                     Undo
@@ -52,8 +52,8 @@ export default function DataScreen() {
       </Group>
 
       <Group title="Try things" footer="The sample week is marked so you can clear it later without touching your own plans.">
-        <Row icon="sparkle" tint={c.tint.butter.fill} label="Load the sample week" onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); loadSample(); }} />
-        <Row icon="undo" tint={c.tint.sky.fill} label="Replay the intro" onPress={() => { setSettings({ onboarded: false }); router.dismissAll(); }} last />
+        <Row icon="sparkle" tint={c.tint.butter.fill} label="Load the sample week" onPress={() => { feedback('success'); loadSample(); }} />
+        <Row icon="undo" tint={c.tint.sky.fill} label="Replay the intro" onPress={() => { feedback('tap'); setSettings({ onboarded: false }); router.dismissAll(); }} last />
       </Group>
 
       <Group title="Danger zone" footer="Everything is stored on this phone. Clearing removes your events, to-dos, courses, schedules, and history. This cannot be undone.">
@@ -71,7 +71,7 @@ export default function DataScreen() {
               onPress={() => {
                 clearAll();
                 setConfirm(false);
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                feedback('warning');
               }}
               style={[styles.btn, { backgroundColor: c.conflict, borderColor: c.conflict }]}>
               <T token="subhead" color="#FFFFFF">
@@ -80,7 +80,7 @@ export default function DataScreen() {
             </Pressable>
           </View>
         ) : (
-          <Row icon="trash" tint={c.conflictBg} label="Clear everything" destructive onPress={() => setConfirm(true)} last />
+          <Row icon="trash" tint={c.conflictBg} label="Clear everything" destructive onPress={() => { feedback('tap'); setConfirm(true); }} last />
         )}
       </Group>
     </ScrollView>

@@ -1,6 +1,5 @@
 import { addDays, conflictIds, pendingDates, weekOf } from '@dayli/core';
 import { router } from 'expo-router';
-import * as Haptics from 'expo-haptics';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,6 +9,7 @@ import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { T } from '@/components/Text';
 import { WeekStrip } from '@/components/WeekStrip';
+import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
 import { useItemList, useStore } from '@/store';
 import { NAV_INSET, radius, useTheme } from '@/theme';
@@ -43,7 +43,10 @@ export default function PlanScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
       <View style={[styles.head, { backgroundColor: c.header, paddingTop: insets.top + 12 }]}>
-        <ClockHeader time={now.time} date={selected} onPressDate={() => setSelected(now.date)} />
+        <ClockHeader time={now.time} date={selected} onPressDate={() => {
+            if (selected !== now.date) feedback('select');
+            setSelected(now.date);
+          }} />
         <WeekStrip
           week={week}
           selected={selected}
@@ -70,7 +73,7 @@ export default function PlanScreen() {
             conflict={conflicts.has(it.id)}
             onPress={() => router.push(`/item/${it.id}`)}
             onToggle={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              feedback(it.done ? 'uncomplete' : 'complete');
               toggleDone(it.id);
             }}
           />

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
+import { NativeToggle } from '@/components/Native';
 import { T } from '@/components/Text';
 import { radius, textStyle, useTheme } from '@/theme';
 
@@ -69,6 +70,19 @@ export function Row({
       {selected ? <Icon name="tick" size={16} color={c.accent} strokeWidth={2.5} /> : null}
       {onPress && selected === undefined && !destructive ? <Icon name="chevronRight" size={16} color={c.inkTertiary} /> : null}
     </Pressable>
+  );
+}
+
+export function ToggleRow({ label, icon, tint, value, onChange, last }: { label: string; icon: IconKey; tint: string; value: boolean; onChange: (v: boolean) => void; last?: boolean }) {
+  const { c } = useTheme();
+  return (
+    <View style={[styles.row, !last ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line } : null]}>
+      <View style={[styles.iconWrap, { backgroundColor: tint }]}>
+        <Icon name={icon} size={16} color={c.inkPrimary} />
+      </View>
+      <T style={{ flex: 1 }}>{label}</T>
+      <NativeToggle value={value} onChange={onChange} />
+    </View>
   );
 }
 

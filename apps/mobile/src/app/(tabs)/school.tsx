@@ -8,6 +8,7 @@ import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { T } from '@/components/Text';
 import { Button } from '@/components/Sheet';
+import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
 import { courseTint, useItemList, useStore } from '@/store';
 import { NAV_INSET, radius, useTheme } from '@/theme';
@@ -43,7 +44,7 @@ export default function SchoolScreen() {
           const tint = c.tint[courseTint(courses, course.id) ?? 'lavender'];
           return (
             <View key={course.id} style={[styles.card, { backgroundColor: tint.fill }]}>
-              <Pressable onPress={() => setOpen(isOpen ? null : course.id)} style={styles.cardHead}>
+              <Pressable onPress={() => { feedback('tap'); setOpen(isOpen ? null : course.id); }} style={styles.cardHead}>
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                   {course.code ? (
                     <T token="overline" color={tint.ink}>

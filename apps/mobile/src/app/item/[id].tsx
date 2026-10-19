@@ -1,5 +1,4 @@
 import { formatRange, formatTime, monthDay, weekdayLong } from '@dayli/core';
-import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -8,6 +7,7 @@ import { Icon } from '@/components/Icon';
 import { NativeButton } from '@/components/Native';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
+import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
 import { radius, textStyle, useTheme } from '@/theme';
@@ -48,7 +48,7 @@ export default function ItemScreen() {
             <Button
               label={item.done ? 'Mark as unfinished' : 'Mark as done'}
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                feedback(item.done ? 'uncomplete' : 'complete');
                 toggleDone(item.id);
               }}
             />
@@ -59,6 +59,7 @@ export default function ItemScreen() {
             systemImage="trash"
             icon="trash"
             onPress={() => {
+              feedback('remove');
               removeItem(item.id);
               router.back();
             }}

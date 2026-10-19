@@ -30,7 +30,11 @@ Lowercase `dayli.` in Onest SemiBold, tracked −4.5%. Two lavender (500) circle
 - Custom pass before launch: shorten the y descender so it sits tight on the baseline, open the a slightly, and round terminals to match the icon stroke. These make the mark ownable against the word "daily".
 - Always lowercase, always with the period. In running text the product is "Dayli".
 
-### 3.2 App icon: the full wordmark
+### 3.2 App icon: the abstract mark (changed Oct 19, 2026)
+
+The app icon, favicon, and avatar use an abstract mark: the wordmark's two dots, enlarged. A large white circle low-left and a small lavender circle high-right on ink ("today, and what's next"). Chosen by the user over a ring, a list, and a day-cell concept. The wordmark stays for everything with room: splash, website header, social image, email. Source: `design/icon-b-dots.svg`; alternates in `design/`. Older text below describes the previous full-wordmark icon.
+
+### 3.2a Previous: the full wordmark
 | Variant | Background | Letter | Dot |
 |---|---|---|---|
 | **Primary (recommended)** | Ink `#1C1B21` (the nav pill color) | White | Lavender 400 `#A796F0` |

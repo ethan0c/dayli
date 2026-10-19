@@ -1,8 +1,8 @@
-import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { NativeToggle } from '@/components/Native';
 import { T } from '@/components/Text';
+import { feedback } from '@/lib/feedback';
 import { PLANS, money, perMonth } from '@/lib/plans';
 import type { PlanId } from '@/store';
 import { radius, useTheme } from '@/theme';
@@ -30,7 +30,7 @@ export function PlanPicker({ student, onStudent, plan, onPlan }: Props) {
         <NativeToggle
           value={student}
           onChange={(v) => {
-            Haptics.selectionAsync();
+            feedback('select');
             onStudent(v);
           }}
         />
@@ -45,7 +45,7 @@ export function PlanPicker({ student, onStudent, plan, onPlan }: Props) {
             <Pressable
               key={p.id}
               onPress={() => {
-                Haptics.selectionAsync();
+                feedback('select');
                 onPlan(on ? null : p.id);
               }}
               accessibilityRole="radio"

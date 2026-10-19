@@ -1,9 +1,10 @@
 import { Stack, router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { FieldRow, Group, Row } from '@/components/Settings';
+import { FieldRow, Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
+import { feedback } from '@/lib/feedback';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
 import { useStore } from '@/store';
 import { useTheme } from '@/theme';
@@ -36,8 +37,28 @@ export default function SettingsHome() {
           <FieldRow label="Name" value={settings.name} onChange={(name) => setSettings({ name })} placeholder="Your first name" last />
         </Group>
 
-        <Group title="Preferences">
+        <Group title="Preferences" footer="Sounds follow your ring/silent switch.">
           <Row icon="sparkle" tint={c.tint.lavender.fill} label="Appearance" value={APPEARANCE_LABEL[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
+          <ToggleRow
+            icon="volume"
+            tint={c.tint.mint.fill}
+            label="Sounds"
+            value={settings.sounds}
+            onChange={(sounds) => {
+              setSettings({ sounds });
+              feedback('select');
+            }}
+          />
+          <ToggleRow
+            icon="vibrate"
+            tint={c.tint.sky.fill}
+            label="Haptics"
+            value={settings.haptics}
+            onChange={(haptics) => {
+              setSettings({ haptics });
+              feedback('tap');
+            }}
+          />
           <Row
             icon="heart"
             tint={c.tint.rose.fill}

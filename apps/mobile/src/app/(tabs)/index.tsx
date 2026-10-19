@@ -1,7 +1,6 @@
 import { addDays, conflictIds, diffDays, findConflicts, findOverloads, formatTime, monthDay, pendingDates, relativeDay, weekdayLong } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
-import * as Haptics from 'expo-haptics';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { T } from '@/components/Text';
+import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
@@ -116,7 +116,7 @@ export default function TodayScreen() {
                   conflict={conflictSet.has(it.id)}
                   onPress={() => router.push(`/item/${it.id}`)}
                   onToggle={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    feedback(it.done ? 'uncomplete' : 'complete');
                     toggleDone(it.id);
                   }}
                 />

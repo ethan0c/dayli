@@ -1,7 +1,7 @@
-import * as Haptics from 'expo-haptics';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { Group, Row } from '@/components/Settings';
+import { feedback } from '@/lib/feedback';
 import { useStore, type Appearance } from '@/store';
 
 const OPTIONS: { id: Appearance; label: string }[] = [
@@ -22,7 +22,7 @@ export default function AppearanceScreen() {
             label={o.label}
             selected={appearance === o.id}
             onPress={() => {
-              Haptics.selectionAsync();
+              feedback('select');
               setSettings({ appearance: o.id });
             }}
             last={i === OPTIONS.length - 1}

@@ -530,6 +530,17 @@ textarea {
   border-top: 1px solid var(--line);
   padding-top: 16px;
 }
+.sound-toggle {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.sound-toggle:hover {
+  color: var(--ink);
+}
 
 /* Pricing teaser on the home page */
 .teaser {

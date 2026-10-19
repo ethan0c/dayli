@@ -35,6 +35,13 @@
           "photosPermission": "Dayli reads screenshots of schedules and syllabi you choose.",
           "cameraPermission": "Dayli uses the camera to read printed schedules."
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "enableBackgroundPlayback": false
+        }
       ]
     ],
     "experiments": {

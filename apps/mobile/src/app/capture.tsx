@@ -12,6 +12,7 @@ import { Reading } from '@/components/Reading';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { requestExtraction } from '@/lib/api';
+import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
 import { radius, textStyle, useTheme } from '@/theme';
 
@@ -23,7 +24,11 @@ export default function CaptureScreen() {
   const { c } = useTheme();
   const [text, setText] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setErrorText] = useState<string | null>(null);
+  const setError = (message: string | null) => {
+    if (message) feedback('error');
+    setErrorText(message);
+  };
   const settings = useStore((s) => s.settings);
   const courses = useStore((s) => s.courses);
   const schedules = useStore((s) => s.schedules);
@@ -51,6 +56,7 @@ export default function CaptureScreen() {
       setError(IMPORT_MESSAGES.empty);
       return;
     }
+    feedback('ready');
     recordImport();
     setPending({ extraction: res.extraction, source });
     router.replace('/review');
@@ -147,7 +153,10 @@ function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: stri
   const { c } = useTheme();
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        feedback('tap');
+        onPress();
+      }}
       disabled={disabled}
       style={({ pressed }) => [styles.action, { backgroundColor: c.row, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 }]}>
       <Icon name={icon} size={20} color={c.inkPrimary} />

@@ -3,6 +3,7 @@
 import { formatRange, formatTime, localParts, monthDay, toDrafts, weekdayLong, type Draft } from '@dayli/core';
 import { ExtractResponse, type Extraction, type ExtractRequest } from '@dayli/schema';
 import { useEffect, useRef, useState } from 'react';
+import { feedback } from '@/lib/feedback';
 
 const ICONS: Record<Draft['icon'], string> = {
   calendar: 'M3 4h18v18H3z M16 2v4M8 2v4M3 10h18',
@@ -54,6 +55,7 @@ export function TryIt() {
   useEffect(() => () => void (typer.current && clearInterval(typer.current)), []);
 
   function useExample() {
+    feedback('select');
     if (reducedMotion()) {
       setText(SAMPLE);
       return;
@@ -73,6 +75,7 @@ export function TryIt() {
   }
 
   function pick(f: globalThis.File | null) {
+    feedback(f ? 'select' : 'remove');
     setError(null);
     setFile(f);
   }
@@ -85,6 +88,11 @@ export function TryIt() {
     if (f) pick(f);
   }
 
+  function fail(message: string) {
+    feedback('error');
+    setError(message);
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -93,23 +101,24 @@ export function TryIt() {
     let input: ExtractRequest['input'];
     if (file) {
       if (file.size > 20 * 1024 * 1024) {
-        setError('That file is over 20 MB. Try a smaller one.');
+        fail('That file is over 20 MB. Try a smaller one.');
         return;
       }
       const data = await fileToBase64(file);
       if (file.type === 'application/pdf') input = { kind: 'pdf', data };
       else if (ACCEPT.includes(file.type)) input = { kind: 'image', mediaType: file.type as 'image/png', data };
       else {
-        setError('Dayli reads PDFs and images (PNG, JPEG, WebP, GIF).');
+        fail('Dayli reads PDFs and images (PNG, JPEG, WebP, GIF).');
         return;
       }
     } else if (text.trim()) {
       input = { kind: 'text', text: text.trim() };
     } else {
-      setError('Type something or pick a file first.');
+      fail('Type something or pick a file first.');
       return;
     }
 
+    feedback('tap');
     setPhase(0);
     setBusy(true);
     setResult(null);
@@ -125,12 +134,14 @@ export function TryIt() {
       const parsed = ExtractResponse.safeParse(await res.json());
       if (!parsed.success) throw new Error('bad response');
       if (!parsed.data.ok) {
-        setError(parsed.data.error);
+        fail(parsed.data.error);
         return;
       }
-      setResult({ extraction: parsed.data.extraction, drafts: toDrafts(parsed.data.extraction, today) });
+      const drafts = toDrafts(parsed.data.extraction, today);
+      feedback(drafts.length > 0 ? 'success' : 'ready');
+      setResult({ extraction: parsed.data.extraction, drafts });
     } catch {
-      setError("Dayli couldn't read that right now. Try again.");
+      fail("Dayli couldn't read that right now. Try again.");
     } finally {
       setBusy(false);
     }

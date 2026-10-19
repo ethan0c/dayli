@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
+import { feedback } from '@/lib/feedback';
 import { useTheme } from '@/theme';
 
 type Props = {
@@ -19,14 +20,14 @@ export function WeekStrip({ week, selected, today, marked, onSelect, onPrev, onN
   const { c } = useTheme();
   return (
     <View style={styles.wrap}>
-      <Pressable onPress={onPrev} hitSlop={10} style={styles.arrow} accessibilityLabel="Previous week">
+      <Pressable onPress={() => { feedback('select'); onPrev(); }} hitSlop={10} style={styles.arrow} accessibilityLabel="Previous week">
         <Icon name="chevronLeft" size={16} color={c.inkTertiary} />
       </Pressable>
       {week.map((date) => {
         const isSel = date === selected;
         const isToday = date === today;
         return (
-          <Pressable key={date} onPress={() => onSelect(date)} style={styles.day} accessibilityLabel={date}>
+          <Pressable key={date} onPress={() => { if (!isSel) feedback('select'); onSelect(date); }} style={styles.day} accessibilityLabel={date}>
             <View style={[styles.num, isSel ? { backgroundColor: c.surface } : null]}>
               <T token="headline" color={isToday ? c.accent : c.inkPrimary} style={{ fontWeight: '400' }} tabular>
                 {String(Number(date.slice(-2)))}
@@ -39,7 +40,7 @@ export function WeekStrip({ week, selected, today, marked, onSelect, onPrev, onN
           </Pressable>
         );
       })}
-      <Pressable onPress={onNext} hitSlop={10} style={styles.arrow} accessibilityLabel="Next week">
+      <Pressable onPress={() => { feedback('select'); onNext(); }} hitSlop={10} style={styles.arrow} accessibilityLabel="Next week">
         <Icon name="chevronRight" size={16} color={c.inkTertiary} />
       </Pressable>
     </View>

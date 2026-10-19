@@ -18,7 +18,9 @@ export type IconKey =
   | 'sparkle'
   | 'alert'
   | 'trash'
-  | 'clock';
+  | 'clock'
+  | 'volume'
+  | 'vibrate';
 
 type El = { d: string } | { rect: [number, number, number, number, number] } | { circle: [number, number, number] };
 
@@ -52,6 +54,8 @@ const GLYPHS: Record<IconKey, El[]> = {
   alert: [{ circle: [12, 12, 9] }, { d: 'M12 8v4M12 16h.01' }],
   trash: [{ d: 'M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6' }],
   clock: [{ circle: [12, 12, 9] }, { d: 'M12 7v5l3 2' }],
+  volume: [{ d: 'M11 5 6 9H3v6h3l5 4z' }, { d: 'M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14' }],
+  vibrate: [{ rect: [7, 3, 10, 18, 2] }, { d: 'M3 9v6M21 9v6' }],
 };
 
 export function Icon({

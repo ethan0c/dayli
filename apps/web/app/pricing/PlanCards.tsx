@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { feedback } from '@/lib/feedback';
 import { FREE_IMPORTS_PER_MONTH, PLUS_PLANS, TRIAL_DAYS, money, type PlanId } from '@/lib/site';
 
 const FREE = ['Calendar, tasks, and Today', 'Reminders on your phone', `${FREE_IMPORTS_PER_MONTH} AI imports a month: text, screenshot, or PDF`, 'Add events and to-dos by hand anytime'];
@@ -17,13 +18,19 @@ export function PlanCards() {
       <div className="seg" role="radiogroup" aria-label="Billing period" style={{ '--i': PLUS_PLANS.findIndex((x) => x.id === billing), '--n': PLUS_PLANS.length } as React.CSSProperties}>
         <span className="seg-pill" aria-hidden="true" />
         {PLUS_PLANS.map((b) => (
-          <button key={b.id} type="button" role="radio" aria-checked={billing === b.id} className={billing === b.id ? 'on' : undefined} onClick={() => setBilling(b.id)}>
+          <button key={b.id} type="button" role="radio" aria-checked={billing === b.id} className={billing === b.id ? 'on' : undefined} onClick={() => {
+            if (b.id !== billing) feedback('select');
+            setBilling(b.id);
+          }}>
             {b.name}
           </button>
         ))}
       </div>
       <label className="student">
-        <input type="checkbox" checked={student} onChange={(e) => setStudent(e.target.checked)} />
+        <input type="checkbox" checked={student} onChange={(e) => {
+          feedback('select');
+          setStudent(e.target.checked);
+        }} />
         <span className="sw" aria-hidden="true" />
         <span>
           I&apos;m a student

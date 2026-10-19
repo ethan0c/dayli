@@ -6,6 +6,7 @@ import { DynamicColorIOS, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Toast } from '@/components/Overlay';
+import { feedback } from '@/lib/feedback';
 import { useTheme } from '@/theme';
 
 const GLASS = Number(Platform.Version) >= 26;
@@ -36,7 +37,10 @@ export default function AppTabs() {
         <SwiftButton
           label="Add"
           systemImage="plus"
-          onPress={() => router.push('/capture')}
+          onPress={() => {
+            feedback('tap');
+            router.push('/capture');
+          }}
           modifiers={[
             buttonStyle(GLASS ? 'glassProminent' : 'borderedProminent'),
             buttonBorderShape('circle'),
