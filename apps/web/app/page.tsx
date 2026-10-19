@@ -38,10 +38,10 @@ export default function Home() {
 
       <section className="hero">
         <div>
-          <h1>Your life, already organized.</h1>
+          <h1>The daily planner for college students.</h1>
           <p>
-            Send Dayli your work schedule, a syllabus, or a quick message. It reads the dates, spots what changed, and
-            puts your week in one calm list. You never have to type it in.
+            Drop in a syllabus, a work schedule, or a quick message. Dayli reads the dates, spots what changed, and
+            tells you what matters today. You never have to type it in.
           </p>
           <div className="cta">
             <a className="btn" href="#try">

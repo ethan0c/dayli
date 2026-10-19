@@ -1,13 +1,13 @@
 # Dayli
 
-Your life, already organized. Send Dayli a work schedule, a syllabus, or a message; it reads the dates, shows what changed, and puts your week in one calm list.
+The daily planner for college students. Drop in a syllabus, a work schedule, or a message; Dayli reads the dates, shows what changed, and tells you what matters today.
 
 Planning docs live in [docs/](docs/README.md).
 
 ## What's here
 
 ```
-apps/mobile      Expo (React Native) iPhone app
+apps/mobile      Expo (React Native) app: iOS and web from one codebase
 apps/web         Next.js site: landing page, "try it" box, and the /api/extract route the app calls
 packages/tokens  Design tokens (colors, type scale, spacing)
 packages/schema  Zod schemas shared by app, web, and API
@@ -29,8 +29,8 @@ npm install
 cp apps/web/.env.example apps/web/.env.local   # add your ANTHROPIC_API_KEY
 npm run dev:web                                 # http://localhost:3000
 
-# 2. iPhone app (in another terminal)
-npm run dev:mobile                              # then press i for the iOS simulator
+# 2. The app (in another terminal)
+npm run dev:mobile                              # press i for the iOS simulator, w for the browser
 ```
 
 On a real phone, open **You** in the app and set the server address to your computer's LAN address (for example `http://192.168.1.10:3000`).

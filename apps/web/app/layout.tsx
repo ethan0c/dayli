@@ -6,7 +6,7 @@ const onest = Onest({ subsets: ['latin'], weight: ['400', '500', '600'], variabl
 
 export const metadata: Metadata = {
   title: 'Dayli',
-  description: 'Your life, already organized. Send Dayli a work schedule, a syllabus, or a message, and get back a plan.',
+  description: 'The daily planner for college students. Drop in a syllabus, a work schedule, or a message, and Dayli tells you what matters today.',
 };
 
 export const viewport: Viewport = {
