@@ -9,6 +9,7 @@ import { NativeToggle } from '@/components/Native';
 import { Button } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
+import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
 import { customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
@@ -64,7 +65,10 @@ export function PlanPicker({ hero = false, docked = false, freeImportsLeft }: { 
     try {
       const info = await purchase(selected);
       if (!info) return;
-      if (hasSemliPro(info)) feedback('success');
+      if (hasSemliPro(info)) {
+        feedback('success');
+        track('purchase_completed', { term: current?.key ?? 'unknown', student });
+      }
       else setNotice('Your purchase finished, but Plus is not active yet. Try Restore purchases or contact support.');
     } catch {
       // The provider exposes actionable failures in error.
@@ -75,6 +79,7 @@ export function PlanPicker({ hero = false, docked = false, freeImportsLeft }: { 
     setNotice(null);
     try {
       const info = await restore();
+      if (hasSemliPro(info)) track('purchase_restored', {});
       setNotice(hasSemliPro(info) ? 'Your Semli Plus purchase is restored.' : 'No Semli Plus purchases were found for this store account.');
     } catch {
       // The provider displays a friendly error.

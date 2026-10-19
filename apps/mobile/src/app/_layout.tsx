@@ -4,20 +4,28 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
+import * as Sentry from '@sentry/react-native';
+
+import { configureNotifications, useReminderSync } from '@/lib/notifications';
 
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { useTheme } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
+configureNotifications();
 
-export default function RootLayout() {
+const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
+Sentry.init({ dsn: SENTRY_DSN, enabled: !!SENTRY_DSN, tracesSampleRate: 0.2, sendDefaultPii: false });
+
+function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({ Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold });
   const hydrated = useStore((s) => s.hydrated);
   const onboarded = useStore((s) => s.settings.onboarded);
   const appearance = useStore((s) => s.settings.appearance);
   const { c, dark } = useTheme();
   const ready = (fontsLoaded || !!fontError) && hydrated;
+  useReminderSync();
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
@@ -52,3 +60,5 @@ export default function RootLayout() {
     </PurchasesProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);

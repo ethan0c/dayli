@@ -45,6 +45,7 @@ export default function SettingsHome() {
         </Group>
 
         <Group title="Preferences" footer="Sounds follow your ring/silent switch.">
+          <Row icon="bell" tint={c.tint.butter.fill} label="Reminders" value={settings.reminders.enabled ? (settings.reminders.briefing ? 'On, with briefing' : 'On') : 'Off'} onPress={() => router.push('/settings/reminders')} />
           <Row icon="sparkle" tint={c.tint.lavender.fill} label="Appearance" value={APPEARANCE_LABEL[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
           <ToggleRow
             icon="volume"

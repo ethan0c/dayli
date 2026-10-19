@@ -44,7 +44,7 @@
         }
       ],
       "expo-localization",
-      "@sentry/react-native"
+      "@sentry/react-native/expo"
     ],
     "experiments": {
       "typedRoutes": false

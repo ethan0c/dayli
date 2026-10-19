@@ -16,6 +16,7 @@ import { PlanPicker } from "@/components/PlanPicker";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
 import { Wordmark } from "@/components/Wordmark";
+import { track } from "@/lib/analytics";
 import { feedback } from "@/lib/feedback";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
 import { FREE_IMPORTS_PER_MONTH } from "@/lib/plans";
@@ -68,6 +69,7 @@ export default function OnboardingScreen() {
       onboarded: true,
       seeded: true,
     });
+    track("onboarding_completed", { role, major: student ? (major ?? "other") : null, sample: withSample });
     if (withSample) loadSample();
     feedback("success");
     router.replace("/");

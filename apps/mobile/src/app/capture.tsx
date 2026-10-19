@@ -11,6 +11,7 @@ import { Icon, type IconKey } from '@/components/Icon';
 import { Reading } from '@/components/Reading';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
+import { track } from '@/lib/analytics';
 import { requestExtraction } from '@/lib/api';
 import { feedback } from '@/lib/feedback';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
@@ -44,11 +45,13 @@ export default function CaptureScreen() {
   async function run(input: ExtractRequest['input'], source: string) {
     setError(null);
     setBusy(source);
+    track('import_started', { kind: input.kind });
     const usage = useStore.getState().usage;
     const month = new Date().toISOString().slice(0, 7);
     if (usage.month === month && usage.imports >= FREE_IMPORTS_PER_MONTH) {
       try {
         const info = await refreshCustomerInfo();
+        track('paywall_shown', { reason: 'quota' });
         if (!hasSemliPro(info) && !(await presentPaywall())) {
           setBusy(null);
           return;
@@ -71,6 +74,7 @@ export default function CaptureScreen() {
         },
       });
       if (!res.ok) {
+        track('import_failed', { kind: input.kind });
         setError(res.error);
         return;
       }
@@ -81,6 +85,7 @@ export default function CaptureScreen() {
       feedback('ready');
       useStore.getState().setCaptureDraft('');
       recordImport();
+      track('import_succeeded', { kind: input.kind, items: res.extraction.items.length, type: res.extraction.detected_type });
       setPending({ extraction: res.extraction, source });
       router.replace('/review');
     } catch {

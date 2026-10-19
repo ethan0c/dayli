@@ -8,6 +8,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_API_URL } from '@/lib/api';
 import { profileFor } from '@/lib/majors';
+import { DEFAULT_REMINDERS, type ReminderPrefs } from '@/lib/reminder-plan';
 import { SAMPLE_SOURCE, sampleWeek } from '@/store/sample';
 
 export interface Change {
@@ -51,6 +52,9 @@ interface Settings {
   haptics: boolean;
   /** Field of study when isStudent; drives the sample week and onboarding copy. */
   major: string | null;
+  reminders: ReminderPrefs;
+  /** The in-context permission ask after the first confirmed import happened. */
+  remindersAsked: boolean;
 }
 
 /** AI imports used this calendar month (free tier allows a few). */
@@ -115,7 +119,7 @@ export const useStore = create<State>()(
       suggestionDismissals: { date: '', ids: [] },
       captureDraft: '',
       selectedPlanDate: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true, major: null },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false },
       usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),

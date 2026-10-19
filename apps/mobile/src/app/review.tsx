@@ -8,6 +8,8 @@ import { DateField, NativeToggle, TimeField } from '@/components/Native';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
+import { track } from '@/lib/analytics';
+import { requestNotifications, syncReminders } from '@/lib/notifications';
 import { newId, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, radius, textStyle, useTheme } from '@/theme';
 
@@ -86,6 +88,12 @@ export default function ReviewScreen() {
       plan.skipped ? `${plan.skipped} already there` : null,
     ].filter(Boolean);
     showToast(parts.join(' · ') + '.', id);
+    track('review_committed', { created: plan.create.length, updated: plan.update.length, removed: plan.remove.length, type: ex.detected_type });
+    const { settings, setSettings } = useStore.getState();
+    if (!settings.remindersAsked) {
+      setSettings({ remindersAsked: true });
+      void requestNotifications().then((ok) => { if (ok) void syncReminders(); }).catch(() => {});
+    }
     setPending(null);
     router.dismissAll();
     router.replace('/plan');
