@@ -20,7 +20,7 @@ export const DESCRIPTION =
   'Drop in a syllabus, a work schedule, or a message, and Semli tells you what matters today.';
 
 /**
- * Semli Plus. Semester is 4 months. Student pricing is on the honor system:
+ * Semli Plus. Semester uses the store's six-month term. Student pricing is on the honor system:
  * nothing is verified; the toggle just says we trust you.
  */
 export type PlanId = 'monthly' | 'semester' | 'yearly';
@@ -35,7 +35,7 @@ export interface Plan {
 }
 export const PLUS_PLANS: readonly Plan[] = [
   { id: 'monthly', name: 'Monthly', months: 1, student: 4.99, regular: 7.99, billed: 'monthly' },
-  { id: 'semester', name: 'Semester', months: 4, student: 14.99, regular: 24.99, billed: 'every 4 months', tag: 'Most popular' },
+  { id: 'semester', name: 'Semester', months: 6, student: 14.99, regular: 24.99, billed: 'every 6 months', tag: 'Most popular' },
   { id: 'yearly', name: 'Yearly', months: 12, student: 29.99, regular: 49.99, billed: 'yearly', tag: 'Best value' },
 ];
 export const plan = (id: PlanId) => PLUS_PLANS.find((p) => p.id === id)!;

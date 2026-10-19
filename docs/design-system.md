@@ -100,6 +100,7 @@ One tap deletes, the toast carries Undo, and Your data keeps it undoable after. 
 - Moments: on days that matter, a photo becomes the header fading into the paper and the big number becomes the moment. No promo carousel, no counter, no X.
 - Add: composer, recent-screenshots strip, two "start with" rows. Reading: progress line and rows filling in with New pills.
 - Item detail: pushed; light title, large time pair, plain rows, Notes and Same week, primary pill, destructive text button.
+- Overlaps: agenda titles and status times use the conflict ink. The day bar marks the overlapping interval in red even in an item's highlighted view; hourly events use separate columns. Below the detail graph, a named warning links to each conflicting event. Fixed events point toward the flexible plan to review. Plus offers an explicit move button with a calendar-free time and a 15-minute buffer; nothing moves automatically. Overlap warnings, the flexibility switch, and manual edits stay free.
 - You: "You" as the main heading with "Profile and preferences" above it, then the plan/import pill. Name and field of study belong in the Profile rows. Hairline rows in groups, footer with mark, version, legal links.
 - Onboarding: eight steps; one-tap rows, pill chips, a composer for the own import; Watch it work, Heads-up and Plus are full-bleed photo pages in dark.
 

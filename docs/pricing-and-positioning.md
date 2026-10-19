@@ -59,14 +59,31 @@ Calendar, tasks, Today, reminders, repeating classes, manual add, **3 AI imports
 | Plan | Student | Regular | Student effective | Why |
 |---|---|---|---|---|
 | Monthly | **$4.99** | $7.99 | $4.99/mo | Sits at the top of the "$1–5" band; under Structured and MyStudyLife monthly |
-| **Semester** | **$14.99** / 4 months | $24.99 | $3.75/mo | Matches how students think about time and money; the plan to push in-app |
+| **Semester** | **$14.99** / 6 months | $24.99 | $2.50/mo | A semester plus the break; the plan to push in-app |
 | Yearly | **$29.99** | $49.99 | $2.50/mo | Matches Structured's anchor; the plan to push on web |
 
 **Store note (Oct 19, 2026):** Apple has no 4-month auto-renewing term, so the Semester plan is sold as a 6-month subscription at the same price (a semester plus the break; a year is exactly two). Product setup: [revenuecat-offerings-brief.md](revenuecat-offerings-brief.md).
 
 Student pricing is on the honor system. The toggle in onboarding says so plainly: we don't check IDs or .edu emails, we trust you, switch it off when you graduate. The regular price exists so the student price reads as a real discount (~40%) and so non-students (parents, grads, shift workers) have a way to pay.
 
-Plus includes: unlimited AI imports, syllabus import, work-schedule diffing, and (later) Canvas sync and planning suggestions.
+Plus includes unlimited AI imports, work-schedule update comparisons, and suggested times for overlapping plans. Syllabi count toward the three free monthly imports; Plus removes that limit. Canvas sync is still planned.
+
+### Access audit (Oct 19, 2026)
+
+| Feature | Access and enforcement |
+|---|---|
+| Calendar, Today, Plan, courses, to-dos, repeating events, reminders, manual edits, export and Undo | Free; no subscription check |
+| Text, screenshot, camera and PDF imports, including syllabi | Three successful reads per UTC month. Add and onboarding share `usePlusAccess`; imports beyond the allowance require the active RevenueCat `semli_pro` entitlement. Failed/empty reads do not count. Cancelling review still counts a successful read. |
+| Updating an existing work schedule | Review shows a preview; committing a comparison requires Plus. A first schedule or a new week without existing shifts uses the normal import allowance. Manual shift edits remain free. Cancelling the paywall preserves the pending review. |
+| Overlap detection and named warnings | Free on both events, including the detail graph and agenda. |
+| Suggested rescheduling | Plus; active entitlement checked again before applying. Fixed times stay fixed by default. A suggestion moves only the selected occurrence and is undoable. |
+| Canvas sync | Not implemented or advertised as available. |
+
+The subscription source of truth is RevenueCat's active entitlement, including an active store trial; saved trial dates and plan preferences grant no access. Store errors do not unlock paid actions. Existing entitlement tests cover inactive/wrong entitlements, cancellation, and restores.
+
+**Remaining launch gap:** the extraction endpoint has no authenticated subscriber identity or durable server quota. Monthly usage is stored on the phone and can reset with app data. The UI gates are implemented, but production API enforcement still needs authenticated requests, server-side RevenueCat verification, and a durable import ledger. The public website demo also calls this endpoint. Do not treat the client allowance as API abuse protection.
+
+Rescheduling currently uses local scheduling rules, not an LLM: same day, 8 am–10 pm, original duration, at least 15 minutes between bookings, no past/ongoing event moves. Unknown event times prevent a suggestion. Study and workout plans default flexible; work, classes, exams, appointments and unknown event types default fixed. The person can change an event's flexibility, but deadlines/exams remain protected. A calendar slot does not establish other attendees' availability.
 
 Rules:
 - First import is free and *before* sign-up. The paywall appears after the first confirmed import, when the value is visible.

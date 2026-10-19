@@ -15,8 +15,9 @@ const ROWS: { label: string; free: string | boolean; plus: string | boolean }[] 
   { label: 'AI imports from text, screenshots, and PDFs', free: `${FREE_IMPORTS_PER_MONTH} a month`, plus: 'Unlimited' },
   { label: 'Syllabus import', free: 'Counts as an import', plus: true },
   { label: 'See changes to your work schedule', free: false, plus: true },
+  { label: 'Overlap warnings and manual time edits', free: true, plus: true },
+  { label: 'Suggested times for overlapping plans', free: false, plus: true },
   { label: 'Canvas sync', free: false, plus: 'Coming soon' },
-  { label: 'Planning suggestions', free: false, plus: 'Coming soon' },
   { label: 'Export your data', free: true, plus: true },
 ];
 
@@ -35,7 +36,7 @@ const FAQS = [
   },
   {
     q: 'Why a semester plan?',
-    a: `It covers a full semester in one payment. ${money(plan('semester').student)} covers four months. If you'd rather not think about it, yearly is ${money(plan('yearly').student)}, which works out to ${money(plan('yearly').student / 12)} a month.`,
+    a: `It covers a semester and the break in one payment. ${money(plan('semester').student)} covers six months. Yearly is ${money(plan('yearly').student)}, which works out to ${money(plan('yearly').student / 12)} a month.`,
   },
   {
     q: 'Is there a trial?',
