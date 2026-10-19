@@ -1,4 +1,4 @@
-import { addDays, conflictIds, diffDays, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf } from '@dayli/core';
+import { addDays, conflictIds, diffDays, formatTime, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
