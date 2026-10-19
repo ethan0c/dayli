@@ -95,8 +95,9 @@ function RootLayout() {
           </Stack.Protected>
           <Stack.Protected guard={onboarded}>
             <Stack.Screen name="(tabs)" />
+            {/* Legacy capture links redirect to Add without presenting an empty modal. */}
+            <Stack.Screen name="capture" />
             {/* Flows slide up as full-screen covers with an X; detail screens push with a back chevron. */}
-            <Stack.Screen name="capture" options={{ presentation: 'fullScreenModal' }} />
             <Stack.Screen name="create" options={{ presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
             <Stack.Screen name="item/[id]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
             <Stack.Screen name="settings" />

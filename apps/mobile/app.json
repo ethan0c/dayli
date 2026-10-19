@@ -54,7 +54,8 @@
             "photo"
           ]
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": false
