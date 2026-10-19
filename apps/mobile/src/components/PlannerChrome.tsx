@@ -15,7 +15,8 @@ export function AccountButton() {
       accessibilityRole="button"
       accessibilityLabel="Your profile and settings"
       onPress={() => router.push('/settings')}
-      style={({ pressed }) => [styles.account, { backgroundColor: c.surface, borderColor: c.line, opacity: pressed ? 0.65 : 1 }]}>
+      hitSlop={6}
+      style={({ pressed }) => [styles.account, { backgroundColor: c.row, opacity: pressed ? 0.65 : 1 }]}>
       {name ? <T token="headline">{Array.from(name.trim())[0]}</T> : <Icon name="user" size={19} color={c.inkPrimary} />}
     </Pressable>
   );
@@ -99,7 +100,7 @@ export function ImportRow({ icon, title, detail }: { icon: IconKey; title: strin
 }
 
 const styles = StyleSheet.create({
-  account: { width: 44, height: 44, borderRadius: 22, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  account: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 4 },
   textAction: { minHeight: 44, flexDirection: 'row', gap: 3, alignItems: 'center', justifyContent: 'center' },
   capture: { borderWidth: 1, borderRadius: radius.card, padding: 22, gap: 18 },

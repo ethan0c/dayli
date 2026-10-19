@@ -1,3 +1,4 @@
+import { Stack } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { PlanPicker } from '@/components/PlanPicker';
@@ -17,9 +18,13 @@ export default function PlanScreen() {
   const left = Math.max(0, FREE_IMPORTS_PER_MONTH - used);
   const entitlement = customerInfo?.entitlements.active[PRO_ENTITLEMENT];
 
+  if (!isPro) return <>
+    <Stack.Screen options={{ headerShown: false }} />
+    <PlanPicker hero docked freeImportsLeft={left} />
+  </>;
+
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
-      {!isPro ? <PlanPicker hero /> : null}
       <View style={[styles.status, { backgroundColor: c.tint.mint.fill }]}>
         <T token="overline" color={c.tint.mint.ink}>
           {isPro ? 'Semli Pro' : !customerInfo && loading ? 'Checking your plan…' : !customerInfo ? 'Plan not checked' : 'Free plan'}

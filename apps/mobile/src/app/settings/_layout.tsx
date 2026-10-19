@@ -13,7 +13,8 @@ export default function SettingsLayout() {
         headerShadowVisible: false,
         headerStyle: { backgroundColor: c.canvas },
         headerTintColor: c.inkPrimary,
-        headerTitleStyle: { fontFamily: fontFamily.semibold, color: c.inkPrimary },
+        headerTitleStyle: { fontFamily: fontFamily.semibold, color: c.inkPrimary, fontSize: 17 },
+        headerTitleAlign: 'center',
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: c.canvas },
       }}>

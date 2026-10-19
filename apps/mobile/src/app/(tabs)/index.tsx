@@ -2,9 +2,9 @@ import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findCon
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { HomeCaptureCard } from '@/components/HomeCaptureCard';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
@@ -13,11 +13,10 @@ import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, NAV_INSET, dayTint, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
 
 export default function TodayScreen() {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
   const now = useNow();
   const items = useItemList();
   const name = useStore((s) => s.settings.name);
@@ -73,17 +72,13 @@ export default function TodayScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} keyboardShouldPersistTaps="handled">
-      <View style={[styles.head, { backgroundColor: dayTint(c, hour), paddingTop: Platform.OS === 'ios' ? 12 : insets.top + 8 }]}>
-        <View style={styles.headRow}>
-          <View style={{ flex: 1, gap: 6 }}>
-            <T token="caption" color={c.inkSecondary}>{weekdayLong(now.date)}, {monthDay(now.date)}</T>
-            <T token="display">{greeting}{name ? `,\n${name}.` : '.'}</T>
-          </View>
-          <Pressable onPress={() => router.push('/settings')} accessibilityRole="button" accessibilityLabel="You" style={[styles.avatar, { backgroundColor: c.surface }]}>
-            <Icon name="user" size={18} color={c.inkPrimary} />
-          </Pressable>
+      <ScreenHeader title="Today" subtitle={`${weekdayLong(now.date)}, ${monthDay(now.date)}`} />
+      <View style={styles.head}>
+        <T token="title">{greeting}{name ? `, ${name}.` : '.'}</T>
+        <View style={[styles.now, { backgroundColor: c.row }]}>
+          <View style={[styles.nowDot, { backgroundColor: c.accent }]} />
+          <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>{summary}</T>
         </View>
-        <T token="callout" color={c.inkSecondary} style={{ marginTop: 4 }}>{summary}</T>
       </View>
 
       {isSample ? (
@@ -226,7 +221,9 @@ function TextAction({ label, onPress, muted, accessibilityLabel }: { label: stri
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 18, gap: 6 },
+  head: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 10, paddingBottom: 4, gap: 14 },
+  now: { flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14, borderRadius: 14 },
+  nowDot: { width: 6, height: 6, borderRadius: 3 },
   headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   note: { marginHorizontal: SCREEN_GUTTER, marginTop: 12, padding: 12, borderRadius: radius.row, borderWidth: 1, flexDirection: 'row', gap: 10, alignItems: 'center' },

@@ -2,12 +2,12 @@ import { addDays, conflictIds, monthDay, pendingDates, weekdayLong, weekOf } fro
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ClockHeader } from '@/components/ClockHeader';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
-import { AccountButton, CaptureCard, ImportRow, SectionHeading } from '@/components/PlannerChrome';
+import { CaptureCard, ImportRow, SectionHeading } from '@/components/PlannerChrome';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { T } from '@/components/Text';
 import { WeekStrip } from '@/components/WeekStrip';
 import { feedback } from '@/lib/feedback';
@@ -17,7 +17,6 @@ import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
 
 export default function PlanScreen() {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
   const now = useNow();
   const items = useItemList();
   const schedules = useStore((s) => s.schedules);
@@ -52,11 +51,8 @@ export default function PlanScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
-      <View style={[styles.head, { backgroundColor: c.header, paddingTop: insets.top + 12 }]}>
-        <View style={styles.topRow}>
-          <T token="subhead" color={c.inkSecondary}>Your plan</T>
-          <AccountButton />
-        </View>
+      <ScreenHeader title="Plan" safeTop />
+      <View style={[styles.head, { backgroundColor: c.canvas }]}>
         <ClockHeader time={now.time} date={selected} onPressDate={() => {
             if (selected !== now.date) feedback('select');
             setSelected(now.date);
@@ -108,7 +104,7 @@ export default function PlanScreen() {
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 20, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
+  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 16 },
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   list: { padding: 24, paddingHorizontal: SCREEN_GUTTER, gap: 20 },
   dayHeading: { flexDirection: 'row', alignItems: 'center', gap: 12 },

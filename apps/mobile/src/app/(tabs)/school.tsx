@@ -2,11 +2,11 @@ import { diffDays, monthDay, relativeDay } from '@dayli/core';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
-import { AccountButton, CaptureCard, ImportRow, SectionHeading } from '@/components/PlannerChrome';
+import { CaptureCard, ImportRow, SectionHeading } from '@/components/PlannerChrome';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
@@ -15,7 +15,6 @@ import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
 
 export default function SchoolScreen() {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
   const now = useNow();
   const courses = useStore((s) => s.courses);
   const items = useItemList();
@@ -31,15 +30,8 @@ export default function SchoolScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }}>
-      <View style={[styles.head, { backgroundColor: c.header, paddingTop: insets.top + 12 }]}>
-        <View style={styles.topRow}>
-          <T token="subhead" color={c.inkSecondary}>Your semester</T>
-          <AccountButton />
-        </View>
-        <T token="display">School</T>
-        <T token="callout" color={c.inkSecondary}>
-          Classes, coursework, and what comes next.
-        </T>
+      <ScreenHeader title="School" subtitle="Your semester" />
+      <View style={styles.head}>
         {courses.length > 0 ? (
           <View style={[styles.summary, { borderColor: c.line }]}>
             <Icon name="school" size={18} color={c.accentInk} />
@@ -118,7 +110,7 @@ export default function SchoolScreen() {
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 24, gap: 8, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
+  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 8, gap: 8, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   summary: { flexDirection: 'row', alignItems: 'center', gap: 9, paddingTop: 16, marginTop: 12, borderTopWidth: StyleSheet.hairlineWidth, flexWrap: 'wrap' },
   summaryDot: { width: 3, height: 3, borderRadius: 2 },

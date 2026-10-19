@@ -3,9 +3,9 @@ import { IMPORT_MESSAGES, type ExtractRequest } from '@dayli/schema';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation, type NativeStackNavigationProp } from 'expo-router';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { Reading } from '@/components/Reading';
@@ -26,6 +26,7 @@ const MAX_BYTES = 20 * 1024 * 1024;
 export default function CaptureScreen() {
   const { c } = useTheme();
   const params = useLocalSearchParams<{ source?: string }>();
+  const navigation = useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { refreshCustomerInfo, presentPaywall } = usePurchases();
   const [text, setText] = useState(() => useStore.getState().captureDraft);
   const [busy, setBusy] = useState<string | null>(null);
@@ -141,14 +142,22 @@ export default function CaptureScreen() {
   // A photo/file button on Today should open its picker directly, once per request.
   const openedSource = useRef<string | null>(null);
   const openSource = useEffectEvent((source: string) => {
+    if (openedSource.current === source) return;
+    openedSource.current = source;
     if (source === 'image') void pickImage(false);
     if (source === 'file') void pickPdf();
   });
   useEffect(() => {
-    if (!params.source || openedSource.current === params.source) return;
-    openedSource.current = params.source;
-    openSource(params.source);
-  }, [params.source]);
+    if (!params.source) return;
+    if (Platform.OS === 'web') {
+      // Browser pickers require another explicit user gesture on the capture screen.
+      return;
+    }
+    // iOS cannot present its picker while the capture modal is still opening.
+    return navigation.addListener('transitionEnd', (event) => {
+      if (!event.data.closing && params.source) openSource(params.source);
+    });
+  }, [navigation, params.source]);
 
   return (
     <Sheet title="Tell Semli" subtitle="A message, a screenshot, or a syllabus. Nothing is saved until you confirm.">

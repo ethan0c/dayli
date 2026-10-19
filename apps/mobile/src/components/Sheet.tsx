@@ -28,20 +28,14 @@ export function Sheet({
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[styles.root, { backgroundColor: c.canvas, paddingTop: Platform.OS === 'ios' ? 8 : insets.top }]}>
-      <View style={[styles.grab, { backgroundColor: c.line }]} />
       <View style={styles.head}>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <T token="title">{title}</T>
-          {subtitle ? (
-            <T token="callout" color={c.inkSecondary}>
-              {subtitle}
-            </T>
-          ) : null}
-        </View>
-        <Pressable onPress={close} hitSlop={10} style={[styles.close, { backgroundColor: c.row }]} accessibilityLabel="Close">
-          <Icon name="x" size={16} color={c.inkPrimary} />
+        <View style={styles.close} />
+        <T token="headline" style={{ flex: 1, textAlign: 'center' }} accessibilityRole="header">{title}</T>
+        <Pressable onPress={close} style={styles.close} accessibilityRole="button" accessibilityLabel="Close">
+          <Icon name="x" size={21} color={c.inkSecondary} />
         </Pressable>
       </View>
+      {subtitle ? <T token="callout" color={c.inkSecondary} style={styles.subtitle}>{subtitle}</T> : null}
       <View style={styles.body}>{children}</View>
       {footer ? <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>{footer}</View> : null}
     </KeyboardAvoidingView>
@@ -79,9 +73,9 @@ export function Button({
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  grab: { width: 36, height: 4, borderRadius: 2, alignSelf: 'center', marginBottom: 12 },
-  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingHorizontal: SCREEN_GUTTER, paddingBottom: 12 },
-  close: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: SCREEN_GUTTER - 8, minHeight: 56, paddingBottom: 8 },
+  close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  subtitle: { textAlign: 'center', paddingHorizontal: SCREEN_GUTTER, paddingBottom: 20, fontSize: 14, lineHeight: 20 },
   body: { flex: 1 },
   footer: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, gap: 8 },
   btn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
