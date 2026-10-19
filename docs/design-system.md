@@ -44,7 +44,7 @@ Fonts load locally on iOS from the Geist release (OFL); the web uses the same fi
 Five roles, all fully round, press shrinks 3% and dims to 88% on `spring.snappy`, one haptic per role.
 1. Primary: ink fill, 52 high, one per screen. Haptic tap.
 2. Secondary: grey fill, same pill. Chips are the 40-high version; tiles (icon + label) the 64-high version. One component shared by capture and onboarding.
-3. Text: accent, underlined (offset 5, 1.5px); muted variant in grey without underline. Haptic select.
+3. Text: accent, underlined (offset 5, 1.5px); muted variant in the same accent without underline. Haptic select.
 4. Icon: 44 circle, grey or ink. The glass plus in the tab bar is the one 56 exception.
 5. Destructive: a text button in red, confirms inline. No filled capsule, no SwiftUI bordered button.
 
@@ -56,7 +56,7 @@ One outline set in content (`apps/mobile/src/components/Icon.tsx`): 24-unit grid
 Native chrome uses the matching SF Symbol: Today `house`, Plan `calendar` (was checkmark.square), School `graduationcap`, You `person`, add `plus`. Everything else is drawn by us.
 
 ## Chrome and inputs
-- Headers: system bar, our chevron and X at 1.75 stroke, Geist 16 Medium title, paper background, no shadow, hairline only when content scrolls under.
+- Headers: system bar, native SF Symbol chevron and X in glass on iOS 26 (our 1.75-stroke icons in grey circles elsewhere), Geist 16 Medium title, paper background, no shadow, hairline only when content scrolls under.
 - Fields: one line is a pill (52 high); rest grey with no border, focus white with a 1.5px ink ring. Never a blue ring.
 - Composer: white rectangle, radius 20, attachment icons inside, send as an ink circle. Replaces textarea plus tiles.
 - Date and time fields: grey pills (36 high) that open the native picker.
@@ -65,13 +65,32 @@ Native chrome uses the matching SF Symbol: Today `house`, Plan `calendar` (was c
 - Nothing from the system default palette: no blue tint, no green toggle, no bold chevron.
 
 ## Navigation
-- Liquid Glass tab bar with four tabs: Today, Plan, School, You. The plus is a glass button in the bottom accessory on iOS 26, floating above the bar on older iOS.
-- Detail screens push with the system header and back chevron (item detail, settings pages).
-- Flows slide up as full-screen covers with an X on the left (Add, Create, Review). No half sheets for primary flows.
+- Liquid Glass tab bar with five tabs: Today, Plan, School, You, and Add. Add carries the `search` role, so iOS 26 draws it as the detached circle beside the main pill (the pattern helthy uses for its fifth tab); older iOS shows it as a trailing tab. Every "add" entry point navigates to the Add tab, with `?source=image|file` to open a picker on arrival. There is no add menu.
+- Chrome buttons at the top of a screen (the Today list/graph toggle, close, back, the onboarding chevron) sit in a Liquid Glass circle on iOS 26 (`components/Glass.tsx`: `GlassCircle`, `GlassGroup` for several together), and in the grey circle elsewhere.
+- Detail screens push with one glass back chevron on the left (item detail, every settings page). Set this explicitly even for the first route in a nested stack: opening Appearance from the You tab does not give it a native back button automatically.
+- Create and Review slide up as full-screen covers with one glass X on the left. Add is a tab; `/capture` redirects there. No half sheets for primary flows.
+- `navigationButtonOptions` in `components/NavButtons.tsx` owns header controls: one native glass item on iOS 26, one circular fallback elsewhere, automatic back hidden to prevent duplicate controls. Configure it in the navigator before mounting; `Sheet` only updates it for a custom close action. Back returns through the parent stack when needed, or goes home when opened without history.
+
+Navigation audit:
+
+| Screens | Exit control |
+| --- | --- |
+| New to-do / New event, import review | Glass X; review retains its discard/cleanup action |
+| Item detail, item unavailable | Glass back chevron |
+| You via `/settings`, Name, Reminders, Appearance, Field of study, Semli Plus, Your data, Semli server | Glass back chevron, including direct entry from a tab |
+| Onboarding after the first step | Glass back chevron to the previous step |
+| Today, Plan, School, You, Add tabs; onboarding welcome | Root screens; tab navigation or forward action |
+
 - Loading is a progress line, never a spinner or a bouncing-dots box; results fill in as rows.
 
 ## Motion
 Tokens in `packages/tokens/src/motion.ts`, presets in `apps/mobile/src/lib/motion.ts`, rules in `docs/motion.md`. Two springs (snappy 22/380/0.9, gentle 26/190/1), three durations (120/220/360), one easing (0.2, 0, 0, 1), press 0.97/0.88, stagger 45ms. Lists animate layout; revealed content drops in; numbers roll; every wait has a skeleton; one haptic per meaning.
+
+## Charts
+One chart, the timeline, at three zooms. `DayBar` is the day as a horizontal bar (with `highlight` for the item screen). `HourView` is the same day opened by the hour, behind the top-right toggle on Today. `WeekChart` is seven vertical day bars, the Plan header and the schedule review. `TermLine` is a span with dots and rings, the four-week map on School and the syllabus review. Marks everywhere: ink booked, green done or new, red overlap or dropped, dashed outline where a shift was, ring exam, dot due date, hairline now, amber outline needs a time.
+
+## Deleting and editing
+One tap deletes, the toast carries Undo, and Your data keeps it undoable after. Rows swipe right to complete and left to delete (`SwipeRow`). A repeating item asks the scope inline under Delete: Just this one, This week, From now on. Review never blocks: untimed shifts go in with an amber "Add a time" pill, undated items are skipped by default ("Add 14 · skip 2"), a class with no end date asks "Until when?" with a 15-week default.
 
 ## Screens
 - Today: no header, no cards. Countdown to the next commitment as the big number, the day as a timeline bar (green done, ink booked, red overlaps, hairline now), then "On your list" and "Coming up" at 24 Regular with chevrons, rows with status pills.
@@ -81,7 +100,10 @@ Tokens in `packages/tokens/src/motion.ts`, presets in `apps/mobile/src/lib/motio
 - You: pushed from the You tab; name as the big element, field and role, trial pill, hairline rows in five groups, footer with mark, version, legal links.
 - Onboarding: eight steps; one-tap rows, pill chips, a composer for the own import; Watch it work, Heads-up and Plus are full-bleed photo pages in dark.
 
-## Applied in code (Oct 19, 2026)
+## Applied in code (Oct 19, 2026, second pass)
+Display and title tokens at Light and Regular; the Today list/graph toggle and `HourView`; Plan with `WeekChart` as the header; School with the four-week `TermLine` map and flat course rows; Review rewritten around the week chart and the term line, no toggles, never blocking; Create with the pill field, hairline rows, `Segmented` and course chips; the item screen with tappable time and date, plain rows, the series row, the day-around-it bar and the delete scope chooser; swipe actions on every `ItemRow`; Add as the fifth tab; glass chrome buttons; Appearance without card style; the add menu, starter cards, clock header, week strip and card surface removed. `seriesId` on items ties the occurrences of a repeating class together.
+
+## Applied in code (Oct 19, 2026, first pass)
 Geist fonts and tokens; the new type scale; pill buttons and the five roles (`components/Controls.tsx`); hairline rows with status pills (`ItemRow`); the Today countdown, day timeline (`DayBar`) and sections; the composer Add screen; the item detail; the You tab and settings home without tiles; the ink toggle; the progress-line loading state; the wordmark regenerated from Onest SemiBold (`packages/tokens/src/wordmark.ts`, `design/wordmark-*.svg`); the four new glyphs; the Plan tab symbol; the paywall as price-first rows with the trial timeline; the recent-screenshots strip on Add (`expo-media-library`, asks only on tap); Watch it work and Heads-up as dark showcase pages.
 
 ## Open items

@@ -1,13 +1,13 @@
 import { Stack } from 'expo-router';
 
-import { BackButton } from '@/components/NavButtons';
+import { navigationButtonOptions } from '@/components/NavButtons';
 
 import { mobileFonts, useTheme } from '@/theme';
 
 /** Deep links like /settings/data get the You screen underneath, so the back button always works. */
 export const unstable_settings = { anchor: 'index' };
 
-/** Settings is a native stack inside the modal: headers, back buttons, and transitions come from iOS. */
+/** Settings pushes from You. Every route needs Back, including the first nested route. */
 export default function SettingsLayout() {
   const { c } = useTheme();
   return (
@@ -20,9 +20,10 @@ export default function SettingsLayout() {
         headerTitleStyle: { fontFamily: mobileFonts.medium, color: c.inkPrimary, fontSize: 16 },
         headerTitleAlign: 'center',
         headerBackButtonDisplayMode: 'minimal',
+        ...navigationButtonOptions('back'),
         contentStyle: { backgroundColor: c.canvas },
       }}>
-      <Stack.Screen name="index" options={{ title: 'You', headerLeft: () => <BackButton /> }} />
+      <Stack.Screen name="index" options={{ title: 'You' }} />
       <Stack.Screen name="name" options={{ title: 'Name' }} />
       <Stack.Screen name="reminders" options={{ title: 'Reminders' }} />
       <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />

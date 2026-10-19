@@ -16,12 +16,12 @@ import { useTheme } from '@/theme';
  * See docs/design-system.md.
  */
 
-/** Text button: accent, underlined. `muted` for the quiet alternative, `danger` for destructive. */
+/** Text button: accent, underlined. `muted` is the quiet alternative (accent, no underline), `danger` for destructive. */
 export function TextButton({ label, onPress, tone = 'accent', haptic = 'select', accessibilityLabel, style }: {
   label: string; onPress: () => void; tone?: 'accent' | 'muted' | 'danger'; haptic?: Cue; accessibilityLabel?: string; style?: StyleProp<ViewStyle>;
 }) {
   const { c } = useTheme();
-  const color = tone === 'accent' ? c.accentInk : tone === 'danger' ? c.conflict : c.inkSecondary;
+  const color = tone === 'danger' ? c.conflict : c.accentInk;
   return (
     <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} haptic={haptic} onPress={onPress} scale={0.97} style={[styles.textBtn, style]}>
       <T token="subhead" color={color} style={tone === 'muted' ? undefined : styles.underline}>

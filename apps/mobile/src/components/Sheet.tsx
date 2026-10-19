@@ -1,9 +1,9 @@
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { CloseButton } from '@/components/NavButtons';
+import { navigationButtonOptions } from '@/components/NavButtons';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
@@ -13,7 +13,7 @@ const NAV_BAR = 44;
 
 /**
  * Chrome shared by full-screen covers and pushed detail screens. The title lives in the
- * native iOS header: covers get an X on the left, pushes get the system back chevron.
+ * native iOS header: covers get a glass X on the left, pushes get a glass back chevron.
  */
 export function Sheet({ title, subtitle, children, footer, onClose, nav = 'cover', headerRight }: {
   title: string; subtitle?: string; children: ReactNode; footer?: ReactNode; onClose?: () => void;
@@ -23,10 +23,14 @@ export function Sheet({ title, subtitle, children, footer, onClose, nav = 'cover
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  const close = onClose ?? (() => router.back());
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={insets.top + NAV_BAR} style={[styles.root, { backgroundColor: c.canvas }]}>
-      <Stack.Screen options={{ headerShown: true, title, headerLeft: nav === 'cover' ? () => <CloseButton onPress={close} /> : undefined, headerRight }} />
+      <Stack.Screen options={{
+        headerShown: true,
+        title,
+        ...navigationButtonOptions(nav === 'cover' ? 'close' : 'back', onClose),
+        headerRight,
+      }} />
       {subtitle ? <T token="callout" color={c.inkSecondary} style={styles.subtitle}>{subtitle}</T> : null}
       <View style={styles.body}>{children}</View>
       {footer ? <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>{footer}</View> : null}

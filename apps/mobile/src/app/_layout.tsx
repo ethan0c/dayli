@@ -13,6 +13,7 @@ import { sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
 
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
+import { navigationButtonOptions } from '@/components/NavButtons';
 import { useStore } from '@/store';
 import { mobileFonts, useTheme } from '@/theme';
 
@@ -76,7 +77,8 @@ function RootLayout() {
       <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
         <Stack
           screenOptions={{
-            // Screens opt in with <Stack.Screen options={{ headerShown: true }} /> (the Sheet does this).
+            // Sheet screens (review, create, item) declare headerShown below; a full-screen cover
+            // that turns its header on after mounting lays out without it and slides under the status bar.
             headerShown: false,
             headerStyle: { backgroundColor: c.canvas },
             headerShadowVisible: false,
@@ -87,7 +89,7 @@ function RootLayout() {
             contentStyle: { backgroundColor: c.canvas },
           }}>
           {/* Review is a full-screen cover: it can be reached from onboarding too, so it sits outside the guards. */}
-          <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+          <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false, headerShown: true, ...navigationButtonOptions('close') }} />
           <Stack.Protected guard={!onboarded}>
             <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
           </Stack.Protected>
@@ -95,8 +97,8 @@ function RootLayout() {
             <Stack.Screen name="(tabs)" />
             {/* Flows slide up as full-screen covers with an X; detail screens push with a back chevron. */}
             <Stack.Screen name="capture" options={{ presentation: 'fullScreenModal' }} />
-            <Stack.Screen name="create" options={{ presentation: 'fullScreenModal' }} />
-            <Stack.Screen name="item/[id]" />
+            <Stack.Screen name="create" options={{ presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
+            <Stack.Screen name="item/[id]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
             <Stack.Screen name="settings" />
           </Stack.Protected>
         </Stack>
