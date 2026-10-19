@@ -94,12 +94,14 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 - Keeping the real screenshot for the import screen (it shows the sample image).
 - Canvas sync, iCloud backup, the share extension.
 
-**Account and sharing frontend previews**
-- Built `/account`: guest welcome, email entry, six-digit code layout, signed-in account layout, and logout-of-preview. Entry from You → Account → Save your plan. All account state is local to this screen; no authentication, sessions, emails, uploads or billing changes occur.
-- You → Account → Account settings opens the account controls directly, without stepping through email/code. Log out resets only the preview; Delete account opens a preview confirmation with Cancel and Reset account preview. Neither removes local planner data or changes Plus access. Real logout/deletion still require the deferred authentication backend.
+**Auth frontend and sharing**
+- `/auth` is the new-install welcome using the original Onest wordmark and welcome copy, with Continue with Google, Sign up with email, Log in and Continue as a guest. Guest continues to the role question in `/onboarding`; existing onboarded planners still open their tabs normally. You → Log in or sign up opens the same flow.
+- Built `/auth/login`, `/auth/signup` and `/auth/forgot-password`: email/password fields, optional signup name, password visibility, autofill hints, field validation, keyboard Next/Go/Send, legal links and navigation between flows. Each pushed screen uses a glass back chevron; the auth cover opened from the app has a glass X.
+- Removed the account preview banners, fake verification code and simulated signed-in state. `/account` shows honest guest account settings with login/signup links, an inactive logout row and an account-deletion entry that requires login. No local planner data or purchase access changes through these screens.
+- Backend/auth/database setup remains deferred by request. `lib/auth.ts` is the unconfigured adapter boundary: all identity actions reject with a clear unavailable message. It never manufactures a session, sends a reset email, reports account deletion, stores passwords or emits credential analytics. Connect the chosen identity provider here before shipping functional auth.
+- [ ] Connect Google OAuth (provider client IDs, app redirect scheme, callback/cancellation handling), email signup/login, email verification, reset email + token/password-change screen, secure session storage/refresh, logout, authenticated account deletion and RevenueCat identity migration. Persist onboarding separately from auth so signing out never deletes the guest plan. Review platform sign-in requirements before release.
 - Built `/share-schedule`: day/week selection, category filters, title redaction, a message preview with Open preview, and a read-only schedule. Entry from the glass share button in Plan or You → Account → Share your schedule. Create share link remains unavailable until a backend exists; there are no public URLs yet.
-- Preview rendering uses an explicit field allowlist. Notes, source files, employer metadata, account data, private IDs and completed entries are excluded. The title switch substitutes Busy/To-do before the viewer receives data.
-- Backend/auth/database setup is intentionally skipped at the user's request. Accounts, cloud backup, permanent links, recipient access/revocation and cross-device sync remain future work. Existing guest data and RevenueCat access are untouched by the previews.
+- Sharing rendering uses an explicit field allowlist. Notes, source files, employer metadata, account data, private IDs and completed entries are excluded. The title switch substitutes Busy/To-do before the viewer receives data. Cloud backup, permanent links, recipient access/revocation and cross-device sync remain future work.
 
 **UI still to do**
 - Mic on the composer (speech).

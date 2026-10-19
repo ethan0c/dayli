@@ -40,9 +40,9 @@ export default function AuthWelcomeScreen() {
           {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert" style={styles.center}>{notice}</T> : null}
           <GoogleButton onPress={() => void google()} />
           <Button label="Sign up with email" onPress={() => router.push('/auth/signup')} />
-          <TextButton label="Already have an account? Log in" tone="muted" onPress={() => router.push('/auth/login')} />
+          <TextButton label="Already have an account? Log in" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} />
           <View style={[styles.guest, { borderTopColor: c.line }]}>
-            <TextButton label="Continue as a guest" tone="muted" onPress={() => { if (onboarded) router.dismissTo('/'); else router.replace('/onboarding?step=role'); }} />
+            <TextButton label="Continue as a guest" tone="muted" onPress={() => { if (onboarded) router.dismissTo('/'); else router.replace('/onboarding?step=role'); }} style={styles.textAction} />
             <T token="caption" color={c.inkSecondary} style={styles.center}>Start planning. An account is optional.</T>
           </View>
         </Animated.View>
@@ -57,5 +57,6 @@ const styles = StyleSheet.create({
   copy: { gap: 14, maxWidth: 330 },
   center: { textAlign: 'center' },
   actions: { gap: 14 },
+  textAction: { alignSelf: 'center', minHeight: 44 },
   guest: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 4, paddingTop: 12, gap: 4 },
 });

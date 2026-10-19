@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Image, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
@@ -121,6 +121,8 @@ export default function OnboardingScreen() {
   const bg = showcase ? palettes.dark.canvas : c.canvas;
   const barOn = showcase ? palettes.dark.inkPrimary : c.inkPrimary;
   const barOff = showcase ? "rgba(245,244,240,0.3)" : c.line;
+
+  if (params.step === "welcome") return <Redirect href="/auth" />;
 
   return (
     <View style={[styles.root, { backgroundColor: bg, paddingTop: insets.top + 8, paddingBottom: Math.max(insets.bottom, 24) }]}>
