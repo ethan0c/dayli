@@ -65,7 +65,7 @@ export default function SchoolScreen() {
   const big = !next ? 'Clear' : days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days} days`;
   const when = next ? [days < 7 ? weekdayShort(next.date) : monthDay(next.date), next.start ? formatTime(next.start, true) : null].filter(Boolean).join(' ') : '';
   const nextCourse = next ? courses.find((k) => k.id === next.courseId) : undefined;
-  const nextDueLabel = days > 1 ? 'Next due in' : 'Next due';
+  const nextDueLabel = days > 1 ? 'Next assignment due in' : 'Next assignment due';
 
   const keepUpToDate = (
     <View style={styles.section}>

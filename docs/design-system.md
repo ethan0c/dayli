@@ -57,7 +57,8 @@ Native chrome uses the matching SF Symbol: Today `house`, Plan `calendar` (was c
 
 ## Chrome and inputs
 - Copy uses sentence case for headings, controls, status labels, and standalone date labels: "Next due", "Today", "In 3 days", "Active". Keep units and words within a sentence lowercase ("2 courses", "4:00 pm", "Due today"); preserve names and imported titles.
-- Main tabs use `TabHeader`: the same 24 horizontal margin and safe-area top + 20, current date first, a short context label 2 below it, then the large value 6 below the label. Today’s countdown and School’s "Today" occupy the same position and use the same 56/60 type. Plan, You, and Add use the same structure. Details sit 12 below the large value, with 4 between related lines. School omits the term and course count; "Next due in" is used only before a duration. Empty and loading states preserve the header position, and moment photos appear below it. Section titles have 12 below them.
+- Main tabs use `TabHeader`: the same 24 horizontal margin and safe-area top + 20, current date first, a short context label 2 below it, then the large value 6 below the label. Today’s countdown and School’s "Today" occupy the same position and use the same 56/60 type. Plan, You, and Add use the same structure. Details sit 12 below the large value, with 4 between related lines. School omits the term and course count; use "Next assignment due" before Today or Tomorrow, and "Next assignment due in" before a duration. Empty and loading states preserve the header position, and moment photos appear below it. Section titles have 12 below them.
+- Plan replaces the date/context lines with a 44-high calendar control: selected month/year and date, plus glass previous/next week buttons. Tapping the month expands a Monday-first month grid below the large heading, with month browsing and a Today shortcut. A date selection updates the header, week chart, agenda, and saved Plan date together; it also closes the grid. Calendar controls remain available before the first import.
 - Headers: system bar, native SF Symbol chevron and X in glass on iOS 26 (our 1.75-stroke icons in grey circles elsewhere), Geist 16 Medium title, paper background, no shadow, hairline only when content scrolls under.
 - Fields: one line is a pill (52 high); rest grey with no border, focus white with a 1.5px ink ring. Never a blue ring.
 - Composer: white rectangle, radius 20, attachment icons inside, send as an ink circle. Replaces textarea plus tiles.
@@ -99,7 +100,7 @@ One tap deletes, the toast carries Undo, and Your data keeps it undoable after. 
 - Moments: on days that matter, a photo becomes the header fading into the paper and the big number becomes the moment. No promo carousel, no counter, no X.
 - Add: composer, recent-screenshots strip, two "start with" rows. Reading: progress line and rows filling in with New pills.
 - Item detail: pushed; light title, large time pair, plain rows, Notes and Same week, primary pill, destructive text button.
-- You: pushed from the You tab; name as the big element, field and role, trial pill, hairline rows in five groups, footer with mark, version, legal links.
+- You: "You" as the main heading with "Profile and preferences" above it, then the plan/import pill. Name and field of study belong in the Profile rows. Hairline rows in groups, footer with mark, version, legal links.
 - Onboarding: eight steps; one-tap rows, pill chips, a composer for the own import; Watch it work, Heads-up and Plus are full-bleed photo pages in dark.
 
 ## Applied in code (Oct 19, 2026, second pass)

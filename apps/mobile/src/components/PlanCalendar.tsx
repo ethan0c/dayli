@@ -38,6 +38,8 @@ export function PlanCalendarControl({ selected, expanded, onToggle, onPreviousWe
 export function PlanMonthCalendar({ selected, today, onSelect }: { selected: string; today: string; onSelect: (date: string) => void }) {
   const { c } = useTheme();
   const [month, setMonth] = useState(`${selected.slice(0, 7)}-01`);
+  const dates = calendarDays(month);
+  const weeks = Array.from({ length: 6 }, (_, row) => dates.slice(row * 7, row * 7 + 7));
   const pick = (date: string) => { feedback('select'); onSelect(date); };
   return (
     <View style={[styles.calendar, { borderColor: c.line }]}>
@@ -49,24 +51,28 @@ export function PlanMonthCalendar({ selected, today, onSelect }: { selected: str
       <View style={styles.weekdays} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((label, i) => <T key={i} token="caption" color={c.inkSecondary} style={styles.weekday}>{label}</T>)}
       </View>
-      <View style={styles.grid}>
-        {calendarDays(month).map((date) => {
-          const on = date === selected;
-          const isToday = date === today;
-          const inMonth = date.slice(0, 7) === month.slice(0, 7);
-          return (
-            <Pressable key={date} accessibilityRole="button" accessibilityState={{ selected: on }}
-              accessibilityLabel={`${weekdayLong(date)}, ${monthDay(date)}, ${date.slice(0, 4)}${isToday ? ', today' : ''}`}
-              onPress={() => pick(date)} style={({ pressed }) => [styles.day, { opacity: pressed ? 0.6 : 1 }]}>
-              <View style={[styles.dayCircle, {
-                backgroundColor: on ? c.inkPrimary : 'transparent',
-                borderColor: isToday && !on ? c.accent : 'transparent',
-              }]}>
-                <T token="subhead" tabular color={on ? c.onPrimary : inMonth ? c.inkPrimary : c.inkSecondary}>{Number(date.slice(8))}</T>
-              </View>
-            </Pressable>
-          );
-        })}
+      <View>
+        {weeks.map((week) => (
+          <View key={week[0]} style={styles.week}>
+            {week.map((date) => {
+              const on = date === selected;
+              const isToday = date === today;
+              const inMonth = date.slice(0, 7) === month.slice(0, 7);
+              return (
+                <Pressable key={date} accessibilityRole="button" accessibilityState={{ selected: on }}
+                  accessibilityLabel={`${weekdayLong(date)}, ${monthDay(date)}, ${date.slice(0, 4)}${isToday ? ', today' : ''}`}
+                  onPress={() => pick(date)} style={({ pressed }) => [styles.day, { opacity: pressed ? 0.6 : 1 }]}>
+                  <View style={[styles.dayCircle, {
+                    backgroundColor: on ? c.inkPrimary : 'transparent',
+                    borderColor: isToday && !on ? c.accent : 'transparent',
+                  }]}>
+                    <T token="subhead" tabular color={on ? c.onPrimary : inMonth ? c.inkPrimary : c.inkSecondary}>{Number(date.slice(8))}</T>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
+        ))}
       </View>
       <View style={styles.today}><TextButton label="Today" onPress={() => onSelect(today)} /></View>
     </View>
@@ -82,8 +88,8 @@ const styles = StyleSheet.create({
   monthTitle: { flex: 1, textAlign: 'center' },
   weekdays: { flexDirection: 'row', paddingTop: 4 },
   weekday: { flex: 1, textAlign: 'center' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  day: { width: '14.285714%', minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  week: { flexDirection: 'row' },
+  day: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   dayCircle: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   today: { alignItems: 'center' },
 });

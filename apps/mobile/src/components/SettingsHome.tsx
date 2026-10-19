@@ -20,7 +20,7 @@ import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
 
 const APPEARANCE_LABEL = { system: 'Match iPhone', light: 'Light', dark: 'Dark' } as const;
 
-/** "You": the person's name as the one big element, then hairline rows in groups. Lives in the You tab and at /settings. */
+/** Profile and preferences, shared by the You tab and /settings. */
 export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const { c } = useTheme();
   const now = useNow();
@@ -43,11 +43,10 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
       ? { label: `Plus · Trial, ${trialEnds} ${trialEnds === 1 ? 'day' : 'days'} left`, tone: 'green' as const }
       : { label: 'Plus', tone: 'green' as const }
     : { label: `Free · ${used} of ${FREE_IMPORTS_PER_MONTH} imports`, tone: 'grey' as const };
-  const who = [settings.isStudent ? profileFor(settings.major, true).label : 'Working', settings.isStudent ? 'Student' : null].filter(Boolean).join(' · ');
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: inTab ? NAV_INSET : 48 }} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior={inTab ? 'never' : 'automatic'}>
-      <TabHeader date={now.date} label={who} title={settings.name.trim() || 'You'} inset={inTab}
+      <TabHeader date={now.date} label="Profile and preferences" title="You" inset={inTab}
         details={<View style={{ alignSelf: 'flex-start' }}>{loading && !customerInfo ? <Skeleton width={132} height={28} round={14} /> : <StatusPill label={plan.label} tone={plan.tone} tabular={false} />}</View>} />
       <View style={styles.body}>
 

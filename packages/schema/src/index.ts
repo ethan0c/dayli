@@ -80,6 +80,8 @@ export const Item = z.object({
   batchId: z.string().nullable(),
   /** Shared by every occurrence expanded from one repeating item (a class that meets Mon/Wed). */
   seriesId: z.string().nullable().optional(),
+  /** An explicit choice overrides the conservative scheduling default. */
+  timeFlexibility: z.enum(['fixed', 'flexible']).optional(),
   notes: z.string().nullable(),
   createdAt: z.string(),
 });
