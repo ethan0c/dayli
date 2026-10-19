@@ -1,4 +1,4 @@
-import { WEEKDAYS, diffDays, isLocalDate, isLocalTime, monthDay, relativeDay, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort } from '@dayli/core';
+import { WEEKDAYS, conflictIds, diffDays, isFlexibleEvent, isLocalDate, isLocalTime, monthDay, relativeDay, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort } from '@dayli/core';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -7,7 +7,8 @@ import Animated from 'react-native-reanimated';
 import { GroupLabel, SectionTitle, StatusPill, TextButton, itemStatus } from '@/components/Controls';
 import { DayBar } from '@/components/DayBar';
 import { ItemRow } from '@/components/ItemRow';
-import { DateField, TimeField } from '@/components/Native';
+import { DateField, NativeToggle, TimeField } from '@/components/Native';
+import { OverlapNotice } from '@/components/OverlapNotice';
 import { Press } from '@/components/Press';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
@@ -98,7 +99,8 @@ export default function ItemScreen() {
   const source = item.sourceId === SAMPLE_SOURCE ? 'Sample data'
     : item.sourceId ? `From ${sourceName(item.sourceId)}, ${sourceDate}`
       : batch ? `${batch.label}, ${sourceDate}` : null;
-  const status = itemStatus(item, now.date);
+  const conflicts = conflictIds(items);
+  const status = itemStatus(item, now.date, conflicts.has(item.id));
   const until = gap(now, item.date, item.start);
   const eyebrow = [relativeDay(now.date, item.date), until].filter(Boolean).join(' · ');
   const sameWeek = items.filter((it) => it.id !== item.id && !it.done && it.date >= now.date && diffDays(now.date, it.date) <= 7
@@ -231,6 +233,11 @@ export default function ItemScreen() {
               <TextButton label="Done" tone="muted" onPress={() => setEditing(null)} />
             </Animated.View>
           ) : null}
+          {isEvent && !item.isDeadline && item.icon !== 'exam' ? (
+            <Row trailing={<NativeToggle label="Flexible time" value={isFlexibleEvent(item)} onChange={(value) => updateItem(item.id, { timeFlexibility: value ? 'flexible' : 'fixed' })} />}>
+              <T token="body" style={{ flex: 1 }}>Flexible time</T>
+            </Row>
+          ) : null}
           <Row onPress={reminders.enabled ? undefined : () => router.push('/settings/reminders')}>
             <T token="body" color={reminders.enabled ? c.inkPrimary : c.inkSecondary}>{reminderLine}</T>
           </Row>
@@ -239,9 +246,11 @@ export default function ItemScreen() {
         {showDay ? (
           <View style={styles.around}>
             <GroupLabel>{`${weekdayLong(item.date)} around it`}</GroupLabel>
-            <DayBar items={dayItems} now={{ date: item.date, time: now.time }} conflicts={new Set()} highlight={item.id} />
+            <DayBar items={dayItems} now={{ date: item.date, time: now.time }} conflicts={conflicts} highlight={item.id} />
           </View>
         ) : null}
+
+        <OverlapNotice key={item.id} item={item} items={items} />
 
         <View style={{ gap: 6 }}>
           <GroupLabel>Notes</GroupLabel>
