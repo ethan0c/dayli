@@ -23,7 +23,7 @@
   --conflict: #a2342f;
   --conflict-bg: #fbedeb;
   --chip: rgba(255, 255, 255, 0.72);
-  --font: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font: var(--font-geist), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
 }
 

@@ -17,7 +17,7 @@ export default function SettingsLayout() {
         headerShadowVisible: false,
         headerStyle: { backgroundColor: c.canvas },
         headerTintColor: c.inkPrimary,
-        headerTitleStyle: { fontFamily: mobileFonts.semibold, color: c.inkPrimary, fontSize: 17 },
+        headerTitleStyle: { fontFamily: mobileFonts.medium, color: c.inkPrimary, fontSize: 16 },
         headerTitleAlign: 'center',
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: c.canvas },

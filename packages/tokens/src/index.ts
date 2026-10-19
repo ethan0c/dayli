@@ -126,45 +126,33 @@ export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, x
 export const radius = { chip: 999, row: 14, card: 16, sheet: 28, pill: 999 } as const;
 
 /**
- * Inter 4, from the official release (apps/mobile/assets/fonts, OFL). Three optical sizes:
- * the 18pt cut for text, 24pt for titles, 28pt (the Display cut) for headings and the clock.
- * The web gets the same through Google's variable Inter, whose opsz axis picks these itself.
+ * Geist, one face, four weights (apps/mobile/assets/fonts, OFL). Light carries the one big
+ * number per screen, Regular titles and text, Medium pills and primary labels, SemiBold the wordmark.
  */
 export const fontFamily = {
-  regular: 'Inter-Regular',
-  medium: 'Inter-Medium',
-  semibold: 'Inter-SemiBold',
+  light: 'Geist-Light',
+  regular: 'Geist-Regular',
+  medium: 'Geist-Medium',
+  semibold: 'Geist-SemiBold',
 } as const;
-
-export const titleFamily = {
-  regular: 'Inter-Regular',
-  medium: 'InterTitle-Medium',
-  semibold: 'Inter-SemiBold',
-} as const;
-
-export const displayFamily = {
-  regular: 'InterDisplay-Regular',
-  medium: 'InterDisplay-Medium',
-  semibold: 'InterDisplay-SemiBold',
-} as const;
-
-/** Which cut a type token uses: display for 28px and up, title around 24px, text below. */
-export function familyFor(token: TypeToken, weight: keyof typeof fontFamily): string {
-  if (token === 'displayXl' || token === 'display') return displayFamily[weight];
-  if (token === 'title') return titleFamily[weight];
-  return fontFamily[weight];
-}
 
 export const typeScale = {
-  displayXl: { size: 56, line: 56, weight: 'regular', tracking: -0.03 },
-  display: { size: 34, line: 40, weight: 'medium', tracking: -0.02 },
-  title: { size: 24, line: 30, weight: 'medium', tracking: -0.01 },
-  headline: { size: 17, line: 24, weight: 'medium', tracking: 0 },
-  body: { size: 17, line: 24, weight: 'regular', tracking: 0 },
-  callout: { size: 15, line: 22, weight: 'regular', tracking: 0 },
-  subhead: { size: 14, line: 20, weight: 'medium', tracking: 0 },
-  caption: { size: 13, line: 18, weight: 'regular', tracking: 0 },
-  overline: { size: 14, line: 20, weight: 'medium', tracking: 0 },
+  /** The one big number on a screen: countdown, price, moment. */
+  displayXl: { size: 56, line: 60, weight: 'light', tracking: -0.035 },
+  /** Screen heading on covers; the item title. */
+  display: { size: 34, line: 40, weight: 'light', tracking: -0.02 },
+  /** Section titles, with a chevron. */
+  title: { size: 24, line: 30, weight: 'regular', tracking: -0.015 },
+  /** Button labels. */
+  headline: { size: 16, line: 22, weight: 'medium', tracking: 0 },
+  body: { size: 16, line: 22, weight: 'regular', tracking: 0 },
+  callout: { size: 14, line: 20, weight: 'regular', tracking: 0 },
+  /** Text buttons and pills. */
+  subhead: { size: 13, line: 18, weight: 'medium', tracking: 0 },
+  /** Never smaller. */
+  caption: { size: 12, line: 16, weight: 'regular', tracking: 0 },
+  /** Sentence-case group labels. */
+  overline: { size: 13, line: 18, weight: 'medium', tracking: 0 },
 } as const satisfies Record<
   string,
   { size: number; line: number; weight: keyof typeof fontFamily; tracking: number }

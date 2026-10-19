@@ -19,15 +19,12 @@ const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 Sentry.init({ dsn: SENTRY_DSN, enabled: !!SENTRY_DSN, tracesSampleRate: 0.2, sendDefaultPii: false });
 
 function RootLayout() {
-  // Names match packages/tokens fontFamily / titleFamily / displayFamily.
+  // Names match packages/tokens fontFamily.
   const [fontsLoaded, fontError] = useFonts({
-    'Inter-Regular': require('../../assets/fonts/Inter_18pt-Regular.ttf'),
-    'Inter-Medium': require('../../assets/fonts/Inter_18pt-Medium.ttf'),
-    'Inter-SemiBold': require('../../assets/fonts/Inter_18pt-SemiBold.ttf'),
-    'InterTitle-Medium': require('../../assets/fonts/Inter_24pt-Medium.ttf'),
-    'InterDisplay-Regular': require('../../assets/fonts/Inter_28pt-Regular.ttf'),
-    'InterDisplay-Medium': require('../../assets/fonts/Inter_28pt-Medium.ttf'),
-    'InterDisplay-SemiBold': require('../../assets/fonts/Inter_28pt-SemiBold.ttf'),
+    'Geist-Light': require('../../assets/fonts/Geist-Light.ttf'),
+    'Geist-Regular': require('../../assets/fonts/Geist-Regular.ttf'),
+    'Geist-Medium': require('../../assets/fonts/Geist-Medium.ttf'),
+    'Geist-SemiBold': require('../../assets/fonts/Geist-SemiBold.ttf'),
   });
   const hydrated = useStore((s) => s.hydrated);
   const onboarded = useStore((s) => s.settings.onboarded);
@@ -58,7 +55,7 @@ function RootLayout() {
             headerStyle: { backgroundColor: c.canvas },
             headerShadowVisible: false,
             headerTintColor: c.inkPrimary,
-            headerTitleStyle: { fontFamily: mobileFonts.semibold, fontSize: 17, color: c.inkPrimary },
+            headerTitleStyle: { fontFamily: mobileFonts.medium, fontSize: 16, color: c.inkPrimary },
             headerTitleAlign: 'center',
             headerBackButtonDisplayMode: 'minimal',
             contentStyle: { backgroundColor: c.canvas },

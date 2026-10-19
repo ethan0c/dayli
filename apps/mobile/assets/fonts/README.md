@@ -1,3 +1,7 @@
+# Fonts
+
+Geist Light, Regular, Medium and SemiBold (OFL), fetched from Google Fonts on Oct 19, 2026. These are the app's only text fonts; names match `packages/tokens` fontFamily.
+
 # Gilroy preview
 
 Downloaded from the designer's official free package on October 19, 2026:
