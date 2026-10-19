@@ -55,7 +55,7 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
       </View>
       {labels && (labelled.length || today) ? (
         <View style={styles.labels}>
-          {today && today >= from && today <= to && pct(today) < 8 ? <T token="caption" color={c.inkSecondary} style={[styles.label, { left: 0 }]}>today</T> : null}
+          {today && today >= from && today <= to && pct(today) < 8 ? <T token="caption" color={c.inkSecondary} style={[styles.label, { left: 0 }]}>Today</T> : null}
           {labelled.map((m) => {
             const p = pct(m.date);
             const pos = p < 8 ? { left: 0 } : p > 92 ? { right: 0 } : { left: `${p}%` as const, marginLeft: -36, width: 72, textAlign: 'center' as const };

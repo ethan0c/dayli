@@ -56,7 +56,10 @@ describe('dates', () => {
     expect(formatTime('00:30')).toBe('12:30 am');
     expect(formatRange('16:00', '22:00')).toBe('4–10 pm');
     expect(formatRange('11:00', '17:00')).toBe('11 am–5 pm');
-    expect(relativeDay('2026-10-20', '2026-10-23')).toBe('in 3 days');
+    expect(relativeDay('2026-10-20', '2026-10-20')).toBe('Today');
+    expect(relativeDay('2026-10-20', '2026-10-21')).toBe('Tomorrow');
+    expect(relativeDay('2026-10-20', '2026-10-19')).toBe('Yesterday');
+    expect(relativeDay('2026-10-20', '2026-10-23')).toBe('In 3 days');
   });
 });
 

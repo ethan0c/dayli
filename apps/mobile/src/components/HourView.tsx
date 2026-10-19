@@ -23,7 +23,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
   const y = (t: string) => ((toMinutes(t) - fromHour * 60) / 60) * PX_PER_HOUR;
   const nowMin = toMinutes(now.time);
   const nowY = ((nowMin - fromHour * 60) / 60) * PX_PER_HOUR;
-  const label = (h: number) => (h === 12 ? 'noon' : h === 0 || h === 24 ? '12' : h === fromHour || h === 8 ? `${h % 12 || 12} ${h < 12 ? 'am' : 'pm'}` : h > 12 ? `${h - 12}` : `${h}`);
+  const label = (h: number) => (h === 12 ? 'Noon' : h === 0 || h === 24 ? '12' : h === fromHour || h === 8 ? `${h % 12 || 12} ${h < 12 ? 'am' : 'pm'}` : h > 12 ? `${h - 12}` : `${h}`);
 
   return (
     <View style={{ height, position: 'relative' }} accessible accessibilityRole="image"
@@ -48,7 +48,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
             style={({ pressed }) => [styles.block, { top, height: h, left: conflict ? '50%' : 48, backgroundColor: bg, opacity: pressed ? 0.7 : 1 }]}>
             <View style={styles.blockText}>
               {past && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
-              <T token="subhead" color={ink} numberOfLines={1} style={{ fontSize: 12, lineHeight: 16 }}>{it.title}{h < 40 ? ` · ${sub}` : ''}{conflict ? ' · overlaps' : ''}</T>
+              <T token="subhead" color={ink} numberOfLines={1} style={{ fontSize: 12, lineHeight: 16 }}>{it.title}{h < 40 ? ` · ${sub}` : ''}{conflict ? ' · Overlaps' : ''}</T>
             </View>
             {h >= 40 ? <T token="caption" color={conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkSecondary : dark ? '#686963' : '#B4B4AC'} numberOfLines={1}>{sub}{it.employer ? ` · ${it.employer}` : ''}</T> : null}
           </Pressable>

@@ -23,6 +23,11 @@ export interface Batch {
   label: string;
   changes: Change[];
   undone: boolean;
+  /** Where it came from, for the import screen: "Screenshot", "syllabus.pdf", "Message". */
+  source?: string | null;
+  /** Courses and schedules this batch removed, so Undo can put them back. */
+  removedCourses?: StoredCourse[];
+  removedSchedules?: (ScheduleVersion & { batchId?: string })[];
 }
 
 export interface Pending {
@@ -107,6 +112,10 @@ interface State {
   removeItem: (id: string) => void;
   /** Delete several at once as one undoable batch: a week of lectures, the rest of a series. */
   removeItems: (ids: string[], label: string) => void;
+  /** Drop a course: the course and every item in it, one Undo. */
+  removeCourse: (courseId: string) => void;
+  /** Quit a job: upcoming shifts only, or everything including past shifts and the schedules. */
+  removeEmployer: (employer: string, scope: 'upcoming' | 'all', today: string) => void;
   addItem: (item: Omit<Item, 'id' | 'createdAt' | 'batchId'>) => string;
   applyPlan: (plan: CommitPlan, label: string, extra?: { source?: string; course?: Course }) => string;
   undoBatch: (id: string) => void;
@@ -204,6 +213,36 @@ export const useStore = create<State>()(
         set({ items, batches: [b, ...get().batches], toast: { message: `${label}.`, batchId: b.id } });
       },
 
+      removeCourse: (courseId) => {
+        const course = get().courses.find((k) => k.id === courseId);
+        if (!course) return;
+        const items = { ...get().items };
+        const changes: Change[] = [];
+        for (const it of Object.values(items)) {
+          if (it.courseId !== courseId) continue;
+          delete items[it.id];
+          changes.push({ op: 'delete', before: it, after: null });
+        }
+        const name = course.code ?? course.title;
+        const b: Batch = { ...batch(`Removed ${name} · ${changes.length} ${changes.length === 1 ? 'thing' : 'things'}`, changes), removedCourses: [course] };
+        set({ items, courses: get().courses.filter((k) => k.id !== courseId), batches: [b, ...get().batches], toast: { message: `${b.label}.`, batchId: b.id } });
+      },
+
+      removeEmployer: (employer, scope, today) => {
+        const key = employer.trim().toLowerCase();
+        const items = { ...get().items };
+        const changes: Change[] = [];
+        for (const it of Object.values(items)) {
+          if ((it.employer ?? '').trim().toLowerCase() !== key) continue;
+          if (scope === 'upcoming' && it.date < today) continue;
+          delete items[it.id];
+          changes.push({ op: 'delete', before: it, after: null });
+        }
+        const gone = get().schedules.filter((sch) => sch.employer.trim().toLowerCase() === key && (scope === 'all' || sch.coversTo >= today));
+        const b: Batch = { ...batch(`Removed ${employer} · ${changes.length} ${changes.length === 1 ? 'shift' : 'shifts'}`, changes), removedSchedules: gone };
+        set({ items, schedules: get().schedules.filter((sch) => !gone.includes(sch)), batches: [b, ...get().batches], toast: { message: `${b.label}.`, batchId: b.id } });
+      },
+
       addItem: (fields) => {
         const b = batch('Added ' + fields.title, []);
         const item: Item = { ...fields, id: newId(), createdAt: nowIso(), batchId: b.id };
@@ -251,6 +290,7 @@ export const useStore = create<State>()(
         const courses = extra?.course
           ? [...get().courses, { ...extra.course, batchId: b.id, color: COURSE_TINTS[get().courses.length % COURSE_TINTS.length] }]
           : get().courses;
+        b.source = source;
         set({ items, schedules, courses, batches: [b, ...get().batches], pending: null });
         return b.id;
       },
@@ -265,8 +305,8 @@ export const useStore = create<State>()(
         }
         set({
           items,
-          schedules: get().schedules.filter((s) => s.batchId !== id),
-          courses: get().courses.filter((c) => c.batchId !== id),
+          schedules: [...get().schedules.filter((s) => s.batchId !== id), ...(b.removedSchedules ?? [])],
+          courses: [...get().courses.filter((c) => c.batchId !== id), ...(b.removedCourses ?? [])],
           batches: get().batches.map((x) => (x.id === id ? { ...x, undone: true } : x)),
           toast: null,
         });

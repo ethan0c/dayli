@@ -20,8 +20,8 @@
   --work-ink: #7a3e1a;
   --personal: #cdebdd;
   --personal-ink: #1f5a40;
-  --conflict: #a2342f;
-  --conflict-bg: #fbedeb;
+  --conflict: #9f431f;
+  --conflict-bg: #f8ede5;
   --chip: rgba(255, 255, 255, 0.72);
   --font: var(--font-geist), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
@@ -48,8 +48,8 @@
     --work-ink: #ffd9c2;
     --personal: #1c3a2d;
     --personal-ink: #cdebdd;
-    --conflict: #ffaca4;
-    --conflict-bg: #3b2524;
+    --conflict: #e8a274;
+    --conflict-bg: #3a2a20;
     --chip: rgba(255, 255, 255, 0.12);
     color-scheme: dark;
   }

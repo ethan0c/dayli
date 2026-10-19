@@ -16,9 +16,29 @@ const SCREEN_BOX = { x: 47, y: 44, width: 850, height: 1814 };
 const pct = (n: number, of: number) => `${(n / of) * 100}%`;
 const MASK = 'url(/phones/iphone-screen-mask.png) center / 100% 100% no-repeat';
 
-export function PhoneFrame({ children, className = '', priority, decorative }: { children: ReactNode; className?: string; priority?: boolean; /** True when the screen is illustration only, so screen readers skip it. */ decorative?: boolean }) {
+export function PhoneFrame({
+  children,
+  className = '',
+  priority,
+  decorative,
+  label,
+}: {
+  children: ReactNode;
+  className?: string;
+  priority?: boolean;
+  /** True when the screen is illustration only, so screen readers skip it. */
+  decorative?: boolean;
+  /** One sentence describing the screen; the whole phone becomes one image for screen readers. */
+  label?: string;
+}) {
   return (
-    <div className={`phone ${className}`.trim()} style={{ aspectRatio: `${FRAME.width} / ${FRAME.height}` }} aria-hidden={decorative || undefined}>
+    <div
+      className={`phone ${className}`.trim()}
+      style={{ aspectRatio: `${FRAME.width} / ${FRAME.height}` }}
+      aria-hidden={decorative || undefined}
+      role={label ? 'img' : undefined}
+      aria-label={label}
+    >
       <div
         className="phone-screen"
         style={{

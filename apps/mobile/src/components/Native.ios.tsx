@@ -43,7 +43,7 @@ export function NativeToggle({ value, onChange, label, activeColor }: ToggleProp
   const { c } = useTheme();
   return (
     <Host style={{ width: 52, height: 32 }} matchContents>
-      <Toggle isOn={value} onIsOnChange={onChange} modifiers={[tint(activeColor ?? c.inkPrimary), ...(label ? [accessibilityLabel(label)] : [])]} />
+      <Toggle isOn={value} onIsOnChange={onChange} modifiers={[tint(activeColor ?? c.added), ...(label ? [accessibilityLabel(label)] : [])]} />
     </Host>
   );
 }

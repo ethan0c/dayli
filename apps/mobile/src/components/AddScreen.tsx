@@ -3,7 +3,6 @@ import { File } from 'expo-file-system';
 import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { useEffect, useEffectEvent, useRef, useState, type ComponentRef } from 'react';
 import { Platform, ScrollView, StyleSheet, type TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Composer } from '@/components/Composer';
 import { GroupLabel, ListRow } from '@/components/Controls';
@@ -11,11 +10,13 @@ import { Icon } from '@/components/Icon';
 import { Reading } from '@/components/Reading';
 import { RecentShots } from '@/components/RecentShots';
 import { T } from '@/components/Text';
+import { TabHeader } from '@/components/TabHeader';
 import { track } from '@/lib/analytics';
 import { requestExtraction } from '@/lib/api';
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from '@/lib/capture-input';
 import { feedback } from '@/lib/feedback';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
+import { useNow } from '@/lib/now';
 import { hasSemliPro, purchaseErrorMessage } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
@@ -28,7 +29,7 @@ import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
  */
 export function AddScreen() {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
+  const now = useNow();
   const params = useLocalSearchParams<{ source?: string; at?: string }>();
   const { refreshCustomerInfo, presentPaywall } = usePurchases();
   const [text, setText] = useState(() => useStore.getState().captureDraft);
@@ -132,52 +133,49 @@ export function AddScreen() {
   }, [focused, params.source, params.at]);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={[styles.body, { paddingTop: insets.top + 24, paddingBottom: NAV_INSET }]}
+    <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }}
       keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="never">
-      {busy ? (
-        <Reading source={busy === 'Message' ? 'your message' : busy} />
-      ) : (
-        <View style={{ gap: 4 }}>
-          <T token="display">What’s coming up?</T>
-          <T token="callout" color={c.inkSecondary}>Type it, paste it, or drop in a screenshot. You review everything before it’s added.</T>
-        </View>
-      )}
+      <TabHeader date={now.date} label="What’s coming up?" title="Add"
+        details={<T token="callout" color={c.inkSecondary}>Type it, paste it, or drop in a screenshot. You review everything before it’s added.</T>} />
+      <View style={styles.body}>
+        {busy ? <Reading source={busy === 'Message' ? 'your message' : busy} /> : null}
 
-      <Composer
-        ref={inputRef}
-        id="capture-text"
-        value={text}
-        onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
-        busy={!!busy}
-        canSend={canSend}
-        onPickImage={() => void pick(() => pickImageInput(false))}
-        onCamera={() => void pick(() => pickImageInput(true))}
-        onPickPdf={() => void pick(pickPdfInput)}
-        onSend={() => void run({ kind: 'text', text: text.trim() }, 'Message')}
-      />
+        <Composer
+          ref={inputRef}
+          id="capture-text"
+          value={text}
+          onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
+          busy={!!busy}
+          canSend={canSend}
+          onPickImage={() => void pick(() => pickImageInput(false))}
+          onCamera={() => void pick(() => pickImageInput(true))}
+          onPickPdf={() => void pick(pickPdfInput)}
+          onSend={() => void run({ kind: 'text', text: text.trim() }, 'Message')}
+        />
 
-      {error ? (
-        <View accessibilityRole="alert" style={styles.status}>
-          <Icon name="alert" size={16} color={c.conflict} />
-          <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{error}</T>
-        </View>
-      ) : null}
+        {error ? (
+          <View accessibilityRole="alert" style={styles.status}>
+            <Icon name="alert" size={16} color={c.conflict} />
+            <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{error}</T>
+          </View>
+        ) : null}
 
-      {!busy ? <RecentShots disabled={!!busy} onPick={(uri) => void openShot(uri)} /> : null}
+        {!busy ? <RecentShots disabled={!!busy} onPick={(uri) => void openShot(uri)} /> : null}
 
-      {!busy ? (
-        <View>
-          <GroupLabel>Or start with</GroupLabel>
-          <ListRow leading={<Icon name="file" size={20} color={c.inkPrimary} />} title="A syllabus" sub="Classes, exams and due dates for the whole term" onPress={() => void pick(pickPdfInput)} />
-          <ListRow leading={<Icon name="work" size={20} color={c.inkPrimary} />} title="A work schedule" sub="A screenshot from the scheduling app or the group chat" onPress={() => void pick(() => pickImageInput(false))} />
-          <ListRow leading={<Icon name="pen" size={20} color={c.inkPrimary} />} title="Something by hand" sub="A to-do or event with the date you pick" last onPress={() => router.push({ pathname: '/create', params: { kind: 'task' } })} />
-        </View>
-      ) : null}
+        {!busy ? (
+          <View>
+            <GroupLabel>Or start with</GroupLabel>
+            <ListRow leading={<Icon name="file" size={20} color={c.inkPrimary} />} title="A syllabus" sub="Classes, exams and due dates for the whole term" onPress={() => void pick(pickPdfInput)} />
+            <ListRow leading={<Icon name="work" size={20} color={c.inkPrimary} />} title="A work schedule" sub="A screenshot from the scheduling app or the group chat" onPress={() => void pick(() => pickImageInput(false))} />
+            <ListRow leading={<Icon name="pen" size={20} color={c.inkPrimary} />} title="Something by hand" sub="A to-do or event with the date you pick" last onPress={() => router.push({ pathname: '/create', params: { kind: 'task' } })} />
+          </View>
+        ) : null}
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, gap: 20 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 24, gap: 20 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
 });

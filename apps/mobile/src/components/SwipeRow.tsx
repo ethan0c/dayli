@@ -30,14 +30,14 @@ export function SwipeRow({ children, onDelete, onComplete, completeLabel = 'Done
       overshootRight={false}
       renderLeftActions={onComplete ? () => (
         <View style={[styles.action, { backgroundColor: c.added, alignItems: 'flex-start' }]}>
-          <Icon name={completed ? 'undo' : 'tick'} size={18} color="#FFFFFF" strokeWidth={2.5} />
-          <T token="subhead" color="#FFFFFF">{completed ? 'Not done' : completeLabel}</T>
+          <Icon name={completed ? 'undo' : 'tick'} size={18} color={c.onPrimary} strokeWidth={2.5} />
+          <T token="subhead" color={c.onPrimary}>{completed ? 'Not done' : completeLabel}</T>
         </View>
       ) : undefined}
       renderRightActions={onDelete ? () => (
         <View style={[styles.action, { backgroundColor: c.conflict, alignItems: 'flex-end' }]}>
-          <Icon name="trash" size={18} color="#FFFFFF" />
-          <T token="subhead" color="#FFFFFF">Delete</T>
+          <Icon name="trash" size={18} color={c.onPrimary} />
+          <T token="subhead" color={c.onPrimary}>Delete</T>
         </View>
       ) : undefined}
       onSwipeableOpen={(direction) => {

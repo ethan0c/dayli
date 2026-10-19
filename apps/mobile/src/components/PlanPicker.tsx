@@ -101,7 +101,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
     return (
       <View style={{ gap: 22 }}>
         <View style={{ gap: 2 }}>
-          <T token="callout" color={c.inkSecondary}>Semli <T token="callout" color={c.accentInk}>Plus</T> · active</T>
+          <T token="callout" color={c.inkSecondary}>Semli <T token="callout" color={c.accentInk}>Plus</T> · Active</T>
           <T token="displayXl" color={c.inkPrimary}>Unlimited</T>
           <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
             {entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}.` : 'Every syllabus, schedule and screenshot read for you.'}

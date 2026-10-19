@@ -29,7 +29,7 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
   const status = itemStatus(item, date, conflict);
   const tint = course ? c.tint[courseTint(courses, course.id) ?? 'lavender'].ink : c.category[item.category].ink;
   const where = course?.code ?? item.employer ?? (item.category === 'school' ? 'Coursework' : item.category === 'work' ? 'Work' : 'Personal');
-  const sub = [where, conflict ? 'overlaps something else' : null, planned ? 'working on it today' : null].filter(Boolean).join(' · ');
+  const sub = [where, conflict ? 'Overlaps something else' : null, planned ? 'Working on it today' : null].filter(Boolean).join(' · ');
   return (
     <SwipeRow onDelete={onDelete} onComplete={!isEvent ? onToggle : undefined} completed={item.done}>
     <View style={[styles.row, { backgroundColor: c.canvas }, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
@@ -69,7 +69,7 @@ export function Check({ done }: { done: boolean }) {
     <Animated.View style={[styles.circle, { borderColor: done ? c.added : c.controlOutline }, ring]}>
       <Animated.View style={[StyleSheet.absoluteFill, styles.fill, { backgroundColor: c.added }, fill]} />
       <Animated.View style={tick}>
-        <Icon name="tick" size={13} color="#FFFFFF" strokeWidth={2.5} />
+        <Icon name="tick" size={13} color={c.onPrimary} strokeWidth={2.5} />
       </Animated.View>
     </Animated.View>
   );

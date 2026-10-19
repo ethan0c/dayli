@@ -20,7 +20,8 @@ describe.each(Object.entries(palettes))('%s theme', (_name, c) => {
     }
     for (const { fill, ink } of Object.values(c.tint)) expect(contrast(ink, fill)).toBeGreaterThanOrEqual(4.5);
     for (const [ink, fill] of [[c.onPrimary, c.inkPrimary], [c.onAccent, c.accent], [c.onNav, c.nav], [c.navInactive, c.nav],
-      [c.conflict, c.conflictBg], [c.changed, c.changedBg], [c.added, c.addedBg], [c.accentInk, c.accentSoft]]) {
+      [c.conflict, c.conflictBg], [c.changed, c.changedBg], [c.added, c.addedBg], [c.accentInk, c.accentSoft],
+      [c.onPrimary, c.conflict], [c.onPrimary, c.added]]) {
       expect(contrast(ink!, fill!), `${ink} on ${fill}`).toBeGreaterThanOrEqual(4.5);
     }
   });

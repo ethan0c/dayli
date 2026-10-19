@@ -41,7 +41,7 @@ export function Reading({ source, rows = 3 }: { source: string; rows?: number })
       <View style={{ gap: 4 }}>
         <T token="display">{LINES[line]}…</T>
         <T token="callout" color={c.inkSecondary}>
-          {source[0]?.toUpperCase() + source.slice(1)} · nothing is saved until you confirm.
+          {source[0]?.toUpperCase() + source.slice(1)} · Nothing is saved until you confirm.
         </T>
       </View>
       {rows > 0 ? <SkeletonRows count={rows} /> : null}

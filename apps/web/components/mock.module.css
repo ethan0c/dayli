@@ -1,0 +1,608 @@
+/* Phone mockups drawn in CSS. Every screen on the site is built from these pieces,
+   so the hero, the feature blocks and the try-it result share one look. */
+
+.phone {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background: var(--canvas);
+  border: 8px solid var(--ink);
+  border-radius: 40px;
+  max-width: 100%;
+}
+@media (prefers-color-scheme: dark) {
+  .phone {
+    border-color: var(--line);
+  }
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--canvas);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+.pad {
+  padding: 44px 14px 0;
+}
+.padLg {
+  padding: 50px 18px 0;
+}
+.padMd {
+  padding: 44px 18px 0;
+}
+
+/* Text */
+.caption {
+  font-size: 11px;
+  line-height: 15px;
+  color: var(--ink-2);
+}
+.big,
+.bigMd,
+.bigSm {
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+}
+.big {
+  font-size: 44px;
+  line-height: 48px;
+  letter-spacing: -1.6px;
+}
+.bigMd {
+  font-size: 40px;
+  line-height: 44px;
+  letter-spacing: -1.4px;
+}
+.bigSm {
+  font-size: 36px;
+  line-height: 40px;
+  letter-spacing: -1.2px;
+}
+.display {
+  font-size: 24px;
+  line-height: 30px;
+  letter-spacing: -0.5px;
+  font-weight: 300;
+}
+.title {
+  font-size: 19px;
+  line-height: 24px;
+  letter-spacing: -0.3px;
+}
+.titleSm {
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: -0.3px;
+}
+.muted {
+  color: var(--ink-2);
+}
+
+/* Rows and pills */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 50px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+.rowLast {
+  border-bottom: 0;
+}
+.rowText {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rowText small {
+  display: block;
+  font-size: 10px;
+  line-height: 14px;
+  color: var(--ink-2);
+}
+.strike {
+  text-decoration: line-through;
+}
+.lead {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ring {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-3);
+}
+.ringSm {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+}
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.dotGrey {
+  background: var(--ink-3);
+}
+.done {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--added);
+  color: var(--canvas);
+}
+.done svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+.pill {
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 12px;
+  background: var(--row);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+.pillRed {
+  background: var(--conflict);
+  color: var(--canvas);
+}
+.pillRedText {
+  color: var(--conflict);
+}
+.pillGreen {
+  background: var(--added-bg);
+  color: var(--added);
+}
+.pillAmber {
+  background: var(--changed-bg);
+  color: var(--changed);
+}
+.textLink {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  margin-right: 6px;
+  white-space: nowrap;
+}
+
+/* The day as a horizontal bar */
+.bar {
+  position: relative;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--row);
+}
+.seg {
+  position: absolute;
+  top: 0;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--ink);
+}
+.segGreen {
+  background: var(--added);
+}
+.segRed {
+  background: var(--conflict);
+}
+.now {
+  position: absolute;
+  top: -4px;
+  width: 1.5px;
+  height: 13px;
+  background: var(--ink);
+}
+.barLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--ink-2);
+  margin-top: 6px;
+}
+
+/* The week as seven vertical bars */
+.week {
+  display: flex;
+  gap: 5px;
+}
+.day {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  line-height: 12px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.track {
+  position: relative;
+  width: 100%;
+  height: var(--h, 88px);
+  border-radius: 5px;
+  background: var(--row);
+}
+.trackUnknown {
+  background: var(--changed-bg);
+  border: 1.5px solid var(--changed);
+}
+.block {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: 5px;
+  background: var(--ink);
+}
+.blockGreen {
+  background: var(--added);
+}
+.blockRed {
+  background: var(--conflict);
+}
+.blockDashed {
+  background: none;
+  border: 1.5px dashed var(--ink-3);
+}
+.blockDropped {
+  background: none;
+  border: 1.5px solid var(--conflict);
+}
+.blockHalf {
+  left: 50%;
+}
+.toneGreen {
+  color: var(--added);
+}
+.toneRed {
+  color: var(--conflict);
+}
+.toneAmber {
+  color: var(--changed);
+}
+.toneInk {
+  color: var(--ink);
+}
+
+/* The term as one line */
+.termMonths {
+  position: relative;
+  height: 12px;
+  font-size: 9px;
+  line-height: 12px;
+  color: var(--ink-2);
+}
+.termMonths span {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+.term {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--row);
+  margin-top: 4px;
+}
+.termDot {
+  position: absolute;
+  top: -0.5px;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.termDotRed {
+  background: var(--conflict);
+}
+.termRing {
+  position: absolute;
+  top: -2.5px;
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+}
+.termTick {
+  position: absolute;
+  top: 1px;
+  width: 2px;
+  height: 4px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--ink-3);
+  opacity: 0.45;
+}
+
+/* The School map: one line per course */
+.mapHead {
+  display: flex;
+  gap: 8px;
+  font-size: 9px;
+  color: var(--ink-2);
+  margin-top: 8px;
+}
+.mapHead span {
+  flex: 1;
+}
+.mapHead span:first-child,
+.mapCode {
+  flex: none;
+  width: 36px;
+}
+.map {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+}
+.mapCode {
+  font-size: 10px;
+  font-weight: 500;
+}
+.map .term {
+  flex: 1;
+  margin-top: 0;
+}
+
+/* Chrome */
+.tabs {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tab,
+.plus,
+.glass {
+  background: var(--chip);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.tab {
+  flex: 1;
+  height: 50px;
+  border-radius: 25px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 8px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.tab b {
+  font-weight: 500;
+  color: var(--ink);
+}
+.plus {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--ink);
+}
+.glass {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+}
+.glass svg {
+  width: 16px;
+  height: 16px;
+}
+.toast {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--ink);
+  color: var(--canvas);
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.primary {
+  height: 44px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--canvas);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+.composer {
+  height: 92px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 12px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.shots {
+  display: flex;
+  gap: 6px;
+}
+.shot {
+  width: 80px;
+  height: 116px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--row);
+  flex: none;
+}
+
+/* A fake screenshot of a shift schedule: a white card with grey rows */
+.shotCard {
+  width: 100%;
+  height: 100%;
+  background: var(--surface);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  line-height: 14px;
+  overflow: hidden;
+}
+.shotHead {
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.shotHead b {
+  font-weight: 500;
+  font-size: 12px;
+}
+.shotHead i {
+  display: block;
+  height: 6px;
+  width: 56%;
+  border-radius: 3px;
+  background: var(--row);
+}
+.shotRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 34px;
+  border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+.shotRow span:first-child {
+  width: 28px;
+  color: var(--ink-2);
+}
+.shotRow i {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--row);
+}
+.shotRow .off {
+  color: var(--ink-3);
+}
+.shotSm {
+  font-size: 7px;
+  line-height: 9px;
+}
+.shotSm .shotHead {
+  padding: 8px 8px 6px;
+  gap: 4px;
+}
+.shotSm .shotHead b {
+  font-size: 8px;
+}
+.shotSm .shotRow {
+  height: 18px;
+  padding: 0 8px;
+  gap: 6px;
+}
+.shotSm .shotRow span:first-child {
+  width: 16px;
+}
+.shotSm .shotRow i {
+  height: 3px;
+}
+
+/* The day by the hour */
+.hour {
+  position: relative;
+  height: 360px;
+  margin-top: 16px;
+}
+.hLabel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  font-size: 9px;
+  color: var(--ink-2);
+}
+.hLine {
+  position: absolute;
+  left: 28px;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+}
+.hNow {
+  position: absolute;
+  left: 28px;
+  right: 0;
+  height: 1.5px;
+  background: var(--ink);
+}
+.hBlock {
+  position: absolute;
+  left: 28px;
+  right: 0;
+  border-radius: 6px;
+  font-size: 10px;
+  line-height: 13px;
+  padding: 8px;
+}
+.hDone {
+  background: var(--added-bg);
+  color: var(--added);
+  padding: 6px 8px;
+}
+.hInk {
+  background: var(--ink);
+  color: var(--canvas);
+}
+.hInk span {
+  opacity: 0.7;
+}
+.hOverlap {
+  left: 50%;
+  background: var(--row);
+  color: var(--conflict);
+  border: 1px solid var(--canvas);
+  padding: 5px 8px;
+}

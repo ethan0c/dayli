@@ -1,62 +1,118 @@
+import { diffDays, formatTime, localParts, monthDay, relativeDay } from '@dayli/core';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { TextButton } from '@/components/Controls';
+import { ListRow, StatusPill, TextButton } from '@/components/Controls';
+import { Icon } from '@/components/Icon';
 import { Group, Row } from '@/components/Settings';
 import { T } from '@/components/Text';
+import { buildBackup, buildIcs, shareText } from '@/lib/export';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
-import { useStore } from '@/store';
+import { useNow } from '@/lib/now';
+import { useCourseList, useItemList, useScheduleList, useStore, type Batch } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
+
+const RECENT = 3;
+
+/** "from a screenshot", "from a photo", "from a PDF", "from your message". */
+function fromSource(source: string | null | undefined): string | null {
+  if (!source) return null;
+  const s = source.toLowerCase();
+  if (s === 'screenshot') return 'from a screenshot';
+  if (s === 'photo') return 'from a photo';
+  if (s === 'message') return 'from your message';
+  if (s.endsWith('.pdf')) return 'from a PDF';
+  return `from ${source}`;
+}
 
 export default function DataScreen() {
   const { c } = useTheme();
+  const now = useNow();
+  const items = useItemList();
+  const courses = useCourseList();
+  const schedules = useScheduleList();
   const batches = useStore((s) => s.batches);
   const undoBatch = useStore((s) => s.undoBatch);
   const clearAll = useStore((s) => s.clearAll);
   const setSettings = useStore((s) => s.setSettings);
   const [confirm, setConfirm] = useState(false);
-  const recent = batches.slice(0, 20);
+  const [allChanges, setAllChanges] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
+
+  const jobs = useMemo(() => new Set(items.map((it) => it.employer?.trim().toLowerCase()).filter(Boolean)).size, [items]);
+  const since = useMemo(() => items.map((it) => it.createdAt.slice(0, 10)).sort()[0], [items]);
+  const summary = [
+    `${courses.length} ${courses.length === 1 ? 'course' : 'courses'}`,
+    `${jobs} ${jobs === 1 ? 'job' : 'jobs'}`,
+    since ? `since ${monthDay(since)}` : null,
+  ].filter(Boolean).join(' · ');
+
+  const share = async (name: string, text: string, mime: string) => {
+    feedback('tap');
+    const ok = await shareText(name, text, mime);
+    if (!ok) setUnavailable(true);
+  };
+  const exportPlan = () => share('semli-plan.json', buildBackup({ items, courses, schedules, exportedAt: new Date().toISOString() }), 'application/json');
+  const exportCalendar = () => share('semli.ics', buildIcs(items, courses), 'text/calendar');
+
+  const whenLabel = (b: Batch) => {
+    const at = localParts(new Date(b.createdAt));
+    const day = Math.abs(diffDays(at.date, now.date)) <= 1 ? relativeDay(now.date, at.date) : monthDay(at.date);
+    return [`${day}, ${formatTime(at.time)}`, fromSource(b.source) ?? (b.changes.length > 1 ? `${b.changes.length} changes` : null)].filter(Boolean).join(' · ');
+  };
+  const shown = allChanges ? batches : batches.slice(0, RECENT);
+  const rest = batches.length - RECENT;
+
+  const batchRow = (b: Batch, last: boolean) => (
+    <Animated.View key={b.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
+      <ListRow title={b.label} sub={whenLabel(b)} last={last} chevron={false} onPress={() => router.push(`/import/${b.id}`)}
+        accessibilityLabel={`${b.label}, ${whenLabel(b)}${b.undone ? ', undone' : ''}`}
+        trailing={b.undone
+          ? <StatusPill label="Undone" />
+          : b.changes.length > 0 ? <TextButton label="Undo" haptic="undo" onPress={() => undoBatch(b.id)} accessibilityLabel={`Undo ${b.label}`} /> : null} />
+    </Animated.View>
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
-      <Group title="Recent changes" footer={batches.length ? 'Undo puts things back exactly as they were.' : undefined}>
-        {recent.length === 0 ? (
+      <View style={styles.top}>
+        <T token="callout" color={c.inkSecondary}>On this phone, nowhere else</T>
+        <T token="displayXl" tabular>{`${items.length} ${items.length === 1 ? 'thing' : 'things'}`}</T>
+        <T token="body" style={styles.line}>{summary}</T>
+      </View>
+
+      <Group title="Keep it safe" footer={unavailable ? 'Sharing isn’t available on this device.' : undefined}>
+        <ListRow title="Export my plan" sub="A file you can AirDrop, save, or bring to a new phone" onPress={() => void exportPlan()} />
+        <ListRow title="Add to Calendar" sub="Every event into Apple or Google Calendar, once" onPress={() => void exportCalendar()} last />
+      </Group>
+
+      <Group title="Recent changes">
+        {batches.length === 0 ? (
           <View style={styles.empty}>
-            <T token="callout" color={c.inkSecondary}>
-              Your imports and edits will appear here. You can undo them anytime.
-            </T>
+            <T token="callout" color={c.inkSecondary}>Your imports and edits will appear here. You can undo them any time.</T>
           </View>
         ) : (
-          recent.map((b, i) => (
-            <Animated.View key={b.id} layout={layout} entering={enter.fade} exiting={exit.fade}
-              style={[styles.batch, i < recent.length - 1 ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line } : null, { opacity: b.undone ? 0.5 : 1 }]}>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <T numberOfLines={1} style={b.undone ? { textDecorationLine: 'line-through' } : null}>
-                  {b.label}
-                </T>
-                <T token="caption" color={c.inkSecondary}>
-                  {new Date(b.createdAt).toLocaleString()} · {b.changes.length} {b.changes.length === 1 ? 'change' : 'changes'}
-                </T>
-              </View>
-              {!b.undone && b.changes.length > 0 ? (
-                <TextButton label="Undo" haptic="undo" onPress={() => undoBatch(b.id)} />
-              ) : null}
-            </Animated.View>
-          ))
+          <Animated.View layout={layout}>
+            {shown.map((b, i) => batchRow(b, i === shown.length - 1))}
+            {rest > 0 ? (
+              <Pressable accessibilityRole="button" accessibilityState={{ expanded: allChanges }} onPress={() => { feedback('select'); setAllChanges((o) => !o); }} style={styles.disclosure}>
+                <T token="caption" color={c.inkSecondary}>{allChanges ? 'Fewer changes' : `All ${batches.length} changes`}</T>
+                <Icon name={allChanges ? 'chevronLeft' : 'chevronRight'} size={16} color={c.inkSecondary} />
+              </Pressable>
+            ) : null}
+          </Animated.View>
         )}
       </Group>
 
-      <Group title="Get started again" footer="Replay the intro without changing your existing plans.">
-        <Row label="Replay the intro" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} last />
-      </Group>
-
-      <Group title="Danger zone" footer="Everything is stored on this phone. Clearing removes your events, to-dos, courses, schedules, and history. This cannot be undone.">
+      <Group title="Start again" footer="Nothing here leaves the phone unless you export it.">
+        <Row label="Replay the intro" value="Keeps everything" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} />
         {confirm ? (
-          <Animated.View entering={enter.drop} style={styles.confirm} accessibilityRole="alert">
-            <T token="callout" style={{ flex: 1 }}>Clear everything? This cannot be undone.</T>
+          <Animated.View entering={enter.drop} exiting={exit.fade} style={styles.confirm} accessibilityRole="alert">
+            <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>Clear everything? This cannot be undone.</T>
+            <TextButton label="Export first" onPress={() => void exportPlan()} />
             <TextButton label="Keep" tone="muted" onPress={() => setConfirm(false)} />
             <TextButton label="Clear" tone="danger" haptic="warning" onPress={() => { clearAll(); setConfirm(false); }} />
           </Animated.View>
@@ -69,8 +125,10 @@ export default function DataScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, paddingBottom: 48, gap: 22 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 48, gap: 22 },
+  top: { gap: 2 },
+  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2, paddingTop: 6 },
   empty: { paddingVertical: 16 },
-  batch: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingVertical: 8 },
-  confirm: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingVertical: 8 },
+  disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  confirm: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12, minHeight: 52, paddingVertical: 4 },
 });

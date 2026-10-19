@@ -2,14 +2,15 @@ import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StatusPill, TextButton } from '@/components/Controls';
 import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
+import { TabHeader } from '@/components/TabHeader';
 import { feedback } from '@/lib/feedback';
 import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
 import { profileFor } from '@/lib/majors';
+import { useNow } from '@/lib/now';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
 import { PRO_ENTITLEMENT, customerCenterEnabled } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
@@ -21,7 +22,7 @@ const APPEARANCE_LABEL = { system: 'Match iPhone', light: 'Light', dark: 'Dark' 
 /** "You": the person's name as the one big element, then hairline rows in groups. Lives in the You tab and at /settings. */
 export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
+  const now = useNow();
   const { isPro, customerInfo, loading, busy, manageSubscription } = usePurchases();
   const settings = useStore((s) => s.settings);
   const setSettings = useStore((s) => s.setSettings);
@@ -38,56 +39,53 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const trialEnds = settings.trial?.endsAt ? Math.max(0, Math.ceil((new Date(settings.trial.endsAt).getTime() - openedAt) / 86_400_000)) : null;
   const plan = isPro
     ? trialEnds !== null && trialEnds > 0 && entitlement?.periodType === 'TRIAL'
-      ? { label: `Plus · trial, ${trialEnds} ${trialEnds === 1 ? 'day' : 'days'} left`, tone: 'green' as const }
+      ? { label: `Plus · Trial, ${trialEnds} ${trialEnds === 1 ? 'day' : 'days'} left`, tone: 'green' as const }
       : { label: 'Plus', tone: 'green' as const }
     : { label: `Free · ${used} of ${FREE_IMPORTS_PER_MONTH} imports`, tone: 'grey' as const };
-  const who = [settings.isStudent ? profileFor(settings.major, true).label : 'Working', settings.isStudent ? 'student' : null].filter(Boolean).join(' · ');
+  const who = [settings.isStudent ? profileFor(settings.major, true).label : 'Working', settings.isStudent ? 'Student' : null].filter(Boolean).join(' · ');
 
   return (
-    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={[styles.body, { paddingTop: inTab ? insets.top + 18 : 8, paddingBottom: inTab ? NAV_INSET : 48 }]} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="automatic">
-      <View style={styles.head}>
-        <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-          <T token="display" numberOfLines={1}>{settings.name.trim() || 'You'}</T>
-          <T token="callout" color={c.inkSecondary}>{who}</T>
-        </View>
-        <View style={{ paddingBottom: 6 }}><StatusPill label={loading && !customerInfo ? 'Checking plan…' : plan.label} tone={plan.tone} tabular={false} /></View>
-      </View>
+    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: inTab ? NAV_INSET : 48 }} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior={inTab ? 'never' : 'automatic'}>
+      <TabHeader date={now.date} label={who} title={settings.name.trim() || 'You'} inset={inTab}
+        details={<View style={{ alignSelf: 'flex-start' }}><StatusPill label={loading && !customerInfo ? 'Checking plan…' : plan.label} tone={plan.tone} tabular={false} /></View>} />
+      <View style={styles.body}>
 
-      <Group title="Profile">
-        <Row label="Name" value={settings.name.trim() || 'Add your name'} onPress={() => router.push('/settings/name')} />
-        {settings.isStudent ? <Row label="Studying" value={profileFor(settings.major, true).label} onPress={() => router.push('/settings/major')} last /> : null}
-      </Group>
+        <Group title="Profile">
+          <Row label="Name" value={settings.name.trim() || 'Add your name'} onPress={() => router.push('/settings/name')} />
+          {settings.isStudent ? <Row label="Studying" value={profileFor(settings.major, true).label} onPress={() => router.push('/settings/major')} last /> : null}
+        </Group>
 
-      <Group title="Preferences">
-        <Row label="Reminders" value={settings.reminders.enabled ? (settings.reminders.briefing ? 'On, with briefing' : 'On') : 'Off'} onPress={() => router.push('/settings/reminders')} />
-        <Row label="Appearance" value={APPEARANCE_LABEL[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
-        <ToggleRow label="Sounds" value={settings.sounds} onChange={(sounds) => { setSettings({ sounds }); feedback('select'); }} />
-        <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
-      </Group>
+        <Group title="Preferences">
+          <Row label="Reminders" value={settings.reminders.enabled ? (settings.reminders.briefing ? 'On, with briefing' : 'On') : 'Off'} onPress={() => router.push('/settings/reminders')} />
+          <Row label="Appearance" value={APPEARANCE_LABEL[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
+          <ToggleRow label="Sounds" value={settings.sounds} onChange={(sounds) => { setSettings({ sounds }); feedback('select'); }} />
+          <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
+        </Group>
 
-      <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
-        <Row label="Your plan" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
-        <Row label="Manage subscription" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
-          if (customerCenterEnabled || customerInfo?.managementURL) void manageSubscription().catch(() => router.push('/settings/plan'));
-          else router.push('/settings/plan');
-        }} />
-      </Group>
+        <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
+          <Row label="Your plan" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
+          <Row label="Manage subscription" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
+            if (customerCenterEnabled || customerInfo?.managementURL) void manageSubscription().catch(() => router.push('/settings/plan'));
+            else router.push('/settings/plan');
+          }} />
+        </Group>
 
-      <Group title="Your stuff" footer={linkNote ?? undefined}>
-        <Row label="Your data" value="On this phone" onPress={() => router.push('/settings/data')} />
-        <Row label="Help and feedback" value={SUPPORT_EMAIL} onPress={() => void open(LINKS.support, 'Email us at ' + SUPPORT_EMAIL + '.')} />
-        <Row label="Rate Semli" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} last={!__DEV__} />
-        {__DEV__ ? <Row label="Semli server" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last /> : null}
-      </Group>
+        <Group title="Your stuff" footer={linkNote ?? undefined}>
+          <Row label="Your data" value="On this phone" onPress={() => router.push('/settings/data')} />
+          <Row label="Help and feedback" value={SUPPORT_EMAIL} onPress={() => void open(LINKS.support, 'Email us at ' + SUPPORT_EMAIL + '.')} />
+          <Row label="Rate Semli" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} last={!__DEV__} />
+          {__DEV__ ? <Row label="Semli server" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last /> : null}
+        </Group>
 
-      <View style={styles.about}>
-        <View style={styles.markRow}>
-          <View style={[styles.mark, { backgroundColor: c.inkPrimary }]}><View style={[styles.markBig, { backgroundColor: c.onPrimary }]} /><View style={[styles.markSmall, { backgroundColor: c.accent }]} /></View>
-          <T token="caption" color={c.inkSecondary} tabular>Semli {Constants.expoConfig?.version ?? ''}</T>
-        </View>
-        <View style={{ flexDirection: 'row', gap: 14 }}>
-          <TextButton label="Privacy" tone="muted" onPress={() => void open(LINKS.privacy, 'Read it at semli.app/privacy.')} />
-          <TextButton label="Terms" tone="muted" onPress={() => void open(LINKS.terms, 'Read it at semli.app/terms.')} />
+        <View style={styles.about}>
+          <View style={styles.markRow}>
+            <View style={[styles.mark, { backgroundColor: c.inkPrimary }]}><View style={[styles.markBig, { backgroundColor: c.onPrimary }]} /><View style={[styles.markSmall, { backgroundColor: c.accent }]} /></View>
+            <T token="caption" color={c.inkSecondary} tabular>Semli {Constants.expoConfig?.version ?? ''}</T>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 14 }}>
+            <TextButton label="Privacy" tone="muted" onPress={() => void open(LINKS.privacy, 'Read it at semli.app/privacy.')} />
+            <TextButton label="Terms" tone="muted" onPress={() => void open(LINKS.terms, 'Read it at semli.app/terms.')} />
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -95,8 +93,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, gap: 22 },
-  head: { flexDirection: 'row', alignItems: 'flex-end', gap: 16 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 24, gap: 22 },
   groupLabel: { paddingBottom: 2 },
   about: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8 },
   markRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },

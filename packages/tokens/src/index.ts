@@ -35,7 +35,8 @@ const lightTint: Record<TintName, Tint> = {
   mint: { fill: '#CDEBDD', ink: '#1F5A40' },
   sky: { fill: '#D4E6FB', ink: '#1F4A80' },
   butter: { fill: '#FBEFC4', ink: '#6B4F00' },
-  rose: { fill: '#FBD9E3', ink: '#7A2B48' },
+  // Keep the persisted `rose` key; its visual tint is now muted clay.
+  rose: { fill: '#E6D9CF', ink: '#604535' },
 };
 
 const darkTint: Record<TintName, Tint> = {
@@ -44,7 +45,7 @@ const darkTint: Record<TintName, Tint> = {
   mint: { fill: '#1C3A2D', ink: '#CDEBDD' },
   sky: { fill: '#1B2E4A', ink: '#CFE3FF' },
   butter: { fill: '#433714', ink: '#FFE9A8' },
-  rose: { fill: '#45202E', ink: '#FFD6E2' },
+  rose: { fill: '#3D332C', ink: '#D8C0AE' },
 };
 
 const light = {
@@ -67,8 +68,8 @@ const light = {
   accentSoft: '#F0ECF8',
   accentBorder: '#DCD4EF',
   accentInk: '#7057BD',
-  conflict: '#A2342F',
-  conflictBg: '#FBEDEB',
+  conflict: '#9F431F',
+  conflictBg: '#F8EDE5',
   changed: '#80510A',
   changedBg: '#FBEFD5',
   added: '#246C43',
@@ -104,8 +105,8 @@ const dark: Palette = {
   accentSoft: '#2B253A',
   accentBorder: '#453B5A',
   accentInk: '#C3AFF8',
-  conflict: '#FFACA4',
-  conflictBg: '#3B2524',
+  conflict: '#E8A274',
+  conflictBg: '#3A2A20',
   changed: '#E2A84B',
   changedBg: '#3A2D14',
   added: '#5CC08A',

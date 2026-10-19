@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Wordmark } from '@/app/Wordmark';
+import { APP_STORE_LIVE, APP_STORE_URL } from '@/lib/site';
 
 export function SiteHeader() {
   return (
@@ -9,9 +10,16 @@ export function SiteHeader() {
       </Link>
       <nav className="nav" aria-label="Main">
         <Link href="/pricing">Pricing</Link>
-        <Link className="btn ghost" href="/#try">
-          Try it
-        </Link>
+        <Link href="/#try">Try it</Link>
+        {APP_STORE_LIVE ? (
+          <a className="btn" href={APP_STORE_URL}>
+            Get the app
+          </a>
+        ) : (
+          <Link className="btn" href="/#try">
+            Get the app
+          </Link>
+        )}
       </nav>
     </header>
   );

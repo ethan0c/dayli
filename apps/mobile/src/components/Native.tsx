@@ -63,8 +63,8 @@ export function NativeToggle({ value, onChange, label, activeColor }: ToggleProp
       accessibilityRole="switch"
       accessibilityLabel={label}
       accessibilityState={{ checked: value }}
-      style={[styles.toggle, { backgroundColor: value ? activeColor ?? c.inkPrimary : c.line }]}>
-      <View style={[styles.knob, { backgroundColor: c.canvas, alignSelf: value ? 'flex-end' : 'flex-start' }]} />
+      style={[styles.toggle, { backgroundColor: value ? activeColor ?? c.added : c.line }]}>
+      <View style={[styles.knob, { backgroundColor: '#FFFFFF', alignSelf: value ? 'flex-end' : 'flex-start' }]} />
     </Pressable>
   );
 }

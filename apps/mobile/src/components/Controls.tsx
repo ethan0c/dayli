@@ -88,7 +88,7 @@ export function StatusPill({ label, tone = 'grey', tabular = true }: { label: st
   const look = {
     grey: { bg: c.row, ink: c.inkPrimary },
     redText: { bg: c.row, ink: c.conflict },
-    red: { bg: c.conflict, ink: '#FFFFFF' },
+    red: { bg: c.conflict, ink: c.onPrimary },
     green: { bg: c.addedBg, ink: c.added },
     amber: { bg: c.changedBg, ink: c.changed },
   }[tone];
@@ -106,9 +106,9 @@ export function SectionTitle({ title, onPress, detail }: { title: string; onPres
   const { c } = useTheme();
   const inner = (
     <View style={styles.sectionTitle}>
-      <T token="title" accessibilityRole="header">{title}</T>
+      <T token="title" accessibilityRole="header" style={{ flexShrink: 1 }}>{title}</T>
       {onPress ? <Icon name="chevronRight" size={18} color={c.inkSecondary} /> : null}
-      {detail ? <T token="caption" color={c.inkSecondary} style={{ marginLeft: 'auto' }}>{detail}</T> : null}
+      {detail ? <T token="caption" color={c.inkSecondary} style={{ marginLeft: 'auto', flexShrink: 1, textAlign: 'right' }}>{detail}</T> : null}
     </View>
   );
   if (!onPress) return inner;
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 40, borderRadius: 999 },
   tile: { flex: 1, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', gap: 4 },
   pill: { height: 28, paddingHorizontal: 10, borderRadius: 14, alignItems: 'center', justifyContent: 'center', maxWidth: 160 },
-  sectionTitle: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingBottom: 6 },
+  sectionTitle: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingBottom: 12 },
   groupLabel: { paddingBottom: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingVertical: 8 },
   rowText: { flex: 1, minWidth: 0, gap: 2 },

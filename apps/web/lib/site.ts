@@ -8,6 +8,8 @@ export const SITE_NAME = 'Semli';
 /** The App Store record (not live yet); the listing name is "Semli: AI Student Planner". */
 export const APP_STORE_ID = '6824600264';
 export const APP_STORE_URL = 'https://apps.apple.com/us/app/semli-ai-student-planner/id6824600264';
+/** Flip when the App Store listing goes live; until then "Get the app" scrolls to the demo. */
+export const APP_STORE_LIVE = false;
 export const SUPPORT_EMAIL = 'hello@semli.app';
 
 /** Search terms the site is written to answer; used in metadata and the landing pages. */

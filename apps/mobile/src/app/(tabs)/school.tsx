@@ -2,12 +2,12 @@ import { WEEKDAYS, addDays, diffDays, formatTime, monthDay, weekdayOf, weekdaySh
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { CategoryDot, GroupLabel, ListRow, SectionTitle, StatusPill, itemStatus } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
+import { TabHeader } from '@/components/TabHeader';
 import { TermLine, type TermMark } from '@/components/TermLine';
 import { useNow } from '@/lib/now';
 import { useCourseList, useItemList, type StoredCourse } from '@/store';
@@ -16,13 +16,6 @@ import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
 /** Four weeks from today, the span of the deadline map. */
 const MAP_DAYS = 28;
 const EXAM = /exam|quiz|midterm|final|test\b/i;
-
-/** "Fall 2026", "Spring 2027", "Summer 2027" for a local date. */
-function termLabel(date: string): string {
-  const [y, m] = date.split('-').map(Number);
-  const season = m! >= 8 ? 'Fall' : m! <= 5 ? 'Spring' : 'Summer';
-  return `${season} ${y}`;
-}
 
 /** "Mon, Wed 9 am" from a course's repeating events, or null when it has none. */
 function meetingPattern(events: Item[]): string | null {
@@ -48,7 +41,6 @@ function weekLabels(today: string): string[] {
 
 export default function SchoolScreen() {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
   const now = useNow();
   const courses = useCourseList();
   const items = useItemList();
@@ -73,7 +65,7 @@ export default function SchoolScreen() {
   const big = !next ? 'Clear' : days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days} days`;
   const when = next ? [days < 7 ? weekdayShort(next.date) : monthDay(next.date), next.start ? formatTime(next.start, true) : null].filter(Boolean).join(' ') : '';
   const nextCourse = next ? courses.find((k) => k.id === next.courseId) : undefined;
-  const eyebrow = `${termLabel(now.date)} · ${courses.length} ${courses.length === 1 ? 'course' : 'courses'}${next ? ' · next due in' : ''}`;
+  const nextDueLabel = days > 1 ? 'Next due in' : 'Next due';
 
   const keepUpToDate = (
     <View style={styles.section}>
@@ -86,11 +78,8 @@ export default function SchoolScreen() {
   if (courses.length === 0) {
     return (
       <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-        <View style={[styles.top, { paddingTop: insets.top + 24 }]}>
-          <T token="callout" color={c.inkSecondary}>Your semester</T>
-          <T token="display">Nothing from school yet.</T>
-          <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>Add a syllabus and the whole term lands here.</T>
-        </View>
+        <TabHeader date={now.date} label="Your semester" title="School"
+          details={<T token="callout" color={c.inkSecondary}>Add a syllabus and the whole term lands here.</T>} />
         {keepUpToDate}
       </ScrollView>
     );
@@ -98,20 +87,17 @@ export default function SchoolScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-      <Pressable accessibilityRole={next ? 'button' : undefined} disabled={!next} onPress={() => next && router.push(`/item/${next.id}`)}
-        accessibilityLabel={next ? `Next due ${big.toLowerCase()}, ${next.title}, ${when}` : undefined}
-        style={({ pressed }) => [styles.top, { paddingTop: insets.top + 24, opacity: pressed ? 0.7 : 1 }]}>
-        <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
-        <T token="displayXl" tabular>{big}</T>
-        {next ? (
-          <View style={{ gap: 2, paddingTop: 6 }}>
+      <TabHeader date={now.date} label={next ? nextDueLabel : 'All caught up'} title={big}
+        onPress={next ? () => router.push(`/item/${next.id}`) : undefined}
+        accessibilityLabel={next ? `${nextDueLabel} ${big.toLowerCase()}, ${next.title}, ${when}` : undefined}
+        details={next ? (
+          <>
             <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{`${next.title} · ${when}`}</T>
             {nextCourse ? <T token="callout" color={c.inkSecondary}>{nextCourse.code ?? nextCourse.title}</T> : null}
-          </View>
+          </>
         ) : (
-          <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>Nothing due in the next four weeks.</T>
-        )}
-      </Pressable>
+          <T token="callout" color={c.inkSecondary}>No upcoming deadlines.</T>
+        )} />
 
       <View style={styles.section}>
         <SectionTitle title="Next four weeks" detail={`${inMap.length} due`} />
@@ -141,7 +127,7 @@ export default function SchoolScreen() {
               </View>
             );
           })}
-          <T token="caption" color={c.inkSecondary} style={{ paddingLeft: 66 }}>Dots are due dates, rings are exams, red is due today.</T>
+          <T token="caption" color={c.inkSecondary} style={{ paddingLeft: 66 }}>Dots are due dates, rings are exams, orange is due today.</T>
         </View>
       </View>
 
@@ -159,7 +145,7 @@ export default function SchoolScreen() {
               trailing={<StatusPill label={status.label} tone={status.tone} />}
               chevron
               accessibilityLabel={`${course.code ?? course.title}, ${course.title}, ${nextDue ? `${nextDue.title} ${status.label}` : 'nothing due'}`}
-              onPress={nextDue ? () => router.push(`/item/${nextDue.id}`) : undefined} />
+              onPress={() => router.push(`/course/${course.id}`)} />
           );
         })}
       </View>
@@ -170,7 +156,6 @@ export default function SchoolScreen() {
 }
 
 const styles = StyleSheet.create({
-  top: { paddingHorizontal: SCREEN_GUTTER, gap: 2 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
   map: { paddingTop: 10, gap: 10 },
   mapRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },

@@ -24,8 +24,8 @@ function gap(now: { date: string; time: string }, date: string, time: string | n
   if (!time) return null;
   const mins = toMinutes(time) - toMinutes(now.time) + diffDays(now.date, date) * 1440;
   if (mins < 0) return null;
-  if (mins < 60) return `in ${mins}m`;
-  if (mins < 1440) return `in ${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m`;
+  if (mins < 60) return `In ${mins}m`;
+  if (mins < 1440) return `In ${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m`;
   return null;
 }
 
@@ -92,6 +92,7 @@ export default function ItemScreen() {
   const noun = isEvent ? 'event' : 'to-do';
   const course = item.courseId ? courses.find((k) => k.id === item.courseId) : null;
   const where = [item.employer ?? course?.code ?? course?.title, item.category === 'school' ? 'Coursework' : item.category === 'work' ? 'Work' : 'Personal'].filter(Boolean).join(' · ');
+  const whereHref = item.employer ? `/employer/${encodeURIComponent(item.employer)}` : item.courseId && course ? `/course/${item.courseId}` : null;
   const batch = item.batchId ? batches.find((b) => b.id === item.batchId) : undefined;
   const sourceDate = longMonthDay((batch?.createdAt ?? item.createdAt).slice(0, 10));
   const source = item.sourceId === SAMPLE_SOURCE ? 'Sample data'
@@ -122,7 +123,7 @@ export default function ItemScreen() {
 
   const reminderLine = reminders.enabled
     ? isEvent && item.start ? `Reminder ${reminders.eventLead} min before` : item.isDeadline ? 'Reminder the evening before and the morning of' : 'In the morning briefing'
-    : 'Reminders are off · turn them on in You';
+    : 'Reminders are off · Turn them on in You';
 
   const shorten = (date: string) => {
     if (!isLocalDate(date) || date >= seriesEnd) return;
@@ -210,8 +211,14 @@ export default function ItemScreen() {
               <T token="body">{`${weekdayLong(item.date)}, ${longMonthDay(item.date)}`}{item.isDeadline ? <T token="body" color={c.inkSecondary}> · Deadline</T> : null}</T>
             </Row>
           )}
-          <Row><T token="body">{where}</T></Row>
-          {source ? <Row><T token="body">{source}</T></Row> : null}
+          <Row onPress={whereHref ? () => router.push(whereHref) : undefined} accessibilityLabel={whereHref ? `${where}, open` : undefined}>
+            <T token="body">{where}</T>
+          </Row>
+          {source ? (
+            <Row onPress={item.batchId && batch ? () => router.push(`/import/${item.batchId}`) : undefined} accessibilityLabel={batch ? `${source}, open the import` : undefined}>
+              <T token="body">{source}</T>
+            </Row>
+          ) : null}
           {repeats ? (
             <Row trailing={editing === 'until' ? null : <TextButton label="Change" onPress={() => setEditing('until')} accessibilityLabel="Change when it stops repeating" />}>
               <T token="body" style={{ flex: 1 }}>{`Repeats ${seriesDays.join(', ')} until ${monthDay(seriesEnd)} · ${seriesLeft} left`}</T>
@@ -281,8 +288,8 @@ export default function ItemScreen() {
 
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24, gap: 14 },
-  head: { gap: 2, paddingBottom: 8 },
-  eyebrowRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  head: { gap: 12, paddingBottom: 8 },
+  eyebrowRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   time: { fontSize: 44, lineHeight: 48, letterSpacing: -1.4, paddingTop: 4 },
   addTime: { alignSelf: 'flex-start', height: 36, borderRadius: 18, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
   pickers: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 8, flexWrap: 'wrap' },

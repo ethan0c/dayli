@@ -55,8 +55,8 @@ The personality is calm, precise, and approachable. Warmth comes from typography
 | Control outline | `#82837B` | `#92938A` | Empty completion circles |
 | Lavender accent | `#7057BD` | `#C3AFF8` | Selection and accent text |
 | Lavender wash | `#F0ECF8` | `#2B253A` | One upcoming event or selected context |
-| Conflict ink | `#A2342F` | `#FFACA4` | Overlap label and alert icon |
-| Conflict wash | `#FBEDEB` | `#3B2524` | Local conflict surface |
+| Conflict ink | `#9F431F` | `#E8A274` | Overlap label and alert icon |
+| Conflict wash | `#F8EDE5` | `#3A2A20` | Local conflict surface |
 
 Aim for roughly 85–90% neutral surfaces in a populated screen. This is an art direction guide, not a measured requirement. Course colors can remain as small labeled markers; full-row category fills become an optional preference to evaluate later. Every category keeps a text label. Reserve conflict colors for an issue that requires attention.
 

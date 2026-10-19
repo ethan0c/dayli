@@ -1,9 +1,8 @@
-import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, monthDay, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong } from '@dayli/core';
+import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary } from '@dayli/core';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GroupLabel, IconButton, ListRow, SectionTitle, TextButton } from '@/components/Controls';
 import { DayBar } from '@/components/DayBar';
@@ -13,6 +12,7 @@ import { ItemRow } from '@/components/ItemRow';
 import { PhotoHeader } from '@/components/PhotoHeader';
 import { T } from '@/components/Text';
 import { Ticker } from '@/components/Ticker';
+import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
 import { feedback } from '@/lib/feedback';
 import { momentFor } from '@/lib/moments';
@@ -31,7 +31,6 @@ function countdown(mins: number): string {
 
 export default function TodayScreen() {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
   const now = useNow();
   const items = useItemList();
   const schedules = useScheduleList();
@@ -73,18 +72,18 @@ export default function TodayScreen() {
 
   // The one big number: minutes until the next commitment, or until the current one ends.
   const nowMin = toMinutes(now.time);
-  let eyebrow = `${weekdayLong(now.date)}, ${monthDay(now.date)}`;
+  let timingLabel: string | null = null;
   let big: string | null = null;
   if (featured?.start) {
     if (ongoing && featured.end) {
-      eyebrow += ' · ends in';
+      timingLabel = 'Ends in';
       big = countdown(toMinutes(featured.end) - nowMin + (toMinutes(featured.end) < toMinutes(featured.start) ? 1440 : 0));
     } else if (!ongoing) {
       const dayGap = diffDays(now.date, featured.date);
-      eyebrow += ' · next in';
+      timingLabel = 'Next in';
       big = countdown(toMinutes(featured.start) - nowMin + dayGap * 1440);
     } else {
-      eyebrow += ' · now';
+      timingLabel = 'Happening now';
     }
   }
   const featuredWhere = featured ? [featured.employer ?? courses.find((k) => k.id === featured.courseId)?.code, featured.category === 'school' ? 'Coursework' : featured.category === 'work' ? 'Work' : 'Personal'].filter(Boolean).join(' · ') : '';
@@ -101,7 +100,7 @@ export default function TodayScreen() {
 
   if (items.length === 0 && courses.length === 0 && schedules.length === 0) return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-      <TodayStart date={now.date} paddingTop={insets.top + 18} />
+      <TodayStart date={now.date} />
     </ScrollView>
   );
 
@@ -116,45 +115,15 @@ export default function TodayScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">
-      {moment ? (
-        <>
-          <PhotoHeader source={moment.image} height={330} to={c.canvas} />
-          <View style={[styles.top, { paddingTop: 206 }]}>
-            <T token="callout" color={c.inkSecondary}>{moment.lead}</T>
-            <T token="displayXl" tabular>{moment.big}</T>
-            <View style={styles.momentLine}>
-              <T token="body">{moment.line}</T>
-              {moment.action ? <TextButton label={moment.action.label} onPress={() => router.push(moment.action!.href as '/plan')} /> : null}
-            </View>
-          </View>
-          <View style={[styles.topRow, { paddingTop: 26 }]}>
-            <Pressable accessibilityRole={featured ? 'button' : undefined} disabled={!featured} onPress={() => featured && router.push(`/item/${featured.id}`)}
-              style={({ pressed }) => [styles.topText, { opacity: pressed ? 0.7 : 1 }]}>
-              <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
-              {big ? <Ticker value={big} token="displayXl" style={{ fontSize: 34, lineHeight: 40, letterSpacing: -0.9 }} accessibilityLabel={`${ongoing ? 'Ends in' : 'Next in'} ${big}`} /> : <T token="display">{featured ? 'Now' : 'Clear'}</T>}
-              {nextTitle ? <T token="body" style={{ paddingTop: 2 }}>{nextTitle}</T> : <T token="callout" color={c.inkSecondary} style={{ paddingTop: 2 }}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>}
-            </Pressable>
-            {viewToggle}
-          </View>
-        </>
-      ) : (
-        <View style={[styles.topRow, { paddingTop: insets.top + 24 }]}>
-          <Pressable accessibilityRole={featured ? 'button' : undefined} disabled={!featured} onPress={() => featured && router.push(`/item/${featured.id}`)}
-            style={({ pressed }) => [styles.topText, { opacity: pressed ? 0.7 : 1 }]}>
-            <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
-            {big ? <Ticker value={big} token="displayXl" accessibilityLabel={`${ongoing ? 'Ends in' : 'Next in'} ${big}`} /> : <T token="displayXl">{featured ? 'Now' : 'Clear'}</T>}
-            {featured ? (
-              <View style={{ gap: 2, paddingTop: 6 }}>
-                <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{nextTitle}</T>
-                {featuredWhere ? <T token="callout" color={c.inkSecondary}>{featuredWhere}</T> : null}
-              </View>
-            ) : (
-              <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>
-            )}
-          </Pressable>
-          {viewToggle}
-        </View>
-      )}
+      <TabHeader date={now.date} label={timingLabel ?? 'Your day'} title={featured ? 'Now' : 'Clear'}
+        value={big ? <Ticker value={big} token="displayXl" /> : undefined}
+        trailing={viewToggle}
+        onPress={featured ? () => router.push(`/item/${featured.id}`) : undefined}
+        accessibilityLabel={featured ? `${timingLabel ?? 'Now'} ${big ?? ''}, ${nextTitle}` : undefined}
+        details={featured ? <>
+          <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{nextTitle}</T>
+          {featuredWhere ? <T token="callout" color={c.inkSecondary}>{featuredWhere}</T> : null}
+        </> : <T token="callout" color={c.inkSecondary}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>} />
 
       <Animated.View layout={layout}>
         {hours ? (
@@ -165,11 +134,23 @@ export default function TodayScreen() {
             </View>
           </Animated.View>
         ) : (
-          <Animated.View key="list" entering={enter.fade} exiting={exit.fade} style={[styles.bar, moment ? { paddingTop: 18 } : null]}>
+          <Animated.View key="list" entering={enter.fade} exiting={exit.fade} style={styles.bar}>
             <DayBar items={todays} now={now} conflicts={conflictSet} />
           </Animated.View>
         )}
       </Animated.View>
+
+      {moment ? (
+        <View style={styles.moment}>
+          <PhotoHeader source={moment.image} height={330} to={c.canvas} />
+          <T token="callout" color={c.inkSecondary}>{moment.lead}</T>
+          <T token="display" tabular>{moment.big}</T>
+          <View style={styles.momentLine}>
+            <T token="body">{moment.line}</T>
+            {moment.action ? <TextButton label={moment.action.label} onPress={() => router.push(moment.action!.href as '/plan')} /> : null}
+          </View>
+        </View>
+      ) : null}
 
       <Animated.View layout={layout} style={styles.section}>
         <SectionTitle title="On your list" onPress={() => router.push('/plan')} detail={conflictsToday ? `${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : undefined} />
@@ -270,14 +251,12 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
-  top: { paddingHorizontal: SCREEN_GUTTER, gap: 2 },
-  topRow: { paddingHorizontal: SCREEN_GUTTER, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  topText: { flex: 1, minWidth: 0, gap: 2 },
   bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
   hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 18 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   inlineAction: { paddingLeft: 34 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 20 },
+  moment: { position: 'relative', marginTop: 24, paddingHorizontal: SCREEN_GUTTER, paddingTop: 206, paddingBottom: 12, gap: 8 },
   momentLine: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingTop: 6 },
 });

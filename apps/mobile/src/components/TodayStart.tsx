@@ -1,4 +1,3 @@
-import { monthDay, weekdayLong } from '@dayli/core';
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
@@ -6,6 +5,7 @@ import { CategoryDot, ListRow, SectionTitle, StatusPill } from '@/components/Con
 import { Icon } from '@/components/Icon';
 import { Check } from '@/components/ItemRow';
 import { T } from '@/components/Text';
+import { TabHeader } from '@/components/TabHeader';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
@@ -14,7 +14,7 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
  * Today and Plan before anything is added: three ways to start as rows, then two
  * example rows showing what the screen will look like. No cards, no tiles.
  */
-export function TodayStart({ date, paddingTop = 0 }: { date: string; paddingTop?: number }) {
+export function TodayStart({ date, tab = 'Today' }: { date: string; tab?: 'Today' | 'Plan' }) {
   const { c } = useTheme();
   const open = (source?: 'image' | 'file') => {
     feedback('tap');
@@ -24,11 +24,8 @@ export function TodayStart({ date, paddingTop = 0 }: { date: string; paddingTop?
   };
   return (
     <View>
-      <View style={[styles.top, { paddingTop }]}>
-        <T token="callout" color={c.inkSecondary}>{`${weekdayLong(date)}, ${monthDay(date)}`}</T>
-        <T token="display">Your week starts here.</T>
-        <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>Add one thing and Today fills in. Everything is checked with you first.</T>
-      </View>
+      <TabHeader date={date} label="Your week starts here" title={tab}
+        details={<T token="callout" color={c.inkSecondary}>Add one thing and {tab} fills in. Everything is checked with you first.</T>} />
 
       <View style={styles.section}>
         <SectionTitle title="Start with" />
@@ -64,7 +61,6 @@ export function TodayStart({ date, paddingTop = 0 }: { date: string; paddingTop?
 }
 
 const styles = StyleSheet.create({
-  top: { paddingHorizontal: SCREEN_GUTTER, gap: 2 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
   examples: { opacity: 0.55 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, borderBottomWidth: StyleSheet.hairlineWidth },

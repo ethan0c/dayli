@@ -100,6 +100,9 @@ function RootLayout() {
             {/* Flows slide up as full-screen covers with an X; detail screens push with a back chevron. */}
             <Stack.Screen name="create" options={{ presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
             <Stack.Screen name="item/[id]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
+            <Stack.Screen name="course/[id]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
+            <Stack.Screen name="employer/[name]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
+            <Stack.Screen name="import/[id]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
             <Stack.Screen name="settings" />
           </Stack.Protected>
         </Stack>

@@ -4,13 +4,13 @@ import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { PanResponder, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CategoryDot, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { ItemRow } from '@/components/ItemRow';
 import { TimeField } from '@/components/Native';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
+import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
 import { WeekChart, type WeekDay } from '@/components/WeekChart';
 import { feedback } from '@/lib/feedback';
@@ -37,7 +37,6 @@ const isUntimedShift = (item: Item) => item.kind === 'event' && item.category ==
 
 export default function PlanScreen() {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
   const now = useNow();
   const items = useItemList();
   const schedules = useScheduleList();
@@ -121,7 +120,7 @@ export default function PlanScreen() {
 
   if (starting) return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-      <TodayStart date={now.date} paddingTop={insets.top + 18} />
+      <TodayStart date={now.date} tab="Plan" />
     </ScrollView>
   );
 
@@ -130,7 +129,7 @@ export default function PlanScreen() {
     const copy = sameAs(it);
     return (
       <View style={[styles.shift, { borderBottomColor: c.line }]}>
-        <ListRow title={it.title} sub={it.start ? where(it) : `${it.employer ?? 'Work'} · no time yet, so no reminder`} chevron={false} last
+        <ListRow title={it.title} sub={it.start ? where(it) : `${it.employer ?? 'Work'} · No time yet, so no reminder`} chevron={false} last
           leading={<View style={styles.lead}><CategoryDot color={c.category.work.ink} /></View>}
           trailing={it.start ? <StatusPill label={formatTime(it.start)} /> : <StatusPill label="Add a time" tone="amber" tabular={false} />}
           onPress={() => router.push(`/item/${it.id}`)} />
@@ -163,15 +162,13 @@ export default function PlanScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
       <ScrollView contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
-        <View style={[styles.head, { paddingTop: insets.top + 18 }]}>
-          <T token="title" accessibilityRole="header">{`Week of ${monthDay(weekStart)}`}</T>
-          <T token="caption" color={c.inkSecondary} tabular>{`${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}</T>
-        </View>
+        <TabHeader date={now.date} label={`Week of ${monthDay(weekStart)}`} title="Plan"
+          details={<T token="callout" color={c.inkSecondary} tabular>{`${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}</T>} />
         <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined}
           style={styles.chart} {...swipe.panHandlers}>
           <WeekChart days={days} selected={selected} today={now.date} onSelect={(date) => { if (date !== selected) feedback('select'); setSelected(date); }} />
         </Animated.View>
-        <T token="caption" color={c.inkSecondary} style={styles.legend}>Green is done, red is an overlap, a ring is an exam. Swipe for next week.</T>
+        <T token="caption" color={c.inkSecondary} style={styles.legend}>Green is done, orange is an overlap, a ring is an exam. Swipe for next week.</T>
 
         <Animated.View layout={layout} style={styles.section}>
           <SectionTitle title={isToday ? 'Today' : weekdayLong(selected)}
@@ -206,7 +203,7 @@ export default function PlanScreen() {
             <SectionTitle title="Rest of the week" />
             {rest.map((it, i) => (
               <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
-                <ListRow title={it.title} sub={[where(it), it.isDeadline ? 'deadline' : null].filter(Boolean).join(' · ')} chevron={false} last={i === rest.length - 1 && !nextWeekPending}
+                <ListRow title={it.title} sub={[where(it), it.isDeadline ? 'Deadline' : null].filter(Boolean).join(' · ')} chevron={false} last={i === rest.length - 1 && !nextWeekPending}
                   trailing={<StatusPill label={`${weekdayShort(it.date)}${it.start ? ` ${formatTime(it.start, true)}` : ''}`} />}
                   onPress={() => router.push(`/item/${it.id}`)} />
               </Animated.View>
@@ -222,7 +219,6 @@ export default function PlanScreen() {
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: SCREEN_GUTTER, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
   legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },

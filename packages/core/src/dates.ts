@@ -97,11 +97,11 @@ export function weekdayShort(date: string): string {
   return weekdayOf(date).charAt(0).toUpperCase() + weekdayOf(date).slice(1);
 }
 
-/** "today", "tomorrow", "in 3 days", "yesterday", "2 days ago". */
+/** Sentence-case date labels: "Today", "Tomorrow", "In 3 days", "Yesterday", "2 days ago". */
 export function relativeDay(today: string, date: string): string {
   const n = diffDays(today, date);
-  if (n === 0) return 'today';
-  if (n === 1) return 'tomorrow';
-  if (n === -1) return 'yesterday';
-  return n > 0 ? `in ${n} days` : `${-n} days ago`;
+  if (n === 0) return 'Today';
+  if (n === 1) return 'Tomorrow';
+  if (n === -1) return 'Yesterday';
+  return n > 0 ? `In ${n} days` : `${-n} days ago`;
 }

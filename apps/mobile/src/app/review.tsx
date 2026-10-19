@@ -243,12 +243,12 @@ export default function ReviewScreen() {
 
   // ---- Header copy ------------------------------------------------------------------
   const title = isSchedule
-    ? `${sched.employer}${nextWeek ? ' · next week' : ''}`
+    ? `${sched.employer}${nextWeek ? ' · Next week' : ''}`
     : isSyllabus
-      ? `${ex.course?.code ?? ex.course?.title ?? 'Course'} · syllabus`
+      ? `${ex.course?.code ?? ex.course?.title ?? 'Course'} · Syllabus`
       : ex.detected_type === 'course_schedule' ? 'Class schedule' : 'Review';
 
-  const intro = isUpdate && sched ? `${monthDay(sched.coversFrom)} to ${monthDay(sched.coversTo)} · compared with what you have` : `From ${source} · found`;
+  const intro = isUpdate && sched ? `${monthDay(sched.coversFrom)} to ${monthDay(sched.coversTo)} · Compared with what you have` : `From ${source} · Found`;
 
   const newHours = shifts.reduce((m, d) => m + minutesOf(d.start, d.end), 0);
   const oldHours = diff ? [...diff.changed.map((ch) => ch.before), ...diff.unchanged.map((u) => u.before), ...diff.removed].reduce((m, i) => m + minutesOf(i.start, i.end), 0) : 0;
@@ -312,7 +312,7 @@ export default function ReviewScreen() {
     if (unknown) { label = 'time'; labelTone = 'amber'; }
     return { date, blocks, unknown, label: label ?? 'off', labelTone };
   };
-  const chartCaption = isUpdate ? 'Green is new, red outline is dropped, dashed is where a shift was.' : 'Each bar is 6 am to midnight. Tap a day to change it.';
+  const chartCaption = isUpdate ? 'Green is new, orange outline is dropped, dashed is where a shift was.' : 'Each bar is 6 am to midnight. Tap a day to change it.';
 
   const marks: TermMark[] = nonSeries.map((d) => {
     const exam = exams.includes(d);
@@ -321,7 +321,7 @@ export default function ReviewScreen() {
 
   // ---- Rows ------------------------------------------------------------------------
   const shiftTitle = (d: DatedDraft) => `${weekdayLong(d.date)}'s shift`;
-  const shiftWhen = (d: { date: string; start: string | null; end: string | null }) => `${weekdayShort(d.date)} ${dayNum(d.date)} · ${d.start && d.end ? longRange(d.start, d.end) : 'no time'}`;
+  const shiftWhen = (d: { date: string; start: string | null; end: string | null }) => `${weekdayShort(d.date)} ${dayNum(d.date)} · ${d.start && d.end ? longRange(d.start, d.end) : 'No time'}`;
   const overlapTitle = (d: DatedDraft): string | null => {
     if (!d.start || !d.end) return null;
     const probe: Pick<Item, 'id' | 'kind' | 'date' | 'start' | 'end' | 'done'> = { id: `draft:${d.key}`, kind: 'event', date: d.date, start: d.start, end: d.end, done: false };
@@ -379,7 +379,7 @@ export default function ReviewScreen() {
     const end = seriesEnd[s.id];
     const finalExam = exams.filter((e) => e.date >= s.first.date).at(-1);
     const suggested = finalExam
-      ? { date: finalExam.date, label: `${monthDay(finalExam.date)} · ${/final/i.test(finalExam.title) ? 'the final' : 'the last exam'}` }
+      ? { date: finalExam.date, label: `${monthDay(finalExam.date)} · ${/final/i.test(finalExam.title) ? 'The final' : 'The last exam'}` }
       : { date: s.first.seriesUntil ?? s.last.date, label: `${monthDay(s.first.seriesUntil ?? s.last.date)} · 15 weeks` };
     const when = s.first.start && s.first.end ? `${s.weekdays} ${longRange(s.first.start, s.first.end)}` : s.weekdays;
     const unknown = s.first.seriesEndUnknown;
@@ -431,7 +431,7 @@ export default function ReviewScreen() {
       ? nextWeek ? 'Update next week' : shifts.some((d) => d.date <= thisWeekEnd && d.date >= weekOf(today)[0]!) ? 'Update this week' : 'Update the schedule'
       : isSchedule
         ? `Add ${count(shifts.length, 'shift')}`
-        : `Add ${plan.create.length + plan.update.length}${undated.length ? ` · skip ${undated.length}` : ''}`;
+        : `Add ${plan.create.length + plan.update.length}${undated.length ? ` · Skip ${undated.length}` : ''}`;
 
   const footerNote = untimed.length
     ? `${untimed.map((d) => weekdayLong(d.date)).join(' and ')} ${untimed.length === 1 ? 'goes' : 'go'} in without a time. Plan will ask for ${untimed.length === 1 ? 'it' : 'them'}.`
@@ -568,8 +568,8 @@ function sourceNoun(source: string): string {
 
 const styles = StyleSheet.create({
   list: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 16 },
-  hero: { gap: 2 },
-  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2, paddingTop: 6 },
+  hero: { gap: 12 },
+  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2 },
   chart: { paddingTop: 24, gap: 8 },
   rows: { paddingTop: 20 },
 });

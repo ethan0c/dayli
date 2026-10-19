@@ -43,7 +43,7 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
       </View>
       {labels ? (
         <View style={styles.labels}>
-          {['6 am', 'noon', '6 pm', 'midnight'].map((l) => (
+          {['6 am', 'Noon', '6 pm', 'Midnight'].map((l) => (
             <T key={l} token="caption" color={c.inkSecondary} tabular style={{ fontSize: 11, lineHeight: 14 }}>{l}</T>
           ))}
         </View>
