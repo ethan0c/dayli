@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+// All native dependencies are mocked: exercise the shared entry-point policy directly.
+import { usePlusAccess as createAccess } from './plus-access';
 
 const mocks = vi.hoisted(() => ({
   refreshCustomerInfo: vi.fn(), presentPaywall: vi.fn(), track: vi.fn(),
@@ -8,9 +10,6 @@ vi.mock('./analytics', () => ({ track: mocks.track }));
 vi.mock('./revenuecat', () => ({ hasSemliPro: (info: { active?: boolean }) => info.active === true }));
 vi.mock('../providers/PurchasesProvider', () => ({ usePurchases: () => mocks }));
 vi.mock('../store', () => ({ useStore: { getState: () => ({ usage: mocks.usage }) } }));
-
-// All native dependencies are mocked: exercise the shared entry-point policy directly.
-import { usePlusAccess as createAccess } from './plus-access';
 
 beforeEach(() => {
   vi.clearAllMocks();

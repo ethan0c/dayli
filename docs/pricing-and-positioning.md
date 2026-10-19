@@ -83,7 +83,7 @@ The subscription source of truth is RevenueCat's active entitlement, including a
 
 **Remaining launch gap:** the extraction endpoint has no authenticated subscriber identity or durable server quota. Monthly usage is stored on the phone and can reset with app data. The UI gates are implemented, but production API enforcement still needs authenticated requests, server-side RevenueCat verification, and a durable import ledger. The public website demo also calls this endpoint. Do not treat the client allowance as API abuse protection.
 
-Rescheduling currently uses local scheduling rules, not an LLM: same day, 8 am–10 pm, original duration, at least 15 minutes between bookings, no past/ongoing event moves. Unknown event times prevent a suggestion. Study and workout plans default flexible; work, classes, exams, appointments and unknown event types default fixed. The person can change an event's flexibility, but deadlines/exams remain protected. A calendar slot does not establish other attendees' availability.
+Rescheduling currently uses local scheduling rules, not an LLM: try the same day first, then the following six days, 8 am–10 pm, original duration, at least 15 minutes between bookings, no past/ongoing event moves. Study sessions stay before the next known deadline in the same course. Days with unknown event times are skipped. Study and workout plans default flexible; work, classes, exams, appointments and unknown event types default fixed. The person can change an event's flexibility, but deadlines/exams remain protected. A calendar slot does not establish other attendees' availability.
 
 Rules:
 - First import is free and *before* sign-up. The paywall appears after the first confirmed import, when the value is visible.

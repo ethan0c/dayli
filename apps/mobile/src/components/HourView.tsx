@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   hour: { position: 'absolute', left: 0, right: 0, flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   hourLabel: { width: 40, fontSize: 11, lineHeight: 14, marginTop: -7 },
   rule: { flex: 1, height: StyleSheet.hairlineWidth },
-  block: { position: 'absolute', right: 0, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', gap: 2, overflow: 'hidden' },
+  block: { position: 'absolute', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', gap: 2, overflow: 'hidden' },
   blockText: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   nowLine: { position: 'absolute', left: 40, right: 0, height: 1.5 },
   nowDot: { position: 'absolute', left: 37, width: 7, height: 7, borderRadius: 4 },
