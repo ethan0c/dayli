@@ -19,7 +19,7 @@ export default function AppTabs() {
   return (
     <View style={{ flex: 1 }}>
       <NativeTabs tintColor={tint} minimizeBehavior="onScrollDown">
-        <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger name="index" disableAutomaticContentInsets>
           <NativeTabs.Trigger.Label>Today</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} />
         </NativeTabs.Trigger>
@@ -27,7 +27,7 @@ export default function AppTabs() {
           <NativeTabs.Trigger.Label>Plan</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon sf={{ default: 'checkmark.square', selected: 'checkmark.square.fill' }} />
         </NativeTabs.Trigger>
-        <NativeTabs.Trigger name="school">
+        <NativeTabs.Trigger name="school" disableAutomaticContentInsets>
           <NativeTabs.Trigger.Label>School</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon sf={{ default: 'graduationcap', selected: 'graduationcap.fill' }} />
         </NativeTabs.Trigger>

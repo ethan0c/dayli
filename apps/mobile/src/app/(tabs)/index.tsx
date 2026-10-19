@@ -71,8 +71,8 @@ export default function TodayScreen() {
   }
 
   return (
-    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} keyboardShouldPersistTaps="handled">
-      <ScreenHeader title="Today" subtitle={`${weekdayLong(now.date)}, ${monthDay(now.date)}`} />
+    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">
+      <ScreenHeader title="Today" subtitle={`${weekdayLong(now.date)}, ${monthDay(now.date)}`} safeTop />
       <View style={styles.head}>
         <T token="title">{greeting}{name ? `, ${name}.` : '.'}</T>
         <View style={[styles.now, { backgroundColor: c.row }]}>

@@ -29,8 +29,8 @@ export default function SchoolScreen() {
   const deadlines = items.filter((i) => i.courseId && i.isDeadline && !i.done && i.date >= now.date && diffDays(now.date, i.date) < 7);
 
   return (
-    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }}>
-      <ScreenHeader title="School" subtitle="Your semester" />
+    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
+      <ScreenHeader title="School" subtitle="Your semester" safeTop />
       <View style={styles.head}>
         {courses.length > 0 ? (
           <View style={[styles.summary, { borderColor: c.line }]}>
