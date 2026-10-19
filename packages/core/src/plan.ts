@@ -18,11 +18,18 @@ export interface Draft {
   evidence: string;
   question: string | null;
   needsInput: boolean;
+  /** Set on every occurrence expanded from one repeating item; null for one-offs. */
+  seriesId: string | null;
+  /** Last date of the series, and whether that end was a guess because the source did not say. */
+  seriesUntil: string | null;
+  seriesEndUnknown: boolean;
 }
 
 export type DatedDraft = Draft & { date: string };
 
 export const CONFIDENCE_THRESHOLD = 0.85;
+/** Fifteen weeks: a semester, used when a repeating class has no end date. */
+export const DEFAULT_TERM_DAYS = 105;
 
 export function iconFor(i: Pick<ExtractedItem, 'kind' | 'category' | 'title' | 'is_deadline'>): IconName {
   const t = i.title.toLowerCase();
@@ -45,13 +52,16 @@ export function toDrafts(extraction: Extraction, today: string): Draft[] {
   const drafts: Draft[] = [];
   extraction.items.forEach((raw, idx) => {
     const base = normalize(raw, today);
-    if (raw.repeat_weekdays.length > 0 && base.date && isLocalDate(raw.repeat_until)) {
-      const until = raw.repeat_until;
+    if (raw.repeat_weekdays.length > 0 && base.date) {
+      // A repeating class with no end date gets a 15-week term; the review asks "Until when?".
+      const endUnknown = !isLocalDate(raw.repeat_until);
+      const until = endUnknown ? addDays(base.date, DEFAULT_TERM_DAYS) : raw.repeat_until!;
       const days = new Set(raw.repeat_weekdays);
+      const seriesId = `series-${idx}-${base.date}`;
       let n = 0;
       for (let d = base.date; d <= until && n < 120; d = addDays(d, 1)) {
         if (days.has(weekdayOf(d))) {
-          drafts.push({ ...base, key: `${idx}-${n++}`, date: d });
+          drafts.push({ ...base, key: `${idx}-${n++}`, date: d, seriesId, seriesUntil: until, seriesEndUnknown: endUnknown, question: n === 1 && endUnknown ? 'Until when does this repeat?' : null, needsInput: n === 1 && endUnknown });
         }
       }
       if (n > 0) return;
@@ -87,6 +97,9 @@ function normalize(raw: ExtractedItem, today: string): Omit<Draft, 'key'> {
     evidence: raw.evidence,
     question,
     needsInput,
+    seriesId: null,
+    seriesUntil: null,
+    seriesEndUnknown: false,
   };
 }
 
@@ -161,6 +174,7 @@ export function planCommit(
     completedAt: null,
     courseId: courseIdByCode(d.courseCode),
     employer: d.category === 'work' ? extraction.employer : null,
+    seriesId: d.seriesId,
     notes: null,
   });
 

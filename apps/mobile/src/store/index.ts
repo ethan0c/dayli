@@ -34,6 +34,7 @@ export interface Pending {
 export type PlanId = 'monthly' | 'semester' | 'yearly';
 export type Appearance = 'system' | 'light' | 'dark';
 export type CardStyle = 'flat' | 'raised';
+export type TodayView = 'list' | 'hours';
 export type StoredCourse = Course & { batchId?: string; color?: TintName };
 
 interface Settings {
@@ -47,7 +48,10 @@ interface Settings {
   planIntent: PlanId | null;
   weekKinds: string[];
   appearance: Appearance;
+  /** Kept for stored settings; the app no longer draws cards. */
   cardStyle: CardStyle;
+  /** The top-right toggle on Today: the list, or the day by the hour. */
+  todayView: TodayView;
   /** UI sounds; they also follow the ring/silent switch. */
   sounds: boolean;
   haptics: boolean;
@@ -101,6 +105,8 @@ interface State {
   toggleDone: (id: string) => void;
   updateItem: (id: string, patch: Partial<Item>) => void;
   removeItem: (id: string) => void;
+  /** Delete several at once as one undoable batch: a week of lectures, the rest of a series. */
+  removeItems: (ids: string[], label: string) => void;
   addItem: (item: Omit<Item, 'id' | 'createdAt' | 'batchId'>) => string;
   applyPlan: (plan: CommitPlan, label: string, extra?: { source?: string; course?: Course }) => string;
   undoBatch: (id: string) => void;
@@ -125,7 +131,7 @@ export const useStore = create<State>()(
       suggestionDismissals: { date: '', ids: [] },
       captureDraft: '',
       selectedPlanDate: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null },
       usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),
@@ -182,6 +188,20 @@ export const useStore = create<State>()(
         delete items[id];
         const b = batch('Deleted ' + before.title, [{ op: 'delete', before, after: null }]);
         set({ items, batches: [b, ...get().batches], toast: { message: `Deleted ${before.title}.`, batchId: b.id } });
+      },
+
+      removeItems: (ids, label) => {
+        const items = { ...get().items };
+        const changes: Change[] = [];
+        for (const id of ids) {
+          const before = items[id];
+          if (!before) continue;
+          delete items[id];
+          changes.push({ op: 'delete', before, after: null });
+        }
+        if (changes.length === 0) return;
+        const b = batch(label, changes);
+        set({ items, batches: [b, ...get().batches], toast: { message: `${label}.`, batchId: b.id } });
       },
 
       addItem: (fields) => {

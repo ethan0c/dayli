@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
   page: { flexGrow: 1, gap: 24 },
   titleBlock: { gap: 6 },
   /** Light 30/36, the question size on every onboarding board. */
-  h1: { fontFamily: "Geist-Medium", fontSize: 30, lineHeight: 36, letterSpacing: -0.6 },
+  h1: { fontFamily: "Geist-Light", fontSize: 30, lineHeight: 36, letterSpacing: -0.6 },
   footer: { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
   choice: { flexDirection: "row", alignItems: "center", gap: 14, borderBottomWidth: StyleSheet.hairlineWidth },
   input: { height: 52, borderRadius: 999, paddingHorizontal: 20 },

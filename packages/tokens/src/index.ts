@@ -140,9 +140,9 @@ export const typeScale = {
   /** The one big number on a screen: countdown, price, moment. */
   displayXl: { size: 56, line: 60, weight: 'light', tracking: -0.035 },
   /** Screen heading on covers; the item title. */
-  display: { size: 34, line: 40, weight: 'medium', tracking: -0.02 },
+  display: { size: 34, line: 40, weight: 'light', tracking: -0.02 },
   /** Section titles, with a chevron. */
-  title: { size: 24, line: 30, weight: 'medium', tracking: -0.015 },
+  title: { size: 24, line: 30, weight: 'regular', tracking: -0.015 },
   /** Button labels. */
   headline: { size: 16, line: 22, weight: 'medium', tracking: 0 },
   body: { size: 16, line: 22, weight: 'regular', tracking: 0 },

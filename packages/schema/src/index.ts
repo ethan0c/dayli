@@ -78,6 +78,8 @@ export const Item = z.object({
   employer: z.string().nullable(),
   sourceId: z.string().nullable(),
   batchId: z.string().nullable(),
+  /** Shared by every occurrence expanded from one repeating item (a class that meets Mon/Wed). */
+  seriesId: z.string().nullable().optional(),
   notes: z.string().nullable(),
   createdAt: z.string(),
 });

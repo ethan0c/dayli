@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
 
@@ -71,6 +72,7 @@ function RootLayout() {
 
   const theme = dark ? DarkTheme : DefaultTheme;
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <PurchasesProvider>
       <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
         <Stack
@@ -102,6 +104,7 @@ function RootLayout() {
         <StatusBar style={dark ? 'light' : 'dark'} />
       </ThemeProvider>
     </PurchasesProvider>
+    </GestureHandlerRootView>
   );
 }
 
