@@ -1,0 +1,1017 @@
+{
+  "startedAt": "2026-10-19T17:23:59.881Z",
+  "model": "claude-opus-5-5",
+  "promptVersion": "2026-10-19.7",
+  "fixtureHash": "8d740c2f61997d943601bc6535c5e0ff83cb71dc75650e6d3fe175e58e9e4f89",
+  "coverage": true,
+  "counts": {
+    "text": 30,
+    "image": 10,
+    "pdf": 5
+  },
+  "byKind": {
+    "text": {
+      "cases": 30,
+      "expectedItems": 34,
+      "actualItems": 34,
+      "dateTimeAccuracy": 1,
+      "recall": 1,
+      "otherAccuracy": 1,
+      "extraRate": 0,
+      "questionRate": 0.08823529411764706,
+      "pass": true
+    },
+    "image": {
+      "cases": 10,
+      "expectedItems": 38,
+      "actualItems": 38,
+      "dateTimeAccuracy": 1,
+      "recall": 1,
+      "otherAccuracy": 1,
+      "extraRate": 0,
+      "questionRate": 0.02631578947368421,
+      "pass": true
+    },
+    "pdf": {
+      "cases": 5,
+      "expectedItems": 85,
+      "actualItems": 86,
+      "dateTimeAccuracy": 0.9921568627450981,
+      "recall": 1,
+      "otherAccuracy": 0.989247311827957,
+      "extraRate": 0.011627906976744186,
+      "questionRate": 0.23255813953488372,
+      "pass": true
+    }
+  },
+  "overall": {
+    "cases": 45,
+    "expectedItems": 157,
+    "actualItems": 158,
+    "dateTimeAccuracy": 0.9957537154989384,
+    "recall": 1,
+    "otherAccuracy": 0.9931506849315068,
+    "extraRate": 0.006329113924050633,
+    "questionRate": 0.1518987341772152,
+    "pass": true
+  },
+  "releasePass": true,
+  "rawReport": "evals/reports/full-v7.json",
+  "scope": "Development benchmark used for tuning: 30 synthetic texts; 10 public vendor demonstration schedule images across 3 vendors; 5 public university syllabi. Not an independent holdout or private user data.",
+  "cases": [
+    {
+      "id": "image-7shifts-split",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://kb.7shifts.com/hc/en-us/articles/4417513470099-How-to-Print-a-Schedule",
+      "inputHash": "acda1f675cd2a45f7cfec0256a3a0e2a6ce8a10f26829a809e2550991b179397",
+      "elapsedMs": 8052,
+      "score": {
+        "successful": true,
+        "expected": 6,
+        "actual": 6,
+        "matched": 6,
+        "timeCorrect": 18,
+        "timeTotal": 18,
+        "otherCorrect": 15,
+        "otherTotal": 15,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "image-deputy-area",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://help.deputy.com/hc/en-au/articles/4688737187343-Printing-your-schedule",
+      "inputHash": "cf7a4500c46e2feb7e2551f94f4ca9e83b1b1754b947914457ea9cf99eb3cd57",
+      "elapsedMs": 7989,
+      "score": {
+        "successful": true,
+        "expected": 5,
+        "actual": 5,
+        "matched": 5,
+        "timeCorrect": 15,
+        "timeTotal": 15,
+        "otherCorrect": 13,
+        "otherTotal": 13,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "image-deputy-day",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://help.deputy.com/hc/en-au/articles/4688737187343-Printing-your-schedule",
+      "inputHash": "36f584d9753d8d47852580e530cf7c6dfcc0949c55c2865f622393209091ca6a",
+      "elapsedMs": 3101,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 5,
+        "otherTotal": 5,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "image-deputy-excel",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://help.deputy.com/hc/en-au/articles/4688737187343-Printing-your-schedule",
+      "inputHash": "4e2349d329cf4382240d2e01c0a345a7c06866aa0abc2a78336d56fd6ecba5a4",
+      "elapsedMs": 9836,
+      "score": {
+        "successful": true,
+        "expected": 6,
+        "actual": 6,
+        "matched": 6,
+        "timeCorrect": 18,
+        "timeTotal": 18,
+        "otherCorrect": 15,
+        "otherTotal": 15,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "image-deputy-split",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://help.deputy.com/hc/en-au/articles/4688737187343-Printing-your-schedule",
+      "inputHash": "fdd3c5a0d9e9f00448f51fef25b1f6a700c21653f49b7f19b49997f42c660583",
+      "elapsedMs": 7043,
+      "score": {
+        "successful": true,
+        "expected": 3,
+        "actual": 3,
+        "matched": 3,
+        "timeCorrect": 9,
+        "timeTotal": 9,
+        "otherCorrect": 9,
+        "otherTotal": 9,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "image-wiw-android",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://help.wheniwork.com/articles/viewing-your-coworkers-schedules/",
+      "inputHash": "46b50f53b0181b0fd94eedfbdb0ed7537abfb13f5436dc56f9b6e31202978f3e",
+      "elapsedMs": 7636,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 3,
+        "otherTotal": 3,
+        "extra": 0,
+        "questions": 1,
+        "failures": []
+      }
+    },
+    {
+      "id": "image-wiw-coverage",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://help.wheniwork.com/articles/coverage-view-reference-guide/",
+      "inputHash": "7b095914c6a5c04f45f32e9d3e37224e4dcef36d302076873cc23e93289675c3",
+      "elapsedMs": 10268,
+      "score": {
+        "successful": true,
+        "expected": 6,
+        "actual": 6,
+        "matched": 6,
+        "timeCorrect": 18,
+        "timeTotal": 18,
+        "otherCorrect": 15,
+        "otherTotal": 15,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "image-wiw-ios",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://help.wheniwork.com/articles/viewing-your-coworkers-schedules/",
+      "inputHash": "85817388b6210599c7a82923b30f1bcb1babcdf2ea4ca7cb0353c8003ee542ce",
+      "elapsedMs": 6610,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 3,
+        "otherTotal": 3,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "image-wiw-jobsite",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://help.wheniwork.com/articles/scheduler-job-site-view-reference-guide/",
+      "inputHash": "4f0ad77134a84892437ca2ef061ccf21a7e08db2df42c19fb4731ae96b213a93",
+      "elapsedMs": 7516,
+      "score": {
+        "successful": true,
+        "expected": 4,
+        "actual": 4,
+        "matched": 4,
+        "timeCorrect": 12,
+        "timeTotal": 12,
+        "otherCorrect": 11,
+        "otherTotal": 11,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "image-wiw-user",
+      "kind": "image",
+      "provenance": "public",
+      "source": "https://help.wheniwork.com/articles/user-view-reference-guide/",
+      "inputHash": "0b7c729c3c7c384ed72df018e1bdac30f632c87b676d3517d6c18c9554264cc7",
+      "elapsedMs": 9233,
+      "score": {
+        "successful": true,
+        "expected": 5,
+        "actual": 5,
+        "matched": 5,
+        "timeCorrect": 15,
+        "timeTotal": 15,
+        "otherCorrect": 13,
+        "otherTotal": 13,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "pdf-camosun-nursing",
+      "kind": "pdf",
+      "provenance": "public",
+      "source": "https://legacy.camosun.ca/learn/course-outlines/Nursing%20%28NURS%29/NURS-143-X04-Various-2025W.pdf",
+      "inputHash": "b3c634517706fb157aae80d207dd2770e5d38d75e9a46417c1b2e270ac811660",
+      "elapsedMs": 17537,
+      "score": {
+        "successful": true,
+        "expected": 7,
+        "actual": 7,
+        "matched": 7,
+        "timeCorrect": 21,
+        "timeTotal": 21,
+        "otherCorrect": 29,
+        "otherTotal": 29,
+        "extra": 0,
+        "questions": 7,
+        "failures": []
+      }
+    },
+    {
+      "id": "pdf-east-texas-nursing",
+      "kind": "pdf",
+      "provenance": "public",
+      "source": "https://inside.tamuc.edu/academics/cvSyllabi/syllabi/202520/22283.pdf",
+      "inputHash": "d5704eb33b4c16f42a1ad500b508d141b1ad7ec55d957d9257e952ffb139f88c",
+      "elapsedMs": 63946,
+      "score": {
+        "successful": true,
+        "expected": 39,
+        "actual": 39,
+        "matched": 39,
+        "timeCorrect": 115,
+        "timeTotal": 117,
+        "otherCorrect": 124,
+        "otherTotal": 125,
+        "extra": 0,
+        "questions": 8,
+        "failures": [
+          "dosage.*(?:make.up|retake)|make.up.*dosage.kind: expected \"task\", got \"event\"",
+          "simulation.start: expected \"11:50\", got null",
+          "simulation.end: expected \"14:40\", got null"
+        ]
+      }
+    },
+    {
+      "id": "pdf-florida-economics",
+      "kind": "pdf",
+      "provenance": "public",
+      "source": "https://fred.ifas.ufl.edu/media/fredifasufledu/undergradsyll/fall2024/AEB4283Mullally.pdf",
+      "inputHash": "81679146072b5d21500e23b04598376960cdd8d62b4d2b147128bc6f688ac77c",
+      "elapsedMs": 20199,
+      "score": {
+        "successful": true,
+        "expected": 6,
+        "actual": 6,
+        "matched": 6,
+        "timeCorrect": 18,
+        "timeTotal": 18,
+        "otherCorrect": 21,
+        "otherTotal": 23,
+        "extra": 0,
+        "questions": 2,
+        "failures": [
+          "class|lecture.repeat_until: expected \"2024-12-04\", got \"2024-11-21\"",
+          "class|lecture.repeat_until: expected \"2024-12-04\", got \"2024-11-19\""
+        ]
+      }
+    },
+    {
+      "id": "pdf-msutexas-psychology",
+      "kind": "pdf",
+      "provenance": "public",
+      "source": "https://directory.msutexas.edu/storage/files/syllabus_20250113021948.pdf",
+      "inputHash": "af7b119057c3143172f7c785a96e4223ba13ea583cc7ad91ec21238fc5e0951b",
+      "elapsedMs": 23836,
+      "score": {
+        "successful": true,
+        "expected": 14,
+        "actual": 14,
+        "matched": 14,
+        "timeCorrect": 42,
+        "timeTotal": 42,
+        "otherCorrect": 45,
+        "otherTotal": 45,
+        "extra": 0,
+        "questions": 1,
+        "failures": []
+      }
+    },
+    {
+      "id": "pdf-njit-biology",
+      "kind": "pdf",
+      "provenance": "public",
+      "source": "https://archives.njit.edu/vhlib/syllabi/bio/bio-2025-01-01-Sp-2025/BIOL-205-H02-Spring-2025-Barden.pdf",
+      "inputHash": "83501bfb57787e75584bdfd9f142de118c81e564e0916e9626a9a3c826fb0a66",
+      "elapsedMs": 35810,
+      "score": {
+        "successful": true,
+        "expected": 19,
+        "actual": 20,
+        "matched": 19,
+        "timeCorrect": 57,
+        "timeTotal": 57,
+        "otherCorrect": 57,
+        "otherTotal": 57,
+        "extra": 1,
+        "questions": 2,
+        "failures": [
+          "Extra: Read Gould 1994 (2025-01-28 null)"
+        ]
+      }
+    },
+    {
+      "id": "text-24-hour",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "933dcfb71704436395e370d7270d37553a8a2b5e4681b06f985b463501bf3473",
+      "elapsedMs": 3139,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-cancelled",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "73ff7f9a3fdbea2deefa1f9a53177d0156497e3efc4208e0878d0ef987df0e99",
+      "elapsedMs": 1237,
+      "score": {
+        "successful": true,
+        "expected": 0,
+        "actual": 0,
+        "matched": 0,
+        "timeCorrect": 0,
+        "timeTotal": 0,
+        "otherCorrect": 0,
+        "otherTotal": 0,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-correction",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "6db3a24b9030e390e2caed927b2b27e4f3f6aa908e21c751286da69a4db8e612",
+      "elapsedMs": 2102,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 1,
+        "otherTotal": 1,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-deadline",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "132cf9d50c1d356e958cfd0ffa1e1932c7dc067ef2859e7ded20bc7cfae0a755",
+      "elapsedMs": 2280,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 3,
+        "otherTotal": 3,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-empty",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "338cdb01fe5b37ddb3f17d454b1de7235845e055bda99c620a729e7999c4a02f",
+      "elapsedMs": 1341,
+      "score": {
+        "successful": true,
+        "expected": 0,
+        "actual": 0,
+        "matched": 0,
+        "timeCorrect": 0,
+        "timeTotal": 0,
+        "otherCorrect": 0,
+        "otherTotal": 0,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-explicit-range",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "666f96f2695da282e1e7a99b0084098833cf70cfe6a9a72c97ca9a768dce4382",
+      "elapsedMs": 2636,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 1,
+        "otherTotal": 1,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-friday-shift",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "37a96cc37b3285098012937688ba35aa9715b60b16321dbbbedf1cb7cce013c1",
+      "elapsedMs": 2774,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-leap-day",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "886aaa70993b52bec5e27cab52bfc37eee498efb890e200ba282d284b11d02be",
+      "elapsedMs": 2246,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 0,
+        "otherTotal": 0,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-midnight",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "c54755c1cd7679bdfe01cb2f853a3a2f9f2027445e61571ce8445a817e4d1151",
+      "elapsedMs": 1980,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-mixed",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "a04ce116f6748091096ab1760776c2711befad5206ce91e23ab732d1c9f8aac3",
+      "elapsedMs": 4665,
+      "score": {
+        "successful": true,
+        "expected": 3,
+        "actual": 3,
+        "matched": 3,
+        "timeCorrect": 9,
+        "timeTotal": 9,
+        "otherCorrect": 5,
+        "otherTotal": 5,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-multi-person",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "aeadc21c1b20f149b1fe54b3a14be29fa4590c4713a89665298c085942bcb82d",
+      "elapsedMs": 2767,
+      "score": {
+        "successful": true,
+        "expected": 2,
+        "actual": 2,
+        "matched": 2,
+        "timeCorrect": 6,
+        "timeTotal": 6,
+        "otherCorrect": 4,
+        "otherTotal": 4,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-multiple-deadlines",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "7f78727bf9bb040128dbe7a53a475268dc23e802aa7a0891bff1acb6a254a65a",
+      "elapsedMs": 3529,
+      "score": {
+        "successful": true,
+        "expected": 3,
+        "actual": 3,
+        "matched": 3,
+        "timeCorrect": 9,
+        "timeTotal": 9,
+        "otherCorrect": 5,
+        "otherTotal": 5,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-negation",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "09ba79f4c2b779133bce1b7f37b4d61fb7bccb841d8a2fb896824eeaba68ec03",
+      "elapsedMs": 1987,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-no-guessed-end",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "16226b01b3f9865c54cf7560e44613c8e6b26a2d8c93ead6d5405ab0aa300266",
+      "elapsedMs": 5056,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 1,
+        "otherTotal": 1,
+        "extra": 0,
+        "questions": 1,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-no-guessed-start",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "65b5516c89746f094d9b210343ccd853c94e76c757f33841f102f06e56f8cf44",
+      "elapsedMs": 2267,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 1,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-noon",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "988f91477100d7cd16ba1f9be2107d55ae0b911065e495d1997883d8986235ea",
+      "elapsedMs": 4398,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 0,
+        "otherTotal": 0,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-numeric-dates",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "8da3f5cd4846225725f0f7b5a4881f8970282046fb16bad6973afd76cc2c7421",
+      "elapsedMs": 2804,
+      "score": {
+        "successful": true,
+        "expected": 2,
+        "actual": 2,
+        "matched": 2,
+        "timeCorrect": 6,
+        "timeTotal": 6,
+        "otherCorrect": 4,
+        "otherTotal": 4,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-other-person",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "c21d4db9f1ebfa62d5447472caf4f6adc7fba401a5f89d9e499ce35a1cadc2f2",
+      "elapsedMs": 1165,
+      "score": {
+        "successful": true,
+        "expected": 0,
+        "actual": 0,
+        "matched": 0,
+        "timeCorrect": 0,
+        "timeTotal": 0,
+        "otherCorrect": 0,
+        "otherTotal": 0,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-overnight",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "2dc62758a050849b1eeb17ff0762263fed29101192926dea5fd5db98c2a3100c",
+      "elapsedMs": 1983,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-past-explicit",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "21a383b655d3c97898c2944e019f327c3d8f1f3689f3df5bd5a94f11ac253d46",
+      "elapsedMs": 1979,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-prompt-injection",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "33200755e03572d8ee712981d4300d37aaac52314bc56400d76bfee2ea82bfcd",
+      "elapsedMs": 2351,
+      "score": {
+        "successful": true,
+        "expected": 0,
+        "actual": 0,
+        "matched": 0,
+        "timeCorrect": 0,
+        "timeTotal": 0,
+        "otherCorrect": 0,
+        "otherTotal": 0,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-recurring-class",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "25a347e2cfc68d57ee081b60ba6d346a3d8ca9e9024fd9901f4f2d74cb180563",
+      "elapsedMs": 2653,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 3,
+        "otherTotal": 3,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-same-day",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "9957d7a19e1969eed4b1a0850e9001b31c57ae163e791728de57957205a20a8e",
+      "elapsedMs": 3009,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-split-shift",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "927d0eeed4670f3fc9503b3b6ecd776d7c8b3661971cd62c72cc07960722a453",
+      "elapsedMs": 4220,
+      "score": {
+        "successful": true,
+        "expected": 2,
+        "actual": 2,
+        "matched": 2,
+        "timeCorrect": 6,
+        "timeTotal": 6,
+        "otherCorrect": 4,
+        "otherTotal": 4,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-timezone-local",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "4b24628d91e64424f023ee0a7e8264bab5f906b7a5a7599f04b76fd3a268d3a2",
+      "elapsedMs": 2196,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-tomorrow",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "1004198358e7e558d2bdae72df6c1681b0c9354e3ab0b41635e70062edd86bd3",
+      "elapsedMs": 2152,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 1,
+        "otherTotal": 1,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-undated-task",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "79e45d21d7f47c6a1b1ea6770fcaeade1a22abf194f776e2576772428d57dff1",
+      "elapsedMs": 1906,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 1,
+        "otherTotal": 1,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-untimed-exam",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "c06399f2e8f7c6bf1dd367e96f92e5fcf8d93c72cfd1ca0c7e8d35ee1f0fa02b",
+      "elapsedMs": 2254,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 2,
+        "otherTotal": 2,
+        "extra": 0,
+        "questions": 1,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-weekend-shifts",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "1f1b59e78320ac3833e9c9d66c36c42b5ac9091f275e5a19de3b78eb2563859e",
+      "elapsedMs": 4516,
+      "score": {
+        "successful": true,
+        "expected": 2,
+        "actual": 2,
+        "matched": 2,
+        "timeCorrect": 6,
+        "timeTotal": 6,
+        "otherCorrect": 4,
+        "otherTotal": 4,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    },
+    {
+      "id": "text-year-rollover",
+      "kind": "text",
+      "provenance": "synthetic",
+      "source": "Hand-authored regression case; not a real user message.",
+      "inputHash": "ad6167fd67e187924bcffa4cee8e96d9a527fe461cf01fbe950e26a8249af426",
+      "elapsedMs": 2000,
+      "score": {
+        "successful": true,
+        "expected": 1,
+        "actual": 1,
+        "matched": 1,
+        "timeCorrect": 3,
+        "timeTotal": 3,
+        "otherCorrect": 0,
+        "otherTotal": 0,
+        "extra": 0,
+        "questions": 0,
+        "failures": []
+      }
+    }
+  ]
+}

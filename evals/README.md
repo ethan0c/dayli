@@ -6,6 +6,9 @@ and five public university syllabi. Public vendor examples are demonstration
 schedules, not private customer uploads. The set was deliberately selected for
 difficult layouts; it is not a random or representative sample of users.
 
+The latest recorded run and remaining mismatches are in [RESULTS.md](RESULTS.md),
+with per-case scores and input hashes in [result.json](result.json).
+
 ## Run
 
 Use Node 22 or newer and install the workspace dependencies with `npm ci`.
@@ -79,6 +82,13 @@ verbatim accuracy. Nulls are included in temporal accuracy, so inspect recall an
 per-case failures alongside the headline percentage. These fixtures are a
 development benchmark used for prompt tuning, not an independent holdout or proof
 of 95% accuracy on future customer uploads.
+
+Small still images are enlarged by at most 2×, capped at a 1568-pixel longest
+edge, before model extraction. This gives tiny schedule text a larger model view;
+it does not recover missing detail. Large images, animations, and images with
+orientation metadata are preserved. The original fixture bytes and their hashes
+are retained. Text uses low reasoning effort; images and PDFs use high effort.
+The API route allows 180 seconds for document reads.
 
 ## Public sources
 

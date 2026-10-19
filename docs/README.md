@@ -12,6 +12,7 @@
 | [social.md](social.md) | Research on social features (Saturn, Flora, Focusmate, BeReal, the accountability studies) and the decision: no feed; a shared study session is a gated phase-2 candidate |
 | [strategy.md](strategy.md) | Reconciles the goal ($20K MRR) and the Structured study with our plan; App Store review mining of Structured, MyStudyLife, Tiimo; the purchase test |
 | [pricing-and-positioning.md](pricing-and-positioning.md) | Survey results (n=66), competitor prices, positioning as the daily planner for college students, price points, iOS + web only |
+| [revenuecat.md](revenuecat.md) | Subscription implementation, Semli Pro paywall, product/offering setup, Test Store, native builds, restore and subscription management |
 
 ## Decisions log
 - Platform: iOS + web (Expo app for both; Next.js site for landing, try-it, API, checkout). No Android. No backend until phase 2.

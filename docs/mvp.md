@@ -7,7 +7,8 @@ Status: Oct 19, 2026. This replaces the milestone table in product-plan.md as th
 - Capture: text, screenshot, camera, PDF → Claude extraction → review with evidence lines and native date/time pickers → commit with undo.
 - Work-schedule diffing, duplicate matching, conflict and overload detection, pending-week state. 26 unit tests.
 - Website: landing, try-it box, pricing, terms, privacy, contact, delete-account, API route.
-- Not yet verified: extraction accuracy on real inputs (no API key on this machine); capture → review on a real device (SwiftUI pickers, photo library).
+- Extraction benchmark: 30 synthetic texts, 10 public schedule images across 3 vendors, and 5 public university syllabi tested live. Prompt `2026-10-19.7` passed the ≥95% date/time and ≤2% extra-item gates for every input type. [Results and remaining mismatches](../evals/RESULTS.md). This set was used for tuning; private user uploads and an independent holdout remain unverified.
+- Not yet verified: capture → review on a real device (SwiftUI pickers, photo library); live extraction gating in CI.
 
 ## P0: must ship
 
