@@ -1,12 +1,12 @@
 /**
  * UI sounds and haptics for the site, matching the app's cues (same WAVs, from design/sounds.mjs).
- * Only deliberate actions trigger a cue; nothing plays on load or scroll.
+ * Only deliberate actions trigger a cue; nothing plays on load or scroll. Selection changes are haptic-only.
  */
 export type Cue = 'tap' | 'select' | 'ready' | 'success' | 'remove' | 'error';
 
 const CUES: Record<Cue, { vibrate: number | number[]; sound?: string }> = {
   tap: { vibrate: 10 },
-  select: { vibrate: 6, sound: 'select' },
+  select: { vibrate: 6 },
   ready: { vibrate: 20, sound: 'ready' },
   success: { vibrate: [12, 60, 12], sound: 'success' },
   remove: { vibrate: 14, sound: 'remove' },

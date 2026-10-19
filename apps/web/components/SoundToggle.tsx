@@ -12,7 +12,7 @@ export function SoundToggle() {
       aria-pressed={on}
       onClick={() => {
         setSoundsOn(!on);
-        if (!on) feedback('select');
+        if (!on) feedback('ready');
       }}
     >
       Sounds {on ? 'on' : 'off'}

@@ -18,6 +18,7 @@ export interface ToggleProps {
   value: boolean;
   onChange: (value: boolean) => void;
   label?: string;
+  activeColor?: string;
 }
 
 export interface NativeButtonProps {
@@ -53,7 +54,7 @@ export function TimeField({ time, onChange, disabled }: DateFieldProps) {
   return <Field value={time} placeholder="HH:MM" onChange={onChange} valid={!!disabled || time === null || isLocalTime(time)} width={68} disabled={disabled} />;
 }
 
-export function NativeToggle({ value, onChange, label }: ToggleProps) {
+export function NativeToggle({ value, onChange, label, activeColor }: ToggleProps) {
   const { c } = useTheme();
   return (
     <Pressable
@@ -62,7 +63,7 @@ export function NativeToggle({ value, onChange, label }: ToggleProps) {
       accessibilityRole="switch"
       accessibilityLabel={label}
       accessibilityState={{ checked: value }}
-      style={[styles.toggle, { backgroundColor: value ? c.inkPrimary : c.line }]}>
+      style={[styles.toggle, { backgroundColor: value ? activeColor ?? c.inkPrimary : c.line }]}>
       <View style={[styles.knob, { backgroundColor: c.canvas, alignSelf: value ? 'flex-end' : 'flex-start' }]} />
     </Pressable>
   );

@@ -117,7 +117,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
   }
 
   return (
-    <View style={{ gap: 22 }}>
+    <View style={{ gap: 28 }}>
       <View style={{ gap: 2 }}>
         <T token="callout" color={c.inkSecondary}>
           Semli <T token="callout" color={c.accentInk}>Plus</T>{days ? ` · ${days} days free, then` : ''}
@@ -158,12 +158,12 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
             <T token="body" color={c.inkPrimary}>{"I'm a college student"}</T>
             <T token="caption" color={c.inkSecondary}>{`We don't check. ${current?.otherPack && student ? `Regular price is ${current.otherPack.product.priceString}.` : current?.otherPack && !student ? `Students pay ${current.otherPack.product.priceString}.` : 'Regular pricing is a little higher.'}`}</T>
           </View>
-          <NativeToggle label="I'm a college student" value={student} onChange={(v) => { feedback('select'); setNotice(null); setSettings({ isStudent: v }); }} />
+          <NativeToggle label="I'm a college student" value={student} activeColor={c.added} onChange={(v) => { feedback('select'); setNotice(null); setSettings({ isStudent: v }); }} />
         </View>
       </View>
 
       {days && selected && current ? (
-        <View style={{ gap: 10 }}>
+        <View style={{ gap: 16 }}>
           {[
             { when: 'Today', what: 'Everything in Plus, free.', color: c.added },
             { when: `Day ${Math.max(1, days - 2)}`, what: 'We remind you the trial is ending.', color: c.changed },
@@ -172,7 +172,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
             <View key={r.when} style={styles.timelineRow}>
               <View style={[styles.timelineDot, { backgroundColor: r.color }]} />
               <T token="subhead" color={c.inkPrimary} style={{ width: 54 }}>{r.when}</T>
-              <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>{r.what}</T>
+              <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>{r.what}</T>
             </View>
           ))}
         </View>
@@ -183,7 +183,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
       ) : null}
       {unavailableReason || error || notice ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{unavailableReason ?? error ?? notice}</T> : null}
 
-      <View style={{ gap: 8, alignItems: 'center' }}>
+      <View style={{ gap: 12, paddingTop: 4, alignItems: 'center' }}>
         <Press haptic="tap" accessibilityRole="button" accessibilityState={{ disabled: disabled || !selected }} disabled={disabled || !selected} onPress={() => void buyPlan()}
           style={[styles.cta, { backgroundColor: c.inkPrimary, opacity: disabled || !selected ? 0.4 : 1 }]}>
           <T token="headline" color={c.onPrimary}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
@@ -230,11 +230,11 @@ const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
   cta: { alignSelf: 'stretch', height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
-  studentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingVertical: 8 },
+  studentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 16 },
   radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   radioDot: { width: 7, height: 7, borderRadius: 4 },
-  timelineRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  timelineDot: { width: 8, height: 8, borderRadius: 4 },
+  timelineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, minHeight: 32 },
+  timelineDot: { width: 8, height: 8, borderRadius: 4, marginTop: 6 },
   center: { textAlign: 'center' },
   textBtn: { minHeight: 44, justifyContent: 'center' },
   links: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
