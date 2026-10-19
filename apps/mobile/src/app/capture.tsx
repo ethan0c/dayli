@@ -1,4 +1,5 @@
 import { IMPORT_MESSAGES, type ExtractRequest } from '@dayli/schema';
+import { File } from 'expo-file-system';
 import { router, useLocalSearchParams, useNavigation, type NativeStackNavigationProp } from 'expo-router';
 import { useEffect, useEffectEvent, useRef, useState, type ComponentRef } from 'react';
 import { Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -6,6 +7,7 @@ import { Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native'
 import { GroupLabel, IconButton, ListRow } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { Reading } from '@/components/Reading';
+import { RecentShots } from '@/components/RecentShots';
 import { Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
@@ -95,6 +97,20 @@ export default function CaptureScreen() {
 
   const canSend = text.trim().length > 0 && !busy;
 
+  /** A tapped screenshot thumbnail; an empty uri means "open the photo picker". */
+  async function openShot(uri: string) {
+    if (!uri) return pick(() => pickImageInput(false));
+    setError(null);
+    try {
+      const data = await new File(uri).base64();
+      const lower = uri.toLowerCase();
+      const mediaType = lower.endsWith('.png') ? 'image/png' : lower.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+      await run({ kind: 'image', mediaType, data }, 'Screenshot');
+    } catch {
+      setError("We couldn't open that screenshot. Try choosing it from your photos instead.");
+    }
+  }
+
   // A photo/file button elsewhere should open its picker directly, once per request.
   const openedSource = useRef<string | null>(null);
   const openSource = useEffectEvent((source: string) => {
@@ -152,6 +168,8 @@ export default function CaptureScreen() {
             <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{error}</T>
           </View>
         ) : null}
+
+        {!busy ? <RecentShots disabled={!!busy} onPick={(uri) => void openShot(uri)} /> : null}
 
         {!busy ? (
           <View>

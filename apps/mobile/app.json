@@ -45,7 +45,16 @@
         }
       ],
       "expo-localization",
-      "@sentry/react-native/expo"
+      "@sentry/react-native/expo",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Semli shows your recent screenshots so you can add a schedule in one tap. Nothing leaves your phone until you confirm.",
+          "granularPermissions": [
+            "photo"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false

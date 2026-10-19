@@ -4,7 +4,8 @@ import { ScrollView, StyleSheet, TextInput, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Chip, ListRow, Tile } from "@/components/Controls";
+import { Chip, Tile } from "@/components/Controls";
+import { Press } from "@/components/Press";
 import { Icon, type IconKey } from "@/components/Icon";
 import { PlanPicker } from "@/components/PlanPicker";
 import { Reading } from "@/components/Reading";
@@ -18,9 +19,10 @@ import { feedback } from "@/lib/feedback";
 import { enter } from "@/lib/motion";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
 import { requestNotifications, syncReminders } from "@/lib/notifications";
-import { FREE_IMPORTS_PER_MONTH } from "@/lib/plans";
 import { useStore } from "@/store";
-import { SCREEN_GUTTER, radius, textStyle, useTheme } from "@/theme";
+import { palettes } from "@dayli/tokens";
+
+import { SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
 
 /**
  * One real result before any ask. The order follows docs/onboarding-research.md §3:
@@ -90,19 +92,24 @@ export default function OnboardingScreen() {
   };
 
   const progress = STEPS.indexOf(step);
+  // Watch it work and the heads-up are showcase pages: dark, ready for a full-bleed photo.
+  const showcase = step === "demo" || step === "heads-up";
+  const bg = showcase ? palettes.dark.canvas : c.canvas;
+  const barOn = showcase ? palettes.dark.inkPrimary : c.inkPrimary;
+  const barOff = showcase ? palettes.dark.line : c.line;
 
   return (
-    <View style={[styles.root, { backgroundColor: c.canvas, paddingTop: insets.top + 12, paddingBottom: Math.max(insets.bottom, 16) }]}>
+    <View style={[styles.root, { backgroundColor: bg, paddingTop: insets.top + 8, paddingBottom: Math.max(insets.bottom, 24) }]}>
       <View style={styles.progress}>
         {STEPS.map((s, i) => (
-          <View key={s} style={[styles.bar, { backgroundColor: i <= progress ? c.inkPrimary : c.line }]} />
+          <View key={s} style={[styles.bar, { backgroundColor: i <= progress ? barOn : barOff }]} />
         ))}
       </View>
 
       <Animated.View key={step} entering={enter.fromRight} style={{ flex: 1 }}>
       {step === "welcome" && <Welcome onNext={() => go("role")} />}
       {step === "role" && (
-        <OneTapStep title="Right now you are a" subtitle="So the examples fit your week.">
+        <OneTapStep title="Right now you are a" subtitle="So the examples fit your week. One tap." gap={28}>
           {ROLES.map((r) => (
             <Choice
               key={r.id}
@@ -177,16 +184,14 @@ function Welcome({ onNext }: { onNext: () => void }) {
     <View style={styles.center}>
       <View style={styles.middle}>
         <Animated.View entering={enter.rise}>
-          <Wordmark width={220} ink={c.inkPrimary} />
+          <Wordmark width={192} ink={c.inkPrimary} dot={c.accent} />
         </Animated.View>
-        <Animated.View entering={enter.rise.delay(350)} style={{ gap: 12, alignItems: "center" }}>
-          <T token="display" style={{ textAlign: "center" }}>
-            The daily planner for college students.
-          </T>
-          <T token="callout" color={c.inkSecondary} style={{ textAlign: "center", maxWidth: 300 }}>
+        <Animated.View entering={enter.rise.delay(350)} style={{ gap: 10, alignItems: "center" }}>
+          <T style={[styles.h1, { textAlign: "center", maxWidth: 300 }]}>The daily planner for college students.</T>
+          <T token="callout" color={c.inkSecondary} style={{ textAlign: "center", maxWidth: 290 }}>
             Drop in a syllabus, a work schedule, or a text. Semli tells you what matters today.
           </T>
-          <T token="caption" color={c.inkTertiary} style={{ textAlign: "center" }}>
+          <T token="caption" color={c.inkSecondary} style={{ textAlign: "center" }}>
             Takes a minute. No account.
           </T>
         </Animated.View>
@@ -200,15 +205,15 @@ function Welcome({ onNext }: { onNext: () => void }) {
 
 /* ---------- One question per screen, auto-advance ---------- */
 
-function OneTapStep({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+function OneTapStep({ title, subtitle, children, gap = 24 }: { title: string; subtitle: string; children: React.ReactNode; gap?: number }) {
   const { c } = useTheme();
   return (
-    <ScrollView contentContainerStyle={styles.page}>
-      <T token="display">{title}</T>
-      <T token="callout" color={c.inkSecondary}>
-        {subtitle}
-      </T>
-      <View style={{ marginTop: 4 }}>{children}</View>
+    <ScrollView contentContainerStyle={[styles.page, { gap }]}>
+      <View style={styles.titleBlock}>
+        <T style={styles.h1}>{title}</T>
+        <T token="callout" color={c.inkSecondary}>{subtitle}</T>
+      </View>
+      <View>{children}</View>
     </ScrollView>
   );
 }
@@ -216,16 +221,21 @@ function OneTapStep({ title, subtitle, children }: { title: string; subtitle: st
 function Choice({ label, hint, icon, on, onPress }: { label: string; hint?: string; icon?: IconKey; on: boolean; onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <ListRow
-      title={label}
-      sub={hint}
-      leading={icon ? <Icon name={icon} size={20} color={c.inkPrimary} /> : undefined}
+    <Press
+      haptic="select"
+      scale={1}
+      accessibilityRole="button"
       accessibilityLabel={on ? `${label}, selected` : label}
-      onPress={() => {
-        feedback("select");
-        onPress();
-      }}
-    />
+      onPress={onPress}
+      style={[styles.choice, { minHeight: hint ? 68 : 56, borderBottomColor: c.line }]}
+    >
+      {icon ? <Icon name={icon} size={20} color={c.inkPrimary} /> : null}
+      <View style={{ flex: 1, gap: 2 }}>
+        <T token="body">{label}</T>
+        {hint ? <T token="caption" color={c.inkSecondary}>{hint}</T> : null}
+      </View>
+      <Icon name="chevronRight" size={16} color={c.inkSecondary} />
+    </Press>
   );
 }
 
@@ -252,32 +262,27 @@ function WeekStep({
   const chips = chipsFor(profile, student);
   return (
     <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-      <T token="display">{"What's in a typical week?"}</T>
-      <T token="callout" color={c.inkSecondary}>
-        Tap everything that applies.
-      </T>
+      <View style={styles.titleBlock}>
+        <T style={styles.h1}>{"What's in a typical week?"}</T>
+        <T token="callout" color={c.inkSecondary}>Tap everything that applies.</T>
+      </View>
       <View style={styles.chips}>
         {chips.map((k) => (
           <Chip key={k.key} label={k.label} icon={k.icon} on={kinds.includes(k.key)} onPress={() => onToggle(k.key)} />
         ))}
       </View>
-      {kinds.includes("chaos") ? (
-        <T token="callout" color={c.accentInk}>
-          {"A busy week is a good place to start. Semli can help you keep track."}
-        </T>
-      ) : null}
-      <T token="overline" color={c.inkSecondary} style={styles.ov}>
-        What should Semli call you? Optional.
-      </T>
-      <TextInput
-        value={name}
-        onChangeText={onName}
-        placeholder="Your first name"
-        placeholderTextColor={c.inkTertiary}
-        autoCapitalize="words"
-        autoCorrect={false}
-        style={[styles.input, textStyle("body", c.inkPrimary), { backgroundColor: c.row }]}
-      />
+      <View style={{ gap: 8, paddingTop: 8 }}>
+        <T token="overline" color={c.inkSecondary}>What should Semli call you? Optional.</T>
+        <TextInput
+          value={name}
+          onChangeText={onName}
+          placeholder="Your first name"
+          placeholderTextColor={c.inkTertiary}
+          autoCapitalize="words"
+          autoCorrect={false}
+          style={[styles.input, textStyle("body", c.inkPrimary), { backgroundColor: c.row }]}
+        />
+      </View>
       <View style={styles.footer}>
         <Button label="Next" onPress={onNext} />
       </View>
@@ -288,7 +293,7 @@ function WeekStep({
 /* ---------- Watch it work ---------- */
 
 function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void }) {
-  const { c } = useTheme();
+  const d = palettes.dark;
   const { text, rows } = profile.demo;
   const [typed, setTyped] = useState("");
   const [shown, setShown] = useState(0);
@@ -319,38 +324,39 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
 
   return (
     <View style={styles.page}>
-      <T token="display">Just tell it.</T>
-      <T token="callout" color={c.inkSecondary}>
-        Type what’s coming up, or send a screenshot. Semli finds the dates for you.
-      </T>
-      <View style={[styles.bubble, { backgroundColor: c.inkPrimary }]}>
-        <T color={c.canvas}>{typed}</T>
+      <View style={[styles.bubble, { backgroundColor: "rgba(255,255,255,0.92)" }]}>
+        <T color={palettes.light.inkPrimary} style={{ fontSize: 15, lineHeight: 21 }}>{typed}</T>
       </View>
-      <View style={{ gap: 8, marginTop: 8 }}>
-        {rows.slice(0, shown).map((r) => {
-          const fill = r.kind === "event" ? c.category[r.cat].fill : c.row;
-          const ink = r.kind === "event" ? c.category[r.cat].ink : c.inkPrimary;
-          return (
-            <Animated.View key={r.title} entering={enter.rise} style={[styles.row, { backgroundColor: fill }]}>
-              <Icon name={r.icon} color={ink} />
-              <T color={ink} style={{ flex: 1 }}>
-                {r.title}
-              </T>
-              {r.chip ? (
-                <View style={[styles.chipTime, { backgroundColor: c.chip }]}>
-                  <T token="subhead" color={ink}>
-                    {r.chip}
-                  </T>
-                </View>
-              ) : (
-                <View style={[styles.circle, { borderColor: c.line, backgroundColor: c.canvas }]} />
-              )}
+      <View style={{ marginTop: "auto", gap: 20 }}>
+        <View style={{ gap: 6 }}>
+          <T token="display" color={d.inkPrimary}>Just tell it.</T>
+          <T token="callout" color={d.inkSecondary}>
+            One message became things on your calendar and a plan. Nothing to format, nothing to tap through.
+          </T>
+        </View>
+        <View>
+          {rows.slice(0, shown).map((r, i) => (
+            <Animated.View key={r.title} entering={enter.rise} style={[styles.demoRow, i < rows.length - 1 ? { borderBottomColor: d.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: d.inkPrimary }} />
+              <T color={d.inkPrimary} style={{ flex: 1, fontSize: 15, lineHeight: 21 }}>{r.title}{r.chip ? ` · ${r.chip}` : ""}</T>
+              <View style={[styles.demoPill, { backgroundColor: d.addedBg }]}>
+                <T token="subhead" color={d.added}>New</T>
+              </View>
             </Animated.View>
-          );
-        })}
-      </View>
-      <View style={styles.footer}>
-        <Button label={shown === rows.length ? "Now try yours" : "Reading…"} disabled={shown < rows.length} onPress={onNext} />
+          ))}
+        </View>
+        <View style={styles.footer}>
+          <Press
+            haptic="tap"
+            accessibilityRole="button"
+            accessibilityState={{ disabled: shown < rows.length }}
+            disabled={shown < rows.length}
+            onPress={onNext}
+            style={[styles.darkButton, { backgroundColor: d.inkPrimary, opacity: shown < rows.length ? 0.4 : 1 }]}
+          >
+            <T token="headline" color={d.onPrimary}>{shown === rows.length ? "Now try yours" : "Reading…"}</T>
+          </Press>
+        </View>
       </View>
     </View>
   );
@@ -407,10 +413,12 @@ function OwnStep({ onSample }: { onSample: () => void }) {
 
   return (
     <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-      <T token="display">Now, your week.</T>
-      <T token="callout" color={c.inkSecondary}>
-        Paste what’s coming up, or add a screenshot of your schedule. You check what Semli finds before anything is saved.
-      </T>
+      <View style={styles.titleBlock}>
+        <T style={styles.h1}>Now, your week.</T>
+        <T token="callout" color={c.inkSecondary}>
+          Paste what’s coming up, or add a screenshot of your schedule. You check what Semli finds before anything is saved.
+        </T>
+      </View>
       <TextInput
         value={text}
         onChangeText={setText}
@@ -440,7 +448,9 @@ function OwnStep({ onSample }: { onSample: () => void }) {
           disabled={text.trim().length === 0 || !!busy}
           onPress={() => void run({ kind: "text", text: text.trim() }, "Message")}
         />
-        <Button variant="ghost" label="Explore my preview first" disabled={!!busy} onPress={onSample} />
+        <Press haptic="select" accessibilityRole="button" disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center", alignSelf: "center" }}>
+          <T token="subhead" color={c.inkSecondary}>Explore my preview first</T>
+        </Press>
       </View>
     </ScrollView>
   );
@@ -453,7 +463,8 @@ function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: stri
 /* ---------- Heads-up: our sheet first, the system prompt only on yes ---------- */
 
 function HeadsUpStep({ onDone }: { onDone: () => void }) {
-  const { c } = useTheme();
+  const d = palettes.dark;
+  const l = palettes.light;
   const setSettings = useStore((s) => s.setSettings);
   const [asking, setAsking] = useState(false);
   const yes = async () => {
@@ -475,23 +486,35 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
   };
   return (
     <View style={styles.center}>
-      <View style={[styles.middle, { alignItems: "stretch", gap: 28 }]}>
-        <Animated.View entering={enter.rise} style={{ gap: 2 }}>
-          <T token="callout" color={c.inkSecondary}>Your first reminder would be</T>
-          <T token="displayXl" tabular>7:30<T token="title" color={c.inkSecondary}> am</T></T>
-          <T token="body" style={{ fontSize: 18, lineHeight: 26, paddingTop: 6 }}>Good morning. Here’s your day.</T>
-          <T token="callout" color={c.inkSecondary}>Tomorrow · one note each morning, and a nudge before shifts and deadlines</T>
-        </Animated.View>
+      <Animated.View entering={enter.rise} style={[styles.notification, { backgroundColor: "rgba(255,255,255,0.94)" }]}>
+        <View style={[styles.notificationMark, { backgroundColor: l.inkPrimary }]}>
+          <View style={[styles.notificationBig, { backgroundColor: l.onPrimary }]} />
+          <View style={[styles.notificationSmall, { backgroundColor: l.accent }]} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+            <T token="overline" color={l.inkPrimary} style={{ fontSize: 12, lineHeight: 16 }}>Semli</T>
+            <T token="caption" color={l.inkSecondary}>7:30 am</T>
+          </View>
+          <T token="callout" color={l.inkPrimary} style={{ fontFamily: textStyle("headline", l.inkPrimary).fontFamily }}>Good morning. 3 things today.</T>
+          <T token="callout" color={l.inkSecondary}>Stats lecture 9–10:15, Café shift 4–10. Pharm exam is Friday.</T>
+        </View>
+      </Animated.View>
+      <View style={{ marginTop: "auto", gap: 20 }}>
         <View style={{ gap: 6 }}>
-          <T token="display">Want a heads-up?</T>
-          <T token="callout" color={c.inkSecondary} style={{ maxWidth: 320 }}>
-            Nothing else, and never at night. You can change it any time in You.
+          <T token="display" color={d.inkPrimary}>Want a heads-up?</T>
+          <T token="callout" color="#D8D7D0" style={{ maxWidth: 320 }}>
+            One note each morning with what’s on, and a nudge before shifts and deadlines. Nothing else, and never at night.
           </T>
         </View>
-      </View>
-      <View style={styles.footer}>
-        <Button label={asking ? "One sec…" : "Yes, remind me"} disabled={asking} onPress={() => void yes()} />
-        <Button variant="ghost" label="Not now" disabled={asking} onPress={notNow} />
+        <View style={[styles.footer, { alignItems: "center" }]}>
+          <Press haptic="tap" accessibilityRole="button" disabled={asking} onPress={() => void yes()} style={[styles.darkButton, { backgroundColor: d.inkPrimary, opacity: asking ? 0.6 : 1 }]}>
+            <T token="headline" color={d.onPrimary}>{asking ? "One sec…" : "Yes, remind me"}</T>
+          </Press>
+          <Press haptic="select" accessibilityRole="button" disabled={asking} onPress={notNow} style={{ minHeight: 44, justifyContent: "center" }}>
+            <T token="subhead" color="#D8D7D0">Not now</T>
+          </Press>
+        </View>
       </View>
     </View>
   );
@@ -500,25 +523,18 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
 /* ---------- Plus, after the value moment ---------- */
 
 function PlusStep({ onFinish }: { onFinish: () => void }) {
-  const { c } = useTheme();
   const trialStarted = useStore((s) => !!s.settings.trial);
   useEffect(() => {
     track("paywall_shown", { reason: "onboarding" });
   }, []);
   return (
     <ScrollView contentContainerStyle={styles.page}>
-      <T token="display">Keep it reading.</T>
-      <T token="callout" color={c.inkSecondary}>
-        Every syllabus, schedule and screenshot read for you, all term. Calendar, to-dos and reminders stay free forever.
-      </T>
-      <PlanPicker />
-      <View style={styles.footer}>
-        <Button
-          variant={trialStarted ? "primary" : "ghost"}
-          label={trialStarted ? "Continue" : `Continue free · ${FREE_IMPORTS_PER_MONTH} imports a month`}
-          onPress={onFinish}
-        />
-      </View>
+      <PlanPicker onContinueFree={trialStarted ? undefined : onFinish} />
+      {trialStarted ? (
+        <View style={styles.footer}>
+          <Button label="Continue" onPress={onFinish} />
+        </View>
+      ) : null}
     </ScrollView>
   );
 }
@@ -528,17 +544,24 @@ const styles = StyleSheet.create({
   progress: { flexDirection: "row", gap: 5, paddingBottom: 24 },
   bar: { flex: 1, height: 3, borderRadius: 2 },
   center: { flex: 1 },
-  middle: { flex: 1, alignItems: "center", justifyContent: "center", gap: 24 },
-  page: { flexGrow: 1, gap: 14, paddingBottom: 8 },
+  middle: { flex: 1, alignItems: "center", justifyContent: "center", gap: 28 },
+  page: { flexGrow: 1, gap: 24 },
+  titleBlock: { gap: 6 },
+  /** Light 30/36, the question size on every onboarding board. */
+  h1: { fontFamily: "Geist-Light", fontSize: 30, lineHeight: 36, letterSpacing: -0.6 },
   footer: { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
-  ov: { paddingTop: 8 },
+  choice: { flexDirection: "row", alignItems: "center", gap: 14, borderBottomWidth: StyleSheet.hairlineWidth },
   input: { height: 52, borderRadius: 999, paddingHorizontal: 20 },
-  textarea: { minHeight: 120, maxHeight: 200, borderRadius: 20, padding: 16, textAlignVertical: "top" },
+  textarea: { minHeight: 140, borderRadius: 16, padding: 16, textAlignVertical: "top" },
   actions: { flexDirection: "row", gap: 8 },
   status: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 4 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  bubble: { alignSelf: "flex-end", maxWidth: "88%", padding: 14, borderRadius: 20, borderBottomRightRadius: 6, minHeight: 48, marginTop: 8 },
-  row: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: 52, paddingHorizontal: 14, borderRadius: radius.row },
-  chipTime: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.chip },
-  circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5 },
+  bubble: { alignSelf: "flex-end", maxWidth: 290, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 20, borderBottomRightRadius: 6, minHeight: 45, marginTop: 126 },
+  demoRow: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 52 },
+  demoPill: { height: 26, paddingHorizontal: 9, borderRadius: 13, alignItems: "center", justifyContent: "center" },
+  darkButton: { alignSelf: "stretch", height: 52, borderRadius: 999, alignItems: "center", justifyContent: "center" },
+  notification: { marginTop: 96, flexDirection: "row", gap: 12, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 20 },
+  notificationMark: { width: 36, height: 36, borderRadius: 9 },
+  notificationBig: { position: "absolute", left: 7, bottom: 7, width: 16, height: 16, borderRadius: 8 },
+  notificationSmall: { position: "absolute", right: 7, top: 7, width: 7, height: 7, borderRadius: 4 },
 });
