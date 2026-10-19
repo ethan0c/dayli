@@ -24,7 +24,7 @@ export function PaywallBackdrop() {
 }
 
 export function PhotoPaywall(props: { onContinueFree?: () => void; onComplete?: () => void; freeImportsLeft?: number }) {
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const insets = useSafeAreaInsets();
   return (
     <View style={styles.root}>

@@ -629,7 +629,7 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
 /* ---------- Plus, after the value moment ---------- */
 
 function PlusStep({ onFinish }: { onFinish: () => void }) {
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   useEffect(() => {
     track("paywall_shown", { reason: "onboarding" });
   }, []);

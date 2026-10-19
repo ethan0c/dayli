@@ -2,6 +2,47 @@
 
 October 19, 2026. The mobile UI pass against the design canvas (https://claude.ai/artifact/QgE4ddmEytZ2PyHMCT3QoV), what shipped and what is still open. Backend work is parked on purpose.
 
+## Solo developer follow-up checklist
+
+Keep this as the release scratchpad. Unchecked means work or device verification remains, even where the UI already exists. Backend work stays parked.
+
+### First: subscriptions and the new welcome
+
+- Built: onboarding, You → Semli Plus, and feature gates share the fireworks photo and purchase controls. A confirmed purchase with an active `semli_pro` entitlement shows a celebration, then a skippable two-step guide. Restore and normal app launches do not replay the celebration. The guide can be reopened from You → Semli Plus.
+- [ ] Run real StoreKit sandbox / TestFlight purchases for each term, including eligible trial, ineligible trial, cancel, failed payment, pending approval and an inactive entitlement after a transaction. The welcome must appear only once for a successful new purchase. Development Test Store access is not this verification.
+- [ ] Check the import-quota and schedule-update gates: cancel keeps the pending draft/review; purchase → tour → Continue resumes it; restore returns access without a new-purchase celebration. Test the glass X and Android Back too.
+- [ ] Verify localized prices, total billed for semester/year, student vs regular offerings, introductory-offer eligibility, renewal disclosures and Terms/Privacy links against the actual store confirmation. Intro pricing on a product alone does not prove a returning user is eligible.
+- [ ] Configure production RevenueCat public SDK keys, products and `semli_pro` entitlement for each store. Test expiration, refund, reinstall, Restore purchases and Manage subscription. Confirm Test Store keys are never used in a release build.
+- [ ] Review the trial-reminder lifecycle: record an actual trial rather than assuming any product with an intro offer started one; remove obsolete reminders after cancellation, conversion, restore or a plan change. The paywall now says reminders require notifications to be enabled.
+- [ ] Check the photo paywall and welcome on a small phone, large text, VoiceOver/TalkBack, Reduce Motion and both appearances. Verify image rights/attribution before shipping. Native launch splash remains ink wordmark on white.
+
+### Notifications: enabling is only the start
+
+- Existing: onboarding asks in context; You → Reminders can enable permission, open system Settings after denial, send a test reminder and set event lead time, deadline reminders, briefing and quiet hours. Notifications are local to this phone.
+- [ ] On a physical device, test first allow, deny, Not now, then enabling/disabling in system Settings and returning to Semli. The switches should reflect actual permission. Avoid repeatedly sending someone to Settings after a fresh denial.
+- [ ] Add notification-tap routing, including cold launch: event/deadline → the correct item; briefing → Today; trial reminder → Semli Plus. Deleted or missing items should land safely on Today. `notifications.ts` currently schedules payloads but has no response listener.
+- [ ] Verify delivery while foregrounded, backgrounded and locked. Check 10/30/60 minute reminders, overnight shifts, all-day deadlines, morning briefing and empty-day suppression. Preview/sample events must never notify.
+- [ ] Edit, complete and delete events; change reminder times; confirm old pending reminders are removed. Test timezone changes, daylight-saving transitions and quiet-hour boundaries. Quiet hours currently allow an exception when delaying would miss the event.
+- [ ] Test the 60-notification cap and 14-day planning horizon. Define behavior when someone does not reopen the app for weeks: the current schedule refreshes on changes/foreground, so it is not an indefinite reminder service.
+- [ ] Surface notification scheduling failures instead of silently implying everything is enabled. Reconcile a partial scheduling failure before the next retry.
+
+### Reviews, support and learning what works
+
+- Existing: You → Rate Semli opens the App Store review URL; native in-app review requests are not implemented.
+- [ ] Add an optional native review request after repeated useful moments (for example, several confirmed imports across multiple days), with a persisted cooldown and availability check. Do not interrupt the purchase celebration or ask on every launch. Keep Rate Semli as the explicit fallback.
+- [ ] Verify the App Store ID, support inbox and legal URLs in a release build. Send a real support email to yourself and check the reply path.
+- [ ] Review analytics for paywall shown → purchase/cancel → welcome/tour completion, import confirmed and reminder permission. Add missing events with coarse properties; never include schedule titles, file contents or student details.
+- [ ] Configure release crash reporting and source maps; test one controlled error in a non-production build. Check offline, extraction timeout, malformed PDF, permission denied and store unavailable states.
+
+### Before inviting more people
+
+- [ ] Verify clean install → onboarding → real import → review → Today, and existing install → update with local data preserved. Test free users and Plus users, Undo, export and .ics import on a real device.
+- [ ] Make local-only storage clear: no account, cloud backup or cross-device recovery exists. Test export before destructive actions and document what deleting the app loses.
+- [ ] Keep account and schedule-link UI labeled Preview until a backend exists. Do not list cloud backup, live sharing or Canvas sync as shipped Plus benefits.
+- [ ] Before a public paid launch, resolve server-side import abuse/quota enforcement. Current frontend gating and local counters cannot protect the extraction endpoint; backend work is explicitly deferred for now.
+- [ ] Review App Store screenshots/copy, accessibility, photo permissions, privacy disclosures for extraction/analytics/crash services, version/build numbers, release environment, production API URL and white native splash in an actual build.
+- [ ] Keep a short support playbook: purchase not active → Restore; notifications missing → permission + test reminder; schedule wrong → review/edit/Undo; data recovery → available export. Write down the release rollback/update steps while they are fresh.
+
 ## Done
 
 **System**
