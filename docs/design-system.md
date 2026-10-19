@@ -6,7 +6,7 @@ Status: draft · October 2026 · Visual board: [Semli Brand Board](https://claud
 
 1. **Calm by default.** Soft neutrals, one accent (lavender), no gradients, no badges unless something needs attention.
    Never all-caps eyebrows or overlines: uppercase section labels read as AI-generated template UI. Section labels are sentence case, small, and muted.
-2. **Time is the hero.** The big clock and the week strip anchor every Plan screen; content is a simple vertical list, not a grid.
+2. **Time is the hero.** The big clock and the week strip anchor every Plan screen; content is a simple vertical list, not a grid. Give each day a clear heading and group its events and to-dos.
 3. **Shape tells type.** Tasks are neutral rows with a check circle on the right. Events are tinted rows with a time chip on the right. Users can tell them apart without reading.
 4. **One thumb.** Primary actions live in the bottom 40% of the screen: the floating nav pill and the capture button.
 5. **Show the source.** Anything AI-created can always show where it came from.
@@ -16,7 +16,7 @@ Status: draft · October 2026 · Visual board: [Semli Brand Board](https://claud
 | Element in reference | Semli spec |
 |---|---|
 | Large clock `11:50` top-left, date + weekday right-aligned | `display-xl` clock, tabular numbers; date in `callout` |
-| Week strip, selected day in a white circle | 7 equal columns; selected = surface circle 36 pt; today (if not selected) = lavender dot under number |
+| Week strip, selected day in a circle | 7 equal columns; selected = primary-ink circle with canvas text, 36 pt; today (if not selected) = lavender number |
 | Header on light gray, list on white | `bg.header` band behind clock & strip; list on `bg.canvas` |
 | Gray task rows with line icon and empty circle | `TaskRow` |
 | Lavender event rows with white time pill | `EventRow` + `TimeChip` |
@@ -102,7 +102,7 @@ Six soft fills at the same lightness, each with its own ink: lavender, apricot, 
 
 - **Grid:** 4 pt. Scale: 4, 8, 12, 16, 20, 24, 32, 40, 56.
 - **Screen gutter:** 24 pt, shared through `SCREEN_GUTTER` in the mobile theme. Based on the side margins in [Cal AI’s app previews](https://www.calai.app/food-db.webp). Apply it to screen headers, content, sheets, and onboarding. Row gap: 8 pt. Section gap: 24 pt.
-- **Row height:** 52 pt (min 44 pt touch target).
+- **Row height:** 74 pt minimum for planner items, with a two-line title and course/category metadata. Rows grow with text size. Other controls have a 44 pt minimum touch target.
 - **Radius:** chip `999`, row `16`, card `20`, sheet `28` (top corners), nav pill `999`, capture button circle.
 - **Elevation:** flat everywhere except floating elements:
   - `float`: `0 8 24 rgba(24,23,28,.16)` — nav pill, capture button, capture menu.
@@ -132,6 +132,13 @@ Six soft fills at the same lightness, each with its own ink: lavender, apricot, 
 | `ComingUpRow` | title · relative date ("3 days away") | urgency ink when ≤ 1 day |
 | `CourseCard` | course code overline · title · next deadline · meeting pattern | |
 | `Toast` | dark pill bottom, action "Undo" | auto-dismiss 5 s |
+
+### Planner screen polish
+
+- Plan and School use a rounded neutral header, a consistent 44 pt profile button, and 24 pt content spacing. Section headings use `headline`; supporting context uses `caption`.
+- An empty day has an illustrated capture card with a clear action and a review-before-saving note. Empty School explains how a syllabus becomes a course. Neither screen inserts pretend tasks or courses.
+- Course cards use a neutral surface, a narrow course-tint accent, instructor details when available, and a separate next-deadline row. Expanded coursework retains completion controls.
+- The Plan footer summarizes the selected week from actual items; School counts deadlines in the next seven days. Import entry points lead to the existing capture flow.
 
 ## 8. Motion
 - Default spring: response 0.35 s, damping 0.85. Respect Reduce Motion (crossfade only).

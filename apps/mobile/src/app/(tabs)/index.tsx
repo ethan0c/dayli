@@ -2,7 +2,7 @@ import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findCon
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HomeCaptureCard } from '@/components/HomeCaptureCard';
@@ -58,7 +58,7 @@ export default function TodayScreen() {
   const hasWarnings = conflicts.length > 0 || tightDeadlines.length > 0;
   const hour = Number(now.time.slice(0, 2));
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const eveningTasks = hour >= 18 && !todays.some((item) => item.kind === 'event' && !item.done && item.end && item.end > now.time);
+  const eveningTasks = hour >= 18;
 
   function openCapture(text: string, source?: 'image' | 'file') {
     setCaptureDraft(text);
@@ -73,7 +73,7 @@ export default function TodayScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} keyboardShouldPersistTaps="handled">
-      <View style={[styles.head, { backgroundColor: dayTint(c, hour), paddingTop: insets.top + 8 }]}>
+      <View style={[styles.head, { backgroundColor: dayTint(c, hour), paddingTop: Platform.OS === 'ios' ? 12 : insets.top + 8 }]}>
         <View style={styles.headRow}>
           <View style={{ flex: 1, gap: 6 }}>
             <T token="caption" color={c.inkSecondary}>{weekdayLong(now.date)}, {monthDay(now.date)}</T>

@@ -10,10 +10,10 @@ export function ClockHeader({ time, date, onPressDate }: { time: string; date: s
   const hour = Number(h) % 12 === 0 ? 12 : Number(h) % 12;
   return (
     <View style={styles.row}>
-      <T token="displayXl" tabular>
+      <T token="displayXl" tabular maxFontSizeMultiplier={72 / 56}>
         {hour}:{m}
       </T>
-      <Pressable onPress={onPressDate} style={styles.date} accessibilityLabel="Jump to today">
+      <Pressable onPress={onPressDate} style={styles.date} accessibilityRole={onPressDate ? 'button' : undefined} accessibilityLabel="Jump to today">
         <T token="callout" color={c.inkPrimary} style={styles.right}>
           {monthDay(date)}
         </T>

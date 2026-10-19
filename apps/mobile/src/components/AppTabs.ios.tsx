@@ -1,5 +1,5 @@
 import { Button as SwiftButton, Host } from '@expo/ui/swift-ui';
-import { buttonBorderShape, buttonStyle, controlSize, labelStyle, tint as tintMod } from '@expo/ui/swift-ui/modifiers';
+import { buttonBorderShape, buttonStyle, controlSize, foregroundColor, labelStyle, tint as tintMod } from '@expo/ui/swift-ui/modifiers';
 import { router } from 'expo-router';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { DynamicColorIOS, Platform, StyleSheet, View } from 'react-native';
@@ -47,6 +47,7 @@ export default function AppTabs() {
             controlSize('extraLarge'),
             labelStyle('iconOnly'),
             tintMod(c.inkPrimary),
+            foregroundColor(c.canvas),
           ]}
         />
       </Host>
