@@ -4,7 +4,10 @@ import { Image, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } f
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Chip, Tile } from "@/components/Controls";
+import { Composer } from "@/components/Composer";
+import { Chip, GroupLabel, ListRow } from "@/components/Controls";
+import { RecentShots } from "@/components/RecentShots";
+import { File } from "expo-file-system";
 import { Press } from "@/components/Press";
 import { Icon, type IconKey } from "@/components/Icon";
 import { PlanPicker } from "@/components/PlanPicker";
@@ -15,6 +18,7 @@ import { Wordmark } from "@/components/Wordmark";
 import { track } from "@/lib/analytics";
 import { requestExtraction } from "@/lib/api";
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/lib/capture-input";
+import { devStep } from "@/lib/dev";
 import { feedback } from "@/lib/feedback";
 import { enter, springs } from "@/lib/motion";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
@@ -58,6 +62,13 @@ export default function OnboardingScreen() {
     setLastRequested(requested);
     setStep(requested);
   }
+
+  // Development: `dev-step.txt` in Documents opens a step directly (see lib/dev.ts).
+  useEffect(() => {
+    void devStep().then((v) => {
+      if (v && (STEPS as readonly string[]).includes(v)) setStep(v as Step);
+    });
+  }, []);
 
   const [name, setName] = useState(settings.name);
   const [role, setRole] = useState<Role>(settings.isStudent ? "both" : "working");
@@ -480,29 +491,40 @@ function OwnStep({ onSample }: { onSample: () => void }) {
     }
   };
 
+  async function openShot(uri: string) {
+    if (!uri) return pick(() => pickImageInput(false));
+    setError(null);
+    try {
+      const data = await new File(uri).base64();
+      const lower = uri.toLowerCase();
+      const mediaType = lower.endsWith(".png") ? "image/png" : lower.endsWith(".webp") ? "image/webp" : "image/jpeg";
+      await run({ kind: "image", mediaType, data }, "Screenshot");
+    } catch {
+      setError("We couldn't open that screenshot. Try choosing it from your photos instead.");
+    }
+  }
+
   return (
-    <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={styles.titleBlock}>
         <T style={styles.h1}>Now, your week.</T>
         <T token="callout" color={c.inkSecondary}>
-          Paste what’s coming up, or add a screenshot of your schedule. You check what Semli finds before anything is saved.
+          Type it, paste it, or drop in a screenshot of your schedule. You check what Semli finds before anything is saved.
         </T>
       </View>
-      <TextInput
-        value={text}
-        onChangeText={setText}
-        multiline
-        editable={!busy}
-        placeholder="I work Friday 4–10, have an exam Monday, and need to return a library book Wednesday…"
-        placeholderTextColor={c.inkTertiary}
-        style={[styles.textarea, textStyle("body", c.inkPrimary), { backgroundColor: c.row }]}
-      />
-      <View style={styles.actions}>
-        <Action icon="image" label="Screenshot" disabled={!!busy} onPress={() => void pick(() => pickImageInput(false))} />
-        <Action icon="camera" label="Camera" disabled={!!busy} onPress={() => void pick(() => pickImageInput(true))} />
-        <Action icon="file" label="Syllabus PDF" disabled={!!busy} onPress={() => void pick(pickPdfInput)} />
-      </View>
-      {busy ? <Reading source={busy === "Message" ? "your message" : busy} /> : null}
+      {busy ? (
+        <Reading source={busy === "Message" ? "your message" : busy} />
+      ) : (
+        <Composer
+          value={text}
+          onChangeText={setText}
+          canSend={text.trim().length > 0}
+          onPickImage={() => void pick(() => pickImageInput(false))}
+          onCamera={() => void pick(() => pickImageInput(true))}
+          onPickPdf={() => void pick(pickPdfInput)}
+          onSend={() => void run({ kind: "text", text: text.trim() }, "Message")}
+        />
+      )}
       {error ? (
         <View style={styles.status}>
           <Icon name="alert" size={16} color={c.conflict} />
@@ -511,22 +533,21 @@ function OwnStep({ onSample }: { onSample: () => void }) {
           </T>
         </View>
       ) : null}
-      <View style={styles.footer}>
-        <Button
-          label="See what Semli finds"
-          disabled={text.trim().length === 0 || !!busy}
-          onPress={() => void run({ kind: "text", text: text.trim() }, "Message")}
-        />
-        <Press haptic="select" accessibilityRole="button" disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center", alignSelf: "center" }}>
+      {!busy ? <RecentShots onPick={(uri) => void openShot(uri)} /> : null}
+      {!busy ? (
+        <View>
+          <GroupLabel>Or start with</GroupLabel>
+          <ListRow leading={<Icon name="file" size={20} color={c.inkPrimary} />} title="A syllabus" sub="Classes, exams and due dates for the whole term" onPress={() => void pick(pickPdfInput)} />
+          <ListRow leading={<Icon name="work" size={20} color={c.inkPrimary} />} title="A work schedule" sub="A screenshot from the scheduling app or the group chat" last onPress={() => void pick(() => pickImageInput(false))} />
+        </View>
+      ) : null}
+      <View style={[styles.footer, { alignItems: "center" }]}>
+        <Press haptic="select" accessibilityRole="button" disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center" }}>
           <T token="subhead" color={c.inkSecondary}>Explore my preview first</T>
         </Press>
       </View>
     </ScrollView>
   );
-}
-
-function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: string; onPress: () => void; disabled: boolean }) {
-  return <Tile icon={icon} label={label} onPress={onPress} disabled={disabled} />;
 }
 
 /* ---------- Heads-up: our sheet first, the system prompt only on yes ---------- */

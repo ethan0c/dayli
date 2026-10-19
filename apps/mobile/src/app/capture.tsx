@@ -2,9 +2,10 @@ import { IMPORT_MESSAGES, type ExtractRequest } from '@dayli/schema';
 import { File } from 'expo-file-system';
 import { router, useLocalSearchParams, useNavigation, type NativeStackNavigationProp } from 'expo-router';
 import { useEffect, useEffectEvent, useRef, useState, type ComponentRef } from 'react';
-import { Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, type TextInput, View } from 'react-native';
 
-import { GroupLabel, IconButton, ListRow } from '@/components/Controls';
+import { Composer } from '@/components/Composer';
+import { GroupLabel, ListRow } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { Reading } from '@/components/Reading';
 import { RecentShots } from '@/components/RecentShots';
@@ -18,7 +19,7 @@ import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
 import { hasSemliPro, purchaseErrorMessage } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 /**
  * Add: a composer with the attachments inside it, and two "start with" rows.
@@ -139,28 +140,19 @@ export default function CaptureScreen() {
           </View>
         )}
 
-        <View style={[styles.composer, { backgroundColor: c.surface, borderColor: c.line }]}>
-          <TextInput
-            ref={inputRef}
-            id="capture-text"
-            accessibilityLabel="What would you like to add?"
-            value={text}
-            onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
-            multiline
-            autoFocus={!params.source}
-            editable={!busy}
-            placeholder="Clinical Tuesday 7–3, pharm exam next Friday, working Sat 4–10…"
-            placeholderTextColor={c.inkTertiary}
-            style={[styles.input, textStyle('body', c.inkPrimary)]}
-          />
-          <View style={styles.toolbar}>
-            <IconButton icon="image" label="Add a screenshot" tone="bare" size={40} disabled={!!busy} onPress={() => void pick(() => pickImageInput(false))} />
-            <IconButton icon="camera" label="Take a photo" tone="bare" size={40} disabled={!!busy} onPress={() => void pick(() => pickImageInput(true))} />
-            <IconButton icon="file" label="Add a PDF" tone="bare" size={40} disabled={!!busy} onPress={() => void pick(pickPdfInput)} />
-            <View style={{ flex: 1 }} />
-            <IconButton icon="send" label="Read it" tone="ink" size={40} disabled={!canSend} haptic="ready" onPress={() => void run({ kind: 'text', text: text.trim() }, 'Message')} />
-          </View>
-        </View>
+        <Composer
+          ref={inputRef}
+          id="capture-text"
+          value={text}
+          onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
+          autoFocus={!params.source}
+          busy={!!busy}
+          canSend={canSend}
+          onPickImage={() => void pick(() => pickImageInput(false))}
+          onCamera={() => void pick(() => pickImageInput(true))}
+          onPickPdf={() => void pick(pickPdfInput)}
+          onSend={() => void run({ kind: 'text', text: text.trim() }, 'Message')}
+        />
 
         {error ? (
           <View accessibilityRole="alert" style={styles.status}>
@@ -186,8 +178,5 @@ export default function CaptureScreen() {
 
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 4, paddingBottom: 24, gap: 20 },
-  composer: { borderRadius: 20, borderWidth: 1 },
-  input: { minHeight: 112, maxHeight: 240, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6, textAlignVertical: 'top' },
-  toolbar: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 8, paddingBottom: 8, paddingTop: 2 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
 });
