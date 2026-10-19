@@ -25,26 +25,9 @@ npm install --save react-native-purchases react-native-purchases-ui
 
 Native modules autolink. With bare React Native, install iOS pods as required by the native build. Semli uses Expo Continuous Native Generation, so do not manually create or edit `ios/` or `android/`. Rebuild the native app whenever native dependencies change. See [RevenueCat React Native installation](https://www.revenuecat.com/docs/getting-started/installation/reactnative) and [RevenueCat with Expo](https://www.revenuecat.com/docs/getting-started/installation/expo).
 
-## 2. Configure products and the offering in RevenueCat
+## 2. Configure products and offerings in RevenueCat
 
-These are dashboard/store operations. Installing the SDK does not create products, prices, an entitlement, or a hosted paywall.
-
-Open Semli's [RevenueCat product catalog](https://app.revenuecat.com/projects/a2c96d90/product-catalog). Create or verify:
-
-| Display name | Test Store product ID | Product configuration | Standard RevenueCat package |
-|---|---|---|---|
-| Lifetime | `lifetime` | One-time, non-consumable purchase | Lifetime / `$rc_lifetime` |
-| Yearly | `yearly` | Auto-renewing, 1 year | Annual / `$rc_annual` |
-| Monthly | `monthly` | Auto-renewing, 1 month | Monthly / `$rc_monthly` |
-
-1. In Product catalog → Products, add these products under Test Store and choose their prices. Prices are intentionally not hard-coded in the app.
-2. Create the entitlement identifier **`semli_pro`**, exactly as written, and attach all three products to it.
-3. Create an offering such as `default`, add the three **standard package types** in the table, and make it the current offering. The code uses `offerings.current` and its `.monthly`, `.annual`, and `.lifetime` packages.
-4. A product identifier, package identifier, offering identifier, and entitlement identifier are different identifiers. The app purchases the actual package returned by RevenueCat; it does not guess product IDs.
-5. Before accepting real payments, configure matching native products in App Store Connect or Google Play, import them into RevenueCat, attach them to the same entitlement, and add the native product to the corresponding package. Apple monthly and yearly subscriptions should be in the same subscription group. Google subscription products need their base plans configured and mapped; RevenueCat's product mapping may include the base-plan ID.
-6. Lifetime must remain non-consumable. Do not configure it as a consumable or an auto-renewing subscription.
-
-Store product IDs must match each store exactly; a store may require different identifiers from the Test Store. See [product configuration](https://www.revenuecat.com/docs/offerings/products-overview) and [offerings](https://www.revenuecat.com/docs/offerings/overview).
+The product catalog is specified in [revenuecat-offerings-brief.md](revenuecat-offerings-brief.md) (Rico's brief): one entitlement `semli_pro` (display name "Semli Plus"), six App Store subscriptions in one group, and two offerings, `student` (current) and `regular`, each with `$rc_monthly`, `$rc_six_month`, and `$rc_annual` packages. There is no lifetime product. The app reads `offerings.all.student` / `offerings.all.regular` based on the honor-system student toggle and falls back to `offerings.current`.
 
 ## 3. SDK initialization and public keys
 
@@ -182,11 +165,11 @@ switch (result) {
 }
 ```
 
-In RevenueCat → Paywalls, create and publish a paywall for the current offering. Include Monthly, Yearly, and Lifetime; use dynamic price variables, restore/close controls, renewal details, and your working Terms/Privacy URLs. Suggested Semli styling: Onest, lavender accent, neutral background, rounded plan rows, sentence-case headings, and “Make room for your life.” The in-app custom design is implemented in code; a matching remote editor design has **not** been published by this integration. Remote configuration was not verified because the catalog page rendered blank during inspection. See [Paywalls](https://www.revenuecat.com/docs/tools/paywalls) and [displaying paywalls](https://www.revenuecat.com/docs/tools/paywalls/displaying-paywalls).
+In RevenueCat → Paywalls, create and publish a paywall for the current offering. Include Monthly, Semester (6 months), and Yearly; use dynamic price variables, restore/close controls, renewal details, and your working Terms/Privacy URLs. Suggested Semli styling: Onest, lavender accent, neutral background, rounded plan rows, sentence-case headings, and “Make room for your life.” The in-app custom design is implemented in code; a matching remote editor design has **not** been published by this integration. Remote configuration was not verified because the catalog page rendered blank during inspection. See [Paywalls](https://www.revenuecat.com/docs/tools/paywalls) and [displaying paywalls](https://www.revenuecat.com/docs/tools/paywalls/displaying-paywalls).
 
 ## 6. Manage subscription and Customer Center
 
-Settings has a direct **Manage subscription** row. By default, it opens the current customer's `managementURL` from RevenueCat. If there is no renewable subscription, it opens the plan screen. Lifetime purchases do not renew.
+Settings has a direct **Manage subscription** row. By default, it opens the current customer's `managementURL` from RevenueCat. If there is no renewable subscription, it opens the plan screen. 
 
 For the richer Customer Center, configure it in RevenueCat → Lifecycle and enable:
 

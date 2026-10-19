@@ -1,13 +1,17 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AppState, Linking } from 'react-native';
-import Purchases, { type CustomerInfo, type PurchasesOffering, type PurchasesPackage } from 'react-native-purchases';
+import Purchases, { type CustomerInfo, type PurchasesOffering, type PurchasesOfferings, type PurchasesPackage } from 'react-native-purchases';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 
-import { customerCenterEnabled, hasSemliPro, initializePurchases, PRO_ENTITLEMENT, purchaseErrorMessage, purchasesUnavailableReason, SubscriptionError } from '@/lib/revenuecat';
+import { customerCenterEnabled, hasSemliPro, initializePurchases, offeringFor, PRO_ENTITLEMENT, purchaseErrorMessage, purchasesUnavailableReason, SubscriptionError } from '@/lib/revenuecat';
+import { useStore } from '@/store';
 
 interface PurchasesContextValue {
   customerInfo: CustomerInfo | null;
+  /** The offering for the user's current price list (student or regular). */
   offering: PurchasesOffering | null;
+  /** All offerings, so the paywall can show the other price list for comparison. */
+  offerings: PurchasesOfferings | null;
   isPro: boolean;
   loading: boolean;
   busy: boolean;
@@ -25,7 +29,9 @@ const PurchasesContext = createContext<PurchasesContextValue | null>(null);
 
 export function PurchasesProvider({ children }: { children: ReactNode }) {
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
-  const [offering, setOffering] = useState<PurchasesOffering | null>(null);
+  const [offerings, setOfferings] = useState<PurchasesOfferings | null>(null);
+  const isStudent = useStore((st) => st.settings.isStudent);
+  const offering = useMemo(() => offeringFor(offerings, isStudent), [offerings, isStudent]);
   const [loading, setLoading] = useState(!purchasesUnavailableReason);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +57,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       await initializePurchases();
       const results = await Promise.allSettled([
         refreshCustomerInfo(),
-        Purchases.getOfferings().then((offerings) => setOffering(offerings.current)),
+        Purchases.getOfferings().then(setOfferings),
       ]);
       const failure = results.find((result) => result.status === 'rejected');
       if (failure?.status === 'rejected') setError(purchaseErrorMessage(failure.reason));
@@ -124,8 +130,9 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
   const presentPaywall = useCallback(() => run(async () => {
     const info = await refreshCustomerInfo();
     if (hasSemliPro(info)) return true;
-    const current = (await Purchases.getOfferings()).current;
-    setOffering(current);
+    const all = await Purchases.getOfferings();
+    setOfferings(all);
+    const current = offeringFor(all, useStore.getState().settings.isStudent);
     if (!current || current.availablePackages.length === 0) {
       throw new SubscriptionError('Plans aren’t available right now. Please try again later.');
     }
@@ -150,7 +157,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     const updated = completedInfo ?? await refreshCustomerInfo();
     if (completedInfo) void refreshCustomerInfo().catch(() => {});
     if (!hasSemliPro(updated) && (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED)) {
-      throw new SubscriptionError('Your purchase finished, but Semli Pro is not active. Try Restore purchases or contact support.');
+      throw new SubscriptionError('Your purchase finished, but Semli Plus is not active. Try Restore purchases or contact support.');
     }
     return hasSemliPro(updated);
   }), [refreshCustomerInfo, run, updateCustomerInfo]);
@@ -164,15 +171,15 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       return;
     }
     const info = await refreshCustomerInfo();
-    if (!info.managementURL) throw new SubscriptionError('There is no store subscription to manage. Lifetime purchases do not renew.');
+    if (!info.managementURL) throw new SubscriptionError('There is no store subscription to manage.');
     await Linking.openURL(info.managementURL);
   }), [refreshCustomerInfo, run, updateCustomerInfo]);
 
   const value = useMemo<PurchasesContextValue>(() => ({
-    customerInfo, offering, isPro: hasSemliPro(customerInfo), loading, busy, error,
+    customerInfo, offering, offerings, isPro: hasSemliPro(customerInfo), loading, busy, error,
     unavailableReason: purchasesUnavailableReason,
     refresh, refreshCustomerInfo, purchase, restore, presentPaywall, manageSubscription,
-  }), [customerInfo, offering, loading, busy, error, refresh, refreshCustomerInfo, purchase, restore, presentPaywall, manageSubscription]);
+  }), [customerInfo, offering, offerings, loading, busy, error, refresh, refreshCustomerInfo, purchase, restore, presentPaywall, manageSubscription]);
 
   return <PurchasesContext.Provider value={value}>{children}</PurchasesContext.Provider>;
 }

@@ -457,7 +457,7 @@ function PriceStep({ onNext }: { onNext: () => void }) {
     <ScrollView contentContainerStyle={styles.page}>
       <T token="display">Free to start.</T>
       <T token="callout" color={c.inkSecondary}>
-        {FREE_IMPORTS_PER_MONTH} imports a month, reminders, and the calendar are free forever. Semli Pro adds unlimited imports.
+        {FREE_IMPORTS_PER_MONTH} imports a month, reminders, and the calendar are free forever. Semli Plus adds unlimited imports.
       </T>
       <PlanPicker />
       <T token="caption" color={c.inkSecondary}>

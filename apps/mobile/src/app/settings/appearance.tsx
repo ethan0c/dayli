@@ -16,7 +16,7 @@ export default function AppearanceScreen() {
   const setSettings = useStore((s) => s.setSettings);
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
-      <Group footer="Applies to your planner, sheets, menus, and Semli Pro.">
+      <Group footer="Applies to your planner, sheets, menus, and Semli Plus.">
         {OPTIONS.map((o, i) => (
           <Row
             key={o.id}

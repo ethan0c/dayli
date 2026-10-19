@@ -62,6 +62,8 @@ Calendar, tasks, Today, reminders, repeating classes, manual add, **3 AI imports
 | **Semester** | **$14.99** / 4 months | $24.99 | $3.75/mo | Matches how students think about time and money; the plan to push in-app |
 | Yearly | **$29.99** | $49.99 | $2.50/mo | Matches Structured's anchor; the plan to push on web |
 
+**Store note (Oct 19, 2026):** Apple has no 4-month auto-renewing term, so the Semester plan is sold as a 6-month subscription at the same price (a semester plus the break; a year is exactly two). Product setup: [revenuecat-offerings-brief.md](revenuecat-offerings-brief.md).
+
 Student pricing is on the honor system. The toggle in onboarding says so plainly: we don't check IDs or .edu emails, we trust you, switch it off when you graduate. The regular price exists so the student price reads as a real discount (~40%) and so non-students (parents, grads, shift workers) have a way to pay.
 
 Plus includes: unlimited AI imports, syllabus import, work-schedule diffing, and (later) Canvas sync and planning suggestions.

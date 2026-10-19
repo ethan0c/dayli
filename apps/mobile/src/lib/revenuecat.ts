@@ -1,8 +1,18 @@
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
-import Purchases, { LOG_LEVEL, PURCHASES_ERROR_CODE, type CustomerInfo } from 'react-native-purchases';
+import Purchases, { LOG_LEVEL, PURCHASES_ERROR_CODE, type CustomerInfo, type PurchasesOffering, type PurchasesOfferings } from 'react-native-purchases';
 
 export const PRO_ENTITLEMENT = 'semli_pro';
+
+/** Offerings are two price lists for the same plans; see docs/revenuecat-offerings-brief.md. */
+export const STUDENT_OFFERING = 'student';
+export const REGULAR_OFFERING = 'regular';
+
+export function offeringFor(offerings: PurchasesOfferings | null, student: boolean): PurchasesOffering | null {
+  if (!offerings) return null;
+  const wanted = offerings.all[student ? STUDENT_OFFERING : REGULAR_OFFERING];
+  return wanted ?? offerings.current ?? null;
+}
 // Public SDK key for Semli's RevenueCat Test Store, not a secret API key.
 const TEST_API_KEY = 'test_uNFxutyLQIYtsoSqmHkgBRoiEOZ';
 
@@ -54,7 +64,7 @@ export function purchaseErrorMessage(error: unknown): string | null {
       case PURCHASES_ERROR_CODE.OFFLINE_CONNECTION_ERROR:
         return 'We couldn’t reach the store. Check your connection and try again.';
       case PURCHASES_ERROR_CODE.PAYMENT_PENDING_ERROR:
-        return 'Your payment is pending approval. Semli Pro will unlock when the store confirms it.';
+        return 'Your payment is pending approval. Semli Plus will unlock when the store confirms it.';
       case PURCHASES_ERROR_CODE.PRODUCT_ALREADY_PURCHASED_ERROR:
         return 'You already own this plan. Choose Restore purchases to recover access.';
       case PURCHASES_ERROR_CODE.PURCHASE_NOT_ALLOWED_ERROR:

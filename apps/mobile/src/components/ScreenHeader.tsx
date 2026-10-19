@@ -22,7 +22,7 @@ export function ScreenHeader({ title, subtitle, safeTop = false }: { title: stri
         </View>
         <View style={[styles.side, { alignItems: 'flex-end' }]}>
           {!isPro ? <Pressable accessibilityRole="button" accessibilityLabel="View Semli Pro plans" onPress={() => router.push('/settings/plan')} style={[styles.pro, { backgroundColor: c.accentSoft }]}>
-            <T token="subhead" color={c.accentInk}>Pro</T>
+            <T token="subhead" color={c.accentInk}>Plus</T>
           </Pressable> : null}
         </View>
       </View>

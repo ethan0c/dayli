@@ -69,7 +69,7 @@ export default function SettingsHome() {
           <Row
             icon="heart"
             tint={c.tint.rose.fill}
-            label="Semli Pro"
+            label="Semli Plus"
             value={isPro ? 'Semli Pro' : !customerInfo ? loading ? 'Checking…' : 'Check plan' : `Free · ${used} of ${FREE_IMPORTS_PER_MONTH} imports`}
             onPress={() => router.push('/settings/plan')}
           />

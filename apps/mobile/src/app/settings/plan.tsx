@@ -28,7 +28,7 @@ export default function PlanScreen() {
       <Stack.Screen options={{ headerShown: true }} />
       <View style={[styles.status, { backgroundColor: c.tint.mint.fill }]}>
         <T token="overline" color={c.tint.mint.ink}>
-          Semli Pro
+          Semli Plus
         </T>
         <T token="display" color={c.tint.mint.ink}>
           Unlimited imports
@@ -36,14 +36,14 @@ export default function PlanScreen() {
         <T token="callout" color={c.tint.mint.ink}>
           {entitlement?.expirationDate
               ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}.`
-              : 'Lifetime access. No recurring payments.'}
+              : 'Active.'}
         </T>
       </View>
 
       <PlanPicker />
 
       <T token="caption" color={c.inkSecondary}>
-        Monthly and yearly plans renew automatically unless canceled in your store account. Lifetime is a one-time purchase. Prices and any eligible offers are shown before you confirm.
+        Plans renew automatically unless canceled in your store account. Student pricing is on the honor system. Prices and any eligible offers are shown before you confirm.
       </T>
     </ScrollView>
   );
