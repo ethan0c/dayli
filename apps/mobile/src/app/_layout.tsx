@@ -1,4 +1,5 @@
 import { Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold, useFonts } from '@expo-google-fonts/urbanist';
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -19,7 +20,7 @@ const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 Sentry.init({ dsn: SENTRY_DSN, enabled: !!SENTRY_DSN, tracesSampleRate: 0.2, sendDefaultPii: false });
 
 function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({ Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold });
+  const [fontsLoaded, fontError] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold });
   const hydrated = useStore((s) => s.hydrated);
   const onboarded = useStore((s) => s.settings.onboarded);
   const appearance = useStore((s) => s.settings.appearance);

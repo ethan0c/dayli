@@ -3,13 +3,14 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
-import { radius, textStyle, useTheme } from '@/theme';
+import { radius, textStyle, useCardSurface, useTheme } from '@/theme';
 
 export function HomeCaptureCard({ onCapture }: { onCapture: (text: string, source?: 'image' | 'file') => void }) {
   const { c } = useTheme();
+  const surface = useCardSurface();
   const [draft, setDraft] = useState('');
   return (
-    <View style={[styles.card, { backgroundColor: c.accentSoft }]}>
+    <View style={[styles.card, surface]}>
       <View style={{ gap: 6 }}>
         <T token="title">Your week starts here.</T>
         <T token="callout" color={c.inkSecondary}>Paste a schedule, drop a syllabus, or tell Semli what’s coming up.</T>
@@ -46,7 +47,7 @@ export function HomeCaptureCard({ onCapture }: { onCapture: (text: string, sourc
 }
 
 const styles = StyleSheet.create({
-  card: { padding: 18, borderRadius: radius.card, gap: 16 },
+  card: { padding: 20, borderRadius: radius.card, gap: 16 },
   input: { minHeight: 100, maxHeight: 180, padding: 14, borderRadius: radius.row, textAlignVertical: 'top' },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 18 },
   action: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6 },

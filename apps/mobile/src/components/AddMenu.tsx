@@ -8,7 +8,7 @@ import { AddButton } from '@/components/AddButton';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
-import { useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 type Action = 'capture' | 'task' | 'event';
 const actions: { action: Action; label: string; icon: IconKey }[] = [
@@ -24,7 +24,7 @@ export function useAddMenu() {
   return value;
 }
 
-/** Keeps the native tab bar; the menu floats above its existing add button. */
+/** The shared capture menu preserves the selected destination underneath. */
 export function AddMenu({ bottom, children, nativeTrigger = false }: { bottom: number; children?: ReactNode; nativeTrigger?: boolean }) {
   const { c } = useTheme();
   const pathname = usePathname();
@@ -93,7 +93,7 @@ export function AddMenu({ bottom, children, nativeTrigger = false }: { bottom: n
 
 const styles = StyleSheet.create({
   overlay: { flex: 1 },
-  toggle: { position: 'absolute', right: 16, width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
-  menu: { position: 'absolute', right: 16, width: 210, gap: 7 },
+  toggle: { position: 'absolute', right: SCREEN_GUTTER, width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
+  menu: { position: 'absolute', right: SCREEN_GUTTER, width: 210, gap: 8 },
   action: { minHeight: 54, paddingHorizontal: 17, paddingVertical: 14, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 11 },
 });

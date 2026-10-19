@@ -34,6 +34,7 @@ export interface Pending {
 
 export type PlanId = 'monthly' | 'semester' | 'yearly';
 export type Appearance = 'system' | 'light' | 'dark';
+export type CardStyle = 'flat' | 'raised';
 export type StoredCourse = Course & { batchId?: string; color?: TintName };
 
 interface Settings {
@@ -47,6 +48,7 @@ interface Settings {
   planIntent: PlanId | null;
   weekKinds: string[];
   appearance: Appearance;
+  cardStyle: CardStyle;
   /** UI sounds; they also follow the ring/silent switch. */
   sounds: boolean;
   haptics: boolean;
@@ -123,7 +125,7 @@ export const useStore = create<State>()(
       suggestionDismissals: { date: '', ids: [] },
       captureDraft: '',
       selectedPlanDate: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null },
       usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),

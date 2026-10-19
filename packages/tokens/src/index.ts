@@ -14,7 +14,7 @@ export const lavender = {
   900: '#2E2460',
 } as const;
 
-export const ink = '#1C1B21';
+export const ink = '#222320';
 
 // Widened copy so palettes hold plain strings rather than literal types.
 const lav: Record<keyof typeof lavender, string> = lavender;
@@ -48,27 +48,27 @@ const darkTint: Record<TintName, Tint> = {
 };
 
 const light = {
-  canvas: '#FFFFFF',
-  header: '#F1F0F4',
-  row: '#F2F2F5',
+  canvas: '#FAF9F6',
+  header: '#FAF9F6',
+  row: '#F0EFEB',
   surface: '#FFFFFF',
-  inkPrimary: '#18171C',
-  inkSecondary: '#6B6A75',
-  inkTertiary: '#6E6977',
+  inkPrimary: '#222320',
+  inkSecondary: '#686963',
+  inkTertiary: '#686963',
   onPrimary: '#FFFFFF',
   onAccent: '#FFFFFF',
   onNav: '#F4F3F8',
-  controlOutline: '#85818F',
-  line: '#E4E3EA',
+  controlOutline: '#82837B',
+  line: '#E5E4DE',
   nav: ink,
   navInactive: '#9A99A4',
   scrim: 'rgba(24,23,28,0.40)',
-  accent: lav[600],
-  accentSoft: lav[50],
-  accentBorder: lav[200],
-  accentInk: lav[700],
-  conflict: '#B52C24',
-  conflictBg: '#FCE3E0',
+  accent: '#7057BD',
+  accentSoft: '#F0ECF8',
+  accentBorder: '#DCD4EF',
+  accentInk: '#7057BD',
+  conflict: '#A2342F',
+  conflictBg: '#FBEDEB',
   changed: '#80510A',
   changedBg: '#FBEFD5',
   added: '#246C43',
@@ -85,27 +85,27 @@ const light = {
 export type Palette = typeof light;
 
 const dark: Palette = {
-  canvas: '#0F0E13',
-  header: '#17161C',
-  row: '#1E1D24',
-  surface: '#25242C',
-  inkPrimary: '#F4F3F8',
-  inkSecondary: '#A4A3AE',
-  inkTertiary: '#918B9B',
-  onPrimary: '#18171C',
-  onAccent: '#18171C',
+  canvas: '#151515',
+  header: '#151515',
+  row: '#292929',
+  surface: '#202020',
+  inkPrimary: '#F5F4F0',
+  inkSecondary: '#B4B4AC',
+  inkTertiary: '#B4B4AC',
+  onPrimary: '#151515',
+  onAccent: '#151515',
   onNav: '#F4F3F8',
-  controlOutline: '#87838F',
-  line: '#2E2D35',
+  controlOutline: '#92938A',
+  line: '#363632',
   nav: '#2A2931',
   navInactive: '#A4A3AE',
   scrim: 'rgba(0,0,0,0.55)',
-  accent: lav[300],
-  accentSoft: '#1D1A2B',
-  accentBorder: '#3A3160',
-  accentInk: lav[300],
-  conflict: '#F07A70',
-  conflictBg: '#3A1D1B',
+  accent: '#C3AFF8',
+  accentSoft: '#2B253A',
+  accentBorder: '#453B5A',
+  accentInk: '#C3AFF8',
+  conflict: '#FFACA4',
+  conflictBg: '#3B2524',
   changed: '#E2A84B',
   changedBg: '#3A2D14',
   added: '#5CC08A',
@@ -123,10 +123,16 @@ export const palettes = { light, dark } as const;
 
 export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, xxxl: 40 } as const;
 
-export const radius = { chip: 999, row: 16, card: 20, sheet: 28, pill: 999 } as const;
+export const radius = { chip: 999, row: 14, card: 16, sheet: 28, pill: 999 } as const;
 
-/** Urbanist weights used by the app. Font family names match @expo-google-fonts/urbanist exports. */
+/** Inter carries UI text; Urbanist is reserved for display numerals. */
 export const fontFamily = {
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semibold: 'Inter_600SemiBold',
+} as const;
+
+export const numeralFamily = {
   regular: 'Urbanist_400Regular',
   medium: 'Urbanist_500Medium',
   semibold: 'Urbanist_600SemiBold',
@@ -135,13 +141,13 @@ export const fontFamily = {
 export const typeScale = {
   displayXl: { size: 56, line: 56, weight: 'regular', tracking: -0.03 },
   display: { size: 34, line: 40, weight: 'medium', tracking: -0.02 },
-  title: { size: 22, line: 28, weight: 'semibold', tracking: -0.01 },
-  headline: { size: 17, line: 22, weight: 'semibold', tracking: 0 },
-  body: { size: 16, line: 22, weight: 'regular', tracking: 0 },
-  callout: { size: 15, line: 20, weight: 'regular', tracking: 0 },
-  subhead: { size: 13, line: 18, weight: 'medium', tracking: 0 },
-  caption: { size: 12, line: 16, weight: 'regular', tracking: 0.01 },
-  overline: { size: 12, line: 16, weight: 'semibold', tracking: 0 },
+  title: { size: 24, line: 30, weight: 'medium', tracking: -0.01 },
+  headline: { size: 17, line: 24, weight: 'medium', tracking: 0 },
+  body: { size: 17, line: 24, weight: 'regular', tracking: 0 },
+  callout: { size: 15, line: 22, weight: 'regular', tracking: 0 },
+  subhead: { size: 14, line: 20, weight: 'medium', tracking: 0 },
+  caption: { size: 13, line: 18, weight: 'regular', tracking: 0 },
+  overline: { size: 14, line: 20, weight: 'medium', tracking: 0 },
 } as const satisfies Record<
   string,
   { size: number; line: number; weight: keyof typeof fontFamily; tracking: number }

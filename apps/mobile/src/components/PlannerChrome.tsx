@@ -4,12 +4,10 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Icon, type IconKey } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
-import { useStore } from '@/store';
-import { radius, useTheme } from '@/theme';
+import { radius, useCardSurface, useTheme } from '@/theme';
 
 export function AccountButton() {
   const { c } = useTheme();
-  const name = useStore((s) => s.settings.name);
   return (
     <Pressable
       accessibilityRole="button"
@@ -17,7 +15,7 @@ export function AccountButton() {
       onPress={() => router.push('/settings')}
       hitSlop={6}
       style={({ pressed }) => [styles.account, { backgroundColor: c.row, opacity: pressed ? 0.65 : 1 }]}>
-      {name ? <T token="headline">{Array.from(name.trim())[0]}</T> : <Icon name="user" size={19} color={c.inkPrimary} />}
+      <View accessible={false} style={styles.brandDots}><View style={[styles.todayDot, { backgroundColor: c.inkPrimary }]} /><View style={[styles.nextDot, { backgroundColor: c.accent }]} /></View>
     </Pressable>
   );
 }
@@ -47,9 +45,10 @@ export function SectionHeading({ title, detail, action }: {
 /** A real entry point into capture, including when there is no planner data yet. */
 export function CaptureCard({ school = false, compact = false }: { school?: boolean; compact?: boolean }) {
   const { c } = useTheme();
+  const surface = useCardSurface();
   const open = () => { feedback('tap'); router.push('/capture'); };
   return (
-    <View style={[styles.capture, { backgroundColor: c.accentSoft }]}>
+    <View style={[styles.capture, surface]}>
       {!compact ? (
         <View style={styles.illustration} accessible={false} importantForAccessibility="no-hide-descendants">
           <View style={[styles.paperBack, { backgroundColor: c.tint.lavender.fill }]} />
@@ -100,7 +99,10 @@ export function ImportRow({ icon, title, detail }: { icon: IconKey; title: strin
 }
 
 const styles = StyleSheet.create({
-  account: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  account: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  brandDots: { width: 29, height: 29 },
+  todayDot: { position: 'absolute', bottom: 0, left: 0, width: 19, height: 19, borderRadius: 10 },
+  nextDot: { position: 'absolute', top: 0, right: 0, width: 9, height: 9, borderRadius: 5 },
   sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 4 },
   textAction: { minHeight: 44, flexDirection: 'row', gap: 3, alignItems: 'center', justifyContent: 'center' },
   capture: { borderRadius: radius.card, padding: 22, gap: 18 },

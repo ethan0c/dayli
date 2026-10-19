@@ -1,5 +1,5 @@
 import type { TabTriggerSlotProps } from 'expo-router/ui';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { T } from '@/components/Text';
@@ -12,9 +12,10 @@ type Props = Omit<TabTriggerSlotProps, 'ref'> & {
   ref?: React.ComponentProps<typeof Pressable>['ref'];
 };
 
-/** One segment of the floating nav pill. Active: light pill with icon and label. Inactive: icon only. */
+/** Stable-width destinations keep labels visible as selection changes. */
 export function NavButton({ icon, label, isFocused, onPress, ...props }: Props) {
   const { c } = useTheme();
+  const { fontScale } = useWindowDimensions();
   return (
     <Pressable
       {...props}
@@ -25,10 +26,10 @@ export function NavButton({ icon, label, isFocused, onPress, ...props }: Props) 
       accessibilityRole="tab"
       accessibilityState={{ selected: !!isFocused }}
       accessibilityLabel={label}
-      style={[styles.seg, isFocused ? { backgroundColor: c.canvas } : null]}>
-      <Icon name={icon} size={18} color={isFocused ? c.inkPrimary : c.navInactive} />
-      {isFocused ? (
-        <T token="subhead" color={c.inkPrimary}>
+      style={[styles.seg, isFocused ? { backgroundColor: c.row } : null]}>
+      <Icon name={icon} size={20} color={isFocused ? c.inkPrimary : c.inkSecondary} />
+      {fontScale < 1.6 ? (
+        <T token="caption" maxFontSizeMultiplier={1.3} color={isFocused ? c.inkPrimary : c.inkSecondary}>
           {label}
         </T>
       ) : null}
@@ -38,11 +39,12 @@ export function NavButton({ icon, label, isFocused, onPress, ...props }: Props) 
 
 const styles = StyleSheet.create({
   seg: {
-    flexDirection: 'row',
+    flex: 1,
     alignItems: 'center',
-    gap: 6,
-    height: 40,
-    paddingHorizontal: 14,
+    justifyContent: 'center',
+    gap: 3,
+    minHeight: 48,
+    paddingHorizontal: 3,
     borderRadius: radius.pill,
   },
 });
