@@ -52,6 +52,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
   const student = useStore((s) => s.settings.isStudent);
   const setSettings = useStore((s) => s.setSettings);
   const [welcome, setWelcome] = useState<'celebrate' | 'tour' | null>(null);
+  const [previewPlans, setPreviewPlans] = useState(false);
   const actionInProgress = useRef(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [term, setTerm] = useState<TermKey>('semester');
@@ -68,7 +69,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
   const showWelcome = (stage: 'celebrate' | 'tour') => { setWelcome(stage); onWelcome?.(); };
 
   async function buyPlan() {
-    if (!selected || !current || actionInProgress.current) return;
+    if (!selected || !current || actionInProgress.current || previewPlans) return;
     actionInProgress.current = true;
     setNotice(null);
     try {
@@ -108,9 +109,9 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
   };
 
   if (welcome) return <PlusWelcome stage={welcome} onTour={() => showWelcome('tour')}
-    onDone={() => { setWelcome(null); onComplete?.(); }} c={c} />;
+    onDone={() => { if (onComplete) onComplete(); else { setWelcome(null); onWelcome?.(); } }} c={c} />;
 
-  if (isPro) {
+  if (isPro && !previewPlans) {
     return (
       <View style={{ gap: 22 }}>
         <View style={{ gap: 2 }}>
@@ -131,6 +132,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           </Press>
         ) : null}
         {__DEV__ ? <Press accessibilityRole="button" onPress={() => showWelcome('celebrate')} style={styles.textBtn}><T token="caption" color={c.inkSecondary}>Preview welcome · development only</T></Press> : null}
+        {__DEV__ ? <Press accessibilityRole="button" onPress={() => { setPreviewPlans(true); onWelcome?.(); }} style={styles.textBtn}><T token="caption" color={c.inkSecondary}>Preview paywall · development only</T></Press> : null}
         {notice || error ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{notice ?? error}</T> : null}
         <Links onRestore={() => void restorePlan()} onLegal={legal} disabled={disabled} c={c} />
       </View>
@@ -139,6 +141,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
 
   return (
     <View style={{ gap: 28 }}>
+      {previewPlans ? <Press accessibilityRole="button" onPress={() => setPreviewPlans(false)} style={styles.textBtn}><T token="caption" color={c.accentInk}>End preview · purchases disabled</T></Press> : null}
       <View style={{ gap: 12 }}>
         <T token="display" color={c.inkPrimary}>More life. Less juggling.</T>
         <T token="callout" color={c.inkSecondary}>
@@ -207,8 +210,8 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
       {unavailableReason || error || notice ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{unavailableReason ?? error ?? notice}</T> : null}
 
       <View style={{ gap: 12, paddingTop: 4, alignItems: 'center' }}>
-        <Press haptic="tap" accessibilityRole="button" accessibilityState={{ disabled: disabled || !selected }} disabled={disabled || !selected} onPress={() => void buyPlan()}
-          style={[styles.cta, { backgroundColor: c.controlFill, opacity: disabled || !selected ? 0.4 : 1 }]}>
+        <Press haptic="tap" accessibilityRole="button" accessibilityState={{ disabled: disabled || !selected || previewPlans }} disabled={disabled || !selected || previewPlans} onPress={() => void buyPlan()}
+          style={[styles.cta, { backgroundColor: c.controlFill, opacity: disabled || !selected || previewPlans ? 0.4 : 1 }]}>
           <T token="headline" color={c.controlInk}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
         </Press>
         <T token="caption" color={c.inkSecondary} style={styles.center}>

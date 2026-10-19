@@ -9,6 +9,7 @@ import { Icon } from '@/components/Icon';
 import { Button } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
+import { track } from '@/lib/analytics';
 import { useNow } from '@/lib/now';
 import { realRecords } from '@/lib/planner-preview';
 import { hasSemliPro, purchaseErrorMessage } from '@/lib/revenuecat';
@@ -20,7 +21,7 @@ import { useTheme } from '@/theme';
 export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
   const { c } = useTheme();
   const now = useNow();
-  const { isPro, loading, refreshCustomerInfo } = usePurchases();
+  const { isPro, loading, refreshCustomerInfo, presentPaywall } = usePurchases();
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const otherIds = new Set(findConflicts(items).flatMap((pair) => pair.a === item.id ? [pair.b] : pair.b === item.id ? [pair.a] : []));
@@ -32,6 +33,13 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
   const suggestion = isPro ? suggestReschedule(item, items, now) : null;
   const suggestedLabel = suggestion ? `${suggestion.date === now.date ? 'Today' : `${weekdayShort(suggestion.date)}, ${monthDay(suggestion.date)}`} · ${formatRange(suggestion.start, suggestion.end)}` : '';
 
+  async function openPlus() {
+    setNotice(null);
+    track('paywall_shown', { reason: 'rescheduling' });
+    try { await presentPaywall(); }
+    catch (error) { setNotice(purchaseErrorMessage(error)); }
+  }
+
   async function applySuggestion() {
     if (!suggestion || busy) return;
     setBusy(true);
@@ -40,7 +48,7 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
       // Recheck paid access and availability before changing the selected occurrence.
       const info = await refreshCustomerInfo();
       if (!hasSemliPro(info)) {
-        router.push('/settings/plan');
+        await openPlus();
         return;
       }
       const store = useStore.getState();
@@ -87,7 +95,7 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
         <View style={styles.suggestion}>
           <GroupLabel>Semli Plus</GroupLabel>
           <T token="callout" color={c.inkSecondary}>Find a free time for this event around your fixed commitments. Overlap warnings and manual edits are always free.</T>
-          <Button label="Find a time with Plus" variant="secondary" onPress={() => router.push('/settings/plan')} />
+          <Button label="Find a time with Plus" variant="secondary" onPress={() => void openPlus()} />
         </View>
       ) : suggestion ? (
         <View style={styles.suggestion}>

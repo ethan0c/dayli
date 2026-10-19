@@ -132,9 +132,10 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
   // Presentation must not hold the purchase lock: PlanPicker owns purchase/restore actions.
   // The awaiting import/review resumes only when the paywall closes or the tour finishes.
   const presentPaywall = useCallback(() => {
-    if (hasSemliPro(customerInfo)) return Promise.resolve(true);
+    // The gate already fetched fresh access. Do not short-circuit with the render's
+    // captured CustomerInfo, which can still predate that refresh (e.g. expiration).
     return requestPaywall(() => router.push('/paywall'));
-  }, [customerInfo]);
+  }, []);
 
   const manageSubscription = useCallback(() => run(async () => {
     if (customerCenterEnabled) {

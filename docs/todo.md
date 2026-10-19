@@ -47,7 +47,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 **System**
 - Geist at the right weights: display Light, title Regular, pills Medium. Onboarding headings Light.
-- One accent in five places; category tints only as 6px dots; no tinted cards, no icon tiles, no illustrations.
+- Category tints stay small in the planner; ordinary screens use plain rows. The photographic Plus showcase and welcome use accent icon badges.
 - Five button roles, pills act and rectangles hold; the sliding segmented control; ink toggles.
 - Glass chrome: the Today toggle, close and back, the onboarding chevron sit in Liquid Glass circles on iOS 26 (`components/Glass.tsx`).
 - Add is the fifth tab with the iOS 26 `search` role (the detached circle). No add menu. Every entry point lands on the Add tab, with a source to open a picker.

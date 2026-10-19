@@ -9,7 +9,7 @@ Robinhood's 2024 identity is the reference: neutrals first, one accent used spar
 - One big number per screen (Light, 56px). Everything under it is one step smaller than iOS defaults. Contrast reads as premium, size does not.
 - Color only when it means something: terracotta is behind or in conflict, green is ahead, amber is "Semli needs something from you".
 - Pills act, rectangles hold. Every action is fully round; rows, cards, fields and composers keep corners.
-- No decoration: no tinted cards, no icon tiles, no illustrations, no logo on in-app screens. Photography only on moment days and showcase pages.
+- Planner screens use plain rows, with no decorative cards or icon tiles. Photography belongs on moment days and showcase pages; the Plus welcome and guide can use small accent icon badges.
 
 ## Brand
 - Mark: two dots (big = today, small accent = next), ratio 240 : 102 on a fixed diagonal. `design/icon-b-dots.svg`.
@@ -105,6 +105,7 @@ One tap deletes, the toast carries Undo, and Your data keeps it undoable after. 
 - Overlaps: agenda titles and status times use the conflict ink. The day bar marks the overlapping interval in red even in an item's highlighted view; hourly events use separate columns. Below the detail graph, a named warning links to each conflicting event. Fixed events point toward the flexible plan to review. Plus offers an explicit move button with a calendar-free time and a 15-minute buffer; nothing moves automatically. Overlap warnings, the flexibility switch, and manual edits stay free.
 - You: "You" as the main heading with "Profile and preferences" above it, then the plan/import pill. Name and field of study belong in the Profile rows. Hairline rows in groups, footer with mark, version, legal links.
 - Onboarding: eight steps; one-tap rows, pill chips, a composer for the own import; Watch it work, Heads-up and Plus are full-bleed photo pages in dark.
+- Plus: onboarding, settings and feature gates share the fireworks photo fading into a dark canvas, readable price-first rows, a green student switch and one primary action. Feature gates open a full-screen cover with a glass X; settings keeps its back chevron. A confirmed new purchase celebrates with one brief confetti burst, then offers a skippable feature guide. Restore and ordinary launches do not celebrate again. Guide copy covers only the three implemented Plus features; account and live sharing previews are not paid benefits. Reduce Motion suppresses the burst, and the guide stays available in You → Semli Plus.
 
 ## Applied in code (Oct 19, 2026, second pass)
 Display and title tokens at Light and Regular; the Today list/graph toggle and `HourView`; Plan with `WeekChart` as the header; School with the four-week `TermLine` map and flat course rows; Review rewritten around the week chart and the term line, no toggles, never blocking; Create with the pill field, hairline rows, `Segmented` and course chips; the item screen with tappable time and date, plain rows, the series row, the day-around-it bar and the delete scope chooser; swipe actions on every `ItemRow`; Add as the fifth tab; glass chrome buttons; Appearance without card style; the add menu, starter cards, clock header, week strip and card surface removed. `seriesId` on items ties the occurrences of a repeating class together.
@@ -114,6 +115,6 @@ Geist fonts and tokens; the new type scale; pill buttons and the five roles (`co
 
 ## Open items
 - Moments: the photo header on special days needs a calendar of breaks and finals, and licensed photos (Unsplash with attribution, or a commissioned set).
-- Showcase onboarding steps (Watch it work, Heads-up) ship dark without a photo until photos are sourced; Plus stays on paper. The layout is ready for a full-bleed image.
+- Showcase onboarding and all Plus paywalls use the bundled photos. Confirm image rights/attribution and check contrast on device before release.
 - App icon, splash and store assets regenerated from the new wordmark with the app's ink and accent.
 - Verify 12px captions on a real phone in bright light; 13 is the fallback.
