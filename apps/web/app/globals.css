@@ -66,6 +66,12 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
 }
+html {
+  scroll-behavior: smooth;
+}
+#try {
+  scroll-margin-top: 24px;
+}
 
 body {
   min-height: 100%;
@@ -715,25 +721,49 @@ textarea {
   align-items: center;
 }
 .seg {
-  display: inline-flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 3), 1fr);
   padding: 4px;
   border-radius: 999px;
   background: var(--row);
-  gap: 2px;
+}
+.seg-pill {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--n, 3));
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(24, 23, 28, 0.08);
+  transform: translateX(calc(var(--i, 0) * 100%));
+  transition: transform 0.3s var(--ease);
 }
 .seg button {
+  position: relative;
   border: 0;
   background: transparent;
   border-radius: 999px;
-  padding: 8px 16px;
+  padding: 8px 18px;
   font-weight: 500;
   color: var(--ink-2);
   cursor: pointer;
+  transition: color 0.2s;
 }
 .seg button.on {
-  background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 1px 2px rgba(24, 23, 28, 0.08);
+}
+.plan .tag {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-ink);
+  background: var(--canvas);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin-bottom: 4px;
 }
 .plan-grid {
   width: 100%;
@@ -875,9 +905,29 @@ textarea {
 .faq summary::after {
   content: '+';
   color: var(--ink-3);
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.3s var(--ease);
 }
 .faq details[open] summary::after {
-  content: '–';
+  transform: rotate(45deg);
+}
+.faq details {
+  interpolate-size: allow-keywords;
+  transition: background 0.2s;
+}
+.faq details:hover {
+  background: var(--header);
+}
+.faq details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size 0.3s var(--ease),
+    content-visibility 0.3s allow-discrete;
+}
+.faq details[open]::details-content {
+  block-size: auto;
 }
 .faq details p {
   margin-top: 10px;
@@ -932,5 +982,337 @@ textarea {
 @media (max-width: 480px) {
   .cmp tbody th {
     width: 44%;
+  }
+}
+
+/* ---------- Motion ---------- */
+:root {
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes blink {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+.rise {
+  animation: rise 0.45s var(--ease) both;
+}
+
+/* Page and hero entrance */
+.page {
+  animation: fade 0.3s ease both;
+}
+.hero > div > * {
+  animation: rise 0.6s var(--ease) both;
+}
+.hero > div > h1 {
+  animation-delay: 0.05s;
+}
+.hero > div > p {
+  animation-delay: 0.14s;
+}
+.hero > div > .cta {
+  animation-delay: 0.22s;
+}
+.hero-phone {
+  animation: rise 0.8s var(--ease) 0.15s both;
+}
+.screen .row {
+  animation: rise 0.5s var(--ease) both;
+}
+.screen .row:nth-child(1) {
+  animation-delay: 0.45s;
+}
+.screen .row:nth-child(2) {
+  animation-delay: 0.52s;
+}
+.screen .row:nth-child(3) {
+  animation-delay: 0.59s;
+}
+.screen .row:nth-child(4) {
+  animation-delay: 0.66s;
+}
+.screen .row:nth-child(5) {
+  animation-delay: 0.73s;
+}
+.screen .row:nth-child(6) {
+  animation-delay: 0.8s;
+}
+.navpill {
+  animation: rise 0.5s var(--ease) 0.9s both;
+}
+.steps .step {
+  animation: rise 0.6s var(--ease) both;
+}
+.steps .step:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.steps .step:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+/* Hover and press */
+.btn {
+  transition:
+    transform 0.18s var(--ease),
+    background 0.18s,
+    border-color 0.18s,
+    color 0.18s,
+    opacity 0.18s,
+    box-shadow 0.18s;
+}
+.btn:not([aria-disabled='true']):not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(24, 23, 28, 0.16);
+}
+.btn:not([aria-disabled='true']):not(:disabled):active {
+  transform: scale(0.97);
+  box-shadow: none;
+  transition-duration: 0.08s;
+}
+.btn.ghost:not([aria-disabled='true']):not(:disabled):hover {
+  background: var(--row);
+  border-color: var(--ink-3);
+  box-shadow: none;
+}
+.btn:disabled {
+  transition: opacity 0.18s;
+}
+.nav > a,
+.foot-col a,
+.prose a {
+  transition: color 0.18s, text-decoration-color 0.18s;
+}
+.prose a:not(.btn):not(.reason):hover {
+  text-decoration-color: currentColor;
+}
+.step,
+.reason,
+.plan {
+  transition:
+    transform 0.25s var(--ease),
+    background 0.25s,
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+.step:hover,
+.reason:hover {
+  transform: translateY(-2px);
+}
+.plan:hover {
+  border-color: var(--ink-3);
+}
+.plan.featured:hover {
+  border-color: var(--accent);
+  box-shadow: 0 12px 36px rgba(111, 87, 212, 0.14);
+}
+.week b,
+.row {
+  transition: background 0.2s;
+}
+
+/* Inputs */
+.try textarea,
+.file {
+  transition:
+    box-shadow 0.2s,
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    opacity 0.2s;
+}
+.try textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-border);
+}
+.try textarea:disabled {
+  opacity: 0.7;
+}
+.try textarea.typing {
+  opacity: 1;
+  caret-color: var(--accent);
+}
+.file:hover {
+  border-color: var(--ink-3);
+  color: var(--ink);
+}
+.file.has {
+  border-style: solid;
+  color: var(--ink);
+  background: var(--row);
+}
+.file.drag {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  transform: scale(1.01);
+}
+.file-name {
+  animation: fade 0.2s ease both;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.try.busy form {
+  pointer-events: none;
+}
+.try.busy form .btn[type='submit'] {
+  pointer-events: auto;
+}
+
+/* Processing state */
+.spin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+  opacity: 0.8;
+}
+.status {
+  animation: rise 0.3s var(--ease) both;
+}
+.status.err {
+  animation:
+    rise 0.3s var(--ease) both,
+    shake 0.4s ease 0.1s;
+}
+.ov.phase {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  animation: fade 0.3s ease both;
+}
+.dots {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 2px;
+}
+.dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: blink 1.2s ease-in-out infinite;
+}
+.dots i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dots i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.skel-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+.skel {
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, var(--row) 0%, var(--header) 40%, var(--row) 80%);
+  background-size: 200% 100%;
+  animation:
+    shimmer 1.6s ease-in-out infinite,
+    rise 0.4s var(--ease) both;
+}
+.skel:nth-child(2) {
+  width: 92%;
+}
+.skel:nth-child(3) {
+  width: 97%;
+}
+.skel:nth-child(4) {
+  width: 85%;
+}
+
+/* Student toggle */
+.student .sw,
+.student .sw::after {
+  transition:
+    background 0.2s,
+    transform 0.25s var(--ease);
+}
+.student:active .sw::after {
+  transform: scaleX(1.15);
+  transform-origin: left;
+}
+.student input:checked:active + .sw::after {
+  transform: translateX(14px) scaleX(1.15);
+  transform-origin: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .skel {
+    background: var(--row);
   }
 }

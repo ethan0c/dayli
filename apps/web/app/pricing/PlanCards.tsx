@@ -14,7 +14,8 @@ export function PlanCards() {
   const price = student ? p.student : p.regular;
   return (
     <div className="plans">
-      <div className="seg" role="radiogroup" aria-label="Billing period">
+      <div className="seg" role="radiogroup" aria-label="Billing period" style={{ '--i': PLUS_PLANS.findIndex((x) => x.id === billing), '--n': PLUS_PLANS.length } as React.CSSProperties}>
+        <span className="seg-pill" aria-hidden="true" />
         {PLUS_PLANS.map((b) => (
           <button key={b.id} type="button" role="radio" aria-checked={billing === b.id} className={billing === b.id ? 'on' : undefined} onClick={() => setBilling(b.id)}>
             {b.name}
@@ -50,13 +51,16 @@ export function PlanCards() {
         </div>
 
         <div className="plan featured">
+          {p.tag ? <span className="tag rise" key={p.tag}>{p.tag}</span> : null}
           <h3>Plus</h3>
           <p className="blurb">For a busy semester, with unlimited imports.</p>
           <div className="price">
-            <span className="amt">{money(price / p.months)}</span>
+            <span className="amt rise" key={price}>
+              {money(price / p.months)}
+            </span>
             <span className="per">/ month</span>
           </div>
-          <p className="note">
+          <p className="note rise" key={`${price}-${student}`}>
             {money(price)} billed {p.billed}
             {student ? <> · student price, regular {money(p.regular)}</> : null}
           </p>

@@ -38,6 +38,6 @@ On a real phone, open **You** in the app and set the server address to your comp
 ## Check it
 
 ```bash
-npm test            # core logic tests
+npm test            # core logic and import error tests
 npm run typecheck   # every workspace
 ```

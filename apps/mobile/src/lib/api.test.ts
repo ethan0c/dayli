@@ -16,10 +16,12 @@ describe('friendly import failures', () => {
   });
 
   it.each([
+    [400, IMPORT_MESSAGES.request],
     [413, IMPORT_MESSAGES.tooLarge],
     [415, IMPORT_MESSAGES.unsupported],
     [429, IMPORT_MESSAGES.busy],
     [502, IMPORT_MESSAGES.unavailable],
+    [504, IMPORT_MESSAGES.timeout],
   ])('explains an unreadable HTTP %i response without showing server details', async (status, error) => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('<html>Proxy error</html>', { status })));
     expect(await requestExtraction('https://dayli.test', request)).toEqual({ ok: false, error });
