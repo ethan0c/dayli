@@ -9,17 +9,18 @@ import { HomeCaptureCard } from '@/components/HomeCaptureCard';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { T } from '@/components/Text';
+import { StarterPreview } from '@/components/StarterPreview';
 import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
-import { useItemList, useStore } from '@/store';
-import { SAMPLE_SOURCE } from '@/store/sample';
+import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, radius, useCardSurface, useTheme } from '@/theme';
 
 export default function TodayScreen() {
   const { c } = useTheme();
   const now = useNow();
   const items = useItemList();
-  const schedules = useStore((s) => s.schedules);
+  const schedules = useScheduleList();
+  const courses = useCourseList();
   const workDates = useStore((s) => s.taskWorkDates);
   const dismissals = useStore((s) => s.suggestionDismissals);
   const toggleDone = useStore((s) => s.toggleDone);
@@ -48,7 +49,6 @@ export default function TodayScreen() {
   const conflictSet = useMemo(() => conflictIds(weekAhead), [weekAhead]);
   const byId = useMemo(() => Object.fromEntries(items.map((item) => [item.id, item])) as Record<string, Item>, [items]);
   const nextWeekPending = schedules.length > 0 && pendingDates(schedules, addDays(now.date, 1), addDays(now.date, 7)).length > 0;
-  const isSample = items.some((item) => item.sourceId === SAMPLE_SOURCE);
   const tightDeadlines = items.filter((item) => !item.done && item.isDeadline && item.start
     && (item.date > now.date || item.date === now.date && item.start > now.time)
     && diffDays(now.date, item.date) <= 7 && !suggestions.some((suggestion) => suggestion.item.id === item.id))
@@ -74,16 +74,16 @@ export default function TodayScreen() {
     feedback('select');
   }
 
+  if (items.length === 0 && courses.length === 0 && schedules.length === 0) return (
+    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
+      <ScreenHeader title={`Your ${weekdayLong(now.date)}.`} eyebrow={`${weekdayLong(now.date)}, ${monthDay(now.date)}`} subtitle="Your week starts here." safeTop />
+      <View style={styles.starter}><StarterPreview /></View>
+    </ScrollView>
+  );
+
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">
       <ScreenHeader title={`Your ${weekdayLong(now.date)}.`} eyebrow={`${weekdayLong(now.date)}, ${monthDay(now.date)}`} subtitle={`${eventCount} ${eventCount === 1 ? 'event' : 'events'} · ${taskCount} ${taskCount === 1 ? 'to-do' : 'to-dos'}`} safeTop />
-
-      {isSample ? (
-        <Pressable accessibilityRole="button" onPress={() => router.push('/settings/data')} style={styles.note}>
-          <Icon name="sparkle" size={16} color={c.inkSecondary} />
-          <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>Sample week · Manage in Your data</T>
-        </Pressable>
-      ) : null}
 
       {hasWarnings ? (
         <Section title="Heads up">
@@ -238,6 +238,7 @@ function TextAction({ label, onPress, muted, accessibilityLabel }: { label: stri
 }
 
 const styles = StyleSheet.create({
+  starter: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 24 },
   head: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 10, paddingBottom: 4, gap: 14 },
   note: { marginHorizontal: SCREEN_GUTTER, marginTop: 8, minHeight: 44, flexDirection: 'row', gap: 8, alignItems: 'center' },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, gap: 4 },

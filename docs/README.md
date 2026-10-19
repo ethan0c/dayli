@@ -19,7 +19,7 @@
 
 ## Decisions log
 - Platform: iOS + web (Expo app for both; Next.js site for landing, try-it, API, checkout). No Android. No backend until phase 2.
-- Typeface Urbanist (decided Oct 19, 2026 after matching the reference design; Onest and a Gilroy preview came before). Icon: the two-dots mark. Wordmark for splash, site, social.
+- Typeface Inter for UI text; Urbanist for display numerals (updated Oct 19, 2026 after readability feedback). Icon: the two-dots mark. Wordmark for splash, site, social.
 - Pricing: Free (3 AI imports/mo, basics always free) · Plus $4.99/mo · $14.99/semester · $29.99/yr, student prices on the honor system; regular $7.99 / $24.99 / $49.99.
 - Name: Semli (decided).
 - SMS: cut from the MVP.

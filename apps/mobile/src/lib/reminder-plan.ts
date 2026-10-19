@@ -92,6 +92,8 @@ export interface PlanExtras {
 }
 
 export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: string; time: string }, extras: PlanExtras = {}): PlannedNotification[] {
+  // Old installations may still contain a seeded week. Examples never notify.
+  items = items.filter((item) => item.sourceId !== 'sample');
   if (!prefs.enabled && !prefs.briefing && !extras.trial) return [];
   const nowAbs = toAbs(now.date, now.time);
   const out: (PlannedNotification & { abs: number })[] = [];

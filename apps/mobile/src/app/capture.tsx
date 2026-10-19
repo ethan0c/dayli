@@ -17,7 +17,7 @@ import { feedback } from '@/lib/feedback';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
 import { hasSemliPro, purchaseErrorMessage } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
-import { useStore } from '@/store';
+import { useCourseList, useScheduleList, useStore } from '@/store';
 import { SCREEN_GUTTER, radius, textStyle, useTheme } from '@/theme';
 
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'] as const;
@@ -37,8 +37,8 @@ export default function CaptureScreen() {
     setErrorText(message);
   };
   const settings = useStore((s) => s.settings);
-  const courses = useStore((s) => s.courses);
-  const schedules = useStore((s) => s.schedules);
+  const courses = useCourseList();
+  const schedules = useScheduleList();
   const setPending = useStore((s) => s.setPending);
   const recordImport = useStore((s) => s.recordImport);
 

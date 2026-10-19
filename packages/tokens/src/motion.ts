@@ -1,0 +1,21 @@
+/**
+ * Motion tokens. Every animation in the app and on the site uses one of these;
+ * nothing picks its own duration or spring. See docs/motion.md for the rules.
+ *
+ * Two springs: `snappy` for things under the finger (presses, toggles, checks,
+ * segmented controls), `gentle` for things that move on their own (cards, rows
+ * re-flowing, sheets, toasts). Three durations for fades and color changes.
+ */
+export const motion = {
+  spring: {
+    snappy: { damping: 22, stiffness: 380, mass: 0.9 },
+    gentle: { damping: 26, stiffness: 190, mass: 1 },
+  },
+  duration: { fast: 120, base: 220, slow: 360 },
+  /** The one easing curve for timed animations (CSS cubic-bezier form). */
+  easing: [0.2, 0, 0, 1] as const,
+  /** How far a control shrinks and dims while pressed. */
+  press: { scale: 0.97, opacity: 0.88 },
+  /** Delay between siblings in a staggered entrance. */
+  stagger: 45,
+} as const;

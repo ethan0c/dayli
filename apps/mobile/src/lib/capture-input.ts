@@ -5,6 +5,7 @@ import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useStore } from '@/store';
+import { realRecords } from '@/lib/planner-preview';
 
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'] as const;
 type ImageType = (typeof IMAGE_TYPES)[number];
@@ -20,8 +21,8 @@ export function extractionContext(): ExtractContext {
     name: settings.name,
     today: localParts(new Date()).date,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    courses: courses.map((k) => ({ code: k.code, title: k.title })),
-    employers: [...new Set(schedules.map((s) => s.employer))],
+    courses: realRecords(courses).map((k) => ({ code: k.code, title: k.title })),
+    employers: [...new Set(realRecords(schedules).map((s) => s.employer))],
   };
 }
 

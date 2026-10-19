@@ -13,7 +13,6 @@ export default function DataScreen() {
   const { c } = useTheme();
   const batches = useStore((s) => s.batches);
   const undoBatch = useStore((s) => s.undoBatch);
-  const loadSample = useStore((s) => s.loadSample);
   const clearAll = useStore((s) => s.clearAll);
   const setSettings = useStore((s) => s.setSettings);
   const [confirm, setConfirm] = useState(false);
@@ -51,8 +50,7 @@ export default function DataScreen() {
         )}
       </Group>
 
-      <Group title="Try things" footer="The sample week is marked so you can clear it later without touching your own plans.">
-        <Row icon="sparkle" tint={c.tint.butter.fill} label="Load the sample week" onPress={() => { feedback('success'); loadSample(); }} />
+      <Group title="Get started again" footer="Replay the intro without changing your existing plans.">
         <Row icon="undo" tint={c.tint.sky.fill} label="Replay the intro" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissAll(); }} last />
       </Group>
 

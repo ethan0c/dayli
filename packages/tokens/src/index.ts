@@ -156,3 +156,4 @@ export const typeScale = {
 export type TypeToken = keyof typeof typeScale;
 
 export * from './wordmark';
+export * from './motion';

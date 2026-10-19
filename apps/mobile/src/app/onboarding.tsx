@@ -40,7 +40,6 @@ export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const settings = useStore((s) => s.settings);
   const setSettings = useStore((s) => s.setSettings);
-  const loadSample = useStore((s) => s.loadSample);
   const showToast = useStore((s) => s.showToast);
   const importDone = useStore((s) => s.settings.onboardingImportDone);
 
@@ -83,7 +82,7 @@ export default function OnboardingScreen() {
     setSettings({ onboarded: true, seeded: true, onboardingImportDone: false });
     track("onboarding_completed", { role, major: student ? (major ?? "other") : null, sample: usedSample });
     feedback("success");
-    showToast(usedSample ? "You're set. This is a sample week; add your own any time." : "You're set.");
+    showToast(usedSample ? "Your preview is ready. Add your own details any time." : "You're set.");
     router.replace("/");
   };
 
@@ -153,7 +152,6 @@ export default function OnboardingScreen() {
         <OwnStep
           onSample={() => {
             saveProfile();
-            loadSample();
             setUsedSample(true);
             // Reminders are asked later, after their first real import.
             go("plus");
@@ -414,7 +412,7 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
   );
 }
 
-/* ---------- Bring your own: the real thing, with the sample week as the fallback ---------- */
+/* ---------- Bring your own, or continue to a personalized display-only preview ---------- */
 
 function OwnStep({ onSample }: { onSample: () => void }) {
   const { c } = useTheme();
@@ -437,7 +435,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
         return;
       }
       if (res.extraction.items.length === 0) {
-        setError("Semli didn't find anything with a date in that. Try adding when it happens, or use the sample week.");
+        setError("Semli didn't find anything with a date in that. Try adding when it happens, or explore your preview for now.");
         return;
       }
       feedback("ready");
@@ -447,7 +445,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
       router.push("/review");
     } catch {
       track("import_failed", { kind: input.kind, where: "onboarding" });
-      setError("Semli couldn't read that right now. You can use the sample week and try yours later.");
+      setError("Semli couldn't read that right now. You can explore your preview and try yours later.");
     } finally {
       setBusy(null);
     }
@@ -498,7 +496,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
           disabled={text.trim().length === 0 || !!busy}
           onPress={() => void run({ kind: "text", text: text.trim() }, "Message")}
         />
-        <Button variant="ghost" label="Use a sample week instead" disabled={!!busy} onPress={onSample} />
+        <Button variant="ghost" label="Explore my preview first" disabled={!!busy} onPress={onSample} />
       </View>
     </ScrollView>
   );

@@ -5,19 +5,20 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
-import { CaptureCard, ImportRow, SectionHeading } from '@/components/PlannerChrome';
+import { ImportRow, SectionHeading } from '@/components/PlannerChrome';
+import { StarterPreview } from '@/components/StarterPreview';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
-import { courseTint, useItemList, useStore } from '@/store';
+import { useCourseList, courseTint, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, radius, useCardSurface, useTheme } from '@/theme';
 
 export default function SchoolScreen() {
   const { c } = useTheme();
   const surface = useCardSurface();
   const now = useNow();
-  const courses = useStore((s) => s.courses);
+  const courses = useCourseList();
   const items = useItemList();
   const toggleDone = useStore((s) => s.toggleDone);
   const [open, setOpen] = useState<string | null>(null);
@@ -33,7 +34,7 @@ export default function SchoolScreen() {
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
       <ScreenHeader title="School." eyebrow="Your semester" subtitle={courses.length ? `${courses.length} ${courses.length === 1 ? 'course' : 'courses'} · ${deadlines.length} due in the next 7 days` : 'Your courses and deadlines, together.'} safeTop />
       <View style={styles.list}>
-        <SectionHeading title="Your courses" action={courses.length > 0 ? { label: 'Add syllabus', onPress: () => router.push({ pathname: '/capture', params: { source: 'file' } }) } : undefined} />
+        {courses.length > 0 ? <SectionHeading title="Your courses" action={{ label: 'Add syllabus', onPress: () => router.push({ pathname: '/capture', params: { source: 'file' } }) }} /> : null}
         {courses.map((course) => {
           const all = byCourse.get(course.id) ?? [];
           const upcoming = all.filter((i) => !i.done && i.date >= now.date);
@@ -86,7 +87,7 @@ export default function SchoolScreen() {
           );
         })}
         {courses.length === 0 ? (
-          <CaptureCard school />
+          <StarterPreview school />
         ) : null}
         <View style={{ marginTop: 8 }}>
           <SectionHeading title={courses.length === 0 ? 'Start with what you have' : 'Keep your semester up to date'} />

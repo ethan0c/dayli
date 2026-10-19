@@ -10,7 +10,7 @@ import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { track } from '@/lib/analytics';
 import { requestNotifications, syncReminders } from '@/lib/notifications';
-import { newId, useItemList, useStore } from '@/store';
+import { useCourseList, newId, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, radius, textStyle, useCardSurface, useTheme } from '@/theme';
 
 export default function ReviewScreen() {
@@ -19,7 +19,7 @@ export default function ReviewScreen() {
   const setPending = useStore((s) => s.setPending);
   const applyPlan = useStore((s) => s.applyPlan);
   const showToast = useStore((s) => s.showToast);
-  const courses = useStore((s) => s.courses);
+  const courses = useCourseList();
   const existing = useItemList();
   const today = localParts(new Date()).date;
 

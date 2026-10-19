@@ -8,18 +8,19 @@ import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { CaptureCard, ImportRow } from '@/components/PlannerChrome';
 import { T } from '@/components/Text';
+import { StarterPreview } from '@/components/StarterPreview';
 import { BrandHeader } from '@/components/ScreenHeader';
 import { WeekStrip } from '@/components/WeekStrip';
 import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
-import { useItemList, useStore } from '@/store';
+import { useScheduleList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
 
 export default function PlanScreen() {
   const { c } = useTheme();
   const now = useNow();
   const items = useItemList();
-  const schedules = useStore((s) => s.schedules);
+  const schedules = useScheduleList();
   const toggleDone = useStore((s) => s.toggleDone);
   const [selected, updateSelected] = useState(useStore.getState().selectedPlanDate ?? now.date);
   const setSelected = (date: string) => {
@@ -45,6 +46,7 @@ export default function PlanScreen() {
   );
   const weekItems = items.filter((i) => week.includes(i.date));
   const weekDeadlines = weekItems.filter((i) => i.isDeadline && !i.done).length;
+  const starting = items.length === 0 && schedules.length === 0;
   const renderItem = (it: (typeof items)[number]) => (
     <ItemRow key={it.id} item={it} conflict={conflicts.has(it.id)}
       onPress={() => router.push(`/item/${it.id}`)}
@@ -84,15 +86,16 @@ export default function PlanScreen() {
           </View>
         ))}
         {dayItems.length > 0 ? <View style={styles.group}>{dayItems.map(renderItem)}</View> : null}
-        {dayItems.length === 0 ? <CaptureCard /> : null}
-        {dayItems.length === 0 ? <View style={[styles.weekNote, { borderColor: c.line }]}>
+        {starting ? <StarterPreview /> : null}
+        {dayItems.length === 0 && !starting ? <CaptureCard /> : null}
+        {dayItems.length === 0 && !starting ? <View style={[styles.weekNote, { borderColor: c.line }]}>
           <View style={[styles.weekIcon, { backgroundColor: c.row }]}><Icon name="calendar" size={19} color={c.inkSecondary} /></View>
           <View style={{ flex: 1, gap: 4 }}>
             <T token="subhead">This week · {monthDay(week[0]!)}–{monthDay(week[6]!)}</T>
             <T token="caption" color={c.inkSecondary}>{weekItems.length === 0 ? 'Your classes, work, and life can live here together.' : `${weekItems.length} ${weekItems.length === 1 ? 'plan' : 'plans'}${weekDeadlines > 0 ? ` · ${weekDeadlines} ${weekDeadlines === 1 ? 'deadline' : 'deadlines'} ahead` : ' · no deadlines left'}`}</T>
           </View>
         </View> : null}
-        {dayItems.length === 0 ? <ImportRow icon="image" title="Already have a schedule?" detail="Bring a screenshot or PDF. Skip the typing." /> : null}
+        {dayItems.length === 0 && !starting ? <ImportRow icon="image" title="Already have a schedule?" detail="Bring a screenshot or PDF. Skip the typing." /> : null}
       </ScrollView>
     </View>
   );

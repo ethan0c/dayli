@@ -12,6 +12,16 @@ function item(p: Partial<Item> & Pick<Item, 'id' | 'date'>): Item {
 const now = { date: '2026-10-19', time: '12:00' };
 
 describe('planReminders', () => {
+  it('never turns legacy examples into reminders or briefing counts', () => {
+    const example = item({ id: 'demo', title: 'Example shift', date: '2026-10-20', start: '16:00', end: '22:00', sourceId: 'sample' });
+    expect(planReminders([example], DEFAULT_REMINDERS, now)).toEqual([]);
+    const real = item({ id: 'real', title: 'Real shift', date: '2026-10-20', start: '16:00', end: '22:00', sourceId: 'schedule.jpg' });
+    const plan = planReminders([example, real], DEFAULT_REMINDERS, now);
+    expect(plan.some((notification) => notification.itemId === 'demo')).toBe(false);
+    expect(plan.find((notification) => notification.kind === 'briefing')?.body).toContain('1 thing today');
+    expect(plan.some((notification) => notification.itemId === 'real')).toBe(true);
+  });
+
   it('reminds before timed events and twice before deadlines', () => {
     const plan = planReminders(
       [

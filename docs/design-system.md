@@ -48,6 +48,12 @@ The source of truth is `packages/tokens/src/index.ts`; web CSS mirrors the core 
 
 The six existing course tints retain their identity and text contrast. They are available for small course markers, onboarding choices, and contextual controls; ordinary agenda events have neutral backgrounds. Semantic New / Changed / Removed treatments stay visible in schedule review.
 
+## Personalized previews
+
+Before a person adds their own content, Today and Plan show personalized upload cards instead of empty agendas or seeded calendar records. The prompts use the saved name, student/work choices, and field of study. School shows a syllabus preview until a real course is added. Each example is visibly labeled and cannot be completed or mistaken for a saved task.
+
+Previews are presentation content. They never enter live counts, conflict detection, course matching, employer context, or reminders. The real agenda appears after confirmed imports or manual entries. Legacy records marked `sourceId: sample` stay stored but are excluded from live selectors and reminder planning.
+
 ## Flat and raised cards
 
 **Appearance → Card style** is a persisted local preference. Raised is the initial default; existing installations receive that default when their saved settings merge with the new settings.

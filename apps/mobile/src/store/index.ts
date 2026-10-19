@@ -7,9 +7,8 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_API_URL } from '@/lib/api';
-import { profileFor } from '@/lib/majors';
+import { realRecords } from '@/lib/planner-preview';
 import { DEFAULT_REMINDERS, type ReminderPrefs } from '@/lib/reminder-plan';
-import { SAMPLE_SOURCE, sampleWeek } from '@/store/sample';
 
 export interface Change {
   op: 'create' | 'update' | 'delete';
@@ -104,7 +103,6 @@ interface State {
   applyPlan: (plan: CommitPlan, label: string, extra?: { source?: string; course?: Course }) => string;
   undoBatch: (id: string) => void;
 
-  loadSample: () => void;
   clearAll: () => void;
 }
 
@@ -252,20 +250,6 @@ export const useStore = create<State>()(
         });
       },
 
-      loadSample: () => {
-        const today = new Date();
-        const pad = (n: number) => String(n).padStart(2, '0');
-        const date = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
-        const { major, isStudent } = get().settings;
-        const s = sampleWeek(date, profileFor(major, isStudent), isStudent);
-        set({
-          items: { ...get().items, ...Object.fromEntries(s.items.map((i) => [i.id, i])) },
-          courses: [...get().courses.filter((c) => c.sourceId !== SAMPLE_SOURCE), ...s.courses.map((k, i) => ({ ...k, color: COURSE_TINTS[i % COURSE_TINTS.length] }))],
-          schedules: [...get().schedules.filter((c) => c.sourceId !== SAMPLE_SOURCE), ...s.schedules],
-          settings: { ...get().settings, seeded: true },
-        });
-      },
-
       clearAll: () => set({ items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null, taskWorkDates: {}, suggestionDismissals: { date: '', ids: [] }, captureDraft: '', selectedPlanDate: null }),
     }),
     {
@@ -297,7 +281,18 @@ export function courseTint(courses: StoredCourse[], courseId: string | null | un
 export function useItemList(): Item[] {
   const items = useStore((s) => s.items);
   return useMemo(
-    () => Object.values(items).sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? '').localeCompare(b.start ?? '')),
+    () => realRecords(Object.values(items)).sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? '').localeCompare(b.start ?? '')),
     [items],
   );
+}
+
+/** Samples are presentation content, never course matches or schedule history. */
+export function useCourseList(): StoredCourse[] {
+  const courses = useStore((s) => s.courses);
+  return useMemo(() => realRecords(courses), [courses]);
+}
+
+export function useScheduleList() {
+  const schedules = useStore((s) => s.schedules);
+  return useMemo(() => realRecords(schedules), [schedules]);
 }

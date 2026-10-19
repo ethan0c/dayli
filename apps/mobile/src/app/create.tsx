@@ -10,7 +10,7 @@ import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { buildManualItem, defaultManualTimes, type ManualDraft } from '@/lib/manual-item';
-import { useStore } from '@/store';
+import { useCourseList, useStore } from '@/store';
 import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
 
 const categories: { value: Category; label: string }[] = [
@@ -20,7 +20,7 @@ const categories: { value: Category; label: string }[] = [
 export default function CreateScreen() {
   const { c } = useTheme();
   const params = useLocalSearchParams<{ kind?: string; date?: string }>();
-  const courses = useStore((s) => s.courses);
+  const courses = useCourseList();
   const [draft, setDraft] = useState<ManualDraft>(() => ({
     kind: params.kind === 'event' ? 'event' : 'task', title: '', category: 'personal',
     date: params.date && isLocalDate(params.date) ? params.date : localParts(new Date()).date,
