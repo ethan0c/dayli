@@ -42,10 +42,10 @@ export function ItemRow({ item, conflict, onPress, onToggle }: Props) {
         { backgroundColor: fill, opacity: item.done ? 0.55 : pressed ? 0.85 : 1 },
         conflict ? { borderWidth: 1.5, borderColor: c.conflict } : null,
       ]}>
-      <View style={[styles.icon, { backgroundColor: isEvent ? c.chip : c.surface }]}><Icon name={item.icon} size={19} color={ink} /></View>
+      <Icon name={item.icon} size={20} color={ink} />
       <View style={styles.title}>
-        <T token="subhead" numberOfLines={2} color={ink} style={item.done ? { textDecorationLine: 'line-through' } : undefined}>{item.title}</T>
-        <T token="caption" color={isEvent ? ink : c.inkSecondary}>{conflict ? 'Schedule conflict' : `${categoryLabel}${item.isDeadline ? ' · Deadline' : ''}`}</T>
+        <T token="body" color={ink} style={item.done ? { textDecorationLine: 'line-through' } : undefined}>{item.title}</T>
+        {conflict || item.isDeadline ? <T token="caption" color={isEvent ? ink : c.inkSecondary}>{conflict ? 'Schedule conflict' : 'Deadline'}</T> : null}
       </View>
       {isEvent ? (
         timeLabel ? (
@@ -65,9 +65,9 @@ export function ItemRow({ item, conflict, onPress, onToggle }: Props) {
           accessibilityState={{ checked: item.done }}
           style={[
             styles.circle,
-            item.done ? { backgroundColor: c.inkPrimary, borderColor: c.inkPrimary } : { backgroundColor: c.canvas, borderColor: c.line },
+            item.done ? { backgroundColor: c.inkPrimary, borderColor: c.inkPrimary } : { backgroundColor: c.canvas, borderColor: c.controlOutline },
           ]}>
-          {item.done ? <Icon name="tick" size={13} color={c.canvas} strokeWidth={3} /> : null}
+          {item.done ? <Icon name="tick" size={13} color={c.onPrimary} strokeWidth={3} /> : null}
         </Pressable>
       )}
     </Pressable>
@@ -75,9 +75,8 @@ export function ItemRow({ item, conflict, onPress, onToggle }: Props) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 74, borderRadius: radius.row, paddingHorizontal: 12, paddingVertical: 12 },
-  icon: { width: 34, height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-  title: { flex: 1, minWidth: 0, gap: 4 },
-  chip: { maxWidth: '43%', paddingHorizontal: 9, paddingVertical: 5, borderRadius: radius.chip },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 54, borderRadius: radius.row, paddingHorizontal: 14, paddingVertical: 12 },
+  title: { flex: 1, minWidth: 0, gap: 3 },
+  chip: { maxWidth: '43%', paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.chip },
   circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
 });

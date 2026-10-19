@@ -52,7 +52,7 @@ export default function PlanScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
       <ScreenHeader title="Plan" safeTop />
-      <View style={[styles.head, { backgroundColor: c.canvas }]}>
+      <View style={[styles.head, { backgroundColor: c.header }]}>
         <ClockHeader time={now.time} date={selected} onPressDate={() => {
             if (selected !== now.date) feedback('select');
             setSelected(now.date);

@@ -16,7 +16,7 @@ export default function AppearanceScreen() {
   const setSettings = useStore((s) => s.setSettings);
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
-      <Group footer="The Today header changes with the time of day in both modes.">
+      <Group footer="Applies to your planner, sheets, menus, and Semli Pro.">
         {OPTIONS.map((o, i) => (
           <Row
             key={o.id}

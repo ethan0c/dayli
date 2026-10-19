@@ -28,8 +28,8 @@ export function WeekStrip({ week, selected, today, marked, onSelect, onPrev, onN
         const isToday = date === today;
         return (
           <Pressable key={date} onPress={() => { if (!isSel) feedback('select'); onSelect(date); }} style={styles.day} accessibilityRole="button" accessibilityState={{ selected: isSel }} accessibilityLabel={`${weekdayShort(date)}, ${monthDay(date)}${isToday ? ', today' : ''}${marked.has(date) ? ', has plans' : ''}`}>
-            <View style={[styles.num, isSel ? { backgroundColor: c.inkPrimary } : null]}>
-              <T token="headline" color={isSel ? c.canvas : isToday ? c.accent : c.inkPrimary} tabular>
+            <View style={[styles.num, isSel ? { backgroundColor: c.surface } : null]}>
+              <T token={isSel ? 'headline' : 'body'} color={isToday && !isSel ? c.accent : c.inkPrimary} tabular>
                 {String(Number(date.slice(-2)))}
               </T>
             </View>
