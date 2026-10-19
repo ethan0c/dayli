@@ -13,6 +13,7 @@ Status: Oct 19, 2026. Starts only when the MVP test passes (≥10 of 50 beta tes
 | **Google / Apple Calendar two-way sync** | #3 complaint across all three competitors | Start with Apple EventKit (no server), then Google via OAuth. |
 | **Study suggestions and replanning** | The overload card today only points at the week; the next step is "move the study block" with one tap | Suggestions are proposals; nothing moves without approval. Needs the eval discipline from extraction. |
 | **Share sheet, Siri, widget, Live Activity** | Capture from anywhere; today's next item on the lock screen | Native targets in the dev build. |
+| **Study session with a friend** (candidate) | Shared focus session that lands on both calendars; nudge before a friend's exam. Only if the gates in [social.md](social.md) are met | Needs accounts; no feed |
 | **Semester reset** | "Add next semester's syllabi" prompt in the last two weeks of a term | Drives the second semester purchase. |
 
 ## 2.2 Get paid better (monetization)
@@ -38,4 +39,4 @@ Shift workers without school, working parents, freelancers. The engine already h
 ## What we will not do
 - Build a general AI assistant. The product is a planner that reads things; the assistant framing is what Tiimo gets punished for.
 - Meter the basics. Calendar, to-dos, reminders, repeating classes stay free forever.
-- Add a social layer.
+- Add a feed, profiles, following, or chat. A narrow "study together" mechanic (a shared session with a friend, a nudge before an exam) is a candidate, gated as described in [social.md](social.md).

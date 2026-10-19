@@ -46,6 +46,17 @@
     ],
     "experiments": {
       "typedRoutes": false
-    }
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "629299e1-defe-46c5-8110-0b0e9c787ffc"
+      }
+    },
+    "owner": "ethanlma"
   }
 }
