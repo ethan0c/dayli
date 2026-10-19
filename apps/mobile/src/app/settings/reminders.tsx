@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { AppState, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AppState, ScrollView, StyleSheet, View } from 'react-native';
 
 import { TimeField } from '@/components/Native';
+import { Segmented } from '@/components/Segmented';
 import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
@@ -10,9 +11,14 @@ import { openSystemSettings } from '@/lib/links';
 import { notificationsAllowed, requestNotifications, sendTestNotification, syncReminders } from '@/lib/notifications';
 import type { ReminderPrefs } from '@/lib/reminder-plan';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
 
-const LEADS: ReminderPrefs['eventLead'][] = [10, 30, 60];
+type LeadKey = '10' | '30' | '60';
+const LEADS: { key: LeadKey; label: string }[] = [
+  { key: '10', label: '10 min' },
+  { key: '30', label: '30 min' },
+  { key: '60', label: '1 hour' },
+];
 
 export default function RemindersScreen() {
   const { c } = useTheme();
@@ -56,8 +62,10 @@ export default function RemindersScreen() {
     void syncReminders().catch(() => {});
   };
 
+  const hairline = { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line };
+
   const timeRow = (label: string, key: keyof Pick<ReminderPrefs, 'dayBeforeAt' | 'morningAt' | 'quietStart' | 'quietEnd' | 'briefingAt'>, last = false) => (
-    <View style={[styles.row, !last ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line } : null]}>
+    <View style={[styles.row, !last ? hairline : null]}>
       <T style={{ flex: 1 }}>{label}</T>
       <TimeField date={null} time={prefs[key]} onChange={(v) => v && update({ [key]: v } as Partial<ReminderPrefs>)} />
     </View>
@@ -67,23 +75,22 @@ export default function RemindersScreen() {
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
       {allowed === false ? (
         <Group footer="Semli needs permission to show reminders. Nothing is sent anywhere; they are scheduled on this phone. If iOS no longer asks, this opens Settings so you can allow it there.">
-          <Row icon="bell" tint={c.tint.butter.fill} label="Turn on reminders" onPress={() => void enable()} last />
+          <Row label="Turn on reminders" onPress={() => void enable()} last />
         </Group>
       ) : null}
 
       <Group title="Before things" footer="Reminders fire before timed events and twice before deadlines: the evening before and the morning of.">
-        <ToggleRow icon="bell" tint={c.tint.butter.fill} label="Reminders" value={prefs.enabled && allowed !== false} onChange={(on) => void toggle('enabled')(on)} />
-        <View style={[styles.row, { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line }]}>
+        <ToggleRow label="Reminders" value={prefs.enabled && allowed !== false} onChange={(on) => void toggle('enabled')(on)} />
+        <View style={[styles.row, hairline]}>
           <T style={{ flex: 1 }}>Before an event</T>
-          <View style={[styles.seg, { backgroundColor: c.canvas }]}>
-            {LEADS.map((m) => {
-              const on = prefs.eventLead === m;
-              return (
-                <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => { feedback('select'); update({ eventLead: m }); }} style={[styles.segItem, { backgroundColor: on ? c.inkPrimary : 'transparent' }]}>
-                  <T token="subhead" color={on ? c.canvas : c.inkSecondary}>{m} min</T>
-                </Pressable>
-              );
-            })}
+          <View style={styles.segment}>
+            <Segmented
+              size="small"
+              label="Before an event"
+              options={LEADS}
+              value={String(prefs.eventLead) as LeadKey}
+              onChange={(key) => update({ eventLead: Number(key) as ReminderPrefs['eventLead'] })}
+            />
           </View>
         </View>
         {timeRow('Evening before a deadline', 'dayBeforeAt')}
@@ -96,14 +103,12 @@ export default function RemindersScreen() {
       </Group>
 
       <Group title="Daily briefing" footer="One morning note with what's on today and the next deadline. Skipped on days with nothing on.">
-        <ToggleRow icon="sparkle" tint={c.tint.sky.fill} label="Morning briefing" value={prefs.briefing && allowed !== false} onChange={(on) => void toggle('briefing')(on)} />
+        <ToggleRow label="Morning briefing" value={prefs.briefing && allowed !== false} onChange={(on) => void toggle('briefing')(on)} />
         {timeRow('At', 'briefingAt', true)}
       </Group>
 
       <Group footer={sent ? 'Sent. It arrives in about five seconds, even with the app open.' : undefined}>
         <Row
-          icon="tick"
-          tint={c.tint.mint.fill}
           label="Send a test reminder"
           onPress={() => {
             feedback('tap');
@@ -123,7 +128,6 @@ export default function RemindersScreen() {
 
 const styles = StyleSheet.create({
   body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, paddingBottom: 48, gap: 22 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 50, paddingHorizontal: 16 },
-  seg: { flexDirection: 'row', padding: 3, borderRadius: radius.pill, gap: 2 },
-  segItem: { paddingHorizontal: 12, height: 30, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, paddingVertical: 6 },
+  segment: { width: 212 },
 });

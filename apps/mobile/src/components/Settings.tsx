@@ -6,12 +6,12 @@ import { NativeToggle } from '@/components/Native';
 import { T } from '@/components/Text';
 import { textStyle, useTheme } from '@/theme';
 
-/** A sentence-case label and a run of hairline rows on the paper. No card, no icon tiles. */
-export function Group({ title, footer, children }: { title?: string; footer?: string; children: ReactNode }) {
+/** A sentence-case label and a run of hairline rows on the paper. No card, no icon tiles. Pass `label` to draw your own. */
+export function Group({ title, label, footer, children }: { title?: string; label?: ReactNode; footer?: string; children: ReactNode }) {
   const { c } = useTheme();
   return (
     <View style={styles.group}>
-      {title ? <GroupLabel>{title}</GroupLabel> : null}
+      {title ? <GroupLabel>{title}</GroupLabel> : label ?? null}
       <View>{children}</View>
       {footer ? (
         <T token="caption" color={c.inkSecondary} style={styles.footer}>
@@ -24,8 +24,6 @@ export function Group({ title, footer, children }: { title?: string; footer?: st
 
 export function Row({ label, value, onPress, selected, destructive, last }: {
   label: string; value?: string; onPress?: () => void; selected?: boolean; destructive?: boolean; last?: boolean;
-  /** Kept for call-site compatibility; icons and tints are no longer drawn on settings rows. */
-  icon?: string; tint?: string;
 }) {
   const { c } = useTheme();
   return (
@@ -45,7 +43,7 @@ export function Row({ label, value, onPress, selected, destructive, last }: {
   );
 }
 
-export function ToggleRow({ label, value, onChange, last }: { label: string; value: boolean; onChange: (v: boolean) => void; last?: boolean; icon?: string; tint?: string }) {
+export function ToggleRow({ label, value, onChange, last }: { label: string; value: boolean; onChange: (v: boolean) => void; last?: boolean }) {
   return <ListRow title={label} last={last} chevron={false} trailing={<NativeToggle value={value} onChange={onChange} label={label} />} />;
 }
 

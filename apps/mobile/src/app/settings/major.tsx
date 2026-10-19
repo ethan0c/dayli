@@ -15,7 +15,6 @@ export default function MajorScreen() {
         {MAJORS.map((m, i) => (
           <Row
             key={m.id}
-            icon={m.icon}
             label={m.label}
             selected={(major ?? 'other') === m.id}
             onPress={() => {

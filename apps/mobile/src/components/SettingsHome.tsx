@@ -65,7 +65,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
       </Group>
 
-      <Group title="Semli Plus">
+      <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
         <Row label="Your plan" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
         <Row label="Manage subscription" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
           if (customerCenterEnabled || customerInfo?.managementURL) void manageSubscription().catch(() => router.push('/settings/plan'));
@@ -76,8 +76,8 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
       <Group title="Your stuff" footer={linkNote ?? undefined}>
         <Row label="Your data" value="On this phone" onPress={() => router.push('/settings/data')} />
         <Row label="Help and feedback" value={SUPPORT_EMAIL} onPress={() => void open(LINKS.support, 'Email us at ' + SUPPORT_EMAIL + '.')} />
-        <Row label="Rate Semli" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} />
-        <Row label="Semli server" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last />
+        <Row label="Rate Semli" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} last={!__DEV__} />
+        {__DEV__ ? <Row label="Semli server" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last /> : null}
       </Group>
 
       <View style={styles.about}>
@@ -97,6 +97,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, gap: 22 },
   head: { flexDirection: 'row', alignItems: 'flex-end', gap: 16 },
+  groupLabel: { paddingBottom: 2 },
   about: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8 },
   markRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   mark: { width: 24, height: 24, borderRadius: 6 },

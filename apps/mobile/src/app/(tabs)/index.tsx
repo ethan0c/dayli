@@ -5,14 +5,15 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GroupLabel, ListRow, SectionTitle, TextButton } from '@/components/Controls';
+import { GroupLabel, IconButton, ListRow, SectionTitle, TextButton } from '@/components/Controls';
 import { DayBar } from '@/components/DayBar';
+import { HourView } from '@/components/HourView';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { PhotoHeader } from '@/components/PhotoHeader';
-import { StarterPreview } from '@/components/StarterPreview';
 import { T } from '@/components/Text';
 import { Ticker } from '@/components/Ticker';
+import { TodayStart } from '@/components/TodayStart';
 import { feedback } from '@/lib/feedback';
 import { momentFor } from '@/lib/moments';
 import { enter, exit, layout } from '@/lib/motion';
@@ -39,6 +40,9 @@ export default function TodayScreen() {
   const workDates = useStore((s) => s.taskWorkDates);
   const dismissals = useStore((s) => s.suggestionDismissals);
   const toggleDone = useStore((s) => s.toggleDone);
+  const removeItem = useStore((s) => s.removeItem);
+  const todayView = useStore((s) => s.settings.todayView);
+  const setSettings = useStore((s) => s.setSettings);
   const planTasks = useStore((s) => s.planTasks);
   const unplanTask = useStore((s) => s.unplanTask);
   const dismissSuggestion = useStore((s) => s.dismissSuggestion);
@@ -90,17 +94,25 @@ export default function TodayScreen() {
     feedback('select');
   }
 
+  function markAllDone(ids: string[]) {
+    feedback('complete');
+    for (const id of ids) toggleDone(id);
+  }
+
   if (items.length === 0 && courses.length === 0 && schedules.length === 0) return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-      <View style={[styles.top, { paddingTop: insets.top + 18 }]}>
-        <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
-        <T token="display">Your week starts here.</T>
-      </View>
-      <View style={styles.section}><StarterPreview /></View>
+      <TodayStart date={now.date} paddingTop={insets.top + 18} />
     </ScrollView>
   );
 
   const nextTitle = featured ? `${featured.title}${featured.start ? ` · ${featured.end ? formatRange(featured.start, featured.end) : formatTime(featured.start)}` : ''}` : null;
+  const hours = todayView === 'hours';
+  const viewToggle = (
+    <IconButton icon={hours ? 'list' : 'chart'} tone="grey" size={44} haptic="select"
+      label={hours ? 'Show the list' : 'Show the day by the hour'}
+      onPress={() => setSettings({ todayView: hours ? 'list' : 'hours' })} />
+  );
+  const todayDetail = `${todays.length} ${todays.length === 1 ? 'thing' : 'things'}${conflictsToday ? ` · ${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : ''}`;
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">
@@ -115,30 +127,49 @@ export default function TodayScreen() {
               {moment.action ? <TextButton label={moment.action.label} onPress={() => router.push(moment.action!.href as '/plan')} /> : null}
             </View>
           </View>
-          <Pressable accessibilityRole={featured ? 'button' : undefined} disabled={!featured} onPress={() => featured && router.push(`/item/${featured.id}`)}
-            style={({ pressed }) => [styles.top, { paddingTop: 26, opacity: pressed ? 0.7 : 1 }]}>
-            <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
-            {big ? <Ticker value={big} token="displayXl" style={{ fontSize: 34, lineHeight: 40, letterSpacing: -0.9 }} accessibilityLabel={`${ongoing ? 'Ends in' : 'Next in'} ${big}`} /> : <T token="display">{featured ? 'Now' : 'Clear'}</T>}
-            {nextTitle ? <T token="body" style={{ paddingTop: 2 }}>{nextTitle}</T> : <T token="callout" color={c.inkSecondary} style={{ paddingTop: 2 }}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>}
-          </Pressable>
+          <View style={[styles.topRow, { paddingTop: 26 }]}>
+            <Pressable accessibilityRole={featured ? 'button' : undefined} disabled={!featured} onPress={() => featured && router.push(`/item/${featured.id}`)}
+              style={({ pressed }) => [styles.topText, { opacity: pressed ? 0.7 : 1 }]}>
+              <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
+              {big ? <Ticker value={big} token="displayXl" style={{ fontSize: 34, lineHeight: 40, letterSpacing: -0.9 }} accessibilityLabel={`${ongoing ? 'Ends in' : 'Next in'} ${big}`} /> : <T token="display">{featured ? 'Now' : 'Clear'}</T>}
+              {nextTitle ? <T token="body" style={{ paddingTop: 2 }}>{nextTitle}</T> : <T token="callout" color={c.inkSecondary} style={{ paddingTop: 2 }}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>}
+            </Pressable>
+            {viewToggle}
+          </View>
         </>
       ) : (
-        <Pressable accessibilityRole={featured ? 'button' : undefined} disabled={!featured} onPress={() => featured && router.push(`/item/${featured.id}`)}
-          style={({ pressed }) => [styles.top, { paddingTop: insets.top + 24, opacity: pressed ? 0.7 : 1 }]}>
-          <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
-          {big ? <Ticker value={big} token="displayXl" accessibilityLabel={`${ongoing ? 'Ends in' : 'Next in'} ${big}`} /> : <T token="displayXl">{featured ? 'Now' : 'Clear'}</T>}
-          {featured ? (
-            <View style={{ gap: 2, paddingTop: 6 }}>
-              <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{nextTitle}</T>
-              {featuredWhere ? <T token="callout" color={c.inkSecondary}>{featuredWhere}</T> : null}
-            </View>
-          ) : (
-            <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>
-          )}
-        </Pressable>
+        <View style={[styles.topRow, { paddingTop: insets.top + 24 }]}>
+          <Pressable accessibilityRole={featured ? 'button' : undefined} disabled={!featured} onPress={() => featured && router.push(`/item/${featured.id}`)}
+            style={({ pressed }) => [styles.topText, { opacity: pressed ? 0.7 : 1 }]}>
+            <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
+            {big ? <Ticker value={big} token="displayXl" accessibilityLabel={`${ongoing ? 'Ends in' : 'Next in'} ${big}`} /> : <T token="displayXl">{featured ? 'Now' : 'Clear'}</T>}
+            {featured ? (
+              <View style={{ gap: 2, paddingTop: 6 }}>
+                <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{nextTitle}</T>
+                {featuredWhere ? <T token="callout" color={c.inkSecondary}>{featuredWhere}</T> : null}
+              </View>
+            ) : (
+              <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>
+            )}
+          </Pressable>
+          {viewToggle}
+        </View>
       )}
 
-      <View style={[styles.bar, moment ? { paddingTop: 18 } : null]}><DayBar items={todays} now={now} conflicts={conflictSet} /></View>
+      <Animated.View layout={layout}>
+        {hours ? (
+          <Animated.View key="hours" entering={enter.fade} exiting={exit.fade} style={styles.hours}>
+            <SectionTitle title="Today" detail={todayDetail} />
+            <View style={{ paddingTop: 4 }}>
+              <HourView items={todays} now={now} conflicts={conflictSet} onPress={(it) => router.push(`/item/${it.id}`)} />
+            </View>
+          </Animated.View>
+        ) : (
+          <Animated.View key="list" entering={enter.fade} exiting={exit.fade} style={[styles.bar, moment ? { paddingTop: 18 } : null]}>
+            <DayBar items={todays} now={now} conflicts={conflictSet} />
+          </Animated.View>
+        )}
+      </Animated.View>
 
       <Animated.View layout={layout} style={styles.section}>
         <SectionTitle title="On your list" onPress={() => router.push('/plan')} detail={conflictsToday ? `${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : undefined} />
@@ -147,7 +178,7 @@ export default function TodayScreen() {
           return (
             <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
               <ItemRow item={item} today={now.date} planned={planned} conflict={conflictSet.has(item.id)} last={i === openItems.length - 1 && !completed.length}
-                onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback(item.done ? 'uncomplete' : 'complete'); toggleDone(item.id); }} />
+                onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback(item.done ? 'uncomplete' : 'complete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
               {planned ? <View style={styles.inlineAction}><TextButton label="Not today after all" tone="muted" onPress={() => unplanTask(item.id)} accessibilityLabel={`Remove ${item.title} from today's work plan`} /></View> : null}
             </Animated.View>
           );
@@ -161,7 +192,11 @@ export default function TodayScreen() {
             </Pressable>
             {completedExpanded ? (
               <Animated.View entering={enter.drop} exiting={exit.fade}>
-                {completed.map((item, i) => <ItemRow key={item.id} item={item} today={now.date} last={i === completed.length - 1} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('uncomplete'); toggleDone(item.id); }} />)}
+                {completed.map((item, i) => (
+                  <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
+                    <ItemRow item={item} today={now.date} last={i === completed.length - 1} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('uncomplete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
+                  </Animated.View>
+                ))}
               </Animated.View>
             ) : null}
           </>
@@ -177,12 +212,17 @@ export default function TodayScreen() {
           {overdueExpanded ? (
             <Animated.View entering={enter.drop} exiting={exit.fade}>
               {overdue.map((item, i) => (
-                <View key={item.id}>
-                  <ItemRow item={item} today={now.date} last={i === overdue.length - 1} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('complete'); toggleDone(item.id); }} />
+                <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
+                  <ItemRow item={item} today={now.date} last={i === overdue.length - 1} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('complete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
                   <View style={styles.inlineAction}><TextButton label="Work on it today" onPress={() => workOnToday([item.id])} accessibilityLabel={`Work on ${item.title} today without changing its date`} /></View>
-                </View>
+                </Animated.View>
               ))}
-              {overdue.length > 1 ? <TextButton label="Bring all into today" onPress={() => workOnToday(overdue.map((item) => item.id))} /> : null}
+              {overdue.length > 1 ? (
+                <View style={styles.actions}>
+                  <TextButton label="Bring all into today" onPress={() => workOnToday(overdue.map((item) => item.id))} />
+                  <TextButton label="Mark all done" tone="muted" onPress={() => markAllDone(overdue.map((item) => item.id))} accessibilityLabel={`Mark all ${overdue.length} open tasks done`} />
+                </View>
+              ) : null}
             </Animated.View>
           ) : null}
         </View>
@@ -208,8 +248,10 @@ export default function TodayScreen() {
           <SectionTitle title="Coming up" onPress={() => router.push('/plan')} />
           {tomorrow ? <ListRow title="Tomorrow" sub={tomorrow} onPress={() => router.push('/plan')} /> : null}
           {upcoming.map((item, i) => (
-            <ItemRow key={item.id} item={item} today={now.date} last={i === upcoming.length - 1 && !nextWeekPending} onPress={() => router.push(`/item/${item.id}`)}
-              onToggle={() => { feedback('complete'); toggleDone(item.id); }} />
+            <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
+              <ItemRow item={item} today={now.date} last={i === upcoming.length - 1 && !nextWeekPending} onPress={() => router.push(`/item/${item.id}`)}
+                onToggle={() => { feedback('complete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
+            </Animated.View>
           ))}
           {upcoming.filter((item) => tightDeadlines.has(item.id)).slice(0, 1).map((item) => (
             <T key={item.id} token="caption" color={c.inkSecondary} style={{ paddingTop: 6 }}>{deadlineReason(items, item, now, tightDeadlines.get(item.id))}</T>
@@ -229,9 +271,13 @@ export default function TodayScreen() {
 
 const styles = StyleSheet.create({
   top: { paddingHorizontal: SCREEN_GUTTER, gap: 2 },
+  topRow: { paddingHorizontal: SCREEN_GUTTER, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  topText: { flex: 1, minWidth: 0, gap: 2 },
   bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
+  hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 18 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   inlineAction: { paddingLeft: 34 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 20 },
   momentLine: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingTop: 6 },
 });

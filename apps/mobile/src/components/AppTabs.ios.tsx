@@ -1,11 +1,12 @@
 import { Button as SwiftButton, Host } from '@expo/ui/swift-ui';
 import { buttonBorderShape, buttonStyle, controlSize, foregroundColor, labelStyle, tint as tintMod } from '@expo/ui/swift-ui/modifiers';
+import { router } from 'expo-router';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { DynamicColorIOS, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AddMenu, useAddMenu } from '@/components/AddMenu';
 import { Toast } from '@/components/Overlay';
+import { feedback } from '@/lib/feedback';
 import { palettes } from '@dayli/tokens';
 import { useTheme } from '@/theme';
 
@@ -14,15 +15,12 @@ const GLASS = Number(Platform.Version) >= 26;
 /**
  * iOS: the system tab bar (Liquid Glass on iOS 26) with the "+" as a glass button in the
  * tab bar's bottom accessory, so it minimizes and floats with the bar. Older iOS gets the
- * same button floating above the bar.
+ * same button floating above the bar. The plus opens Add directly.
  */
 export default function AppTabs() {
-  const insets = useSafeAreaInsets();
   return (
     <View style={{ flex: 1 }}>
-      <AddMenu bottom={insets.bottom + 4} nativeTrigger>
-        <TabBar />
-      </AddMenu>
+      <TabBar />
       <Toast offset={GLASS ? 120 : 76} />
     </View>
   );
@@ -79,12 +77,14 @@ function Accessory() {
 
 function AddGlassButton() {
   const { c } = useTheme();
-  const { open, expanded } = useAddMenu();
   return (
     <SwiftButton
-      label={expanded ? 'Close' : 'Add'}
+      label="Add"
       systemImage="plus"
-      onPress={open}
+      onPress={() => {
+        feedback('tap');
+        router.push('/capture');
+      }}
       modifiers={[
         buttonStyle(GLASS ? 'glassProminent' : 'borderedProminent'),
         buttonBorderShape('circle'),

@@ -1,4 +1,4 @@
-import { addDays, formatTime, relativeDay } from '@dayli/core';
+import { addDays, diffDays, formatTime, monthDay, relativeDay, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
@@ -145,10 +145,21 @@ export function CategoryDot({ color, size = 6 }: { color: string; size?: number 
   return <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color }} />;
 }
 
-/** What the status pill on a row should say for an item, given today's date. */
-export function itemStatus(item: Pick<Item, 'kind' | 'date' | 'start' | 'end' | 'done' | 'isDeadline'>, today: string, conflict = false): { label: string; tone: PillTone } {
+/**
+ * What the status pill on a row should say for an item, given today's date.
+ * `compact` gives the short form for lists that already carry context: "Fri 9 am", "Oct 27".
+ */
+export function itemStatus(item: Pick<Item, 'kind' | 'date' | 'start' | 'end' | 'done' | 'isDeadline'> & { category?: Item['category'] }, today: string, conflict = false, compact = false): { label: string; tone: PillTone } {
   if (item.done) return { label: 'Done', tone: 'green' };
+  // A shift the source gave no time for: Semli needs one before it can remind you.
+  if (item.kind === 'event' && item.category === 'work' && !item.start && item.date >= today) return { label: 'Add a time', tone: 'amber' };
   const time = item.start ? formatTime(item.start) : null;
+  if (compact && item.date > today) {
+    const days = diffDays(today, item.date);
+    const when = days <= 6 ? weekdayShort(item.date) : monthDay(item.date);
+    const overdueish = item.isDeadline && days === 1;
+    return { label: `${when}${time && days <= 6 ? ` ${time}` : ''}`, tone: overdueish ? 'red' : conflict ? 'redText' : 'grey' };
+  }
   if (item.kind === 'event') {
     if (item.date === today) return { label: time ?? 'All day', tone: conflict ? 'redText' : 'grey' };
     return { label: `${relativeDay(today, item.date)}${time ? ` ${time}` : ''}`, tone: conflict ? 'redText' : 'grey' };

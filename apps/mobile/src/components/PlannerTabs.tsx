@@ -1,13 +1,15 @@
+import { router } from 'expo-router';
 import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AddMenu } from '@/components/AddMenu';
+import { Icon } from '@/components/Icon';
 import { NavButton } from '@/components/NavPill';
 import { Toast } from '@/components/Overlay';
+import { Press } from '@/components/Press';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
-/** Shared custom chrome keeps the three destinations and detached Add in place. */
+/** Non-iOS fallback: the four destinations in a pill and a floating plus that opens Add. */
 export default function PlannerTabs() {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
@@ -23,7 +25,10 @@ export default function PlannerTabs() {
           <TabTrigger name="you" asChild><NavButton icon="user" label="You" /></TabTrigger>
         </View>
       </View>
-      <AddMenu bottom={bottom} />
+      <Press accessibilityRole="button" accessibilityLabel="Add" haptic="tap" onPress={() => router.push('/capture')} scale={0.92}
+        style={[styles.plus, { bottom, backgroundColor: c.inkPrimary }]}>
+        <Icon name="plus" size={24} color={c.onPrimary} strokeWidth={2} />
+      </Press>
       <Toast offset={bottom - insets.bottom + 12} />
       <TabList style={{ display: 'none' }}>
         <TabTrigger name="index" href="/"><Text>Today</Text></TabTrigger>
@@ -38,4 +43,5 @@ export default function PlannerTabs() {
 const styles = StyleSheet.create({
   bar: { position: 'absolute', left: SCREEN_GUTTER, right: SCREEN_GUTTER + 68 },
   pill: { flexDirection: 'row', padding: 4, borderRadius: 32, borderWidth: 1, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' },
+  plus: { position: 'absolute', right: SCREEN_GUTTER, width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
 });

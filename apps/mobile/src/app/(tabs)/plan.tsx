@@ -1,23 +1,39 @@
-import { addDays, conflictIds, monthDay, pendingDates, weekdayLong, weekOf } from '@dayli/core';
+import { addDays, conflictIds, diffDays, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf } from '@dayli/core';
+import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCallback, useMemo, useState } from 'react';
+import { PanResponder, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ClockHeader } from '@/components/ClockHeader';
-import { Icon } from '@/components/Icon';
+import { CategoryDot, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { ItemRow } from '@/components/ItemRow';
-import { SectionTitle } from '@/components/Controls';
-import { CaptureCard, ImportRow } from '@/components/PlannerChrome';
+import { TimeField } from '@/components/Native';
+import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
-import { StarterPreview } from '@/components/StarterPreview';
-import { WeekStrip } from '@/components/WeekStrip';
+import { TodayStart } from '@/components/TodayStart';
+import { WeekChart, type WeekDay } from '@/components/WeekChart';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
-import { useScheduleList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
+import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
+import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
+
+/** "HH:MM" plus some minutes, capped at midnight. */
+function addMinutes(time: string, mins: number): string {
+  const total = Math.min(24 * 60, toMinutes(time) + mins);
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+}
+
+/** An event's end for the chart: its own end, midnight if it runs overnight, or an hour after it starts. */
+function eventEnd(item: Item): string {
+  if (!item.start) return '00:00';
+  if (item.end) return item.end < item.start ? '24:00' : item.end;
+  return addMinutes(item.start, 60);
+}
+
+/** A work shift with no time yet: the row that asks for one. */
+const isUntimedShift = (item: Item) => item.kind === 'event' && item.category === 'work' && !item.start;
 
 export default function PlanScreen() {
   const { c } = useTheme();
@@ -25,15 +41,56 @@ export default function PlanScreen() {
   const now = useNow();
   const items = useItemList();
   const schedules = useScheduleList();
+  const courses = useCourseList();
   const toggleDone = useStore((s) => s.toggleDone);
+  const removeItem = useStore((s) => s.removeItem);
+  const updateItem = useStore((s) => s.updateItem);
   const [selected, updateSelected] = useState(useStore.getState().selectedPlanDate ?? now.date);
-  const setSelected = (date: string) => {
+  const setSelected = useCallback((date: string) => {
     updateSelected(date);
     useStore.getState().setSelectedPlanDate(date);
-  };
+  }, []);
+  /** Which untimed shifts have a time picker open, per field. */
+  const [timing, setTiming] = useState<Record<string, { start?: boolean; end?: boolean }>>({});
   const week = useMemo(() => weekOf(selected), [selected]);
+  const weekStart = week[0]!;
+  const weekEnd = week[6]!;
 
-  const marked = useMemo(() => new Set(items.filter((i) => !i.done).map((i) => i.date)), [items]);
+  // Which way did the week change? Drives the slide-in direction of the chart.
+  const [lastStart, setLastStart] = useState(weekStart);
+  const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
+  if (lastStart !== weekStart) {
+    setDirection(weekStart > lastStart ? 'next' : 'prev');
+    setLastStart(weekStart);
+  }
+
+  // Swipe the chart for the previous or next week, the way the week strip did.
+  const swipe = useMemo(() => PanResponder.create({
+    onMoveShouldSetPanResponder: (_, { dx, dy }) => Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy) * 1.5,
+    onPanResponderRelease: (_, { dx }) => {
+      if (Math.abs(dx) < 45) return;
+      feedback('select');
+      setSelected(addDays(selected, dx < 0 ? 7 : -7));
+    },
+  }), [selected, setSelected]);
+
+  const weekItems = useMemo(() => items.filter((i) => i.date >= weekStart && i.date <= weekEnd), [items, weekStart, weekEnd]);
+  const weekConflicts = useMemo(() => conflictIds(items.filter((i) => i.date >= addDays(weekStart, -1) && i.date <= weekEnd)), [items, weekStart, weekEnd]);
+  const workHours = useMemo(() => Math.round(weekItems
+    .filter((i) => i.kind === 'event' && i.category === 'work' && i.start)
+    .reduce((sum, i) => sum + Math.max(0, toMinutes(eventEnd(i)) - toMinutes(i.start!)), 0) / 60), [weekItems]);
+  const nowMin = toMinutes(now.time);
+  const days = useMemo<WeekDay[]>(() => week.map((date) => {
+    const list = weekItems.filter((i) => i.date === date);
+    const blocks = list.filter((i) => i.kind === 'event' && i.start).map((i) => {
+      const end = eventEnd(i);
+      const past = date < now.date || (date === now.date && toMinutes(end) <= nowMin);
+      return { id: i.id, start: i.start!, end, tone: i.done || past ? 'green' as const : weekConflicts.has(i.id) ? 'red' as const : 'ink' as const };
+    });
+    const marks = list.filter((i) => i.isDeadline && i.start).map((i) => ({ id: i.id, time: i.start!, kind: 'ring' as const, tone: date === now.date && !i.done ? 'red' as const : 'ink' as const }));
+    return { date, blocks, marks, unknown: list.some(isUntimedShift) };
+  }), [week, weekItems, weekConflicts, now.date, nowMin]);
+
   const dayItems = useMemo(() => {
     const list = items.filter((i) => i.date === selected);
     const untimed = list.filter((i) => !i.start);
@@ -41,76 +98,137 @@ export default function PlanScreen() {
     return [...untimed, ...timed].sort((a, b) => Number(a.done) - Number(b.done));
   }, [items, selected]);
   const conflicts = useMemo(() => conflictIds(items.filter((i) => i.date === selected || i.date === addDays(selected, -1))), [items, selected]);
-  const pendingEmployers = useMemo(
-    () =>
-      [...new Set(schedules.map((s) => s.employer))].filter(
-        (e) => selected > now.date && pendingDates(schedules.filter((s) => s.employer === e), selected, selected).length > 0,
-      ),
-    [schedules, selected, now.date],
-  );
-  const weekItems = items.filter((i) => week.includes(i.date));
-  const weekDeadlines = weekItems.filter((i) => i.isDeadline && !i.done).length;
+  const dayOverlaps = dayItems.filter((i) => conflicts.has(i.id)).length;
+  const rest = useMemo(() => weekItems.filter((i) => !i.done && i.date > selected).slice(0, 4), [weekItems, selected]);
+  // The week after this one has no schedule yet, and this one is at least partly covered.
+  const nextWeekPending = schedules.length > 0
+    && pendingDates(schedules, weekStart, weekEnd).length < 7
+    && pendingDates(schedules, addDays(weekEnd, 1), addDays(weekEnd, 7)).length > 0;
+  const nextDeadline = useMemo(() => items
+    .filter((i) => i.isDeadline && !i.done && diffDays(selected, i.date) >= 1 && diffDays(selected, i.date) <= 2)
+    .sort((a, b) => a.date.localeCompare(b.date))[0], [items, selected]);
   const starting = items.length === 0 && schedules.length === 0;
-  const renderItem = (it: (typeof items)[number]) => (
-    <ItemRow key={it.id} item={it} today={now.date} conflict={conflicts.has(it.id)}
-      onPress={() => router.push(`/item/${it.id}`)}
-      onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); toggleDone(it.id); }} />
+  const isToday = selected === now.date;
+
+  const where = (it: Item) => courses.find((k) => k.id === it.courseId)?.code ?? it.employer ?? (it.category === 'school' ? 'Coursework' : it.category === 'work' ? 'Work' : 'Personal');
+
+  /** Another shift for the same employer earlier this week that has times, to copy. */
+  const sameAs = (it: Item) => weekItems
+    .filter((o) => o.id !== it.id && o.kind === 'event' && o.employer === it.employer && o.date < it.date && o.start && o.end)
+    .sort((a, b) => b.date.localeCompare(a.date))[0];
+
+  const openCapture = () => router.push({ pathname: '/capture', params: { source: 'image' } });
+
+  if (starting) return (
+    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
+      <TodayStart date={now.date} paddingTop={insets.top + 18} />
+    </ScrollView>
   );
+
+  const renderShift = (it: Item) => {
+    const open = timing[it.id] ?? {};
+    const copy = sameAs(it);
+    return (
+      <View style={[styles.shift, { borderBottomColor: c.line }]}>
+        <ListRow title={it.title} sub={it.start ? where(it) : `${it.employer ?? 'Work'} · no time yet, so no reminder`} chevron={false} last
+          leading={<View style={styles.lead}><CategoryDot color={c.category.work.ink} /></View>}
+          trailing={it.start ? <StatusPill label={formatTime(it.start)} /> : <StatusPill label="Add a time" tone="amber" tabular={false} />}
+          onPress={() => router.push(`/item/${it.id}`)} />
+        <View style={styles.timeRow}>
+          {open.start ? (
+            <TimeField date={it.date} time={it.start} onChange={(start) => updateItem(it.id, { start })} />
+          ) : (
+            <Press accessibilityRole="button" accessibilityLabel={it.start ? `Start time, ${formatTime(it.start)}` : 'Start time, not set'} haptic="select"
+              onPress={() => setTiming((t) => ({ ...t, [it.id]: { ...t[it.id], start: true } }))} style={[styles.timePill, { backgroundColor: c.row }]}>
+              <T token="subhead" tabular>{it.start ? formatTime(it.start) : 'Start'}</T>
+            </Press>
+          )}
+          {open.end ? (
+            <TimeField date={it.date} time={it.end} onChange={(end) => updateItem(it.id, { end })} />
+          ) : (
+            <Press accessibilityRole="button" accessibilityLabel={it.end ? `End time, ${formatTime(it.end)}` : 'End time, not set'} haptic="select"
+              onPress={() => setTiming((t) => ({ ...t, [it.id]: { ...t[it.id], end: true } }))} style={[styles.timePill, { backgroundColor: c.row }]}>
+              <T token="subhead" tabular>{it.end ? formatTime(it.end) : 'End'}</T>
+            </Press>
+          )}
+          {copy ? (
+            <TextButton label={`Same as ${weekdayLong(copy.date)}`} style={{ marginLeft: 6 }} accessibilityLabel={`Same times as ${weekdayLong(copy.date)}`}
+              onPress={() => updateItem(it.id, { start: copy.start, end: copy.end })} />
+          ) : null}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
-      <View style={[styles.head, { paddingTop: insets.top + 12 }]}>
-        <ClockHeader time={now.time} date={selected} onPressDate={() => {
-            if (selected !== now.date) feedback('select');
-            setSelected(now.date);
-          }} />
-        <WeekStrip
-          week={week}
-          selected={selected}
-          today={now.date}
-          marked={marked}
-          onSelect={setSelected}
-          onPrev={() => setSelected(addDays(selected, -7))}
-          onNext={() => setSelected(addDays(selected, 7))}
-        />
-      </View>
-      <ScrollView contentInsetAdjustmentBehavior="never" contentContainerStyle={[styles.list, { paddingBottom: NAV_INSET }]}>
-        <View style={styles.dayHeading}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Previous week" onPress={() => setSelected(addDays(selected, -7))} style={styles.weekArrow}><Icon name="chevronLeft" size={18} color={c.inkSecondary} /></Pressable>
-          <View style={{ flex: 1, alignItems: 'center' }}><SectionTitle title={`${weekdayLong(selected)}, ${monthDay(selected)}`} /></View>
-          <Pressable accessibilityRole="button" accessibilityLabel="Next week" onPress={() => setSelected(addDays(selected, 7))} style={styles.weekArrow}><Icon name="chevronRight" size={18} color={c.inkSecondary} /></Pressable>
+      <ScrollView contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
+        <View style={[styles.head, { paddingTop: insets.top + 18 }]}>
+          <T token="title" accessibilityRole="header">{`Week of ${monthDay(weekStart)}`}</T>
+          <T token="caption" color={c.inkSecondary} tabular>{`${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}</T>
         </View>
-        {pendingEmployers.map((e) => (
-          <View key={e} style={[styles.pending, { borderColor: c.line }]}>
-            <Icon name="work" size={18} color={c.inkSecondary} />
-            <T color={c.inkSecondary} style={{ flex: 1 }}>
-              {e} schedule hasn’t been added yet
-            </T>
-          </View>
-        ))}
-        {dayItems.length > 0 ? <Animated.View key={selected} entering={enter.fade} layout={layout} style={styles.group}>{dayItems.map((it) => <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>{renderItem(it)}</Animated.View>)}</Animated.View> : null}
-        {starting ? <StarterPreview /> : null}
-        {dayItems.length === 0 && !starting ? <CaptureCard /> : null}
-        {dayItems.length === 0 && !starting ? <View style={[styles.weekNote, { borderColor: c.line }]}>
-          <View style={[styles.weekIcon, { backgroundColor: c.row }]}><Icon name="calendar" size={19} color={c.inkSecondary} /></View>
-          <View style={{ flex: 1, gap: 4 }}>
-            <T token="subhead">This week · {monthDay(week[0]!)}–{monthDay(week[6]!)}</T>
-            <T token="caption" color={c.inkSecondary}>{weekItems.length === 0 ? 'Your classes, work, and life can live here together.' : `${weekItems.length} ${weekItems.length === 1 ? 'plan' : 'plans'}${weekDeadlines > 0 ? ` · ${weekDeadlines} ${weekDeadlines === 1 ? 'deadline' : 'deadlines'} ahead` : ' · no deadlines left'}`}</T>
-          </View>
-        </View> : null}
-        {dayItems.length === 0 && !starting ? <ImportRow icon="image" title="Already have a schedule?" detail="Bring a screenshot or PDF. Skip the typing." /> : null}
+        <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined}
+          style={styles.chart} {...swipe.panHandlers}>
+          <WeekChart days={days} selected={selected} today={now.date} onSelect={(date) => { if (date !== selected) feedback('select'); setSelected(date); }} />
+        </Animated.View>
+        <T token="caption" color={c.inkSecondary} style={styles.legend}>Green is done, red is an overlap, a ring is an exam. Swipe for next week.</T>
+
+        <Animated.View layout={layout} style={styles.section}>
+          <SectionTitle title={isToday ? 'Today' : weekdayLong(selected)}
+            detail={isToday
+              ? dayItems.length ? `${dayItems.length} ${dayItems.length === 1 ? 'thing' : 'things'}${dayOverlaps ? ` · ${dayOverlaps} ${dayOverlaps === 1 ? 'overlap' : 'overlaps'}` : ''}` : undefined
+              : relativeDay(now.date, selected)} />
+          {dayItems.length ? dayItems.map((it) => (
+            <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
+              {isUntimedShift(it) || timing[it.id] ? renderShift(it) : (
+                <ItemRow item={it} today={now.date} conflict={conflicts.has(it.id)}
+                  onPress={() => router.push(`/item/${it.id}`)}
+                  onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); toggleDone(it.id); }}
+                  onDelete={() => removeItem(it.id)} />
+              )}
+            </Animated.View>
+          )) : (
+            <Animated.View key={selected} entering={enter.fade} exiting={exit.fade}>
+              <T token="body" style={{ paddingTop: 4 }}>Nothing on yet.</T>
+              <T token="callout" color={c.inkSecondary} style={{ paddingTop: 2 }}>
+                {nextDeadline ? `${diffDays(selected, nextDeadline.date) === 1 ? 'The day before' : 'Two days before'} ${nextDeadline.title}. A good one to study.` : 'Free all day.'}
+              </T>
+              <View style={styles.actions}>
+                <TextButton label="Add something" onPress={() => router.push({ pathname: '/create', params: { kind: 'task', date: selected } })} />
+                <TextButton label="Add from a screenshot" onPress={openCapture} />
+              </View>
+            </Animated.View>
+          )}
+        </Animated.View>
+
+        {rest.length || nextWeekPending ? (
+          <Animated.View layout={layout} style={styles.section}>
+            <SectionTitle title="Rest of the week" />
+            {rest.map((it, i) => (
+              <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
+                <ListRow title={it.title} sub={[where(it), it.isDeadline ? 'deadline' : null].filter(Boolean).join(' · ')} chevron={false} last={i === rest.length - 1 && !nextWeekPending}
+                  trailing={<StatusPill label={`${weekdayShort(it.date)}${it.start ? ` ${formatTime(it.start, true)}` : ''}`} />}
+                  onPress={() => router.push(`/item/${it.id}`)} />
+              </Animated.View>
+            ))}
+            {nextWeekPending ? (
+              <ListRow title="Next week's shifts" sub="Not added yet" chevron={false} last trailing={<StatusPill label="Add them" tone="amber" tabular={false} />} onPress={openCapture} />
+            ) : null}
+          </Animated.View>
+        ) : null}
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 4 },
-  list: { paddingTop: 8, paddingHorizontal: SCREEN_GUTTER, gap: 14 },
-  group: { gap: 0 },
-  dayHeading: { flexDirection: 'row', gap: 4, alignItems: 'center' },
-  weekArrow: { width: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  weekNote: { flexDirection: 'row', gap: 12, alignItems: 'center', borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 20 },
-  weekIcon: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  pending: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingHorizontal: 14, borderRadius: radius.row, borderWidth: 1, borderStyle: 'dashed' },
+  head: { paddingHorizontal: SCREEN_GUTTER, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
+  legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8 },
+  section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 24, paddingTop: 4 },
+  shift: { borderBottomWidth: StyleSheet.hairlineWidth },
+  lead: { width: 22, alignItems: 'center', justifyContent: 'center' },
+  timeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingLeft: 34, paddingBottom: 14 },
+  timePill: { height: 36, borderRadius: 18, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
 });

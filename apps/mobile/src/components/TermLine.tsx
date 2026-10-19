@@ -20,8 +20,10 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  * A span of time as one line with marks on it: the term in the syllabus review, the next
  * four weeks on School. Month or week labels above, a hairline for today, labels below.
  */
-export function TermLine({ from, to, marks, today, scale = 'months', weekLabels }: {
+export function TermLine({ from, to, marks, today, scale = 'months', weekLabels, labels = true }: {
   from: string; to: string; marks: TermMark[]; today?: string; scale?: 'months' | 'weeks' | 'none'; weekLabels?: string[];
+  /** The row under the line with "today" and the labelled marks; off for a compact strip. */
+  labels?: boolean;
 }) {
   const { c } = useTheme();
   const a = dayNumber(from);
@@ -51,7 +53,7 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels 
             : <View key={m.id} style={[styles.dot, { left: `${pct(m.date)}%`, backgroundColor: color }]} />;
         })}
       </View>
-      {labelled.length || today ? (
+      {labels && (labelled.length || today) ? (
         <View style={styles.labels}>
           {today && today >= from && today <= to && pct(today) < 8 ? <T token="caption" color={c.inkSecondary} style={[styles.label, { left: 0 }]}>today</T> : null}
           {labelled.map((m) => {

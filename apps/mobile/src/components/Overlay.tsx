@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AddMenu } from '@/components/AddMenu';
 import { Icon } from '@/components/Icon';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
@@ -13,13 +12,7 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 const shadow = { shadowColor: '#18171C', shadowOpacity: 0.16, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 };
 
-/** `offset` is the space the tab bar needs. */
-export function CaptureFab({ offset }: { offset: number }) {
-  const insets = useSafeAreaInsets();
-  return <AddMenu bottom={insets.bottom + offset} />;
-}
-
-/** Rises from the tab bar on a spring, sinks away on its own or when undone. */
+/** Rises from the tab bar on a spring, sinks away on its own or when undone. `offset` is the space the tab bar needs. */
 export function Toast({ offset }: { offset: number }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
