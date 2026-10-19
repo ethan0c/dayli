@@ -10,6 +10,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",
     "@dayli/schema": "*",
+    "sharp": "0.35.5",
     "zod": "^4.1.0"
   }
 }

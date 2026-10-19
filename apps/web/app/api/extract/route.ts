@@ -2,7 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { extract } from '@dayli/extract';
 import { ExtractRequest, IMPORT_MESSAGES, type ExtractResponse } from '@dayli/schema';
 
-export const maxDuration = 60;
+// Dense multi-page syllabi can take more than a minute to read.
+export const maxDuration = 180;
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',

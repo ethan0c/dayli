@@ -1,9 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { Extraction, type ExtractContext, type ExtractRequest } from '@dayli/schema';
+import { prepareImage } from './image';
 
 export const MODEL = 'claude-opus-5-5';
-export const PROMPT_VERSION = '2026-10-19.5';
+export const PROMPT_VERSION = '2026-10-19.7';
 
 const SYSTEM = `You read the things busy students and shift workers send to their planner app, Semli, and turn them into calendar events and to-dos.
 
@@ -45,7 +46,8 @@ export type ExtractResult =
 export async function extract(req: ExtractRequest, client = new Anthropic()): Promise<ExtractResult> {
   const content: Anthropic.ContentBlockParam[] = [];
   if (req.input.kind === 'image') {
-    content.push({ type: 'image', source: { type: 'base64', media_type: req.input.mediaType, data: req.input.data } });
+    const prepared = await prepareImage(req.input);
+    content.push({ type: 'image', source: { type: 'base64', media_type: prepared.mediaType, data: prepared.data } });
   } else if (req.input.kind === 'pdf') {
     content.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: req.input.data } });
   }

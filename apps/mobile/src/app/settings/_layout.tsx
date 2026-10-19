@@ -20,7 +20,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="index" options={{ title: 'You' }} />
       <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
       <Stack.Screen name="major" options={{ title: 'Field of study' }} />
-      <Stack.Screen name="plan" options={{ title: 'Your plan' }} />
+      <Stack.Screen name="plan" options={{ title: 'Semli Pro' }} />
       <Stack.Screen name="data" options={{ title: 'Your data' }} />
       <Stack.Screen name="server" options={{ title: 'Semli server' }} />
     </Stack>

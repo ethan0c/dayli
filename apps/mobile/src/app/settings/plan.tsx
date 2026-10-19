@@ -19,6 +19,7 @@ export default function PlanScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
+      {!isPro ? <PlanPicker hero /> : null}
       <View style={[styles.status, { backgroundColor: c.tint.mint.fill }]}>
         <T token="overline" color={c.tint.mint.ink}>
           {isPro ? 'Semli Pro' : !customerInfo && loading ? 'Checking your plan…' : !customerInfo ? 'Plan not checked' : 'Free plan'}
@@ -35,7 +36,7 @@ export default function PlanScreen() {
         </T>
       </View>
 
-      <PlanPicker />
+      {isPro ? <PlanPicker /> : null}
 
       <T token="caption" color={c.inkSecondary}>
         Monthly and yearly plans renew automatically unless canceled in your store account. Lifetime is a one-time purchase. Prices and any eligible offers are shown before you confirm.
