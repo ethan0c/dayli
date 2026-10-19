@@ -1,7 +1,10 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PhoneFrame } from '@/components/PhoneFrame';
 import { FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
 import { TryIt } from './TryIt';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 const CAL = 'M3 4h18v18H3z M16 2v4M8 2v4M3 10h18';
 const BOOK = 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z';

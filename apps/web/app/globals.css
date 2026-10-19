@@ -100,11 +100,11 @@ textarea {
 }
 
 .wrap {
-  max-width: 1040px;
+  max-width: 1200px;
   min-height: 100dvh;
   margin: 0 auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
   padding-block: 24px 40px;
   display: flex;
   flex-direction: column;
