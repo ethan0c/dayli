@@ -1,9 +1,10 @@
 import { localParts } from '@dayli/core';
 import { router, usePathname } from 'expo-router';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
+import { AddButton } from '@/components/AddButton';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
@@ -17,12 +18,12 @@ const actions: { action: Action; label: string; icon: IconKey }[] = [
 ];
 
 /** Keeps the native tab bar; the menu floats above its existing add button. */
-export function AddMenu({ bottom, renderTrigger }: { bottom: number; renderTrigger?: (open: () => void) => ReactNode }) {
+export function AddMenu({ bottom }: { bottom: number }) {
   const { c } = useTheme();
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
-  const rotation = useRef(new Animated.Value(0)).current;
+  const [rotation] = useState(() => new Animated.Value(0));
   const pending = useRef<{ action: Action; date: string } | null>(null);
   const selecting = useRef(false);
 
@@ -62,19 +63,14 @@ export function AddMenu({ bottom, renderTrigger }: { bottom: number; renderTrigg
   };
 
   return <>
-    {renderTrigger ? renderTrigger(open) : (
-      <Pressable accessibilityRole="button" accessibilityLabel="Add" accessibilityState={{ expanded: visible }} onPress={open}
-        style={({ pressed }) => [styles.toggle, { bottom, backgroundColor: c.inkPrimary, opacity: pressed ? 0.85 : 1 }]}>
-        <Icon name="plus" size={24} color={c.onPrimary} />
-      </Pressable>
-    )}
+    <AddButton bottom={bottom} expanded={visible} onPress={open} />
     <Modal transparent visible={visible} animationType={reduceMotion ? 'none' : 'fade'} onRequestClose={close} onDismiss={navigate}
       onShow={() => Animated.timing(rotation, { toValue: 1, duration: reduceMotion ? 0 : 160, useNativeDriver: true }).start()}>
       <View style={styles.overlay} accessibilityViewIsModal onAccessibilityEscape={close}>
         <Pressable accessible={false} onPress={close} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
         <View style={[styles.menu, { bottom: bottom + 68 }]}>
           {actions.map(({ action, label, icon }) => (
-            <Pressable key={action} accessibilityRole="menuitem" accessibilityLabel={label} onPress={() => choose(action)}
+            <Pressable key={action} accessibilityRole="button" accessibilityLabel={label} onPress={() => choose(action)}
               style={({ pressed }) => [styles.action, { backgroundColor: pressed ? c.row : c.surface }]}>
               <Icon name={icon} size={21} color={action === 'capture' ? c.accentInk : c.inkPrimary} />
               <T token="body">{label}</T>

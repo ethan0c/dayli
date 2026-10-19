@@ -1,14 +1,10 @@
-import { Button as SwiftButton, Host } from '@expo/ui/swift-ui';
-import { buttonBorderShape, buttonStyle, controlSize, foregroundColor, labelStyle, tint as tintMod } from '@expo/ui/swift-ui/modifiers';
 import { NativeTabs } from 'expo-router/native-tabs';
-import { DynamicColorIOS, Platform, StyleSheet, View } from 'react-native';
+import { DynamicColorIOS, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Toast } from '@/components/Overlay';
 import { AddMenu } from '@/components/AddMenu';
 import { useTheme } from '@/theme';
-
-const GLASS = Number(Platform.Version) >= 26;
 
 /** iOS: the system tab bar (Liquid Glass on iOS 26) with a matching glass "+" floating above it. */
 export default function AppTabs() {
@@ -32,25 +28,8 @@ export default function AppTabs() {
         </NativeTabs.Trigger>
       </NativeTabs>
       <Toast offset={76} />
-      <AddMenu bottom={insets.bottom + 68} renderTrigger={(open) => <Host style={[styles.fab, { bottom: insets.bottom + 68 }]} matchContents>
-        <SwiftButton
-          label="Add"
-          systemImage="plus"
-          onPress={open}
-          modifiers={[
-            buttonStyle(GLASS ? 'glassProminent' : 'borderedProminent'),
-            buttonBorderShape('circle'),
-            controlSize('extraLarge'),
-            labelStyle('iconOnly'),
-            tintMod(c.inkPrimary),
-            foregroundColor(c.onPrimary),
-          ]}
-        />
-      </Host>} />
+      <AddMenu bottom={insets.bottom + 68} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  fab: { position: 'absolute', right: 16 },
-});
