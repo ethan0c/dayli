@@ -61,10 +61,10 @@ export function Button({
       disabled={disabled}
       style={({ pressed }) => [
         styles.btn,
-        primary ? { backgroundColor: c.inkPrimary } : { borderWidth: 1, borderColor: c.line },
+        primary ? { backgroundColor: c.inkPrimary } : { backgroundColor: c.row },
         { opacity: disabled ? 0.4 : pressed ? 0.8 : 1 },
       ]}>
-      <T token="headline" color={primary ? c.canvas : c.inkPrimary}>
+      <T token="headline" color={primary ? c.onPrimary : c.inkPrimary}>
         {label}
       </T>
     </Pressable>
@@ -78,5 +78,5 @@ const styles = StyleSheet.create({
   subtitle: { textAlign: 'center', paddingHorizontal: SCREEN_GUTTER, paddingBottom: 20, fontSize: 14, lineHeight: 20 },
   body: { flex: 1 },
   footer: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, gap: 8 },
-  btn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  btn: { minHeight: 52, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
 });

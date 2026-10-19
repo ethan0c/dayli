@@ -1,9 +1,9 @@
-import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/Icon';
+import { AddMenu } from '@/components/AddMenu';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
@@ -11,21 +11,10 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 const shadow = { shadowColor: '#18171C', shadowOpacity: 0.16, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 };
 
-/** The round + button that opens capture. `offset` is the space the tab bar needs. */
+/** `offset` is the space the tab bar needs. */
 export function CaptureFab({ offset }: { offset: number }) {
-  const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  return (
-    <Pressable
-      onPress={() => {
-        feedback('tap');
-        router.push('/capture');
-      }}
-      accessibilityLabel="Add"
-      style={({ pressed }) => [styles.fab, { bottom: insets.bottom + offset, backgroundColor: c.nav, opacity: pressed ? 0.85 : 1 }]}>
-      <Icon name="plus" size={22} color="#FFFFFF" strokeWidth={2} />
-    </Pressable>
-  );
+  return <AddMenu bottom={insets.bottom + offset} />;
 }
 
 export function Toast({ offset }: { offset: number }) {
@@ -42,7 +31,7 @@ export function Toast({ offset }: { offset: number }) {
   if (!toast) return null;
   return (
     <View style={[styles.toast, { bottom: insets.bottom + offset + 64, backgroundColor: c.nav }]}>
-      <T token="subhead" color="#FFFFFF" style={{ flex: 1 }} numberOfLines={2}>
+      <T token="subhead" color={c.onNav} style={{ flex: 1 }} numberOfLines={2}>
         {toast.message}
       </T>
       {toast.batchId ? (
@@ -50,8 +39,8 @@ export function Toast({ offset }: { offset: number }) {
             feedback('undo');
             undo(toast.batchId!);
           }} hitSlop={8} style={styles.undo}>
-          <Icon name="undo" size={14} color="#FFFFFF" />
-          <T token="subhead" color="#FFFFFF">
+          <Icon name="undo" size={14} color={c.onNav} />
+          <T token="subhead" color={c.onNav}>
             Undo
           </T>
         </Pressable>
@@ -61,7 +50,6 @@ export function Toast({ offset }: { offset: number }) {
 }
 
 const styles = StyleSheet.create({
-  fab: { position: 'absolute', right: SCREEN_GUTTER, width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', ...shadow },
   toast: {
     position: 'absolute',
     left: SCREEN_GUTTER,

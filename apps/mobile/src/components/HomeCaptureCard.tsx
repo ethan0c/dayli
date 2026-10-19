@@ -9,7 +9,7 @@ export function HomeCaptureCard({ onCapture }: { onCapture: (text: string, sourc
   const { c } = useTheme();
   const [draft, setDraft] = useState('');
   return (
-    <View style={[styles.card, { backgroundColor: c.accentSoft, borderColor: c.accentBorder }]}>
+    <View style={[styles.card, { backgroundColor: c.accentSoft }]}>
       <View style={{ gap: 6 }}>
         <T token="title">Your week starts here.</T>
         <T token="callout" color={c.inkSecondary}>Paste a schedule, drop a syllabus, or tell Semli what’s coming up.</T>
@@ -37,7 +37,7 @@ export function HomeCaptureCard({ onCapture }: { onCapture: (text: string, sourc
           disabled={!draft.trim()}
           onPress={() => onCapture(draft)}
           style={[styles.send, { backgroundColor: c.inkPrimary, opacity: draft.trim() ? 1 : 0.4 }]}>
-          <Icon name="chevronRight" color={c.canvas} size={20} />
+          <Icon name="chevronRight" color={c.onPrimary} size={20} />
         </Pressable>
       </View>
       <T token="caption" color={c.inkSecondary}>You’ll review everything before it’s added.</T>
@@ -46,7 +46,7 @@ export function HomeCaptureCard({ onCapture }: { onCapture: (text: string, sourc
 }
 
 const styles = StyleSheet.create({
-  card: { padding: 18, borderRadius: radius.card, borderWidth: 1, gap: 16 },
+  card: { padding: 18, borderRadius: radius.card, gap: 16 },
   input: { minHeight: 100, maxHeight: 180, padding: 14, borderRadius: radius.row, textAlignVertical: 'top' },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 18 },
   action: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6 },

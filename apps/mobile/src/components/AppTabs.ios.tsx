@@ -1,12 +1,11 @@
 import { Button as SwiftButton, Host } from '@expo/ui/swift-ui';
 import { buttonBorderShape, buttonStyle, controlSize, foregroundColor, labelStyle, tint as tintMod } from '@expo/ui/swift-ui/modifiers';
-import { router } from 'expo-router';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { DynamicColorIOS, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Toast } from '@/components/Overlay';
-import { feedback } from '@/lib/feedback';
+import { AddMenu } from '@/components/AddMenu';
 import { useTheme } from '@/theme';
 
 const GLASS = Number(Platform.Version) >= 26;
@@ -33,24 +32,21 @@ export default function AppTabs() {
         </NativeTabs.Trigger>
       </NativeTabs>
       <Toast offset={76} />
-      <Host style={[styles.fab, { bottom: insets.bottom + 68 }]} matchContents>
+      <AddMenu bottom={insets.bottom + 68} renderTrigger={(open) => <Host style={[styles.fab, { bottom: insets.bottom + 68 }]} matchContents>
         <SwiftButton
           label="Add"
           systemImage="plus"
-          onPress={() => {
-            feedback('tap');
-            router.push('/capture');
-          }}
+          onPress={open}
           modifiers={[
             buttonStyle(GLASS ? 'glassProminent' : 'borderedProminent'),
             buttonBorderShape('circle'),
             controlSize('extraLarge'),
             labelStyle('iconOnly'),
             tintMod(c.inkPrimary),
-            foregroundColor(c.canvas),
+            foregroundColor(c.onPrimary),
           ]}
         />
-      </Host>
+      </Host>} />
     </View>
   );
 }

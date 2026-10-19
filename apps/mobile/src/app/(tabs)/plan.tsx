@@ -21,7 +21,11 @@ export default function PlanScreen() {
   const items = useItemList();
   const schedules = useStore((s) => s.schedules);
   const toggleDone = useStore((s) => s.toggleDone);
-  const [selected, setSelected] = useState(now.date);
+  const [selected, updateSelected] = useState(useStore.getState().selectedPlanDate ?? now.date);
+  const setSelected = (date: string) => {
+    updateSelected(date);
+    useStore.getState().setSelectedPlanDate(date);
+  };
   const week = useMemo(() => weekOf(selected), [selected]);
 
   const marked = useMemo(() => new Set(items.filter((i) => !i.done).map((i) => i.date)), [items]);
@@ -74,7 +78,7 @@ export default function PlanScreen() {
             <T token="caption" color={c.inkSecondary}>{monthDay(selected)} · {dayItems.length === 0 ? 'An open day' : `${events.length} ${events.length === 1 ? 'event' : 'events'} · ${tasks.length} ${tasks.length === 1 ? 'to-do' : 'to-dos'}`}</T>
           </View>
           {selected !== now.date ? (
-            <Pressable accessibilityRole="button" onPress={() => setSelected(now.date)} style={[styles.todayButton, { borderColor: c.line }]}>
+            <Pressable accessibilityRole="button" onPress={() => setSelected(now.date)} style={[styles.todayButton, { backgroundColor: c.row }]}>
               <T token="subhead" color={c.accentInk}>Today</T>
             </Pressable>
           ) : null}
@@ -108,7 +112,7 @@ const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   list: { padding: 24, paddingHorizontal: SCREEN_GUTTER, gap: 20 },
   dayHeading: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  todayButton: { minHeight: 44, borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: 16, justifyContent: 'center' },
+  todayButton: { minHeight: 44, borderRadius: radius.pill, paddingHorizontal: 16, justifyContent: 'center' },
   group: { gap: 8 },
   weekNote: { flexDirection: 'row', gap: 12, alignItems: 'center', borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 20 },
   weekIcon: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },

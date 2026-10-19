@@ -73,6 +73,7 @@ interface State {
   taskWorkDates: Record<string, string>;
   suggestionDismissals: { date: string; ids: string[] };
   captureDraft: string;
+  selectedPlanDate: string | null;
 
   setHydrated: () => void;
   setPending: (p: Pending | null) => void;
@@ -84,6 +85,7 @@ interface State {
   unplanTask: (id: string) => void;
   dismissSuggestion: (id: string, date: string) => void;
   setCaptureDraft: (text: string) => void;
+  setSelectedPlanDate: (date: string) => void;
 
   toggleDone: (id: string) => void;
   updateItem: (id: string, patch: Partial<Item>) => void;
@@ -112,6 +114,7 @@ export const useStore = create<State>()(
       taskWorkDates: {},
       suggestionDismissals: { date: '', ids: [] },
       captureDraft: '',
+      selectedPlanDate: null,
       settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true, major: null },
       usage: { month: '', imports: 0 },
 
@@ -121,6 +124,7 @@ export const useStore = create<State>()(
       hideToast: () => set({ toast: null }),
       setSettings: (patch) => set({ settings: { ...get().settings, ...patch } }),
       setCaptureDraft: (captureDraft) => set({ captureDraft }),
+      setSelectedPlanDate: (selectedPlanDate) => set({ selectedPlanDate }),
       planTasks: (ids, date) => {
         const taskWorkDates = { ...get().taskWorkDates };
         for (const id of ids) {

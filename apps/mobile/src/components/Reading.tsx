@@ -36,7 +36,7 @@ export function Reading({ source }: { source: string }) {
 
   const colors = [c.tint.lavender, c.tint.apricot, c.tint.mint];
   return (
-    <View style={[styles.card, { backgroundColor: c.accentSoft, borderColor: c.accentBorder }]} accessibilityLiveRegion="polite">
+    <View style={[styles.card, { backgroundColor: c.accentSoft }]} accessibilityLiveRegion="polite">
       <View style={styles.dots}>
         {dots.map((v, i) => (
           <Animated.View
@@ -68,7 +68,7 @@ export function Reading({ source }: { source: string }) {
 }
 
 const styles = StyleSheet.create({
-  card: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14, borderRadius: radius.card, borderWidth: 1 },
+  card: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14, borderRadius: radius.card },
   dots: { flexDirection: 'row', gap: 6, width: 48, justifyContent: 'center' },
   dot: { width: 10, height: 10, borderRadius: 5 },
 });

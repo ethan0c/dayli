@@ -41,6 +41,7 @@ export default function RootLayout() {
           <Stack.Protected guard={onboarded}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="capture" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="create" options={{ presentation: 'modal' }} />
             <Stack.Screen name="review" options={{ presentation: 'modal', gestureEnabled: false }} />
             <Stack.Screen name="item/[id]" options={{ presentation: 'modal' }} />
             <Stack.Screen name="settings" options={{ presentation: 'modal' }} />

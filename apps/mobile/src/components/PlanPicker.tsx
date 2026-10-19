@@ -84,7 +84,7 @@ export function PlanPicker({ hero = false, docked = false, freeImportsLeft }: { 
                 disabled={disabled || !pack}
                 onPress={() => { if (pack) setSelectedId(pack.identifier); feedback('select'); setNotice(null); }}
                 style={[styles.plan, { backgroundColor: on ? c.accent : 'transparent' }]}>
-                <T token="subhead" color={on ? c.canvas : c.inkSecondary}>{label}</T>
+                <T token="subhead" color={on ? c.onAccent : c.inkSecondary}>{label}</T>
               </Pressable>;
             })}
           </View>
@@ -124,8 +124,8 @@ export function PlanPicker({ hero = false, docked = false, freeImportsLeft }: { 
       {!isPro ? <>
         <Pressable accessibilityRole="button" accessibilityState={{ disabled: disabled || !selected }} disabled={disabled || !selected} onPress={() => void buyPlan()}
           style={({ pressed }) => [styles.cta, { backgroundColor: c.accent, opacity: disabled || !selected ? 0.4 : pressed ? 0.85 : 1 }]}>
-          <T token="headline" color={c.canvas}>Get Semli Pro</T>
-          {busy ? <ActivityIndicator color={c.canvas} /> : <Icon name="chevronRight" size={20} color={c.canvas} />}
+          <T token="headline" color={c.onAccent}>Get Semli Pro</T>
+          {busy ? <ActivityIndicator color={c.onAccent} /> : <Icon name="chevronRight" size={20} color={c.onAccent} />}
         </Pressable>
         <T token="caption" color={c.inkSecondary} style={styles.center}>{selectedPlan?.label === 'Lifetime'
           ? `${selected?.product.priceString} once. No recurring payments.`
@@ -171,10 +171,10 @@ const styles = StyleSheet.create({
   plan: { flex: 1, minHeight: 40, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', borderRadius: 11 },
   priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, minHeight: 64 },
   price: { fontSize: 56, lineHeight: 64, letterSpacing: -2.5, flexShrink: 1 },
-  benefits: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 18, gap: 14 },
+  benefits: { paddingTop: 4, gap: 14 },
   benefit: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   check: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  checkout: { borderTopWidth: StyleSheet.hairlineWidth, paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
+  checkout: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
   cta: { minHeight: 54, padding: 16, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   center: { textAlign: 'center' },
   free: { minHeight: 34, alignItems: 'center', justifyContent: 'center' },

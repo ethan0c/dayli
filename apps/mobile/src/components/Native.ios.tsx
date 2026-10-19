@@ -1,7 +1,7 @@
 import { localParts } from '@dayli/core';
 import { Button as SwiftButton, DatePicker, Host, Toggle } from '@expo/ui/swift-ui';
 import type { ComponentProps } from 'react';
-import { buttonBorderShape, buttonStyle, controlSize, datePickerStyle, tint } from '@expo/ui/swift-ui/modifiers';
+import { accessibilityLabel, buttonBorderShape, buttonStyle, controlSize, datePickerStyle, tint } from '@expo/ui/swift-ui/modifiers';
 
 import type { DateFieldProps, NativeButtonProps, ToggleProps } from '@/components/Native';
 
@@ -38,10 +38,10 @@ export function TimeField({ date, time, onChange }: DateFieldProps) {
   );
 }
 
-export function NativeToggle({ value, onChange }: ToggleProps) {
+export function NativeToggle({ value, onChange, label }: ToggleProps) {
   return (
     <Host style={{ width: 52, height: 32 }} matchContents>
-      <Toggle isOn={value} onIsOnChange={onChange} />
+      <Toggle isOn={value} onIsOnChange={onChange} modifiers={label ? [accessibilityLabel(label)] : []} />
     </Host>
   );
 }

@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   nowDot: { width: 6, height: 6, borderRadius: 3 },
   headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
-  note: { marginHorizontal: SCREEN_GUTTER, marginTop: 12, padding: 12, borderRadius: radius.row, borderWidth: 1, flexDirection: 'row', gap: 10, alignItems: 'center' },
+  note: { marginHorizontal: SCREEN_GUTTER, marginTop: 12, padding: 12, borderRadius: radius.row, flexDirection: 'row', gap: 10, alignItems: 'center' },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 20, gap: 8 },
   tl: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   tlTime: { width: 58 },

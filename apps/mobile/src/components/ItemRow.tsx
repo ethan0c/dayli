@@ -39,12 +39,12 @@ export function ItemRow({ item, conflict, onPress, onToggle }: Props) {
       accessibilityLabel={`${item.title}, ${isEvent ? 'event' : 'to-do'}, ${timeLabel ?? (isEvent ? 'all day' : categoryLabel)}${item.done ? ', completed' : ''}${conflict ? ', schedule conflict' : ''}`}
       style={({ pressed }) => [
         styles.row,
-        { backgroundColor: fill, opacity: item.done ? 0.55 : pressed ? 0.85 : 1 },
+        { backgroundColor: fill, opacity: pressed ? 0.85 : 1 },
         conflict ? { borderWidth: 1.5, borderColor: c.conflict } : null,
       ]}>
       <Icon name={item.icon} size={20} color={ink} />
       <View style={styles.title}>
-        <T token="body" color={ink} style={item.done ? { textDecorationLine: 'line-through' } : undefined}>{item.title}</T>
+        <T token="body" color={item.done && !isEvent ? c.inkSecondary : ink} style={item.done ? { textDecorationLine: 'line-through' } : undefined}>{item.title}</T>
         {conflict || item.isDeadline ? <T token="caption" color={isEvent ? ink : c.inkSecondary}>{conflict ? 'Schedule conflict' : 'Deadline'}</T> : null}
       </View>
       {isEvent ? (

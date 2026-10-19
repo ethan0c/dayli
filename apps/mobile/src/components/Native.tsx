@@ -17,6 +17,7 @@ export interface DateFieldProps {
 export interface ToggleProps {
   value: boolean;
   onChange: (value: boolean) => void;
+  label?: string;
 }
 
 export interface NativeButtonProps {
@@ -39,7 +40,7 @@ function Field({ value, placeholder, onChange, valid, width, disabled }: { value
       autoCapitalize="none"
       autoCorrect={false}
       editable={!disabled}
-      style={[styles.field, textStyle('subhead', valid ? c.inkPrimary : c.conflict), { backgroundColor: c.canvas, borderColor: valid ? c.line : c.conflict, width }]}
+      style={[styles.field, textStyle('subhead', valid ? c.inkPrimary : c.conflict), { backgroundColor: c.canvas, borderWidth: valid ? 0 : 1, borderColor: c.conflict, width }]}
     />
   );
 }
@@ -52,13 +53,14 @@ export function TimeField({ time, onChange, disabled }: DateFieldProps) {
   return <Field value={time} placeholder="HH:MM" onChange={onChange} valid={!!disabled || time === null || isLocalTime(time)} width={68} disabled={disabled} />;
 }
 
-export function NativeToggle({ value, onChange }: ToggleProps) {
+export function NativeToggle({ value, onChange, label }: ToggleProps) {
   const { c } = useTheme();
   return (
     <Pressable
       onPress={() => onChange(!value)}
       hitSlop={10}
       accessibilityRole="switch"
+      accessibilityLabel={label}
       accessibilityState={{ checked: value }}
       style={[styles.toggle, { backgroundColor: value ? c.inkPrimary : c.line }]}>
       <View style={[styles.knob, { backgroundColor: c.canvas, alignSelf: value ? 'flex-end' : 'flex-start' }]} />
@@ -70,7 +72,7 @@ export function NativeButton({ label, onPress, role, icon }: NativeButtonProps) 
   const { c } = useTheme();
   const ink = role === 'destructive' ? c.conflict : c.inkPrimary;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.btn, { borderColor: c.line, opacity: pressed ? 0.8 : 1 }]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.btn, { backgroundColor: c.row, opacity: pressed ? 0.8 : 1 }]}>
       {icon ? <Icon name={icon} size={16} color={ink} /> : null}
       <T token="headline" color={ink}>
         {label}
@@ -83,5 +85,5 @@ const styles = StyleSheet.create({
   field: { height: 32, borderRadius: 8, borderWidth: 1, paddingHorizontal: 8 },
   toggle: { width: 40, height: 24, borderRadius: 12, padding: 2, justifyContent: 'center' },
   knob: { width: 20, height: 20, borderRadius: 10 },
-  btn: { height: 50, borderRadius: radius.pill, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  btn: { minHeight: 50, paddingVertical: 12, borderRadius: radius.pill, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 });

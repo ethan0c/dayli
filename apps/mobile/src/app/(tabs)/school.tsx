@@ -50,7 +50,7 @@ export default function SchoolScreen() {
           const isOpen = open === course.id;
           const tint = c.tint[courseTint(courses, course.id) ?? 'lavender'];
           return (
-            <View key={course.id} style={[styles.card, { backgroundColor: c.surface, borderColor: c.line }]}>
+            <View key={course.id} style={[styles.card, { backgroundColor: c.row }]}>
               <View style={[styles.courseAccent, { backgroundColor: tint.fill }]} />
               <Pressable accessibilityRole="button" accessibilityState={{ expanded: isOpen }} accessibilityLabel={`${course.title}, ${upcoming.length} upcoming items`} onPress={() => { feedback('tap'); setOpen(isOpen ? null : course.id); }} style={styles.cardHead}>
                 <View style={[styles.courseIcon, { backgroundColor: tint.fill }]}><Icon name="book" size={22} color={tint.ink} /></View>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   summary: { flexDirection: 'row', alignItems: 'center', gap: 9, paddingTop: 16, marginTop: 12, borderTopWidth: StyleSheet.hairlineWidth, flexWrap: 'wrap' },
   summaryDot: { width: 3, height: 3, borderRadius: 2 },
   list: { padding: 24, paddingHorizontal: SCREEN_GUTTER, gap: 14 },
-  card: { borderRadius: radius.card, overflow: 'hidden', borderWidth: 1 },
+  card: { borderRadius: radius.card, overflow: 'hidden' },
   courseAccent: { height: 5 },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 18 },
   courseIcon: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
