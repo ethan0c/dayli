@@ -1,7 +1,8 @@
 import { IMPORT_MESSAGES, type ExtractRequest } from '@dayli/schema';
 import { File } from 'expo-file-system';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffectEvent, useRef, useState, type ComponentRef } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useEffectEvent, useRef, useState, type ComponentRef } from 'react';
 import { Platform, ScrollView, StyleSheet, type TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -122,13 +123,14 @@ export function AddScreen() {
     if (source === 'image') void pick(() => pickImageInput(false));
     if (source === 'file') void pick(pickPdfInput);
   });
-  useFocusEffect(
-    useCallback(() => {
-      if (!params.source || Platform.OS === 'web') return;
-      const timer = setTimeout(() => openSource(params.source!, params.at ?? params.source!), 350);
-      return () => clearTimeout(timer);
-    }, [params.source, params.at]),
-  );
+  const focused = useIsFocused();
+  useEffect(() => {
+    if (!focused || !params.source || Platform.OS === 'web') return;
+    const source = params.source;
+    const at = params.at ?? source;
+    const timer = setTimeout(() => openSource(source, at), 350);
+    return () => clearTimeout(timer);
+  }, [focused, params.source, params.at]);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={[styles.body, { paddingTop: insets.top + 24, paddingBottom: NAV_INSET }]}

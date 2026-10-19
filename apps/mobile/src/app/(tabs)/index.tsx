@@ -108,7 +108,7 @@ export default function TodayScreen() {
   const nextTitle = featured ? `${featured.title}${featured.start ? ` · ${featured.end ? formatRange(featured.start, featured.end) : formatTime(featured.start)}` : ''}` : null;
   const hours = todayView === 'hours';
   const viewToggle = (
-    <IconButton icon={hours ? 'list' : 'chart'} tone="grey" size={44} haptic="select"
+    <IconButton icon={hours ? 'list' : 'chart'} tone="glass" size={44} haptic="select"
       label={hours ? 'Show the list' : 'Show the day by the hour'}
       onPress={() => setSettings({ todayView: hours ? 'list' : 'hours' })} />
   );
@@ -256,7 +256,7 @@ export default function TodayScreen() {
           {upcoming.filter((item) => tightDeadlines.has(item.id)).slice(0, 1).map((item) => (
             <T key={item.id} token="caption" color={c.inkSecondary} style={{ paddingTop: 6 }}>{deadlineReason(items, item, now, tightDeadlines.get(item.id))}</T>
           ))}
-          {nextWeekPending ? <ListRow title="Next week's shifts" sub="Not added yet" last onPress={() => router.push({ pathname: '/capture', params: { source: 'image' } })} /> : null}
+          {nextWeekPending ? <ListRow title="Next week's shifts" sub="Not added yet" last onPress={() => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } })} /> : null}
         </View>
       ) : null}
 

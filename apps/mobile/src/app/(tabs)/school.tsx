@@ -66,7 +66,7 @@ export default function SchoolScreen() {
   const mapEnd = addDays(now.date, MAP_DAYS - 1);
   const labels = weekLabels(now.date);
 
-  const capture = (source: 'file' | 'image') => router.push({ pathname: '/capture', params: { source } });
+  const capture = (source: 'file' | 'image') => router.navigate({ pathname: '/add', params: { source, at: String(Date.now()) } });
   const tintOf = (course: StoredCourse) => c.tint[course.color ?? 'lavender'].ink;
 
   const days = next ? diffDays(now.date, next.date) : 0;

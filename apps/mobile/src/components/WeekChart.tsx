@@ -35,6 +35,8 @@ export type WeekDay = {
   /** Text under the bar, like "4–10p" or "off". */
   label?: string;
   labelTone?: 'ink' | 'green' | 'red' | 'amber' | 'grey';
+  /** Strike the label: a dropped shift. */
+  labelStrike?: boolean;
 };
 
 /**
@@ -80,7 +82,7 @@ export function WeekChart({ days, selected, today, onSelect, height = 120, acces
               })}
               {isToday ? <View style={[styles.now, { backgroundColor: c.inkPrimary, top: nowTop(height) }]} /> : null}
             </View>
-            {day.label ? <T token="caption" color={labelColor} tabular style={[styles.label, day.labelTone && day.labelTone !== 'grey' ? { fontFamily: undefined } : null]}>{day.label}</T> : null}
+            {day.label ? <T token="caption" color={labelColor} tabular style={[styles.label, day.labelTone && day.labelTone !== 'grey' ? { fontFamily: undefined } : null, day.labelStrike ? { textDecorationLine: 'line-through' } : null]}>{day.label}</T> : null}
           </>
         );
         if (!onSelect) return <View key={day.date} style={styles.col}>{column}</View>;

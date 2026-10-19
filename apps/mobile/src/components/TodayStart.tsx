@@ -19,8 +19,8 @@ export function TodayStart({ date, paddingTop = 0 }: { date: string; paddingTop?
   const open = (source?: 'image' | 'file') => {
     feedback('tap');
     useStore.getState().setCaptureDraft('');
-    if (source) router.push({ pathname: '/capture', params: { source } });
-    else router.push('/capture');
+    if (source) router.navigate({ pathname: '/add', params: { source, at: String(Date.now()) } });
+    else router.navigate('/add');
   };
   return (
     <View>

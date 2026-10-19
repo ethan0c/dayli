@@ -9,6 +9,7 @@ import { Chip, GroupLabel, ListRow } from "@/components/Controls";
 import { RecentShots } from "@/components/RecentShots";
 import { File } from "expo-file-system";
 import { Press } from "@/components/Press";
+import { GlassCircle } from "@/components/Glass";
 import { Icon, type IconKey } from "@/components/Icon";
 import { PlanPicker } from "@/components/PlanPicker";
 import { Reading } from "@/components/Reading";
@@ -127,7 +128,7 @@ export default function OnboardingScreen() {
         {history.length > 0 ? (
           <Animated.View entering={FadeIn.duration(160)} exiting={FadeOut.duration(120)}>
             <Press accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} scale={0.9} onPress={back} style={styles.back}>
-              <Icon name="chevronLeft" size={22} color={barOn} />
+              <GlassCircle size={36} plain><Icon name="chevronLeft" size={22} color={barOn} /></GlassCircle>
             </Press>
           </Animated.View>
         ) : null}
@@ -635,7 +636,7 @@ function PlusStep({ onFinish }: { onFinish: () => void }) {
 const styles = StyleSheet.create({
   root: { flex: 1, paddingHorizontal: SCREEN_GUTTER },
   header: { flexDirection: "row", alignItems: "center", gap: 10, paddingBottom: 24, minHeight: 36 },
-  back: { width: 36, height: 36, marginLeft: -8, alignItems: "center", justifyContent: "center" },
+  back: { marginLeft: -8, alignItems: "center", justifyContent: "center" },
   progress: { flex: 1, flexDirection: "row", gap: 5 },
   bar: { flex: 1, height: 3, borderRadius: 2 },
   center: { flex: 1 },

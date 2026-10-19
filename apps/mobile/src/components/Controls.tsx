@@ -3,6 +3,7 @@ import type { Item } from '@dayli/schema';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { GlassCircle } from '@/components/Glass';
 import { Icon, type IconKey } from '@/components/Icon';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
@@ -30,11 +31,18 @@ export function TextButton({ label, onPress, tone = 'accent', haptic = 'select',
   );
 }
 
-/** Icon button: a 44 circle, grey or ink. */
+/** Icon button: a 44 circle, grey or ink. `glass` is for chrome at the top of a screen: Liquid Glass on iOS 26, the grey circle elsewhere. */
 export function IconButton({ icon, onPress, label, tone = 'grey', size = 44, haptic = 'tap', disabled, style }: {
-  icon: IconKey; onPress: () => void; label: string; tone?: 'grey' | 'ink' | 'bare'; size?: number; haptic?: Cue; disabled?: boolean; style?: StyleProp<ViewStyle>;
+  icon: IconKey; onPress: () => void; label: string; tone?: 'grey' | 'ink' | 'bare' | 'glass'; size?: number; haptic?: Cue; disabled?: boolean; style?: StyleProp<ViewStyle>;
 }) {
   const { c } = useTheme();
+  if (tone === 'glass') {
+    return (
+      <Press accessibilityRole="button" accessibilityLabel={label} haptic={haptic} onPress={onPress} disabled={disabled} scale={0.9} style={[{ opacity: disabled ? 0.4 : 1 }, style]}>
+        <GlassCircle size={size}><Icon name={icon} size={size >= 44 ? 22 : 18} color={c.inkPrimary} /></GlassCircle>
+      </Press>
+    );
+  }
   const bg = tone === 'ink' ? c.inkPrimary : tone === 'grey' ? c.row : 'transparent';
   return (
     <Press accessibilityRole="button" accessibilityLabel={label} haptic={haptic} onPress={onPress} disabled={disabled} scale={0.9}

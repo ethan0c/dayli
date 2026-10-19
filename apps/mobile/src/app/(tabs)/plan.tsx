@@ -117,7 +117,7 @@ export default function PlanScreen() {
     .filter((o) => o.id !== it.id && o.kind === 'event' && o.employer === it.employer && o.date < it.date && o.start && o.end)
     .sort((a, b) => b.date.localeCompare(a.date))[0];
 
-  const openCapture = () => router.push({ pathname: '/capture', params: { source: 'image' } });
+  const openCapture = () => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } });
 
   if (starting) return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">

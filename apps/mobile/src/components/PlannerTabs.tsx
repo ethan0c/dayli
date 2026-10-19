@@ -1,15 +1,12 @@
-import { router } from 'expo-router';
 import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Icon } from '@/components/Icon';
 import { NavButton } from '@/components/NavPill';
 import { Toast } from '@/components/Overlay';
-import { Press } from '@/components/Press';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
-/** Non-iOS fallback: the four destinations in a pill and a floating plus that opens Add. */
+/** Non-iOS fallback: the five destinations in a pill; Add is the last one. */
 export default function PlannerTabs() {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
@@ -23,25 +20,22 @@ export default function PlannerTabs() {
           <TabTrigger name="plan" asChild><NavButton icon="calendar" label="Plan" /></TabTrigger>
           <TabTrigger name="school" asChild><NavButton icon="school" label="School" /></TabTrigger>
           <TabTrigger name="you" asChild><NavButton icon="user" label="You" /></TabTrigger>
+          <TabTrigger name="add" asChild><NavButton icon="plus" label="Add" /></TabTrigger>
         </View>
       </View>
-      <Press accessibilityRole="button" accessibilityLabel="Add" haptic="tap" onPress={() => router.push('/capture')} scale={0.92}
-        style={[styles.plus, { bottom, backgroundColor: c.inkPrimary }]}>
-        <Icon name="plus" size={24} color={c.onPrimary} strokeWidth={2} />
-      </Press>
       <Toast offset={bottom - insets.bottom + 12} />
       <TabList style={{ display: 'none' }}>
         <TabTrigger name="index" href="/"><Text>Today</Text></TabTrigger>
         <TabTrigger name="plan" href="/plan"><Text>Plan</Text></TabTrigger>
         <TabTrigger name="school" href="/school"><Text>School</Text></TabTrigger>
         <TabTrigger name="you" href="/you"><Text>You</Text></TabTrigger>
+        <TabTrigger name="add" href="/add"><Text>Add</Text></TabTrigger>
       </TabList>
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
-  bar: { position: 'absolute', left: SCREEN_GUTTER, right: SCREEN_GUTTER + 68 },
+  bar: { position: 'absolute', left: SCREEN_GUTTER, right: SCREEN_GUTTER },
   pill: { flexDirection: 'row', padding: 4, borderRadius: 32, borderWidth: 1, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' },
-  plus: { position: 'absolute', right: SCREEN_GUTTER, width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
 });
