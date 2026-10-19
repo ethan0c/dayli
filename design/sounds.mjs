@@ -1,4 +1,4 @@
-// Generates Kivo's UI sounds as small 16-bit mono WAVs, written to both apps.
+// Generates Nowli's UI sounds as small 16-bit mono WAVs, written to both apps.
 // Run from the repo root: node design/sounds.mjs
 //
 // Every cue is a few soft sine partials with a fast attack and an exponential
@@ -22,7 +22,7 @@ const SOUNDS = {
   complete: [note({ freq: 1318.5, dur: 0.12, gain: 0.22, decay: 30 }), note({ at: 0.065, freq: 1975.5, dur: 0.32, gain: 0.26, decay: 12 })],
   // Un-checking: one soft lower note.
   uncomplete: [note({ freq: 987.8, dur: 0.12, gain: 0.16, decay: 34 })],
-  // Kivo finished reading something: a gentle single bell.
+  // Nowli finished reading something: a gentle single bell.
   ready: [note({ freq: 1318.5, dur: 0.4, gain: 0.22, decay: 9, shimmer: 0.2 })],
   // Plans saved, onboarding done, sample loaded: a three-note rising arpeggio.
   success: [

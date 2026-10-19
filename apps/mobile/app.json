@@ -1,14 +1,14 @@
 {
   "expo": {
     "name": "Dayli",
-    "slug": "dayli",
+    "slug": "nowli",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "dayli",
+    "scheme": "nowli",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "app.dayli.mobile",
+      "bundleIdentifier": "app.nowli.mobile",
       "supportsTablet": false,
       "infoPlist": {
         "NSCameraUsageDescription": "Dayli uses the camera to read printed schedules.",
