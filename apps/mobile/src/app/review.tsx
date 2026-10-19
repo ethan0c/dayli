@@ -26,7 +26,10 @@ export default function ReviewScreen() {
   const [drafts, setDrafts] = useState<Draft[]>(() => (pending ? toDrafts(pending.extraction, today) : []));
 
   useEffect(() => {
-    if (!pending) router.back();
+    if (!pending) {
+      if (router.canGoBack()) router.back();
+      else router.replace(useStore.getState().settings.onboarded ? '/plan' : '/onboarding');
+    }
   }, [pending]);
 
   const ex = pending?.extraction;

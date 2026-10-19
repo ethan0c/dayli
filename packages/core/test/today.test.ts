@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from '@dayli/schema';
-import { deadlineReason, deadlineWindow, nowSummary, overdueTasks, startTodaySuggestions, todayItems, tomorrowSummary } from '../src/today';
+import { deadlineReason, deadlineWindow, featuredCommitment, nowSummary, overdueTasks, startTodaySuggestions, todayItems, tomorrowSummary } from '../src/today';
 
 const date = '2026-10-19';
 const now = { date, time: '10:00' };
@@ -46,6 +46,28 @@ describe('the Today work plan', () => {
 });
 
 describe('now and next', () => {
+  it('features a current commitment before a later event and changes at the exact end', () => {
+    const current = event({ id: 'Lecture', end: '10:30' });
+    const next = event({ id: 'Lab', start: '10:30', end: '12:00' });
+    const list = Object.freeze([next, current]);
+    expect(featuredCommitment([...list], now)).toEqual({ item: current, ongoing: true });
+    expect(featuredCommitment([...list], { date, time: '10:30' })).toEqual({ item: next, ongoing: true });
+    expect(list[0]).toBe(next);
+  });
+
+  it('keeps overnight commitments visible and does not feature tasks, all-day, or completed items', () => {
+    const overnight = event({ id: 'Night shift', date: '2026-10-18', start: '22:00', end: '06:00' });
+    expect(featuredCommitment([overnight], { date, time: '02:00' })).toEqual({ item: overnight, ongoing: true });
+    expect(featuredCommitment([item({ id: 'Task', start: '11:00' }), event({ id: 'All day', start: null, end: null }), { ...overnight, done: true }], now)).toBeNull();
+  });
+
+  it('does not invent an ongoing duration when the end is unknown', () => {
+    const unknown = event({ id: 'Unknown end', start: '09:00', end: null });
+    const next = event({ id: 'Next', start: '12:00', end: null });
+    expect(featuredCommitment([unknown, next], now)).toEqual({ item: next, ongoing: false });
+    expect(featuredCommitment([unknown, next], { date, time: '12:00' })).toBeNull();
+  });
+
   it('shows the current event followed by the next fixed event, ignoring tasks', () => {
     const items = [event({ id: 'Lecture', end: '10:50' }), item({ id: 'Essay', start: '11:00' }), event({ id: 'Shift', start: '16:00', end: '22:00' })];
     expect(nowSummary(items, now)).toBe('Lecture until 10:50 am · next: Shift at 4 pm');

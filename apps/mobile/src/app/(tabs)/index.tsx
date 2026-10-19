@@ -1,4 +1,4 @@
-import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, dayNumber, intervalOf, toMinutes, monthDay, nowSummary, overdueTasks, pendingDates, relativeDay, startTodaySuggestions, todayItems, tomorrowSummary, weekdayLong } from '@dayli/core';
+import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, monthDay, nowSummary, overdueTasks, pendingDates, relativeDay, startTodaySuggestions, todayItems, tomorrowSummary, weekdayLong } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
@@ -55,13 +55,9 @@ export default function TodayScreen() {
     .map((item) => ({ item, window: deadlineWindow(items, item, now) }))
     .filter(({ window }) => !window.hasUnknownTimes && window.unbookedHours < 4);
   const hasWarnings = conflicts.length > 0 || tightDeadlines.length > 0;
-  const minute = dayNumber(now.date) * 1440 + toMinutes(now.time);
-  const featured = todays.find((item) => {
-    const interval = item.kind === 'event' && !item.done ? intervalOf(item) : null;
-    return interval && interval.start <= minute && interval.end > minute;
-  }) ?? todays.find((item) => item.kind === 'event' && !item.done && item.date === now.date && item.start && item.start > now.time);
-  const featuredInterval = featured ? intervalOf(featured) : null;
-  const ongoing = !!featuredInterval && featuredInterval.start <= minute;
+  const featuredState = useMemo(() => featuredCommitment(items, now), [items, now]);
+  const featured = featuredState?.item;
+  const ongoing = featuredState?.ongoing ?? false;
   const completed = todays.filter((item) => item.done);
   const openItems = todays.filter((item) => !item.done && item.id !== featured?.id);
   const eventCount = todays.filter((item) => !item.done && item.kind === 'event').length;
@@ -83,9 +79,9 @@ export default function TodayScreen() {
       <ScreenHeader title={`Your ${weekdayLong(now.date)}.`} eyebrow={`${weekdayLong(now.date)}, ${monthDay(now.date)}`} subtitle={`${eventCount} ${eventCount === 1 ? 'event' : 'events'} · ${taskCount} ${taskCount === 1 ? 'to-do' : 'to-dos'}`} safeTop />
 
       {isSample ? (
-        <Pressable accessibilityRole="button" onPress={() => router.push('/settings/data')} style={[styles.note, { backgroundColor: c.accentSoft, borderColor: c.accentBorder }]}>
-          <Icon name="sparkle" size={16} color={c.accentInk} />
-          <T token="caption" color={c.accentInk} style={{ flex: 1 }}>A sample week to explore. Add your own plans with +, or manage the sample in Your data.</T>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/settings/data')} style={styles.note}>
+          <Icon name="sparkle" size={16} color={c.inkSecondary} />
+          <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>Sample week · Manage in Your data</T>
         </Pressable>
       ) : null}
 
@@ -113,7 +109,7 @@ export default function TodayScreen() {
             <Icon name="chevronRight" size={17} color={c.accentInk} />
           </View>
           <T token="title">{featured.title}</T>
-          <T token="caption" color={c.inkSecondary}>{summary}</T>
+          <T token="caption" color={c.inkSecondary}>{[featured.employer, featured.category === 'school' ? 'Coursework' : featured.category === 'work' ? 'Work' : 'Personal'].filter(Boolean).join(' · ')}</T>
           {conflictSet.has(featured.id) ? <T token="caption" color={c.conflict}>Schedule conflict · tap to review</T> : null}
         </Pressable>
       </View> : todays.length ? <View style={styles.head}><T token="callout" color={c.inkSecondary}>{summary}</T></View> : null}
@@ -207,8 +203,10 @@ export default function TodayScreen() {
           {nextWeekPending ? (
             <Pressable accessibilityRole="button" onPress={() => openCapture('', 'image')} style={[styles.up, styles.pending, { borderColor: c.line }]}>
               <Icon name="work" size={18} color={c.inkSecondary} />
-              <T style={{ flex: 1 }} color={c.inkSecondary}>{"Next week's shifts"}</T>
-              <T token="caption" color={c.inkSecondary}>Not added yet</T>
+              <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+                <T color={c.inkSecondary}>{"Next week's shifts"}</T>
+                <T token="caption" color={c.inkSecondary}>Not added yet</T>
+              </View>
             </Pressable>
           ) : null}
         </Section>
@@ -241,17 +239,13 @@ function TextAction({ label, onPress, muted, accessibilityLabel }: { label: stri
 
 const styles = StyleSheet.create({
   head: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 10, paddingBottom: 4, gap: 14 },
-  now: { flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14, borderRadius: 14 },
-  nowDot: { width: 6, height: 6, borderRadius: 3 },
-  headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
-  note: { marginHorizontal: SCREEN_GUTTER, marginTop: 12, padding: 12, borderRadius: radius.row, flexDirection: 'row', gap: 10, alignItems: 'center' },
+  note: { marginHorizontal: SCREEN_GUTTER, marginTop: 8, minHeight: 44, flexDirection: 'row', gap: 8, alignItems: 'center' },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, gap: 4 },
   up: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth },
   featureWrap: { paddingHorizontal: SCREEN_GUTTER, marginTop: 24 },
   feature: { padding: 20, gap: 8 },
   featureTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  pending: { borderWidth: 1, borderStyle: 'dashed' },
+  pending: { borderTopWidth: StyleSheet.hairlineWidth },
   card: { borderRadius: radius.card, padding: 14, gap: 10, flexDirection: 'row', alignItems: 'flex-start' },
   suggestion: { borderRadius: radius.card, paddingHorizontal: 16, paddingTop: 16 },
   suggestionTitle: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, minHeight: 44 },

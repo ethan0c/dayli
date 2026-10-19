@@ -26,8 +26,8 @@ export function overdueTasks(items: Item[], date: string, workDates: WorkDates =
     .sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
 }
 
-/** Includes overnight events from yesterday; tasks and events without known ends never imply "ongoing". */
-export function nowSummary(items: Item[], now: LocalNow): string {
+/** Current intervals and the next timed event share one definition across the UI. */
+function eventsAround(items: Item[], now: LocalNow) {
   const minute = absoluteMinute(now.date, now.time);
   const events = items.filter((item) => item.kind === 'event' && !item.done);
   const current = events.filter((item) => {
@@ -36,6 +36,19 @@ export function nowSummary(items: Item[], now: LocalNow): string {
   }).sort((a, b) => intervalOf(a)!.end - intervalOf(b)!.end);
   const next = events.filter((item) => item.date === now.date && item.start && absoluteMinute(item.date, item.start) > minute)
     .sort((a, b) => a.start!.localeCompare(b.start!))[0];
+  return { current, next };
+}
+
+/** An event can be "Now" only when its end is known, including after midnight. */
+export function featuredCommitment(items: Item[], now: LocalNow): { item: Item; ongoing: boolean } | null {
+  const { current, next } = eventsAround(items, now);
+  if (current[0]) return { item: current[0], ongoing: true };
+  return next ? { item: next, ongoing: false } : null;
+}
+
+/** Includes overnight events from yesterday; tasks and events without known ends never imply "ongoing". */
+export function nowSummary(items: Item[], now: LocalNow): string {
+  const { current, next } = eventsAround(items, now);
   if (current.length) {
     const active = current[0]!;
     const ongoing = `${active.title} until ${formatTime(active.end!, true)}`;

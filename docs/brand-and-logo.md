@@ -1,15 +1,15 @@
 # Semli — Brand & logo plan
 
-Status: draft · October 2026
+Quiet direction · Updated October 19, 2026
 
 ## 1. Brand platform
 
 | | |
 |---|---|
-| **Name** | Semli (always capital D in sentences; lowercase `semli.` in the wordmark) |
-| **Tagline** | Your life, already organized. |
+| **Name** | Semli (capital S in sentences; lowercase `semli.` in the wordmark) |
+| **Tagline** | Your week, already organized. |
 | **Promise** | Send it the mess. Get back a plan. |
-| **Positioning** | The personal assistant that turns scattered information into an organized life. |
+| **Positioning** | The daily planner for students balancing school and work. |
 | **Personality** | Calm · capable · warm · quietly clever. Never hype-y, never corporate, never cutesy. |
 | **Feels like** | A friend who's good with schedules, not a productivity coach. |
 | **Brand idea** | **"The day, already in order."** Every visual element points back to a single day held in a soft circle: the selected day in the week strip, a ring that fills as the day goes, the dot at the end of `semli.` |
@@ -20,19 +20,18 @@ Status: draft · October 2026
 - Reassure without fuss: "Nothing's saved until you confirm."
 - Avoid: exclamation marks in system copy, productivity jargon ("optimize", "crush"), guilt ("You missed 4 tasks").
 
-## 3. Logo: the wordmark is the whole logo
+## 3. Logo and symbol
 
-Decision (Oct 19, 2026): Semli has one logo, the `semli.` wordmark, and it is used everywhere including the app icon, splash, favicon, and social image. There is no separate symbol and no cropped variant. The wordmark is stored as glyph outlines (`packages/tokens/src/wordmark.ts`, generated from Onest SemiBold with −4.5% tracking) so it renders identically in the app, on the web, and in every exported asset.
+Semli uses the existing outlined `semli.` wordmark where there is room, and the two-dot symbol for the app icon, favicon, avatar, and compact account control. Keep the master paths in `packages/tokens/src/wordmark.ts`; switching UI text to Inter does not redraw the logo.
 
 ### 3.1 Wordmark
 Lowercase `semli.` in Urbanist SemiBold, tracked −4.5%. Two lavender (500) circles: the tittle of the i and the closing period, both 0.19 em wide. Today, and what's next.
 
-- Custom pass before launch: shorten the y descender so it sits tight on the baseline, open the a slightly, and round terminals to match the icon stroke. These make the mark ownable against the word "daily".
 - Always lowercase, always with the period. In running text the product is "Semli".
 
 ### 3.2 App icon: the abstract mark (changed Oct 19, 2026)
 
-The app icon, favicon, and avatar use an abstract mark: the wordmark's two dots, enlarged. A large white circle low-left and a small lavender circle high-right on ink ("today, and what's next"). Chosen by the user over a ring, a list, and a day-cell concept. The wordmark stays for everything with room: splash, website header, social image, email. Source: `design/icon-b-dots.svg`; alternates in `design/`. Older text below describes the previous full-wordmark icon.
+The app icon, favicon, and avatar use an abstract mark: the wordmark's two dots, enlarged. A large white circle low-left and a small lavender circle high-right on ink ("today, and what's next"). Chosen by the user over a ring, a list, and a day-cell concept. The wordmark stays for everything with room: splash, website header, social image, email. Source: `design/icon-b-dots.svg`; alternates in `design/`. The larger dot represents today; the smaller dot represents what comes next.
 
 
 ### 3.3 Requirements checked
@@ -42,13 +41,13 @@ The app icon, favicon, and avatar use an abstract mark: the wordmark's two dots,
 4. Echoes the UI: the dot is the selected-day circle and the week-strip dots.
 
 ## 4. Directions considered and set aside
-Five symbol concepts were explored on the brand board (Day Ring, Stacked Day, Note to Plan, Horizon d) before settling on wordmark-only. The Day Ring was the strongest and remains a fallback if a standalone symbol is ever needed for merchandise or a watch face.
+Five symbol concepts were explored on the brand board (Day Ring, Stacked Day, Note to Plan, Horizon d) before choosing the two-dot symbol alongside the wordmark. The Day Ring was the strongest and remains a fallback if a standalone symbol is ever needed for merchandise or a watch face.
 
 ## 5. Lockups and clear space
 | Asset | Spec |
 |---|---|
 | Wordmark | `semli.` as above |
-| Icon | The wordmark on ink, as above |
+| Icon | Two-dot symbol on ink, from `design/icon-b-dots.svg` |
 | Clear space | The wordmark's x-height on all sides |
 | Minimum size | Wordmark 56 px wide; icon 16 px |
 | One-color | All ink or all white, dots included |
@@ -57,8 +56,8 @@ Five symbol concepts were explored on the brand board (Day Ring, Stacked Day, No
 On launch and after an import is confirmed, the period drops in last. Keep it under 400 ms.
 
 ## 7. Color & type in brand use
-- Brand color: lavender-500 `#8A74E6` with ink `#1C1B21` and white. Lavender is an accent; never a full-bleed gradient.
-- Marketing type: Urbanist for everything; display set at 400 weight with tight tracking (like the clock). Optional serif accent for editorial marketing only: Fraunces Soft (italic), sparingly.
+- Product palette: warm white `#FAF9F6`, ink `#222320`, lavender accent `#7057BD`, and lavender wash `#F0ECF8`. Existing logo masters retain their lavender dot color. Use color sparingly and keep large planning surfaces neutral.
+- Type: Inter Regular/Medium for UI and marketing text. Urbanist Regular for large dates and clocks. The outlined wordmark is independent of both text roles. Body text uses normal tracking and comfortable line spacing.
 
 ## 8. Imagery & illustration
 - Product screenshots on soft lavender or near-black stages (as in the reference render).
@@ -71,7 +70,7 @@ On launch and after an import is confirmed, the period drops in last. Keep it un
 |---|---|
 | 0 | Name clearance kicked off (USPTO TESS search, App Store search, domain options: semli.app, getdayli.com, semli.co) |
 | 1 | Concept round: A–E as sketches → pick 2 for refinement (board already covers this) |
-| 2 | Refined Day Ring + custom wordmark; optical corrections; small-size tests |
+| 2 | Existing wordmark + two-dot symbol; optical corrections; small-size tests |
 | 3 | Final logo pack: SVG/PDF masters, PNG exports, lockups, one-color, favicon, app icon layered file |
 | 3 | Mini brand guide (this doc + visuals), App Store screenshot template, social avatar |
 | 4 | Launch animation (Lottie/Rive): arc sweep + dot drop |

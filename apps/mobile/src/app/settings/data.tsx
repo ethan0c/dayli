@@ -53,7 +53,7 @@ export default function DataScreen() {
 
       <Group title="Try things" footer="The sample week is marked so you can clear it later without touching your own plans.">
         <Row icon="sparkle" tint={c.tint.butter.fill} label="Load the sample week" onPress={() => { feedback('success'); loadSample(); }} />
-        <Row icon="undo" tint={c.tint.sky.fill} label="Replay the intro" onPress={() => { feedback('tap'); setSettings({ onboarded: false }); router.dismissAll(); }} last />
+        <Row icon="undo" tint={c.tint.sky.fill} label="Replay the intro" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissAll(); }} last />
       </Group>
 
       <Group title="Danger zone" footer="Everything is stored on this phone. Clearing removes your events, to-dos, courses, schedules, and history. This cannot be undone.">

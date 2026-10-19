@@ -1,10 +1,13 @@
+import Constants from 'expo-constants';
 import { Stack, router } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { FieldRow, Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
 import { feedback } from '@/lib/feedback';
+import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
 import { profileFor } from '@/lib/majors';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
 import { customerCenterEnabled } from '@/lib/revenuecat';
@@ -22,6 +25,11 @@ export default function SettingsHome() {
   const usage = useStore((s) => s.usage);
   const month = new Date().toISOString().slice(0, 7);
   const used = usage.month === month ? usage.imports : 0;
+  const [linkNote, setLinkNote] = useState<string | null>(null);
+  const open = async (url: string, fallback: string) => {
+    feedback('tap');
+    setLinkNote((await openLink(url)) ? null : `We couldn't open that. ${fallback}`);
+  };
 
   return (
     <>
@@ -71,7 +79,7 @@ export default function SettingsHome() {
             icon="heart"
             tint={c.tint.rose.fill}
             label="Semli Plus"
-            value={isPro ? 'Semli Pro' : !customerInfo ? loading ? 'Checking…' : 'Check plan' : `Free · ${used} of ${FREE_IMPORTS_PER_MONTH} imports`}
+            value={isPro ? 'Semli Plus' : !customerInfo ? loading ? 'Checking…' : 'Check plan' : `Free · ${used} of ${FREE_IMPORTS_PER_MONTH} imports`}
             onPress={() => router.push('/settings/plan')}
           />
           <Row
@@ -95,10 +103,17 @@ export default function SettingsHome() {
           <Row icon="clock" tint={c.tint.butter.fill} label="Semli server" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last />
         </Group>
 
+        <Group title="About" footer={linkNote ?? undefined}>
+          <Row icon="heart" tint={c.tint.rose.fill} label="Help and feedback" value={SUPPORT_EMAIL} onPress={() => void open(LINKS.support, 'Email us at ' + SUPPORT_EMAIL + '.')} />
+          <Row icon="sparkle" tint={c.tint.butter.fill} label="Rate Semli" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} />
+          <Row icon="file" tint={c.tint.sky.fill} label="Privacy policy" onPress={() => void open(LINKS.privacy, 'Read it at semli.app/privacy.')} />
+          <Row icon="file" tint={c.tint.lavender.fill} label="Terms of use" onPress={() => void open(LINKS.terms, 'Read it at semli.app/terms.')} last />
+        </Group>
+
         <View style={styles.about}>
           <Wordmark width={88} ink={c.inkPrimary} />
           <T token="caption" color={c.inkSecondary}>
-            Semli 0.1 · The daily planner for college students.
+            Semli {Constants.expoConfig?.version ?? ''} · The daily planner for college students.
           </T>
         </View>
       </ScrollView>

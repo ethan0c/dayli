@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AppState, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { TimeField } from '@/components/Native';
 import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
+import { openSystemSettings } from '@/lib/links';
 import { notificationsAllowed, requestNotifications, sendTestNotification, syncReminders } from '@/lib/notifications';
 import type { ReminderPrefs } from '@/lib/reminder-plan';
 import { useStore } from '@/store';
@@ -20,8 +21,11 @@ export default function RemindersScreen() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [sent, setSent] = useState(false);
 
+  // Re-check when the app comes back, since the user may have changed it in iOS Settings.
   useEffect(() => {
     void notificationsAllowed().then(setAllowed);
+    const sub = AppState.addEventListener('change', (st) => st === 'active' && void notificationsAllowed().then(setAllowed));
+    return () => sub.remove();
   }, []);
 
   const update = (patch: Partial<ReminderPrefs>) => {
@@ -29,13 +33,27 @@ export default function RemindersScreen() {
     track('reminders_changed', { enabled: patch.enabled ?? prefs.enabled, briefing: patch.briefing ?? prefs.briefing });
   };
 
-  const enable = async () => {
+  /** Ask the system if we still can; otherwise send them to iOS Settings, which is the only place left to allow it. */
+  const ensureAllowed = async (): Promise<boolean> => {
     const ok = await requestNotifications();
     setAllowed(ok);
-    if (ok) {
+    if (!ok) void openSystemSettings();
+    return ok;
+  };
+
+  const enable = async () => {
+    if (await ensureAllowed()) {
       update({ enabled: true });
       await syncReminders();
     }
+  };
+
+  const toggle = (key: 'enabled' | 'briefing') => async (on: boolean) => {
+    feedback('select');
+    if (on && !(await ensureAllowed())) return;
+    update({ [key]: on });
+    if (key === 'briefing') track('briefing_changed', { briefing: on });
+    void syncReminders().catch(() => {});
   };
 
   const timeRow = (label: string, key: keyof Pick<ReminderPrefs, 'dayBeforeAt' | 'morningAt' | 'quietStart' | 'quietEnd' | 'briefingAt'>, last = false) => (
@@ -48,13 +66,13 @@ export default function RemindersScreen() {
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
       {allowed === false ? (
-        <Group footer="Semli needs permission to show reminders. Nothing is sent anywhere; they are scheduled on this phone.">
+        <Group footer="Semli needs permission to show reminders. Nothing is sent anywhere; they are scheduled on this phone. If iOS no longer asks, this opens Settings so you can allow it there.">
           <Row icon="bell" tint={c.tint.butter.fill} label="Turn on reminders" onPress={() => void enable()} last />
         </Group>
       ) : null}
 
       <Group title="Before things" footer="Reminders fire before timed events and twice before deadlines: the evening before and the morning of.">
-        <ToggleRow icon="bell" tint={c.tint.butter.fill} label="Reminders" value={prefs.enabled} onChange={(enabled) => { feedback('select'); update({ enabled }); }} />
+        <ToggleRow icon="bell" tint={c.tint.butter.fill} label="Reminders" value={prefs.enabled && allowed !== false} onChange={(on) => void toggle('enabled')(on)} />
         <View style={[styles.row, { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line }]}>
           <T style={{ flex: 1 }}>Before an event</T>
           <View style={[styles.seg, { backgroundColor: c.canvas }]}>
@@ -78,7 +96,7 @@ export default function RemindersScreen() {
       </Group>
 
       <Group title="Daily briefing" footer="One morning note with what's on today and the next deadline. Skipped on days with nothing on.">
-        <ToggleRow icon="sparkle" tint={c.tint.sky.fill} label="Morning briefing" value={prefs.briefing} onChange={(briefing) => { feedback('select'); update({ briefing }); track('briefing_changed', { briefing }); }} />
+        <ToggleRow icon="sparkle" tint={c.tint.sky.fill} label="Morning briefing" value={prefs.briefing && allowed !== false} onChange={(on) => void toggle('briefing')(on)} />
         {timeRow('At', 'briefingAt', true)}
       </Group>
 
@@ -89,8 +107,7 @@ export default function RemindersScreen() {
           label="Send a test reminder"
           onPress={() => {
             feedback('tap');
-            void requestNotifications().then((ok) => {
-              setAllowed(ok);
+            void ensureAllowed().then((ok) => {
               if (ok) {
                 setSent(true);
                 void sendTestNotification();

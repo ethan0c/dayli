@@ -2,6 +2,9 @@ import { Stack } from 'expo-router';
 
 import { mobileFonts, useTheme } from '@/theme';
 
+/** Deep links like /settings/data get the You screen underneath, so the back button always works. */
+export const unstable_settings = { anchor: 'index' };
+
 /** Settings is a native stack inside the modal: headers, back buttons, and transitions come from iOS. */
 export default function SettingsLayout() {
   const { c } = useTheme();

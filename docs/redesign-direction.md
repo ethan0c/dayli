@@ -1,10 +1,10 @@
 # Semli brand and app redesign proposal
 
-Draft for design review · October 19, 2026
+Direction accepted and implementation started · October 19, 2026
 
 Move Semli toward warm white, ink, generous spacing, and open agenda rows. Use lavender for selection and the next relevant item. The product should make a busy school and work week easy to read, with capture always close at hand.
 
-The recommended direction is **Quiet**. **Day brief** is an alternative composition with a larger next-event feature and grouped lists. The interactive exploration lives in `design/explorations/semli-directions.html`. Its dates, courses, and schedules are fictional examples. This proposal describes the next design iteration; the current production tokens and app screens remain the implementation baseline.
+The recommended direction is **Quiet**. **Day brief** is an alternative composition with a larger next-event feature and grouped lists. The interactive exploration lives in `design/explorations/semli-directions.html`. Its dates, courses, and schedules are fictional examples. Quiet is now the implementation direction. The app uses Inter for text and Urbanist for display numerals, custom navigation, open agenda rows, and an Appearance setting to compare Flat and Raised featured cards. See [design-system.md](design-system.md) for the implemented specifications. The original exploration remains a record of the design proposal.
 
 ## Reference interpretation
 
@@ -62,7 +62,7 @@ Aim for roughly 85–90% neutral surfaces in a populated screen. This is an art 
 
 ### Type and geometry
 
-Keep Urbanist for this iteration, using the existing font assets and weights. Compare 16–17 pt body text on a device before replacing the typeface. Use a single strong screen heading, regular row titles, and medium section labels. Large dates belong on the alternative Day brief screen; the clock becomes secondary context in Quiet.
+Use Inter Regular and Medium for readable UI text, with 17/24 pt body text and normal label tracking. Keep Urbanist for large display numerals and the existing outlined wordmark. Use a single strong screen heading, regular row titles, and medium section labels. Large dates belong on the alternative Day brief screen; the clock becomes secondary context in Quiet.
 
 | Element | Proposed size and treatment |
 |---|---|
@@ -78,7 +78,7 @@ Keep Urbanist for this iteration, using the existing font assets and weights. Co
 | Control and inset-surface radius | 12–16 pt |
 | Sheet radius | 28 pt |
 
-Use whitespace and alignment to group ordinary items. Use one surface around the next event when useful. Dividers separate sections or rows in dense views. Shadows are reserved for temporary floating surfaces. Retain native iOS tabs and detached Add behavior; the exploration approximates their layout rather than specifying custom replacement chrome.
+Use whitespace and alignment to group ordinary items. Use one surface around the next event when useful. Dividers separate sections or rows in dense views. Shadows are reserved for temporary floating surfaces. Use the shared custom three-tab pill and detached Add control on iOS and web, preserving the layout from the exploration.
 
 ## App designs
 
