@@ -1,9 +1,9 @@
 /** Shared copy keeps import errors consistent on the website and in the app. */
 export const IMPORT_MESSAGES = {
-  unavailable: "Dayli can't read this right now. Please try again in a few minutes.",
-  busy: 'Dayli is busy right now. Please try again in a minute.',
+  unavailable: "Nowli can't read this right now. Please try again in a few minutes.",
+  busy: 'Nowli is busy right now. Please try again in a minute.',
   timeout: 'This is taking longer than expected. Try again, or send a shorter message or a smaller file.',
-  connection: "We couldn't reach Dayli. Check your internet connection and try again.",
+  connection: "We couldn't reach Nowli. Check your internet connection and try again.",
   request: "We couldn't read what you sent. Try sending your message or file again.",
   tooLarge: 'This file is too large. Choose a file of 20 MB or less, or send just the pages you need.',
   unsupported: 'Choose a PDF or an image in PNG, JPEG, WebP, or GIF format.',

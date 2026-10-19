@@ -33,7 +33,7 @@ export default function SettingsHome() {
         }}
       />
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="automatic">
-        <Group footer="Dayli uses your name in the morning greeting and nowhere else.">
+        <Group footer="Nowli uses your name in the morning greeting and nowhere else.">
           <FieldRow label="Name" value={settings.name} onChange={(name) => setSettings({ name })} placeholder="Your first name" last />
         </Group>
 
@@ -71,13 +71,13 @@ export default function SettingsHome() {
 
         <Group title="Your stuff">
           <Row icon="file" tint={c.tint.sky.fill} label="Your data" value="On this phone" onPress={() => router.push('/settings/data')} />
-          <Row icon="clock" tint={c.tint.butter.fill} label="Dayli server" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last />
+          <Row icon="clock" tint={c.tint.butter.fill} label="Nowli server" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last />
         </Group>
 
         <View style={styles.about}>
           <Wordmark width={88} ink={c.inkPrimary} />
           <T token="caption" color={c.inkSecondary}>
-            Dayli 0.1 · The daily planner for college students.
+            Nowli 0.1 · The daily planner for college students.
           </T>
         </View>
       </ScrollView>

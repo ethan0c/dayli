@@ -4,7 +4,7 @@ import { LEGAL_UPDATED, SUPPORT_EMAIL } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Delete your data',
-  description: 'How to remove everything Dayli has stored, and what that covers.',
+  description: 'How to remove everything Nowli has stored, and what that covers.',
   robots: { index: false, follow: true },
 };
 
@@ -13,13 +13,13 @@ export default function DeleteAccountPage() {
     <main className="page">
       <Prose
         title="Delete your data"
-        lede="Dayli keeps your plan on your device, so deleting it is in your hands. Here is exactly what to do and what it covers."
+        lede="Nowli keeps your plan on your device, so deleting it is in your hands. Here is exactly what to do and what it covers."
         meta={<span>Updated {LEGAL_UPDATED}</span>}
       >
         <section>
           <h2>In the app</h2>
           <ol>
-            <li>Open Dayli and tap the You tab.</li>
+            <li>Open Nowli and tap the You tab.</li>
             <li>Scroll to Data.</li>
             <li>Tap Clear everything.</li>
           </ol>
@@ -32,7 +32,7 @@ export default function DeleteAccountPage() {
         <section>
           <h2>What about our servers?</h2>
           <p>
-            There is nothing to delete there. The current version of Dayli has no accounts, and our server does not store the content you
+            There is nothing to delete there. The current version of Nowli has no accounts, and our server does not store the content you
             send it to be read or the results it sends back. See the <a href="/privacy">Privacy Policy</a> for how reading works.
           </p>
           <p>

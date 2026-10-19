@@ -1,5 +1,5 @@
 {
-  "name": "dayli",
+  "name": "nowli",
   "private": true,
   "workspaces": [
     "apps/*",

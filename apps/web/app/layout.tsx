@@ -9,10 +9,10 @@ const onest = Onest({ subsets: ['latin'], weight: ['400', '500', '600'], variabl
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: `Dayli: ${TAGLINE}`, template: '%s · Dayli' },
+  title: { default: `Nowli: ${TAGLINE}`, template: '%s · Nowli' },
   description: DESCRIPTION,
-  openGraph: { siteName: 'Dayli', type: 'website', locale: 'en_US', url: SITE_URL, title: `Dayli: ${TAGLINE}`, description: DESCRIPTION },
-  twitter: { card: 'summary_large_image', title: `Dayli: ${TAGLINE}`, description: DESCRIPTION },
+  openGraph: { siteName: 'Nowli', type: 'website', locale: 'en_US', url: SITE_URL, title: `Nowli: ${TAGLINE}`, description: DESCRIPTION },
+  twitter: { card: 'summary_large_image', title: `Nowli: ${TAGLINE}`, description: DESCRIPTION },
   robots: { index: true, follow: true },
 };
 

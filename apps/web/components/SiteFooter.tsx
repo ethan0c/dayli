@@ -51,7 +51,7 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="foot-base">
-        <span>© 2026 Dayli</span>
+        <span>© 2026 Nowli</span>
         <span>iPhone and web. No Android for now.</span>
         <SoundToggle />
       </div>

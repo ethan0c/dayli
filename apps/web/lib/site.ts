@@ -4,15 +4,15 @@
  */
 
 export const SITE_URL = 'https://dayli.app';
-export const SITE_NAME = 'Dayli';
+export const SITE_NAME = 'Nowli';
 export const SUPPORT_EMAIL = 'hello@dayli.app';
 
 export const TAGLINE = 'The daily planner for college students.';
 export const DESCRIPTION =
-  'Drop in a syllabus, a work schedule, or a message, and Dayli tells you what matters today.';
+  'Drop in a syllabus, a work schedule, or a message, and Nowli tells you what matters today.';
 
 /**
- * Dayli Plus. Semester is 4 months. Student pricing is on the honor system:
+ * Nowli Plus. Semester is 4 months. Student pricing is on the honor system:
  * nothing is verified; the toggle just says we trust you.
  */
 export type PlanId = 'monthly' | 'semester' | 'yearly';

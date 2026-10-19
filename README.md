@@ -1,6 +1,6 @@
-# Dayli
+# Nowli
 
-The daily planner for college students. Drop in a syllabus, a work schedule, or a message; Dayli reads the dates, shows what changed, and tells you what matters today.
+The daily planner for college students. Drop in a syllabus, a work schedule, or a message; Nowli reads the dates, shows what changed, and tells you what matters today.
 
 Planning docs live in [docs/](docs/README.md).
 

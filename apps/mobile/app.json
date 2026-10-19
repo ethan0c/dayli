@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Dayli",
+    "name": "Nowli",
     "slug": "nowli",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -11,8 +11,8 @@
       "bundleIdentifier": "app.nowli.mobile",
       "supportsTablet": false,
       "infoPlist": {
-        "NSCameraUsageDescription": "Dayli uses the camera to read printed schedules.",
-        "NSPhotoLibraryUsageDescription": "Dayli reads screenshots of schedules and syllabi you choose."
+        "NSCameraUsageDescription": "Nowli uses the camera to read printed schedules.",
+        "NSPhotoLibraryUsageDescription": "Nowli reads screenshots of schedules and syllabi you choose."
       }
     },
     "web": {
@@ -32,8 +32,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Dayli reads screenshots of schedules and syllabi you choose.",
-          "cameraPermission": "Dayli uses the camera to read printed schedules."
+          "photosPermission": "Nowli reads screenshots of schedules and syllabi you choose.",
+          "cameraPermission": "Nowli uses the camera to read printed schedules."
         }
       ],
       [

@@ -1,6 +1,6 @@
-# Dayli — Design system
+# Nowli — Design system
 
-Status: draft · October 2026 · Visual board: [Dayli Brand Board](https://claude.ai/artifact/YCbSnkHstRe3T5HJ4Pt4x6) (private until shared)
+Status: draft · October 2026 · Visual board: [Nowli Brand Board](https://claude.ai/artifact/YCbSnkHstRe3T5HJ4Pt4x6) (private until shared)
 
 ## 1. Principles
 
@@ -13,7 +13,7 @@ Status: draft · October 2026 · Visual board: [Dayli Brand Board](https://claud
 
 ## 2. What we're taking from the reference UI
 
-| Element in reference | Dayli spec |
+| Element in reference | Nowli spec |
 |---|---|
 | Large clock `11:50` top-left, date + weekday right-aligned | `display-xl` clock, tabular numbers; date in `callout` |
 | Week strip, selected day in a white circle | 7 equal columns; selected = surface circle 36 pt; today (if not selected) = lavender dot under number |
@@ -22,7 +22,7 @@ Status: draft · October 2026 · Visual board: [Dayli Brand Board](https://claud
 | Lavender event rows with white time pill | `EventRow` + `TimeChip` |
 | Completed row: struck text, filled black check, faded | `TaskRow[done]`, moves to bottom of list |
 | Dark floating nav pill; active segment light pill | `NavPill` |
-| Round button, `×` when open; menu of "To Do / Event" | `CaptureButton` + `CaptureMenu`; Dayli's menu leads with **Tell Dayli** (text/voice), then Photo, File, To-do, Event |
+| Round button, `×` when open; menu of "To Do / Event" | `CaptureButton` + `CaptureMenu`; Nowli's menu leads with **Tell Nowli** (text/voice), then Photo, File, To-do, Event |
 | Gray scrim over content when menu open | `scrim` token at 40% |
 
 ## 3. Typography
@@ -110,7 +110,7 @@ Six soft fills at the same lightness, each with its own ink: lavender, apricot, 
 
 ## 6. Iconography
 - 24 pt grid, 1.75 pt stroke, rounded caps and joins, outline style (matches reference: book stack, checkbox, calendar, search, pencil, printer, grid).
-- Base set: Phosphor (Regular) or Lucide, tuned to 1.75 stroke; custom icons for Dayli-specific concepts (shift, syllabus, source, pending).
+- Base set: Phosphor (Regular) or Lucide, tuned to 1.75 stroke; custom icons for Nowli-specific concepts (shift, syllabus, source, pending).
 - Rows use the item's category/kind icon at 20 pt in `ink.primary`.
 
 ## 7. Components
@@ -124,11 +124,11 @@ Six soft fills at the same lightness, each with its own ink: lavender, apricot, 
 | `TimeChip` | pill, `subhead`, `bg.surface` at 70% on fill | single time, range "4–10 pm" |
 | `NavPill` | 3 segments, icon + label on active | active segment `bg.surface` pill w/ ink text; inactive icon only in `ink.tertiary`-on-dark |
 | `CaptureButton` | 56 pt circle, `bg.surface`, ink `+` | open → rotates 45° to `×`, scrim fades in |
-| `CaptureMenu` | stacked white pills, right-aligned above button | items: Tell Dayli · Photo · File · To-do · Event |
+| `CaptureMenu` | stacked white pills, right-aligned above button | items: Tell Nowli · Photo · File · To-do · Event |
 | `CaptureSheet` | text field "Add anything…", mic, camera, library, file | idle, recording (waveform), processing (source thumb + shimmer) |
 | `ReviewCard` | kind icon · title · date/time fields · course/employer | confident, needs-input (lavender-100 field + question chip), excluded (toggle off) |
 | `DiffGroup` | header (New/Changed/Removed/Unchanged) + rows | changed rows show old time struck → new time |
-| `SuggestionCard` | lavender-50 card, "Dayli suggests" overline, text, 2 buttons | dismissible |
+| `SuggestionCard` | lavender-50 card, "Nowli suggests" overline, text, 2 buttons | dismissible |
 | `ComingUpRow` | title · relative date ("3 days away") | urgency ink when ≤ 1 day |
 | `CourseCard` | course code overline · title · next deadline · meeting pattern | |
 | `Toast` | dark pill bottom, action "Undo" | auto-dismiss 5 s |

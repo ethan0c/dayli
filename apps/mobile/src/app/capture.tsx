@@ -68,8 +68,8 @@ export default function CaptureScreen() {
       const perm = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
         setError(fromCamera
-          ? 'To take a photo, allow Dayli to use your camera in your device settings. You can also type the details instead.'
-          : 'To choose a screenshot, allow Dayli to access your photos in your device settings. You can also type the details instead.');
+          ? 'To take a photo, allow Nowli to use your camera in your device settings. You can also type the details instead.'
+          : 'To choose a screenshot, allow Nowli to access your photos in your device settings. You can also type the details instead.');
         return;
       }
       const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.85 };
@@ -112,7 +112,7 @@ export default function CaptureScreen() {
   const canSend = text.trim().length > 0 && !busy;
 
   return (
-    <Sheet title="Tell Dayli" subtitle="A message, a screenshot, or a syllabus. Nothing is saved until you confirm.">
+    <Sheet title="Tell Nowli" subtitle="A message, a screenshot, or a syllabus. Nothing is saved until you confirm.">
       <View style={styles.body}>
         <TextInput
           id="capture-text"
@@ -143,7 +143,7 @@ export default function CaptureScreen() {
         ) : null}
       </View>
       <View style={styles.footer}>
-        <Button label="Review what Dayli finds" disabled={!canSend} onPress={() => run({ kind: 'text', text: text.trim() }, 'Message')} />
+        <Button label="Review what Nowli finds" disabled={!canSend} onPress={() => run({ kind: 'text', text: text.trim() }, 'Message')} />
       </View>
     </Sheet>
   );

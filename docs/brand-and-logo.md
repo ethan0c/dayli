@@ -1,4 +1,4 @@
-# Dayli — Brand & logo plan
+# Nowli — Brand & logo plan
 
 Status: draft · October 2026
 
@@ -6,13 +6,13 @@ Status: draft · October 2026
 
 | | |
 |---|---|
-| **Name** | Dayli (always capital D in sentences; lowercase `dayli.` in the wordmark) |
+| **Name** | Nowli (always capital D in sentences; lowercase `nowli.` in the wordmark) |
 | **Tagline** | Your life, already organized. |
 | **Promise** | Send it the mess. Get back a plan. |
 | **Positioning** | The personal assistant that turns scattered information into an organized life. |
 | **Personality** | Calm · capable · warm · quietly clever. Never hype-y, never corporate, never cutesy. |
 | **Feels like** | A friend who's good with schedules, not a productivity coach. |
-| **Brand idea** | **"The day, already in order."** Every visual element points back to a single day held in a soft circle: the selected day in the week strip, a ring that fills as the day goes, the dot at the end of `dayli.` |
+| **Brand idea** | **"The day, already in order."** Every visual element points back to a single day held in a soft circle: the selected day in the week strip, a ring that fills as the day goes, the dot at the end of `nowli.` |
 
 ## 2. Voice
 - Talk like a person: "Got it. 3 shifts added."
@@ -22,13 +22,13 @@ Status: draft · October 2026
 
 ## 3. Logo: the wordmark is the whole logo
 
-Decision (Oct 19, 2026): Dayli has one logo, the `dayli.` wordmark, and it is used everywhere including the app icon, splash, favicon, and social image. There is no separate symbol and no cropped variant. The wordmark is stored as glyph outlines (`packages/tokens/src/wordmark.ts`, generated from Onest SemiBold with −4.5% tracking) so it renders identically in the app, on the web, and in every exported asset.
+Decision (Oct 19, 2026): Nowli has one logo, the `nowli.` wordmark, and it is used everywhere including the app icon, splash, favicon, and social image. There is no separate symbol and no cropped variant. The wordmark is stored as glyph outlines (`packages/tokens/src/wordmark.ts`, generated from Onest SemiBold with −4.5% tracking) so it renders identically in the app, on the web, and in every exported asset.
 
 ### 3.1 Wordmark
-Lowercase `dayli.` in Onest SemiBold, tracked −4.5%. Two lavender (500) circles: the tittle of the i and the closing period, both 0.19 em wide. Today, and what's next.
+Lowercase `nowli.` in Onest SemiBold, tracked −4.5%. Two lavender (500) circles: the tittle of the i and the closing period, both 0.19 em wide. Today, and what's next.
 
 - Custom pass before launch: shorten the y descender so it sits tight on the baseline, open the a slightly, and round terminals to match the icon stroke. These make the mark ownable against the word "daily".
-- Always lowercase, always with the period. In running text the product is "Dayli".
+- Always lowercase, always with the period. In running text the product is "Nowli".
 
 ### 3.2 App icon: the abstract mark (changed Oct 19, 2026)
 
@@ -55,7 +55,7 @@ Five symbol concepts were explored on the brand board (Day Ring, Stacked Day, No
 ## 5. Lockups and clear space
 | Asset | Spec |
 |---|---|
-| Wordmark | `dayli.` as above |
+| Wordmark | `nowli.` as above |
 | Icon | The wordmark on ink, as above |
 | Clear space | The wordmark's x-height on all sides |
 | Minimum size | Wordmark 56 px wide; icon 16 px |
@@ -77,7 +77,7 @@ On launch and after an import is confirmed, the period drops in last. Keep it un
 
 | Week | Deliverable |
 |---|---|
-| 0 | Name clearance kicked off (USPTO TESS search, App Store search, domain options: dayli.app, getdayli.com, dayli.co) |
+| 0 | Name clearance kicked off (USPTO TESS search, App Store search, domain options: nowli.app, getdayli.com, nowli.co) |
 | 1 | Concept round: A–E as sketches → pick 2 for refinement (board already covers this) |
 | 2 | Refined Day Ring + custom wordmark; optical corrections; small-size tests |
 | 3 | Final logo pack: SVG/PDF masters, PNG exports, lockups, one-color, favicon, app icon layered file |
@@ -85,8 +85,8 @@ On launch and after an import is confirmed, the period drops in last. Keep it un
 | 4 | Launch animation (Lottie/Rive): arc sweep + dot drop |
 
 ## 10. Name clearance checklist
-- [ ] USPTO search classes 9 (software) and 42 (SaaS) for "Dayli", "Daily-" phonetic equivalents
-- [ ] App Store + Google Play search for "Dayli" and near-spellings
+- [ ] USPTO search classes 9 (software) and 42 (SaaS) for "Nowli", "Daily-" phonetic equivalents
+- [ ] App Store + Google Play search for "Nowli" and near-spellings
 - [ ] Domain + handles (@dayli / @getdayli / @dayliapp) on Instagram, TikTok, X
-- [ ] Search test: does "dayli app" return us within 3 months of launch? Plan ASO accordingly
+- [ ] Search test: does "nowli app" return us within 3 months of launch? Plan ASO accordingly
 - [ ] Backups ready: Tendi, Orbi, Kivo (from overview), so brand work can switch without redrawing the system (Day Ring adapts to any name starting with a round letter or used as a standalone mark)

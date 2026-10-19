@@ -10,7 +10,7 @@ export interface Plan {
   tag?: string;
 }
 
-/** Dayli Plus prices. Student pricing is on the honor system; nothing is verified. */
+/** Nowli Plus prices. Student pricing is on the honor system; nothing is verified. */
 export const PLANS: Plan[] = [
   { id: 'monthly', name: 'Monthly', period: 'month', months: 1, student: 4.99, regular: 7.99 },
   { id: 'semester', name: 'Semester', period: '4 months', months: 4, student: 14.99, regular: 24.99, tag: 'Most popular' },

@@ -6,7 +6,7 @@ import { NativeToggle } from '@/components/Native';
 import { T } from '@/components/Text';
 import { radius, textStyle, useTheme } from '@/theme';
 
-/** A grouped list in the iOS Settings idiom, drawn with Dayli's tokens. */
+/** A grouped list in the iOS Settings idiom, drawn with Nowli's tokens. */
 export function Group({ title, footer, children }: { title?: string; footer?: string; children: ReactNode }) {
   const { c } = useTheme();
   return (

@@ -1,4 +1,4 @@
-# Dayli — Technical plan
+# Nowli — Technical plan
 
 Status: draft · October 2026
 
@@ -142,8 +142,8 @@ weeks after the latest version's covers_to → render "pending" on Plan
 - Quiet hours respected; batching so a 15-item import doesn't produce 15 notifications.
 
 ## 8. SMS (stretch)
-- One Dayli number; users verify their phone in You → SMS.
-- Inbound text/MMS → source (kind = sms) → pipeline → reply: "Got 3 things: Fri shift 4–10, exam Mon, buy scrubs Wed. Confirm: dayli.app/r/abc" (deep link to review). Optional "YES" reply to confirm when all items are high-confidence.
+- One Nowli number; users verify their phone in You → SMS.
+- Inbound text/MMS → source (kind = sms) → pipeline → reply: "Got 3 things: Fri shift 4–10, exam Mon, buy scrubs Wed. Confirm: nowli.app/r/abc" (deep link to review). Optional "YES" reply to confirm when all items are high-confidence.
 - Requires A2P 10DLC brand + campaign registration (start week 1); STOP/HELP handling; rate limits per user.
 
 ## 9. Privacy & security
@@ -157,7 +157,7 @@ weeks after the latest version's covers_to → render "pending" on Plan
 ## 10. Repo layout (proposed)
 
 ```
-dayli/
+nowli/
   apps/mobile/            Expo app (expo-router)
     app/(tabs)/today|plan|school
     components/           ClockHeader, WeekStrip, TaskRow, EventRow, NavPill, ...

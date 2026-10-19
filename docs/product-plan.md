@@ -1,10 +1,10 @@
-# Dayli — Product plan
+# Nowli — Product plan
 
 Status: draft · October 2026 · Companion to [overview.md](overview.md)
 
 ## 1. North star
 
-> Dayli should never become another responsibility its users have to manage.
+> Nowli should never become another responsibility its users have to manage.
 
 Every scope decision below is tested against one question: **does this reduce the effort it takes a user to get an accurate picture of their week?**
 
@@ -35,7 +35,7 @@ Secondary personas (post-MVP): shift workers without school, working parents, fr
 | Capture | Screenshot/photo-to-add | Work schedules, portal screenshots, flyers |
 | Capture | PDF/document-to-add | Syllabi, course schedules |
 | Capture | Voice-to-add | On-device speech-to-text → same text pipeline (cheap to add) |
-| Capture | Share sheet extension | "Share to Dayli" from Photos/Files/Safari — critical for low effort |
+| Capture | Share sheet extension | "Share to Nowli" from Photos/Files/Safari — critical for low effort |
 | Organize | Today (dashboard) | Today's timeline, coming up, changes, suggestions |
 | Organize | Plan (day/week/month) | The reference screen: week strip + list of tasks & events |
 | Organize | School | Courses, each with meeting times, assignments, exams, source syllabus |
@@ -55,7 +55,7 @@ Study-session suggestions and auto-replanning, Google/Outlook two-way sync, Canv
 
 ## 4. Information architecture
 
-The reference design has a floating dark nav pill (Home · Plan · timer) plus a separate round action button. Dayli keeps that structure and maps the overview's four areas onto it:
+The reference design has a floating dark nav pill (Home · Plan · timer) plus a separate round action button. Nowli keeps that structure and maps the overview's four areas onto it:
 
 ```
 ┌─ Floating nav pill ───────────────────────┐   ┌───┐
@@ -66,7 +66,7 @@ Profile ("You") = avatar in the Today header, not a tab.
 
 | Destination | Purpose | Primary content |
 |---|---|---|
-| **Today** | "What matters right now" | Greeting, today's timeline, Coming up, Changes to review, Dayli suggests |
+| **Today** | "What matters right now" | Greeting, today's timeline, Coming up, Changes to review, Nowli suggests |
 | **Plan** | Browse and manage time | Week strip, day list (reference screen), toggle Day / Week / Month |
 | **School** | Semester structure | Courses → course detail (times, syllabus, assignments, exams) |
 | **Capture (+)** | Get things in | Opens capture sheet: text field, mic, camera, photo library, file |
@@ -111,7 +111,7 @@ Rules: nothing from AI is saved without user confirmation in MVP; relative dates
 
 ### 6.2 New work schedule (diffing)
 1. Import a screenshot of next week's schedule.
-2. Dayli detects it's a work schedule for employer "Olive Garden" covering Oct 27–Nov 2.
+2. Nowli detects it's a work schedule for employer "Olive Garden" covering Oct 27–Nov 2.
 3. It compares against the stored version for overlapping dates and shows:
    - **New** Thu 4–10 PM
    - **Changed** Fri 4–10 → 5–11 PM
@@ -121,7 +121,7 @@ Rules: nothing from AI is saved without user confirmation in MVP; relative dates
 5. Weeks with no published schedule show a hatched **Pending** band on Plan — never "free".
 
 ### 6.3 Syllabus import
-1. Upload PDF → Dayli detects course code, title, instructor, meeting pattern, term dates.
+1. Upload PDF → Nowli detects course code, title, instructor, meeting pattern, term dates.
 2. Proposes a **Course** + N assignments/exams; matches to an existing course if the code matches.
 3. Review grouped by month; confirm.
 
@@ -154,10 +154,10 @@ Rules: nothing from AI is saved without user confirmation in MVP; relative dates
 | Undo rate on imports | < 5% |
 | Imports per active user per week | ≥ 2 |
 | W4 retention (beta) | ≥ 40% |
-| "Would be very disappointed without Dayli" (Sean Ellis) | ≥ 40% |
+| "Would be very disappointed without Nowli" (Sean Ellis) | ≥ 40% |
 
 ## 9. Monetization checkpoints
-Free during beta. Track per-user AI and SMS cost from day one (cost per import, per SMS) so Dayli Plus limits are set from data. Candidate Plus line: higher import limits, SMS assistant, planning suggestions, calendar sync.
+Free during beta. Track per-user AI and SMS cost from day one (cost per import, per SMS) so Nowli Plus limits are set from data. Candidate Plus line: higher import limits, SMS assistant, planning suggestions, calendar sync.
 
 ## 10. Risks & mitigations
 
@@ -165,7 +165,7 @@ Free during beta. Track per-user AI and SMS cost from day one (cost per import, 
 |---|---|
 | AI misreads a date → user misses a shift | Mandatory review step; highlight low-confidence fields; keep source one tap away; eval set gates every prompt change |
 | Duplicate events from repeated imports | Fingerprint matching + schedule versioning (technical-plan §5) |
-| "Dayli" vs. "daily" searchability | Always style as "Dayli" with distinctive wordmark; ASO keywords ("Dayli planner"); pursue clearance before spend |
+| "Nowli" vs. "daily" searchability | Always style as "Nowli" with distinctive wordmark; ASO keywords ("Nowli planner"); pursue clearance before spend |
 | SMS registration delays / cost | Treat as stretch; in-app + share sheet cover the same job |
 | Users don't come back after setup | Daily briefing, schedule-change pings, weekly "next week" prompt on Sundays |
 | Privacy concerns (screenshots of personal info) | Clear data policy; delete-source option; no training on user data; encryption at rest |

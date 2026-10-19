@@ -4,7 +4,7 @@ import { PlanCards } from './PlanCards';
 
 export const metadata: Metadata = {
   title: 'Pricing',
-  description: `Dayli is free with ${FREE_IMPORTS_PER_MONTH} AI imports a month. Dayli Plus is unlimited imports for students at ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} a semester, or ${money(plan('yearly').student)} a year.`,
+  description: `Nowli is free with ${FREE_IMPORTS_PER_MONTH} AI imports a month. Nowli Plus is unlimited imports for students at ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} a semester, or ${money(plan('yearly').student)} a year.`,
   alternates: { canonical: '/pricing' },
 };
 
@@ -27,7 +27,7 @@ const FAQS = [
   },
   {
     q: 'What counts as an import?',
-    a: 'One message, one screenshot, or one PDF sent to Dayli to read. A ten-page syllabus is one import. Adding something by hand is never an import.',
+    a: 'One message, one screenshot, or one PDF sent to Nowli to read. A ten-page syllabus is one import. Adding something by hand is never an import.',
   },
   {
     q: 'How does student pricing work?',
@@ -73,7 +73,7 @@ export default function PricingPage() {
       <header className="page-head">
         <h1>Start free. Get more room with Plus.</h1>
         <p className="lede">
-          Use Dayli free for as long as you like. Plus removes the import limit, so every syllabus and every new work schedule goes
+          Use Nowli free for as long as you like. Plus removes the import limit, so every syllabus and every new work schedule goes
           straight in.
         </p>
       </header>
