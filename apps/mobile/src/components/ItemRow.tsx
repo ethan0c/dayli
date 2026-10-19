@@ -1,9 +1,12 @@
 import { formatRange, formatTime } from '@dayli/core';
 import type { Item } from '@dayli/schema';
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
+import { springs } from '@/lib/motion';
 import { useStore } from '@/store';
 import { useTheme } from '@/theme';
 
@@ -35,11 +38,29 @@ export function ItemRow({ item, conflict, planned, onPress, onToggle }: Props) {
       {!isEvent ? <Pressable onPress={onToggle} disabled={!onToggle} accessibilityRole="checkbox"
         accessibilityLabel={`${item.done ? 'Mark incomplete' : 'Complete'}: ${item.title}`} accessibilityState={{ checked: item.done }}
         style={styles.checkTarget}>
-        <View style={[styles.circle, { backgroundColor: item.done ? c.inkPrimary : 'transparent', borderColor: item.done ? c.inkPrimary : c.controlOutline }]}>
-          {item.done ? <Icon name="tick" size={13} color={c.onPrimary} strokeWidth={2.5} /> : null}
-        </View>
+        <Check done={item.done} />
       </Pressable> : null}
     </View>
+  );
+}
+
+/** The completion circle fills and pops; the tick grows out of its centre. Driven by `done`, so undo plays it backwards. */
+function Check({ done }: { done: boolean }) {
+  const { c } = useTheme();
+  const p = useSharedValue(done ? 1 : 0);
+  useEffect(() => {
+    p.value = withSpring(done ? 1 : 0, springs.snappy);
+  }, [done, p]);
+  const ring = useAnimatedStyle(() => ({ transform: [{ scale: 1 + Math.max(0, 0.7 * p.value * (1 - p.value)) }] }));
+  const fill = useAnimatedStyle(() => ({ opacity: Math.min(1, p.value), transform: [{ scale: 0.4 + 0.6 * p.value }] }));
+  const tick = useAnimatedStyle(() => ({ opacity: Math.min(1, p.value), transform: [{ scale: Math.max(0, p.value) }] }));
+  return (
+    <Animated.View style={[styles.circle, { borderColor: done ? c.inkPrimary : c.controlOutline }, ring]}>
+      <Animated.View style={[StyleSheet.absoluteFill, styles.fill, { backgroundColor: c.inkPrimary }, fill]} />
+      <Animated.View style={tick}>
+        <Icon name="tick" size={13} color={c.onPrimary} strokeWidth={2.5} />
+      </Animated.View>
+    </Animated.View>
   );
 }
 
@@ -49,6 +70,7 @@ const styles = StyleSheet.create({
   time: { width: 54, paddingTop: 2 },
   title: { flex: 1, minWidth: 0, gap: 4 },
   checkTarget: { width: 44, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
-  circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  fill: { borderRadius: 11 },
   warning: { flexDirection: 'row', alignItems: 'center', gap: 5 },
 });

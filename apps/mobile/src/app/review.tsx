@@ -1,6 +1,6 @@
 import { isLocalDate, localParts, monthDay, planCommit, toDrafts, weekdayLong, type Draft } from '@dayli/core';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
@@ -22,14 +22,14 @@ export default function ReviewScreen() {
   const courses = useCourseList();
   const existing = useItemList();
   const today = localParts(new Date()).date;
+  const leaving = useRef(false);
 
   const [drafts, setDrafts] = useState<Draft[]>(() => (pending ? toDrafts(pending.extraction, today) : []));
 
   useEffect(() => {
-    if (!pending) {
-      if (router.canGoBack()) router.back();
-      else router.replace(useStore.getState().settings.onboarded ? '/plan' : '/onboarding');
-    }
+    // Missing transient review data can follow a cold link or a development reload.
+    // Explicit close/confirm handlers own their navigation; do not navigate twice.
+    if (!pending && !leaving.current) router.replace(useStore.getState().settings.onboarded ? '/plan' : '/onboarding');
   }, [pending]);
 
   const ex = pending?.extraction;
@@ -75,6 +75,7 @@ export default function ReviewScreen() {
     setDrafts((ds) => ds.map((d) => (d.key === key ? { ...d, ...patch, needsInput: false } : d)));
 
   const confirm = () => {
+    leaving.current = true;
     const label = plan.schedule
       ? `Updated ${plan.schedule.employer} schedule`
       : `Added ${plan.create.length} ${plan.create.length === 1 ? 'item' : 'items'}`;
@@ -95,9 +96,9 @@ export default function ReviewScreen() {
     const { settings, setSettings } = useStore.getState();
     setPending(null);
     if (!settings.onboarded) {
-      // First import during onboarding: the cleared `pending` closes this sheet (effect above) and the
-      // onboarding screen continues to the heads-up. The reminders ask happens there, with priming.
       setSettings({ onboardingImportDone: true });
+      if (router.canGoBack()) router.back();
+      else router.replace('/onboarding');
       return;
     }
     if (!settings.remindersAsked) {
@@ -120,8 +121,10 @@ export default function ReviewScreen() {
       title={typeLabel}
       subtitle={`From ${pending.source.toLowerCase() === 'message' ? 'your message' : pending.source}`}
       onClose={() => {
+        leaving.current = true;
         setPending(null);
-        router.back();
+        if (router.canGoBack()) router.back();
+        else router.replace(useStore.getState().settings.onboarded ? '/plan' : '/onboarding');
       }}
       footer={
         <>

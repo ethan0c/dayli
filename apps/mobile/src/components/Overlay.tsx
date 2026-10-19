@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Icon } from '@/components/Icon';
 import { AddMenu } from '@/components/AddMenu';
+import { Icon } from '@/components/Icon';
+import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
-import { feedback } from '@/lib/feedback';
+import { enter, exit } from '@/lib/motion';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -17,6 +19,7 @@ export function CaptureFab({ offset }: { offset: number }) {
   return <AddMenu bottom={insets.bottom + offset} />;
 }
 
+/** Rises from the tab bar on a spring, sinks away on its own or when undone. */
 export function Toast({ offset }: { offset: number }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
@@ -30,22 +33,19 @@ export function Toast({ offset }: { offset: number }) {
   }, [toast, hide]);
   if (!toast) return null;
   return (
-    <View style={[styles.toast, { bottom: insets.bottom + offset + 64, backgroundColor: c.nav }]}>
+    <Animated.View entering={enter.rise} exiting={exit.sink} style={[styles.toast, { bottom: insets.bottom + offset + 64, backgroundColor: c.nav }]}>
       <T token="subhead" color={c.onNav} style={{ flex: 1 }} numberOfLines={2}>
         {toast.message}
       </T>
       {toast.batchId ? (
-        <Pressable onPress={() => {
-            feedback('undo');
-            undo(toast.batchId!);
-          }} hitSlop={8} style={styles.undo}>
+        <Press haptic="undo" onPress={() => undo(toast.batchId!)} hitSlop={8} style={styles.undo} scale={0.94}>
           <Icon name="undo" size={14} color={c.onNav} />
           <T token="subhead" color={c.onNav}>
             Undo
           </T>
-        </Pressable>
+        </Press>
       ) : null}
-    </View>
+    </Animated.View>
   );
 }
 
