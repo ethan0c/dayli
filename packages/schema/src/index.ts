@@ -1,0 +1,135 @@
+import { z } from 'zod';
+
+/** YYYY-MM-DD in the user's local calendar. */
+export const LocalDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+/** HH:mm, 24-hour, in the user's local time. */
+export const LocalTime = z.string().regex(/^\d{2}:\d{2}$/);
+
+export const Category = z.enum(['school', 'work', 'personal']);
+export type Category = z.infer<typeof Category>;
+
+export const Weekday = z.enum(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
+export type Weekday = z.infer<typeof Weekday>;
+
+export const IconName = z.enum([
+  'calendar',
+  'book',
+  'check',
+  'work',
+  'bag',
+  'pen',
+  'school',
+  'exam',
+  'heart',
+]);
+export type IconName = z.infer<typeof IconName>;
+
+// ---------------------------------------------------------------------------
+// What the model returns. Kept flat and nullable (no optional keys, no numeric
+// bounds) so it maps cleanly onto structured outputs.
+// ---------------------------------------------------------------------------
+
+export const ExtractedItem = z.object({
+  kind: z.enum(['event', 'task']),
+  title: z.string(),
+  category: Category,
+  date: z.string().nullable().describe('YYYY-MM-DD; null if no date could be determined'),
+  start: z.string().nullable().describe('HH:mm 24h start time for events; due time for tasks; null if none'),
+  end: z.string().nullable().describe('HH:mm 24h end time; null if none'),
+  is_deadline: z.boolean().describe('true for exams, due dates, and submissions'),
+  repeat_weekdays: z.array(Weekday).describe('weekdays a class or recurring event meets; empty if it does not repeat'),
+  repeat_until: z.string().nullable().describe('YYYY-MM-DD last date of a repeating item; null if unknown'),
+  course_code: z.string().nullable(),
+  evidence: z.string().describe('the exact text this item was read from'),
+  confidence: z.number().describe('0 to 1'),
+  question: z.string().nullable().describe('a short question for the user when something is ambiguous; otherwise null'),
+});
+export type ExtractedItem = z.infer<typeof ExtractedItem>;
+
+export const Extraction = z.object({
+  detected_type: z.enum(['general', 'work_schedule', 'syllabus', 'course_schedule']),
+  employer: z.string().nullable(),
+  course: z
+    .object({ code: z.string().nullable(), title: z.string(), instructor: z.string().nullable() })
+    .nullable(),
+  covers_from: z.string().nullable().describe('YYYY-MM-DD first day a work schedule covers'),
+  covers_to: z.string().nullable().describe('YYYY-MM-DD last day a work schedule covers'),
+  items: z.array(ExtractedItem),
+});
+export type Extraction = z.infer<typeof Extraction>;
+
+// ---------------------------------------------------------------------------
+// Stored records
+// ---------------------------------------------------------------------------
+
+export const Item = z.object({
+  id: z.string(),
+  kind: z.enum(['event', 'task']),
+  title: z.string(),
+  category: Category,
+  icon: IconName,
+  date: LocalDate,
+  start: LocalTime.nullable(),
+  end: LocalTime.nullable(),
+  isDeadline: z.boolean(),
+  done: z.boolean(),
+  completedAt: z.string().nullable(),
+  courseId: z.string().nullable(),
+  employer: z.string().nullable(),
+  sourceId: z.string().nullable(),
+  batchId: z.string().nullable(),
+  notes: z.string().nullable(),
+  createdAt: z.string(),
+});
+export type Item = z.infer<typeof Item>;
+
+export const Course = z.object({
+  id: z.string(),
+  code: z.string().nullable(),
+  title: z.string(),
+  instructor: z.string().nullable(),
+  sourceId: z.string().nullable(),
+});
+export type Course = z.infer<typeof Course>;
+
+export const ScheduleVersion = z.object({
+  id: z.string(),
+  employer: z.string(),
+  coversFrom: LocalDate,
+  coversTo: LocalDate,
+  sourceId: z.string().nullable(),
+  createdAt: z.string(),
+});
+export type ScheduleVersion = z.infer<typeof ScheduleVersion>;
+
+// ---------------------------------------------------------------------------
+// API contract between the app and /api/extract
+// ---------------------------------------------------------------------------
+
+export const ExtractContext = z.object({
+  today: LocalDate,
+  timezone: z.string(),
+  courses: z.array(z.object({ code: z.string().nullable(), title: z.string() })),
+  employers: z.array(z.string()),
+});
+export type ExtractContext = z.infer<typeof ExtractContext>;
+
+export const ExtractRequest = z.object({
+  input: z.discriminatedUnion('kind', [
+    z.object({ kind: z.literal('text'), text: z.string().min(1).max(20_000) }),
+    z.object({
+      kind: z.literal('image'),
+      mediaType: z.enum(['image/png', 'image/jpeg', 'image/webp', 'image/gif']),
+      data: z.string(),
+    }),
+    z.object({ kind: z.literal('pdf'), data: z.string() }),
+  ]),
+  context: ExtractContext,
+});
+export type ExtractRequest = z.infer<typeof ExtractRequest>;
+
+export const ExtractResponse = z.discriminatedUnion('ok', [
+  z.object({ ok: z.literal(true), extraction: Extraction }),
+  z.object({ ok: z.literal(false), error: z.string() }),
+]);
+export type ExtractResponse = z.infer<typeof ExtractResponse>;

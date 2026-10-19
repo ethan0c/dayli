@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Dayli",
+    "slug": "dayli",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "dayli",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "app.dayli.mobile",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Dayli uses the camera to read printed schedules.",
+        "NSPhotoLibraryUsageDescription": "Dayli reads screenshots of schedules and syllabi you choose."
+      }
+    },
+    "android": {
+      "package": "app.dayli.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#1C1B21",
+        "foregroundImage": "./assets/images/icon.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "server",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#1C1B21",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 120
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Dayli reads screenshots of schedules and syllabi you choose.",
+          "cameraPermission": "Dayli uses the camera to read printed schedules."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@dayli/extract",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "@dayli/schema": "*",
+    "zod": "^4.1.0"
+  }
+}
