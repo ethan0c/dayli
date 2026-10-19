@@ -94,7 +94,7 @@ Events tint by category; tasks stay neutral. Keep each fill at the same lightnes
 ### 4.5 Tints (added Oct 19, 2026)
 Six soft fills at the same lightness, each with its own ink: lavender, apricot, mint, sky, butter, rose (`packages/tokens` → `tint`). Rules:
 - Work events are apricot, personal events mint. School events take **their course's tint**, assigned in order lavender → sky → rose → butter → mint → apricot as courses are added, so a week never reads as one color.
-- The Today header follows the time of day: butter before noon, sky until 5 pm, lavender in the evening. Both light and dark palettes carry all six.
+- Tab headers use a shared compact, neutral layout with consistent safe-area spacing, profile control, and quiet Pro action. Time-of-day greetings stay in the Today content instead of a large tinted header. Both light and dark palettes carry all six tints for events and context.
 - Tasks stay neutral (gray row, check circle) so events still stand out.
 - Loading states use the lavender/apricot/mint dots (see `Reading`).
 

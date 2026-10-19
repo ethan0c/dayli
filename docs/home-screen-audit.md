@@ -71,3 +71,12 @@ Two changes worth making on the site: show the **Today** screen with a now line 
 2. Empty state as the capture card.
 3. Start today with reasons, then reuse the computation in Coming up. Decide whether to add `weight` to the extraction schema after the eval set exists (MVP P0 #1), since it changes the prompt.
 4. Site hero swap and the two-line strip, after #3 so the screenshot is real.
+
+## Implementation notes · Oct 19, 2026
+
+- Today now has current/next event context, collapsed overdue tasks, an inline capture card, up to two explained recommendations, and an evening tomorrow preview.
+- “Work on today” stores a separate task work date. Source dates and due times are preserved; unfinished work returns to Still open after its chosen work day. “Not today” dismisses only that day's recommendation.
+- Recommendations use due-date proximity and booked work, with calendar gap estimates limited to 7 am–11 pm in the three days before a deadline. Incomplete times suppress availability claims. No effort, grade-weight, or importance inference is implied.
+- Following the Helthy app comparison, the three tabs share compact header controls. Today and School own their top safe-area spacing explicitly so they align with Plan. Large greeting panels have been replaced by a smaller greeting and context row.
+- The Semli Pro paywall uses one selected-price card and a docked purchase footer. Brand colors and Onest remain Semli's; no reference gradients, streaks, or social controls were copied.
+- Core behavior has tests covering deadline preservation, date rollover, overnight shifts, overlapping bookings, recommendations, and evening previews. The site hero swap remains separate work.

@@ -7,7 +7,7 @@ import { T } from '@/components/Text';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
-/** One header rhythm across the three tabs. Native scroll screens already receive iOS's top inset. */
+/** One header rhythm across the tabs. safeTop owns the inset when automatic native insets are disabled. */
 export function ScreenHeader({ title, subtitle, safeTop = false }: { title: string; subtitle?: string; safeTop?: boolean }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();

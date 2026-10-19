@@ -156,7 +156,7 @@ The provider registers and cleans up a CustomerInfo listener, refreshes on foreg
 
 ## 5. Present the hosted RevenueCat Paywall
 
-The custom Semli screen includes “View offers in the store paywall.” Its provider method presents the native RevenueCat UI:
+The provider exposes the native RevenueCat Paywall for feature gates; Capture uses it when the free import allowance is exhausted. The branded Settings paywall uses SDK packages directly and keeps checkout docked below the scrollable content:
 
 ```tsx
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';

@@ -11,7 +11,7 @@ import { SCREEN_GUTTER, radius, useTheme } from '@/theme';
 
 export default function PlanScreen() {
   const { c } = useTheme();
-  const { customerInfo, isPro, loading } = usePurchases();
+  const { customerInfo, isPro } = usePurchases();
   const usage = useStore((s) => s.usage);
   const month = new Date().toISOString().slice(0, 7);
   const used = usage.month === month ? usage.imports : 0;
@@ -25,23 +25,22 @@ export default function PlanScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
+      <Stack.Screen options={{ headerShown: true }} />
       <View style={[styles.status, { backgroundColor: c.tint.mint.fill }]}>
         <T token="overline" color={c.tint.mint.ink}>
-          {isPro ? 'Semli Pro' : !customerInfo && loading ? 'Checking your plan…' : !customerInfo ? 'Plan not checked' : 'Free plan'}
+          Semli Pro
         </T>
         <T token="display" color={c.tint.mint.ink}>
-          {isPro ? 'Unlimited imports' : `${left} ${left === 1 ? 'import' : 'imports'} left`}
+          Unlimited imports
         </T>
         <T token="callout" color={c.tint.mint.ink}>
-          {isPro
-            ? entitlement?.expirationDate
+          {entitlement?.expirationDate
               ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}.`
-              : 'Lifetime access. No recurring payments.'
-            : `${used} of ${FREE_IMPORTS_PER_MONTH} used this month. Reminders, the calendar, and to-dos are always free.`}
+              : 'Lifetime access. No recurring payments.'}
         </T>
       </View>
 
-      {isPro ? <PlanPicker /> : null}
+      <PlanPicker />
 
       <T token="caption" color={c.inkSecondary}>
         Monthly and yearly plans renew automatically unless canceled in your store account. Lifetime is a one-time purchase. Prices and any eligible offers are shown before you confirm.

@@ -10,7 +10,7 @@ import { Wordmark } from '@/components/Wordmark';
 import { feedback } from '@/lib/feedback';
 import { customerCenterEnabled, hasSemliPro, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
-import { SCREEN_GUTTER, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 /** A compact, price-led paywall. The docked variant keeps checkout visible on small screens. */
 export function PlanPicker({ hero = false, docked = false, freeImportsLeft }: { hero?: boolean; docked?: boolean; freeImportsLeft?: number }) {
