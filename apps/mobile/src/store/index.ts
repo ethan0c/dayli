@@ -29,10 +29,17 @@ export interface Pending {
   source: string;
 }
 
+export type PlanId = 'monthly' | 'semester' | 'yearly';
+
 interface Settings {
   name: string;
   apiUrl: string;
   seeded: boolean;
+  onboarded: boolean;
+  /** Honor system: we never verify student status. */
+  isStudent: boolean;
+  planIntent: PlanId | null;
+  weekKinds: string[];
 }
 
 interface State {
@@ -75,7 +82,7 @@ export const useStore = create<State>()(
       batches: [],
       pending: null,
       toast: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [] },
 
       setHydrated: () => set({ hydrated: true }),
       setPending: (pending) => set({ pending }),
@@ -194,6 +201,10 @@ export const useStore = create<State>()(
       name: 'dayli',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (s) => ({ items: s.items, courses: s.courses, schedules: s.schedules, batches: s.batches, settings: s.settings }),
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<State>;
+        return { ...current, ...p, settings: { ...current.settings, ...(p.settings ?? {}) } };
+      },
       onRehydrateStorage: () => (state) => state?.setHydrated(),
     },
   ),

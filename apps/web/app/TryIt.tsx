@@ -32,11 +32,12 @@ export function TryIt() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ extraction: Extraction; drafts: Draft[] } | null>(null);
-  const today = localParts(new Date()).date;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    // Read the clock here, not during render: the page is prerendered.
+    const today = localParts(new Date()).date;
     let input: ExtractRequest['input'];
     if (file) {
       if (file.size > 20 * 1024 * 1024) {

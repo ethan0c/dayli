@@ -1,0 +1,197 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Prose } from '@/components/Prose';
+import { LEGAL_EFFECTIVE, LEGAL_UPDATED, SUPPORT_EMAIL, TRIAL_DAYS } from '@/lib/site';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'The terms that govern your use of the Dayli app and website.',
+  alternates: { canonical: '/terms' },
+};
+
+export default function TermsPage() {
+  return (
+    <main className="page">
+      <Prose
+        title="Terms of Service"
+        lede="Plain terms for a planner. The short version: use Dayli for your own schedule, pay for Plus if you want it, and we'll do our best to read your dates right, with no promise of perfection."
+        meta={
+          <>
+            <span>Effective {LEGAL_EFFECTIVE}</span>
+            <span>Updated {LEGAL_UPDATED}</span>
+          </>
+        }
+      >
+        <section>
+          <h2>1. Agreement</h2>
+          <p>
+            These Terms of Service (&ldquo;Terms&rdquo;) are between you and Dayli (&ldquo;Dayli&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;). They cover the Dayli
+            iPhone app, the Dayli web app, this website, and the services behind them (together, the &ldquo;Service&rdquo;). By using the
+            Service you agree to these Terms. If you don&apos;t agree, don&apos;t use the Service.
+          </p>
+          <p>
+            We may change these Terms. If a change matters, we&apos;ll tell you in the app or by email before it takes effect. Using the
+            Service after that means you accept the change.
+          </p>
+        </section>
+
+        <section>
+          <h2>2. What Dayli does</h2>
+          <p>Dayli is a daily planner. You can:</p>
+          <ul>
+            <li>Keep a calendar and a list of tasks, and see what matters today.</li>
+            <li>Send Dayli a message, a screenshot, or a document (such as a syllabus or a work schedule) and have it read the dates, times, and tasks out of it.</li>
+            <li>Review what it found, fix anything, and confirm it. Nothing is added until you confirm.</li>
+            <li>Compare a new work schedule with the old one and see what changed.</li>
+            <li>Get reminders for the things you&apos;ve added.</li>
+          </ul>
+          <p>
+            Reading your documents is done by an AI model. It is good, not perfect. It can miss a date, misread a time, or get a day
+            wrong. The review step exists so you can catch that. You are responsible for checking what Dayli adds before you rely on it.
+          </p>
+        </section>
+
+        <section>
+          <h2>3. Who can use Dayli</h2>
+          <p>
+            You must be at least 13 years old. If you are under 18, you need a parent or guardian&apos;s permission. You may use the
+            Service only for your own schedule, or for someone who has asked you to manage theirs.
+          </p>
+        </section>
+
+        <section>
+          <h2>4. Your content</h2>
+          <p>
+            Everything you send to Dayli stays yours: your messages, screenshots, documents, and the calendar that comes out of them. You
+            give us permission to process that content only as needed to run the Service for you, as described in our{' '}
+            <Link href="/privacy">Privacy Policy</Link>.
+          </p>
+          <p>
+            Only send content you have the right to share. Don&apos;t upload other people&apos;s private information, and don&apos;t use Dayli
+            to store anything unlawful.
+          </p>
+        </section>
+
+        <section>
+          <h2>5. Accounts</h2>
+          <p>
+            The current version of Dayli keeps your data on your device and does not require an account. When accounts and sync arrive,
+            you will be responsible for keeping your sign-in private and for what happens under your account. Tell us at{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> if you think someone else is using it.
+          </p>
+        </section>
+
+        <section>
+          <h2>6. Free plan and Dayli Plus</h2>
+          <h3>6.1 Free</h3>
+          <p>
+            The free plan has no time limit and needs no payment details. It includes a limited number of AI imports per month. We may
+            change what the free plan includes, and we&apos;ll give notice before any material reduction.
+          </p>
+          <h3>6.2 Plus</h3>
+          <p>
+            Dayli Plus is a paid subscription. The current prices and plans (monthly, semester, yearly) are shown on our{' '}
+            <Link href="/pricing">pricing page</Link> and in the app. Prices are in US dollars and may differ by region.
+          </p>
+          <h3>6.3 Where you buy it</h3>
+          <ul>
+            <li>
+              <strong>On iPhone:</strong> Plus is sold through Apple&apos;s App Store as an in-app purchase. Apple handles the payment under the{' '}
+              <a href="https://www.apple.com/legal/internet-services/itunes/us/terms.html" target="_blank" rel="noopener noreferrer">
+                Apple Media Services Terms
+              </a>
+              . Manage or cancel in your iPhone&apos;s Settings, under your name, then Subscriptions.
+            </li>
+            <li>
+              <strong>On the web:</strong> Plus is sold through our payment processor. We never see or store your card number. Manage or
+              cancel with the link in your receipt email, or by writing to us.
+            </li>
+          </ul>
+          <h3>6.4 Trials and renewals</h3>
+          <p>
+            Plus plans start with a {TRIAL_DAYS}-day free trial unless we say otherwise. If you don&apos;t cancel before the trial ends, the
+            plan starts and you are charged. Subscriptions renew automatically at the end of each period until you cancel. Cancelling
+            stops the next charge; you keep Plus until the current period ends.
+          </p>
+          <h3>6.5 Refunds</h3>
+          <p>
+            App Store purchases follow Apple&apos;s refund rules; request one through Apple. For web purchases, email us within 14 days of a
+            charge and we&apos;ll refund it. Beyond that, refunds are at our discretion.
+          </p>
+          <h3>6.6 Price changes</h3>
+          <p>We may change Plus prices. We&apos;ll tell you at least 30 days before a change affects an existing subscription.</p>
+        </section>
+
+        <section>
+          <h2>7. Acceptable use</h2>
+          <p>Don&apos;t:</p>
+          <ul>
+            <li>Break, overload, or probe the Service, or try to get around import limits.</li>
+            <li>Use automated tools to send content to Dayli in bulk, or resell access to the Service.</li>
+            <li>Reverse engineer the app, except where the law allows it.</li>
+            <li>Use the Service to harass anyone, or to process content you have no right to process.</li>
+          </ul>
+          <p>We may suspend or end access that breaks these rules.</p>
+        </section>
+
+        <section>
+          <h2>8. Our rights</h2>
+          <p>
+            The Dayli app, website, name, wordmark, and design are ours. These Terms give you a personal, non-transferable license to use
+            the app on devices you own. Nothing here transfers any of our intellectual property to you.
+          </p>
+        </section>
+
+        <section>
+          <h2>9. Third-party services</h2>
+          <p>
+            Dayli uses third-party services to work, including an AI provider to read your content, hosting providers, Apple&apos;s App
+            Store, and a payment processor. Those services have their own terms. We are not responsible for them, and we don&apos;t control
+            schools, employers, or scheduling systems whose documents you send us.
+          </p>
+        </section>
+
+        <section>
+          <h2>10. No warranty</h2>
+          <p>
+            The Service is provided &ldquo;as is&rdquo; and &ldquo;as available&rdquo;. We don&apos;t promise it will be error-free, uninterrupted, or
+            that every date it reads will be right. To the fullest extent the law allows, we disclaim all warranties, express or implied.
+          </p>
+        </section>
+
+        <section>
+          <h2>11. Limitation of liability</h2>
+          <p>
+            Dayli is a planning tool, not a guarantee. To the fullest extent the law allows, we are not liable for a missed deadline, a
+            missed shift, a missed exam, or any indirect, incidental, special, or consequential damages arising from the Service. Our total
+            liability for any claim is limited to the amount you paid us in the 12 months before the claim, or $50 if you paid nothing.
+          </p>
+        </section>
+
+        <section>
+          <h2>12. Ending things</h2>
+          <p>
+            You can stop using Dayli at any time. See <Link href="/delete-account">Delete your data</Link> for how to remove what&apos;s
+            stored. We may suspend or end your access if you break these Terms. Sections 4, 8, 10, 11, and 13 survive.
+          </p>
+        </section>
+
+        <section>
+          <h2>13. Disputes</h2>
+          <p>
+            These Terms are governed by the laws of the United States and the state where Dayli is based, without regard to conflict-of-law
+            rules. If something goes wrong, write to us first; most problems can be sorted out by email. Any claim that can&apos;t be resolved
+            that way will be brought in the courts of that state.
+          </p>
+        </section>
+
+        <section>
+          <h2>14. Contact</h2>
+          <p>
+            Questions about these Terms: <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
+          </p>
+        </section>
+      </Prose>
+    </main>
+  );
+}

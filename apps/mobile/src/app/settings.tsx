@@ -60,13 +60,14 @@ export default function SettingsScreen() {
           Data
         </T>
         <Button variant="ghost" label="Load the sample week" onPress={loadSample} />
+        <Button variant="ghost" label="Replay the intro" onPress={() => setSettings({ onboarded: false })} />
         <Button variant="ghost" label="Clear everything" onPress={clearAll} />
         <T token="caption" color={c.inkSecondary}>
           Everything is stored on this phone for now. Accounts and sync come later.
         </T>
 
         <View style={styles.about}>
-          <Wordmark size={28} ink={c.inkPrimary} />
+          <Wordmark width={88} ink={c.inkPrimary} />
           <T token="caption" color={c.inkSecondary}>
             Dayli 0.1 · Your life, already organized.
           </T>

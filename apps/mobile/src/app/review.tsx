@@ -1,10 +1,11 @@
-import { isLocalDate, isLocalTime, localParts, monthDay, planCommit, toDrafts, weekdayLong, type Draft } from '@dayli/core';
+import { isLocalDate, localParts, monthDay, planCommit, toDrafts, weekdayLong, type Draft } from '@dayli/core';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
+import { DateField, NativeToggle, TimeField } from '@/components/Native';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { newId, useItemList, useStore } from '@/store';
@@ -174,18 +175,6 @@ function DraftCard({ draft: d, onEdit }: { draft: Draft; onEdit: (patch: Partial
   const cat = c.category[d.category];
   const on = d.include;
   const attention = on && (d.needsInput || !isLocalDate(d.date));
-  const field = (value: string | null, placeholder: string, onChange: (v: string) => void, valid: boolean, width: number) => (
-    <TextInput
-      value={value ?? ''}
-      onChangeText={onChange}
-      placeholder={placeholder}
-      placeholderTextColor={c.inkTertiary}
-      autoCapitalize="none"
-      autoCorrect={false}
-      editable={on}
-      style={[styles.field, textStyle('subhead', valid ? c.inkPrimary : c.conflict), { backgroundColor: c.canvas, borderColor: valid ? c.line : c.conflict, width }]}
-    />
-  );
   return (
     <View
       style={[
@@ -201,24 +190,17 @@ function DraftCard({ draft: d, onEdit }: { draft: Draft; onEdit: (patch: Partial
           editable={on}
           style={[textStyle('body', d.kind === 'event' ? cat.ink : c.inkPrimary), { flex: 1, minWidth: 0, padding: 0 }]}
         />
-        <Pressable
-          onPress={() => onEdit({ include: !on })}
-          hitSlop={10}
-          accessibilityRole="switch"
-          accessibilityState={{ checked: on }}
-          style={[styles.toggle, { backgroundColor: on ? c.inkPrimary : c.line }]}>
-          <View style={[styles.knob, { backgroundColor: c.canvas, alignSelf: on ? 'flex-end' : 'flex-start' }]} />
-        </Pressable>
+        <NativeToggle value={on} onChange={(include) => onEdit({ include })} />
       </View>
-      <View style={styles.cardRow}>
-        {field(d.date, 'YYYY-MM-DD', (date) => onEdit({ date: date || null }), !on || isLocalDate(d.date), 112)}
+      <View style={[styles.cardRow, { flexWrap: 'wrap' }]}>
+        <DateField date={d.date} time={d.start} onChange={(date) => onEdit({ date: date || null })} disabled={!on} />
         {d.kind === 'event' || d.start ? (
           <>
-            {field(d.start, 'HH:MM', (start) => onEdit({ start: start || null }), !on || d.start === null || isLocalTime(d.start), 68)}
-            {d.kind === 'event' ? field(d.end, 'HH:MM', (end) => onEdit({ end: end || null }), !on || d.end === null || isLocalTime(d.end), 68) : null}
+            <TimeField date={d.date} time={d.start} onChange={(start) => onEdit({ start: start || null })} disabled={!on} />
+            {d.kind === 'event' ? <TimeField date={d.date} time={d.end} onChange={(end) => onEdit({ end: end || null })} disabled={!on} /> : null}
           </>
         ) : null}
-        <T token="caption" color={c.inkSecondary} style={{ flex: 1 }} numberOfLines={1}>
+        <T token="caption" color={c.inkSecondary} style={{ flexGrow: 1 }} numberOfLines={1}>
           {d.kind === 'task' ? 'to-do' : d.category}
           {d.isDeadline ? ' · deadline' : ''}
           {d.courseCode ? ` · ${d.courseCode}` : ''}
@@ -245,7 +227,4 @@ const styles = StyleSheet.create({
   course: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.row, borderWidth: 1 },
   card: { borderRadius: radius.card, padding: 12, gap: 8 },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  field: { height: 32, borderRadius: 8, borderWidth: 1, paddingHorizontal: 8 },
-  toggle: { width: 40, height: 24, borderRadius: 12, padding: 2, justifyContent: 'center' },
-  knob: { width: 20, height: 20, borderRadius: 10 },
 });

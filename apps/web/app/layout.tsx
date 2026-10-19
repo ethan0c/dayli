@@ -1,12 +1,19 @@
 import type { Metadata, Viewport } from 'next';
 import { Onest } from 'next/font/google';
+import { SiteFooter } from '@/components/SiteFooter';
+import { SiteHeader } from '@/components/SiteHeader';
+import { DESCRIPTION, SITE_URL, TAGLINE } from '@/lib/site';
 import './globals.css';
 
 const onest = Onest({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-onest', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: 'Dayli',
-  description: 'The daily planner for college students. Drop in a syllabus, a work schedule, or a message, and Dayli tells you what matters today.',
+  metadataBase: new URL(SITE_URL),
+  title: { default: `Dayli: ${TAGLINE}`, template: '%s · Dayli' },
+  description: DESCRIPTION,
+  openGraph: { siteName: 'Dayli', type: 'website', locale: 'en_US', url: SITE_URL, title: `Dayli: ${TAGLINE}`, description: DESCRIPTION },
+  twitter: { card: 'summary_large_image', title: `Dayli: ${TAGLINE}`, description: DESCRIPTION },
+  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
@@ -19,7 +26,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={onest.variable}>
-      <body>{children}</body>
+      <body>
+        <div className="wrap">
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+        </div>
+      </body>
     </html>
   );
 }

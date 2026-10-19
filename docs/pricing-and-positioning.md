@@ -56,11 +56,13 @@ Takeaway: the student planner market has settled at **$30–40 per year**, with 
 Calendar, tasks, Today, reminders, manual add, **3 AI imports per month** (text, screenshot, or PDF). Enough to feel it work; not enough to run a semester.
 
 ### Dayli Plus
-| Plan | Price | Effective | Why |
-|---|---|---|---|
-| Monthly | **$4.99** | $4.99/mo | Sits at the top of the "$1–5" band; under Structured and MyStudyLife monthly |
-| **Semester** | **$14.99** / 4 months | $3.75/mo | Matches how students think about time and money; the plan to push in-app |
-| Yearly | **$29.99** | $2.50/mo | Matches Structured's anchor; the plan to push on web with a student discount |
+| Plan | Student | Regular | Student effective | Why |
+|---|---|---|---|---|
+| Monthly | **$4.99** | $7.99 | $4.99/mo | Sits at the top of the "$1–5" band; under Structured and MyStudyLife monthly |
+| **Semester** | **$14.99** / 4 months | $24.99 | $3.75/mo | Matches how students think about time and money; the plan to push in-app |
+| Yearly | **$29.99** | $49.99 | $2.50/mo | Matches Structured's anchor; the plan to push on web |
+
+Student pricing is on the honor system. The toggle in onboarding says so plainly: we don't check IDs or .edu emails, we trust you, switch it off when you graduate. The regular price exists so the student price reads as a real discount (~40%) and so non-students (parents, grads, shift workers) have a way to pay.
 
 Plus includes: unlimited AI imports, syllabus import, work-schedule diffing, and (later) Canvas sync and planning suggestions.
 

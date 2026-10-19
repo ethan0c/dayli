@@ -22,7 +22,7 @@ Status: draft · October 2026
 
 ## 3. Logo: the wordmark is the whole logo
 
-Decision (Oct 19, 2026): Dayli has one logo, the `dayli.` wordmark. There is no separate symbol. Where a square mark is required (app icon, avatar, favicon), the icon is a crop of the wordmark: the lowercase **d** and the lavender period, set in the same letterforms. It reads as the start of the name, not as a second logo.
+Decision (Oct 19, 2026): Dayli has one logo, the `dayli.` wordmark, and it is used everywhere including the app icon, splash, favicon, and social image. There is no separate symbol and no cropped variant. The wordmark is stored as glyph outlines (`packages/tokens/src/wordmark.ts`, generated from Onest SemiBold with −4.5% tracking) so it renders identically in the app, on the web, and in every exported asset.
 
 ### 3.1 Wordmark
 Lowercase `dayli.` in Onest SemiBold, tracked −4.5%. Two lavender (500) circles: the tittle of the i and the closing period, both 0.19 em wide. Today, and what's next.
@@ -30,17 +30,17 @@ Lowercase `dayli.` in Onest SemiBold, tracked −4.5%. Two lavender (500) circle
 - Custom pass before launch: shorten the y descender so it sits tight on the baseline, open the a slightly, and round terminals to match the icon stroke. These make the mark ownable against the word "daily".
 - Always lowercase, always with the period. In running text the product is "Dayli".
 
-### 3.2 App icon: `d.`
+### 3.2 App icon: the full wordmark
 | Variant | Background | Letter | Dot |
 |---|---|---|---|
 | **Primary (recommended)** | Ink `#1C1B21` (the nav pill color) | White | Lavender 400 `#A796F0` |
 | Light | Lavender 200 `#DCD4FB` | Ink | Lavender 600 `#6F57D4` |
 | Tinted / dark (iOS 18+) | System | Single-color from the layered file | |
 
-The letter and dot together span 56% of the icon width, centered. Generated from the Onest glyph outline by `design/` (see `icon-1024.png`, `icon-light-1024.png`); rebuild from the SVGs if the typeface changes.
+The wordmark spans 78% of the icon width and sits on the optical centre (nudged up 3% of its height). Assets in `design/`: `icon-1024.png`, `icon-light-1024.png`, `splash-icon.png`, `og-1200x630.png`, and the SVG sources; regenerate with the asset script if the outlines change.
 
 ### 3.3 Requirements checked
-1. Legible at 16 px (favicon shows `d.`) and 60 px (iOS icon).
+1. Legible at 60 px (iOS icon) and 32 px (browser tab). At 16 px it reads as a shape, which is acceptable.
 2. Works in one color: letter and dot in ink or white.
 3. Distinct from "daily": the custom letterforms and the double dot carry it.
 4. Echoes the UI: the dot is the selected-day circle and the week-strip dots.
@@ -52,7 +52,7 @@ Five symbol concepts were explored on the brand board (Day Ring, Stacked Day, No
 | Asset | Spec |
 |---|---|
 | Wordmark | `dayli.` as above |
-| Icon | `d.` as above; never used inline next to the wordmark |
+| Icon | The wordmark on ink, as above |
 | Clear space | The wordmark's x-height on all sides |
 | Minimum size | Wordmark 56 px wide; icon 16 px |
 | One-color | All ink or all white, dots included |

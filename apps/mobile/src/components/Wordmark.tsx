@@ -1,24 +1,15 @@
-import { fontFamily, lavender } from '@dayli/tokens';
-import { StyleSheet, Text, View } from 'react-native';
+import { WORDMARK_RATIO, lavender, wordmark } from '@dayli/tokens';
+import Svg, { Circle, Path } from 'react-native-svg';
 
-/** The dayli. wordmark: Onest SemiBold with the i's tittle and the period as lavender dots. */
-export function Wordmark({ size = 32, ink }: { size?: number; ink: string }) {
-  const dot = size * 0.19;
-  const text = { fontFamily: fontFamily.semibold, fontSize: size, lineHeight: size * 1.1, letterSpacing: -size * 0.045, color: ink };
+/** The dayli. wordmark drawn from the real Onest outlines, so it is identical to the icon and the website. */
+export function Wordmark({ width = 120, ink, dot = lavender[500] }: { width?: number; ink: string; dot?: string }) {
+  const [x, y, w, h] = wordmark.viewBox;
   return (
-    <View style={styles.row} accessibilityRole="image" accessibilityLabel="dayli">
-      <Text style={text}>dayl</Text>
-      <View>
-        <Text style={text}>ı</Text>
-        <View style={[styles.dot, { width: dot, height: dot, borderRadius: dot / 2, left: '50%', marginLeft: -dot / 2, top: size * 0.06 }]} />
-      </View>
-      <View style={[styles.dot, styles.period, { width: dot, height: dot, borderRadius: dot / 2, marginLeft: size * 0.05, marginBottom: size * 0.1 }]} />
-    </View>
+    <Svg width={width} height={width / WORDMARK_RATIO} viewBox={`${x} ${y} ${w} ${h}`} accessibilityLabel="dayli">
+      <Path d={wordmark.letters} fill={ink} />
+      {wordmark.dots.map((d, i) => (
+        <Circle key={i} cx={d.cx} cy={d.cy} r={d.r} fill={dot} />
+      ))}
+    </Svg>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'flex-end' },
-  dot: { position: 'absolute', backgroundColor: lavender[500] },
-  period: { position: 'relative' },
-});

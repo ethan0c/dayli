@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
+import { NativeButton } from '@/components/Native';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { useStore } from '@/store';
@@ -52,9 +53,11 @@ export default function ItemScreen() {
               }}
             />
           ) : null}
-          <Button
-            variant="ghost"
+          <NativeButton
             label="Delete"
+            role="destructive"
+            systemImage="trash"
+            icon="trash"
             onPress={() => {
               removeItem(item.id);
               router.back();
