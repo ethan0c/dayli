@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { SectionTitle } from '@/components/Controls';
 import { Icon, type IconKey } from '@/components/Icon';

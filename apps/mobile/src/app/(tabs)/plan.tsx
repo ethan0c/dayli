@@ -2,15 +2,16 @@ import { addDays, conflictIds, monthDay, pendingDates, weekdayLong, weekOf } fro
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
 
 import { ClockHeader } from '@/components/ClockHeader';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
+import { SectionTitle } from '@/components/Controls';
 import { CaptureCard, ImportRow } from '@/components/PlannerChrome';
 import { T } from '@/components/Text';
 import { StarterPreview } from '@/components/StarterPreview';
-import { BrandHeader } from '@/components/ScreenHeader';
 import { WeekStrip } from '@/components/WeekStrip';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
@@ -20,6 +21,7 @@ import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
 
 export default function PlanScreen() {
   const { c } = useTheme();
+  const insets = useSafeAreaInsets();
   const now = useNow();
   const items = useItemList();
   const schedules = useScheduleList();
@@ -50,15 +52,14 @@ export default function PlanScreen() {
   const weekDeadlines = weekItems.filter((i) => i.isDeadline && !i.done).length;
   const starting = items.length === 0 && schedules.length === 0;
   const renderItem = (it: (typeof items)[number]) => (
-    <ItemRow key={it.id} item={it} conflict={conflicts.has(it.id)}
+    <ItemRow key={it.id} item={it} today={now.date} conflict={conflicts.has(it.id)}
       onPress={() => router.push(`/item/${it.id}`)}
       onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); toggleDone(it.id); }} />
   );
 
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
-      <BrandHeader safeTop />
-      <View style={[styles.head, { backgroundColor: c.header }]}>
+      <View style={[styles.head, { paddingTop: insets.top + 12 }]}>
         <ClockHeader time={now.time} date={selected} onPressDate={() => {
             if (selected !== now.date) feedback('select');
             setSelected(now.date);
@@ -76,7 +77,7 @@ export default function PlanScreen() {
       <ScrollView contentInsetAdjustmentBehavior="never" contentContainerStyle={[styles.list, { paddingBottom: NAV_INSET }]}>
         <View style={styles.dayHeading}>
           <Pressable accessibilityRole="button" accessibilityLabel="Previous week" onPress={() => setSelected(addDays(selected, -7))} style={styles.weekArrow}><Icon name="chevronLeft" size={18} color={c.inkSecondary} /></Pressable>
-          <T token="headline" accessibilityRole="header" style={{ flex: 1, textAlign: 'center' }}>{weekdayLong(selected)}, {monthDay(selected)}</T>
+          <View style={{ flex: 1, alignItems: 'center' }}><SectionTitle title={`${weekdayLong(selected)}, ${monthDay(selected)}`} /></View>
           <Pressable accessibilityRole="button" accessibilityLabel="Next week" onPress={() => setSelected(addDays(selected, 7))} style={styles.weekArrow}><Icon name="chevronRight" size={18} color={c.inkSecondary} /></Pressable>
         </View>
         {pendingEmployers.map((e) => (
@@ -104,7 +105,7 @@ export default function PlanScreen() {
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, paddingBottom: 4 },
+  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 4 },
   list: { paddingTop: 8, paddingHorizontal: SCREEN_GUTTER, gap: 14 },
   group: { gap: 0 },
   dayHeading: { flexDirection: 'row', gap: 4, alignItems: 'center' },

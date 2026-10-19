@@ -1,25 +1,34 @@
-import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, monthDay, nowSummary, overdueTasks, pendingDates, relativeDay, startTodaySuggestions, todayItems, tomorrowSummary, weekdayLong } from '@dayli/core';
-import type { Item } from '@dayli/schema';
+import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, monthDay, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong } from '@dayli/core';
 import { router } from 'expo-router';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ScreenHeader } from '@/components/ScreenHeader';
-import { HomeCaptureCard } from '@/components/HomeCaptureCard';
+import { GroupLabel, ListRow, SectionTitle, TextButton } from '@/components/Controls';
+import { DayBar } from '@/components/DayBar';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
-import { Press } from '@/components/Press';
-import { T } from '@/components/Text';
 import { StarterPreview } from '@/components/StarterPreview';
+import { T } from '@/components/Text';
+import { Ticker } from '@/components/Ticker';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, NAV_INSET, radius, useCardSurface, useTheme } from '@/theme';
+import { SAMPLE_SOURCE } from '@/store/sample';
+import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
+
+/** "2h 14m", "14m", or "0m" for a gap in minutes. */
+function countdown(mins: number): string {
+  const m = Math.max(0, Math.round(mins));
+  if (m < 60) return `${m}m`;
+  return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`;
+}
 
 export default function TodayScreen() {
   const { c } = useTheme();
+  const insets = useSafeAreaInsets();
   const now = useNow();
   const items = useItemList();
   const schedules = useScheduleList();
@@ -30,47 +39,47 @@ export default function TodayScreen() {
   const planTasks = useStore((s) => s.planTasks);
   const unplanTask = useStore((s) => s.unplanTask);
   const dismissSuggestion = useStore((s) => s.dismissSuggestion);
-  const setCaptureDraft = useStore((s) => s.setCaptureDraft);
   const [overdueExpanded, setOverdueExpanded] = useState(false);
   const [completedExpanded, setCompletedExpanded] = useState(false);
-  const featureSurface = useCardSurface('accent');
 
   const todays = useMemo(() => todayItems(items, now.date, workDates), [items, now.date, workDates]);
   const overdue = useMemo(() => overdueTasks(items, now.date, workDates), [items, now.date, workDates]);
   const suggestions = useMemo(() => startTodaySuggestions(items, now, workDates, dismissals.date === now.date ? dismissals.ids : []), [items, now, workDates, dismissals]);
-  const summary = useMemo(() => nowSummary(items, now), [items, now]);
   const tomorrow = useMemo(() => tomorrowSummary(items, now, workDates), [items, now, workDates]);
   const upcoming = useMemo(() => items.filter((item) => !item.done && item.isDeadline && item.date > now.date && diffDays(now.date, item.date) <= 14
     && !suggestions.some((suggestion) => suggestion.item.id === item.id)).slice(0, 5), [items, now.date, suggestions]);
-  // Include yesterday's events so overnight shifts don't disappear at midnight.
   const weekAhead = useMemo(() => items.filter((item) => item.date >= addDays(now.date, -1) && diffDays(now.date, item.date) <= 7), [items, now.date]);
-  const conflicts = useMemo(() => findConflicts(weekAhead).filter((conflict) => {
-    const a = items.find((item) => item.id === conflict.a);
-    const b = items.find((item) => item.id === conflict.b);
-    return (a?.date ?? '') >= now.date || (b?.date ?? '') >= now.date;
-  }), [weekAhead, items, now.date]);
   const conflictSet = useMemo(() => conflictIds(weekAhead), [weekAhead]);
-  const byId = useMemo(() => Object.fromEntries(items.map((item) => [item.id, item])) as Record<string, Item>, [items]);
+  const conflictsToday = useMemo(() => findConflicts(weekAhead).filter((k) => items.find((i) => i.id === k.a)?.date === now.date).length, [weekAhead, items, now.date]);
   const nextWeekPending = schedules.length > 0 && pendingDates(schedules, addDays(now.date, 1), addDays(now.date, 7)).length > 0;
-  const tightDeadlines = items.filter((item) => !item.done && item.isDeadline && item.start
-    && (item.date > now.date || item.date === now.date && item.start > now.time)
-    && diffDays(now.date, item.date) <= 7 && !suggestions.some((suggestion) => suggestion.item.id === item.id))
-    .map((item) => ({ item, window: deadlineWindow(items, item, now) }))
-    .filter(({ window }) => !window.hasUnknownTimes && window.unbookedHours < 4);
-  const hasWarnings = conflicts.length > 0 || tightDeadlines.length > 0;
+  const isSample = items.some((item) => item.sourceId === SAMPLE_SOURCE);
   const featuredState = useMemo(() => featuredCommitment(items, now), [items, now]);
   const featured = featuredState?.item;
   const ongoing = featuredState?.ongoing ?? false;
   const completed = todays.filter((item) => item.done);
-  const openItems = todays.filter((item) => !item.done && item.id !== featured?.id);
-  const eventCount = todays.filter((item) => !item.done && item.kind === 'event').length;
-  const taskCount = todays.filter((item) => !item.done && item.kind === 'task').length;
+  const openItems = todays.filter((item) => !item.done);
+  const tightDeadlines = useMemo(() => new Map(items
+    .filter((item) => !item.done && item.isDeadline && item.start && item.date > now.date && diffDays(now.date, item.date) <= 7)
+    .map((item) => [item.id, deadlineWindow(items, item, now)] as const)
+    .filter(([, w]) => !w.hasUnknownTimes && w.unbookedHours < 4)), [items, now]);
 
-  function openCapture(text: string, source?: 'image' | 'file') {
-    setCaptureDraft(text);
-    feedback('tap');
-    router.push({ pathname: '/capture', params: source ? { source } : {} });
+  // The one big number: minutes until the next commitment, or until the current one ends.
+  const nowMin = toMinutes(now.time);
+  let eyebrow = `${weekdayLong(now.date)}, ${monthDay(now.date)}`;
+  let big: string | null = null;
+  if (featured?.start) {
+    if (ongoing && featured.end) {
+      eyebrow += ' · ends in';
+      big = countdown(toMinutes(featured.end) - nowMin + (toMinutes(featured.end) < toMinutes(featured.start) ? 1440 : 0));
+    } else if (!ongoing) {
+      const dayGap = diffDays(now.date, featured.date);
+      eyebrow += ' · next in';
+      big = countdown(toMinutes(featured.start) - nowMin + dayGap * 1440);
+    } else {
+      eyebrow += ' · now';
+    }
   }
+  const featuredWhere = featured ? [featured.employer ?? courses.find((k) => k.id === featured.courseId)?.code, featured.category === 'school' ? 'Coursework' : featured.category === 'work' ? 'Work' : 'Personal'].filter(Boolean).join(' · ') : '';
 
   function workOnToday(ids: string[]) {
     planTasks(ids, now.date);
@@ -79,184 +88,123 @@ export default function TodayScreen() {
 
   if (items.length === 0 && courses.length === 0 && schedules.length === 0) return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-      <ScreenHeader title={`Your ${weekdayLong(now.date)}.`} eyebrow={`${weekdayLong(now.date)}, ${monthDay(now.date)}`} subtitle="Your week starts here." safeTop />
-      <View style={styles.starter}><StarterPreview /></View>
+      <View style={[styles.top, { paddingTop: insets.top + 18 }]}>
+        <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
+        <T token="display">Your week starts here.</T>
+      </View>
+      <View style={styles.section}><StarterPreview /></View>
     </ScrollView>
   );
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">
-      <ScreenHeader title={`Your ${weekdayLong(now.date)}.`} eyebrow={`${weekdayLong(now.date)}, ${monthDay(now.date)}`} subtitle={`${eventCount} ${eventCount === 1 ? 'event' : 'events'} · ${taskCount} ${taskCount === 1 ? 'to-do' : 'to-dos'}`} safeTop />
-
-      {hasWarnings ? (
-        <Section title="Heads up">
-          {conflicts.slice(0, 2).map((conflict) => (
-            <Pressable key={`${conflict.a}-${conflict.b}`} accessibilityRole="button" onPress={() => router.push(`/item/${conflict.a}`)} style={[styles.card, { backgroundColor: c.conflictBg }]}>
-              <Icon name="alert" size={18} color={c.conflict} />
-              <T token="callout" style={{ flex: 1 }}>{byId[conflict.a]?.title} overlaps {byId[conflict.b]?.title} on {monthDay(byId[conflict.a]?.date ?? now.date)}.</T>
-            </Pressable>
-          ))}
-          {tightDeadlines.slice(0, Math.max(0, 2 - conflicts.length)).map(({ item, window }) => (
-            <Pressable key={item.id} accessibilityRole="button" onPress={() => router.push(`/item/${item.id}`)} style={[styles.card, { backgroundColor: c.accentSoft }]}>
-              <Icon name="sparkle" size={18} color={c.accentInk} />
-              <T token="callout" style={{ flex: 1 }}>About {window.unbookedHours} unbooked hours in your calendar before {item.title}. Estimate uses 7 am–11 pm in the three days before it.</T>
-            </Pressable>
-          ))}
-        </Section>
-      ) : null}
-
-      {featured ? <View style={styles.featureWrap}>
-        <Press accessibilityRole="button" accessibilityLabel={`${ongoing ? 'Now' : 'Next'}: ${featured.title}, ${featured.start ? formatTime(featured.start) : ''}`} onPress={() => router.push(`/item/${featured.id}`)} scale={0.985} style={[styles.feature, featureSurface]}>
-          <View style={styles.featureTop}>
-            <T token="subhead" color={c.accentInk}>{ongoing ? `Now${featured.end ? ` · until ${formatTime(featured.end)}` : ''}` : `Next${featured.start ? ` · ${featured.end ? formatRange(featured.start, featured.end) : formatTime(featured.start)}` : ''}`}</T>
-            <Icon name="chevronRight" size={17} color={c.accentInk} />
+      <Pressable accessibilityRole={featured ? 'button' : undefined} disabled={!featured} onPress={() => featured && router.push(`/item/${featured.id}`)}
+        style={({ pressed }) => [styles.top, { paddingTop: insets.top + 18, opacity: pressed ? 0.7 : 1 }]}>
+        <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
+        {big ? <Ticker value={big} token="displayXl" accessibilityLabel={`${ongoing ? 'Ends in' : 'Next in'} ${big}`} /> : <T token="displayXl">{featured ? 'Now' : 'Clear'}</T>}
+        {featured ? (
+          <View style={{ gap: 2, paddingTop: 6 }}>
+            <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{featured.title}{featured.start ? ` · ${featured.end ? formatRange(featured.start, featured.end) : formatTime(featured.start)}` : ''}</T>
+            {featuredWhere ? <T token="callout" color={c.inkSecondary}>{featuredWhere}</T> : null}
           </View>
-          <T token="title">{featured.title}</T>
-          <T token="caption" color={c.inkSecondary}>{[featured.employer, featured.category === 'school' ? 'Coursework' : featured.category === 'work' ? 'Work' : 'Personal'].filter(Boolean).join(' · ')}</T>
-          {conflictSet.has(featured.id) ? <T token="caption" color={c.conflict}>Schedule conflict · tap to review</T> : null}
-        </Press>
-      </View> : todays.length ? <View style={styles.head}><T token="callout" color={c.inkSecondary}>{summary}</T></View> : null}
+        ) : (
+          <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>
+        )}
+      </Pressable>
 
-      <Section title="On your list">
-        {!todays.length ? <HomeCaptureCard onCapture={openCapture} /> : openItems.map((item) => {
+      <View style={styles.bar}><DayBar items={todays} now={now} conflicts={conflictSet} /></View>
+
+      <Animated.View layout={layout} style={styles.section}>
+        <SectionTitle title="On your list" onPress={() => router.push('/plan')} detail={conflictsToday ? `${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : undefined} />
+        {openItems.map((item, i) => {
           const planned = item.date !== now.date && workDates[item.id] === now.date;
-          return <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
-            <ItemRow item={item} planned={planned} conflict={conflictSet.has(item.id)} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => {
-              feedback(item.done ? 'uncomplete' : 'complete');
-              toggleDone(item.id);
-            }} />
-            {planned ? <View style={styles.plannedNote}>
-              <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>{item.isDeadline ? 'Due' : 'Original date'} {monthDay(item.date)} · working on it today</T>
-              <TextAction label="Undo" accessibilityLabel={`Remove ${item.title} from today’s work plan`} muted onPress={() => unplanTask(item.id)} />
-            </View> : null}
-          </Animated.View>;
+          return (
+            <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
+              <ItemRow item={item} today={now.date} planned={planned} conflict={conflictSet.has(item.id)} last={i === openItems.length - 1 && !completed.length}
+                onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback(item.done ? 'uncomplete' : 'complete'); toggleDone(item.id); }} />
+              {planned ? <View style={styles.inlineAction}><TextButton label="Not today after all" tone="muted" onPress={() => unplanTask(item.id)} accessibilityLabel={`Remove ${item.title} from today's work plan`} /></View> : null}
+            </Animated.View>
+          );
         })}
-        {todays.length > 0 && openItems.length === 0 ? <T token="callout" color={c.inkSecondary}>{featured ? 'Your next commitment is above.' : 'Everything on your list is done.'}</T> : null}
-        {completed.length ? <>
-          <Pressable accessibilityRole="button" accessibilityState={{ expanded: completedExpanded }} onPress={() => setCompletedExpanded((open) => !open)} style={styles.disclosure}>
-            <T token="caption" color={c.inkSecondary}>Completed · {completed.length}</T><Icon name={completedExpanded ? 'chevronLeft' : 'chevronRight'} size={16} color={c.inkSecondary} />
-          </Pressable>
-          {completedExpanded ? <Animated.View entering={enter.drop} exiting={exit.fade}>{completed.map((item) => <ItemRow key={item.id} item={item} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('uncomplete'); toggleDone(item.id); }} />)}</Animated.View> : null}
-        </> : null}
-      </Section>
+        {openItems.length === 0 ? <T token="callout" color={c.inkSecondary} style={{ paddingVertical: 10 }}>{completed.length ? 'Everything on your list is done.' : 'Nothing on your list today.'}</T> : null}
+        {completed.length ? (
+          <>
+            <Pressable accessibilityRole="button" accessibilityState={{ expanded: completedExpanded }} onPress={() => setCompletedExpanded((o) => !o)} style={styles.disclosure}>
+              <T token="caption" color={c.inkSecondary}>Completed · {completed.length}</T>
+              <Icon name={completedExpanded ? 'chevronLeft' : 'chevronRight'} size={16} color={c.inkSecondary} />
+            </Pressable>
+            {completedExpanded ? (
+              <Animated.View entering={enter.drop} exiting={exit.fade}>
+                {completed.map((item, i) => <ItemRow key={item.id} item={item} today={now.date} last={i === completed.length - 1} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('uncomplete'); toggleDone(item.id); }} />)}
+              </Animated.View>
+            ) : null}
+          </>
+        ) : null}
+      </Animated.View>
 
       {overdue.length ? (
         <View style={styles.section}>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Still open, ${overdue.length} tasks`} accessibilityState={{ expanded: overdueExpanded }} onPress={() => setOverdueExpanded((open) => !open)} style={styles.disclosure}>
-            <T token="overline" color={c.inkSecondary}>Still open · {overdue.length}</T>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Still open, ${overdue.length} tasks`} accessibilityState={{ expanded: overdueExpanded }} onPress={() => setOverdueExpanded((o) => !o)} style={styles.disclosure}>
+            <GroupLabel>{`Still open · ${overdue.length}`}</GroupLabel>
             <T token="caption" color={c.inkSecondary}>{overdueExpanded ? 'Hide' : 'Show'}</T>
           </Pressable>
           {overdueExpanded ? (
             <Animated.View entering={enter.drop} exiting={exit.fade}>
-              {overdue.map((item) => (
-                <View key={item.id} style={[styles.overdue, { borderBottomColor: c.line }]}>
-                  <Pressable accessibilityRole="button" onPress={() => router.push(`/item/${item.id}`)} style={{ flex: 1, gap: 3 }}>
-                    <T>{item.title}</T><T token="caption" color={c.inkSecondary}>{item.isDeadline ? 'Due' : 'Planned for'} {monthDay(item.date)}</T>
-                  </Pressable>
-                  <TextAction label="Work on today" accessibilityLabel={`Work on ${item.title} today without changing its date`} onPress={() => workOnToday([item.id])} />
+              {overdue.map((item, i) => (
+                <View key={item.id}>
+                  <ItemRow item={item} today={now.date} last={i === overdue.length - 1} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('complete'); toggleDone(item.id); }} />
+                  <View style={styles.inlineAction}><TextButton label="Work on it today" onPress={() => workOnToday([item.id])} accessibilityLabel={`Work on ${item.title} today without changing its date`} /></View>
                 </View>
               ))}
-              {overdue.length > 1 ? <TextAction label="Bring all into today" onPress={() => workOnToday(overdue.map((item) => item.id))} /> : null}
-              <T token="caption" color={c.inkSecondary}>Their original dates stay the same.</T>
+              {overdue.length > 1 ? <TextButton label="Bring all into today" onPress={() => workOnToday(overdue.map((item) => item.id))} /> : null}
             </Animated.View>
           ) : null}
         </View>
       ) : null}
 
       {suggestions.length ? (
-        <DisclosureSection title={`Start today · ${suggestions.length}`}>
-          {suggestions.map(({ item, reason }) => (
-            <View key={item.id} style={[styles.suggestion, { backgroundColor: c.accentSoft }]}>
-              <Pressable accessibilityRole="button" onPress={() => router.push(`/item/${item.id}`)} style={styles.suggestionTitle}>
-                <Icon name={item.icon} size={18} color={c.accentInk} />
-                <View style={{ flex: 1, gap: 4 }}>
-                  <T token="headline">{item.kind === 'event' ? `Prepare for ${item.title}` : item.title}</T>
-                  <T token="caption" color={c.inkSecondary}>{reason}</T>
-                </View>
-                <Icon name="chevronRight" size={16} color={c.inkSecondary} />
-              </Pressable>
-              <View style={styles.suggestionActions}>
-                {item.kind === 'task' ? <TextAction label="Work on today" onPress={() => workOnToday([item.id])} /> : null}
-                <TextAction label="Not today" muted onPress={() => { dismissSuggestion(item.id, now.date); feedback('select'); }} />
+        <View style={styles.section}>
+          <GroupLabel>Start today</GroupLabel>
+          {suggestions.map(({ item, reason }, i) => (
+            <View key={item.id}>
+              <ListRow title={item.kind === 'event' ? `Prepare for ${item.title}` : item.title} sub={reason} last={i === suggestions.length - 1} onPress={() => router.push(`/item/${item.id}`)} />
+              <View style={[styles.inlineAction, { flexDirection: 'row', gap: 20 }]}>
+                {item.kind === 'task' ? <TextButton label="Work on it today" onPress={() => workOnToday([item.id])} /> : null}
+                <TextButton label="Not today" tone="muted" onPress={() => { dismissSuggestion(item.id, now.date); feedback('select'); }} />
               </View>
             </View>
           ))}
-          <T token="caption" color={c.inkSecondary}>Calendar gaps are estimates within 7 am–11 pm in the three days before a due date. Unscheduled work isn’t included.</T>
-        </DisclosureSection>
+        </View>
       ) : null}
 
-      {tomorrow ? <Pressable accessibilityRole="button" onPress={() => router.push('/plan')} style={[styles.peek, { borderColor: c.line }]}>
-        <Icon name="calendar" size={17} color={c.inkSecondary} />
-        <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>{tomorrow}</T>
-        <Icon name="chevronRight" size={16} color={c.inkSecondary} />
-      </Pressable> : null}
-
-      {upcoming.length || nextWeekPending ? (
-        <Section title="Coming up">
-          {upcoming.map((item) => (
-            <Pressable key={item.id} accessibilityRole="button" onPress={() => router.push(`/item/${item.id}`)} style={[styles.up, { borderBottomColor: c.line }]}>
-              <Icon name={item.icon} size={18} color={c.inkPrimary} />
-              <View style={{ flex: 1, gap: 3 }}>
-                <T>{item.title}</T>
-                {diffDays(now.date, item.date) <= 7 ? <T token="caption" color={c.inkSecondary}>{deadlineReason(items, item, now)}</T> : null}
-              </View>
-              <T token="subhead" color={diffDays(now.date, item.date) <= 1 ? c.conflict : c.inkSecondary}>{relativeDay(now.date, item.date)}</T>
-            </Pressable>
+      {upcoming.length || nextWeekPending || tomorrow ? (
+        <View style={styles.section}>
+          <SectionTitle title="Coming up" onPress={() => router.push('/plan')} />
+          {tomorrow ? <ListRow title="Tomorrow" sub={tomorrow} onPress={() => router.push('/plan')} /> : null}
+          {upcoming.map((item, i) => (
+            <ItemRow key={item.id} item={item} today={now.date} last={i === upcoming.length - 1 && !nextWeekPending} onPress={() => router.push(`/item/${item.id}`)}
+              onToggle={() => { feedback('complete'); toggleDone(item.id); }} />
           ))}
-          {nextWeekPending ? (
-            <Pressable accessibilityRole="button" onPress={() => openCapture('', 'image')} style={[styles.up, styles.pending, { borderColor: c.line }]}>
-              <Icon name="work" size={18} color={c.inkSecondary} />
-              <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-                <T color={c.inkSecondary}>{"Next week's shifts"}</T>
-                <T token="caption" color={c.inkSecondary}>Not added yet</T>
-              </View>
-            </Pressable>
-          ) : null}
-        </Section>
+          {upcoming.filter((item) => tightDeadlines.has(item.id)).slice(0, 1).map((item) => (
+            <T key={item.id} token="caption" color={c.inkSecondary} style={{ paddingTop: 6 }}>{deadlineReason(items, item, now, tightDeadlines.get(item.id))}</T>
+          ))}
+          {nextWeekPending ? <ListRow title="Next week's shifts" sub="Not added yet" last onPress={() => router.push({ pathname: '/capture', params: { source: 'image' } })} /> : null}
+        </View>
+      ) : null}
+
+      {isSample ? (
+        <View style={styles.section}>
+          <ListRow title="This is a sample week" sub="Clear it any time in Your data" last onPress={() => router.push('/settings/data')} />
+        </View>
       ) : null}
     </ScrollView>
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return <Animated.View layout={layout} style={styles.section}><T token="headline" accessibilityRole="header">{title}</T>{children}</Animated.View>;
-}
-
-function DisclosureSection({ title, children }: { title: string; children: ReactNode }) {
-  const { c } = useTheme();
-  const [expanded, setExpanded] = useState(false);
-  return <View style={styles.section}>
-    <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setExpanded((open) => !open)} style={styles.disclosure}>
-      <T token="subhead" color={c.inkSecondary}>{title}</T><T token="caption" color={c.inkSecondary}>{expanded ? 'Hide' : 'Show'}</T>
-    </Pressable>
-    {expanded ? <Animated.View entering={enter.drop} exiting={exit.fade}>{children}</Animated.View> : null}
-  </View>;
-}
-
-function TextAction({ label, onPress, muted, accessibilityLabel }: { label: string; onPress: () => void; muted?: boolean; accessibilityLabel?: string }) {
-  const { c } = useTheme();
-  return <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} onPress={onPress} style={styles.textAction}>
-    <T token="subhead" color={muted ? c.inkSecondary : c.accentInk}>{label}</T>
-  </Pressable>;
-}
-
 const styles = StyleSheet.create({
-  starter: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 24 },
-  head: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 10, paddingBottom: 4, gap: 14 },
-  note: { marginHorizontal: SCREEN_GUTTER, marginTop: 8, minHeight: 44, flexDirection: 'row', gap: 8, alignItems: 'center' },
-  section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, gap: 4 },
-  up: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth },
-  featureWrap: { paddingHorizontal: SCREEN_GUTTER, marginTop: 24 },
-  feature: { padding: 20, gap: 8 },
-  featureTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  pending: { borderTopWidth: StyleSheet.hairlineWidth },
-  card: { borderRadius: radius.card, padding: 14, gap: 10, flexDirection: 'row', alignItems: 'flex-start' },
-  suggestion: { borderRadius: radius.card, paddingHorizontal: 16, paddingTop: 16 },
-  suggestionTitle: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, minHeight: 44 },
-  suggestionActions: { flexDirection: 'row', gap: 24, paddingLeft: 28, flexWrap: 'wrap' },
-  textAction: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 2 },
+  top: { paddingHorizontal: SCREEN_GUTTER, gap: 2 },
+  bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
+  section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  overdue: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth },
-  plannedNote: { flexDirection: 'row', gap: 8, alignItems: 'center', paddingHorizontal: 10 },
-  peek: { marginHorizontal: SCREEN_GUTTER, marginTop: 20, paddingVertical: 14, gap: 10, flexDirection: 'row', alignItems: 'center', borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth },
+  inlineAction: { paddingLeft: 34 },
 });
