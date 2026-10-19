@@ -4,6 +4,7 @@ import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { GroupLabel, TextButton } from '@/components/Controls';
 import { Press } from '@/components/Press';
+import { SkeletonShots } from '@/components/Skeleton';
 import { useTheme } from '@/theme';
 
 type Shot = { id: string; uri: string; sample?: number };
@@ -51,8 +52,8 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
     }).catch(() => setAllowed(false));
   }, []);
 
-  if (Platform.OS === 'web' || allowed === null) return null;
-
+  if (Platform.OS === 'web') return null;
+  const loading = allowed === null || (allowed && shots === null);
   const list = allowed && shots && shots.length ? shots : SAMPLES;
 
   return (
@@ -62,7 +63,7 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
         <TextButton label="All photos" tone="muted" onPress={() => onPick('')} />
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip} style={styles.stripWrap}>
-        {list.map((s) => (
+        {loading ? <SkeletonShots /> : list.map((s) => (
           <Press key={s.id} accessibilityRole="button" accessibilityLabel={s.sample ? 'Choose a screenshot' : 'Use this screenshot'} haptic="tap" disabled={disabled} onPress={() => onPick(s.uri)} scale={0.96} style={[styles.shot, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
             <Image source={s.sample ?? { uri: s.uri }} style={styles.img} accessibilityIgnoresInvertColors />
           </Press>

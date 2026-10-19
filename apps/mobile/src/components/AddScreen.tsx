@@ -138,7 +138,7 @@ export function AddScreen() {
       <TabHeader date={now.date} label="What’s coming up?" title="Add"
         details={<T token="callout" color={c.inkSecondary}>Type it, paste it, or drop in a screenshot. You review everything before it’s added.</T>} />
       <View style={styles.body}>
-        {busy ? <Reading source={busy === 'Message' ? 'your message' : busy} /> : null}
+        {busy ? <Reading source={busy === 'Message' ? 'your message' : busy} chart={/\.pdf$/i.test(busy) ? 'term' : 'week'} /> : null}
 
         <Composer
           ref={inputRef}

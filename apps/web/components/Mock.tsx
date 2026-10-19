@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import m from './mock.module.css';
+import { PhoneFrame } from './PhoneFrame';
 
 /*
  * The pieces every phone mockup on the site is drawn from. All CSS, no raster,
@@ -10,12 +11,12 @@ export type Tone = 'ink' | 'green' | 'red' | 'amber' | 'grey';
 
 const TONE_TEXT: Record<Tone, string | undefined> = { ink: m.toneInk, green: m.toneGreen, red: m.toneRed, amber: m.toneAmber, grey: undefined };
 
-/** A CSS phone: ink bezel, paper screen. `label` makes the whole phone one image for screen readers. */
-export function Phone({ children, width = 300, height = 649, radius = 40, label, className = '', style }: { children: ReactNode; width?: number | string; height?: number; radius?: number; label: string; className?: string; style?: CSSProperties }) {
+/** A phone mockup: the real device render, with a CSS-drawn screen inside. `label` makes the whole phone one image for screen readers. */
+export function Phone({ children, width = 300, label, className = '' }: { children: ReactNode; width?: number; label: string; className?: string }) {
   return (
-    <div className={`${m.phone} ${className}`.trim()} role="img" aria-label={label} style={{ width, height, borderRadius: radius, ...style }}>
-      <div className={m.screen}>{children}</div>
-    </div>
+    <PhoneFrame width={width} label={label} className={className}>
+      <Screen>{children}</Screen>
+    </PhoneFrame>
   );
 }
 

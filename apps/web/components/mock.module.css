@@ -1,20 +1,6 @@
 /* Phone mockups drawn in CSS. Every screen on the site is built from these pieces,
    so the hero, the feature blocks and the try-it result share one look. */
 
-.phone {
-  position: relative;
-  flex: none;
-  overflow: hidden;
-  background: var(--canvas);
-  border: 8px solid var(--ink);
-  border-radius: 40px;
-  max-width: 100%;
-}
-@media (prefers-color-scheme: dark) {
-  .phone {
-    border-color: var(--line);
-  }
-}
 .screen {
   position: absolute;
   inset: 0;

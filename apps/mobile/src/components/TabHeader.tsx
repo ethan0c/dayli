@@ -7,9 +7,10 @@ import { T } from '@/components/Text';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 /** The same date, label, and large-value positions on every main tab. */
-export function TabHeader({ date, label, title, value, details, trailing, onPress, accessibilityLabel, inset = true }: {
+export function TabHeader({ date, label, context, title, value, details, trailing, onPress, accessibilityLabel, inset = true }: {
   date: string;
   label: string;
+  context?: ReactNode;
   title?: string;
   value?: ReactNode;
   details?: ReactNode;
@@ -20,12 +21,13 @@ export function TabHeader({ date, label, title, value, details, trailing, onPres
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
+  const dateLabel = `${weekdayLong(date)}, ${monthDay(date)}`;
   const content = (
     <>
-      <View style={styles.labels}>
-        <T token="callout" color={c.inkSecondary}>{`${weekdayLong(date)}, ${monthDay(date)}`}</T>
+      {context ?? <View style={styles.labels}>
+        <T token="callout" color={c.inkSecondary}>{dateLabel}</T>
         <T token="callout" color={c.inkSecondary} numberOfLines={1}>{label}</T>
-      </View>
+      </View>}
       {value ?? <T token="displayXl" accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{title}</T>}
       {details ? <View style={styles.details}>{details}</View> : null}
     </>
@@ -33,7 +35,7 @@ export function TabHeader({ date, label, title, value, details, trailing, onPres
   return (
     <View style={[styles.root, { paddingTop: inset ? insets.top + 20 : 8 }]}>
       {onPress ? (
-        <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel} onPress={onPress}
+        <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel ? `${dateLabel}, ${accessibilityLabel}` : undefined} onPress={onPress}
           style={({ pressed }) => [styles.content, { opacity: pressed ? 0.7 : 1 }]}>
           {content}
         </Pressable>
@@ -46,7 +48,7 @@ export function TabHeader({ date, label, title, value, details, trailing, onPres
 const styles = StyleSheet.create({
   root: { paddingHorizontal: SCREEN_GUTTER, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   content: { flex: 1, minWidth: 0, gap: 6 },
-  labels: { gap: 2 },
+  labels: { minHeight: 44, gap: 2 },
   details: { paddingTop: 6, gap: 4 },
   trailing: { paddingTop: 2, flexShrink: 0 },
 });

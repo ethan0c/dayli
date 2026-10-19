@@ -22,6 +22,7 @@ export function PhoneFrame({
   priority,
   decorative,
   label,
+  width,
 }: {
   children: ReactNode;
   className?: string;
@@ -30,11 +31,13 @@ export function PhoneFrame({
   decorative?: boolean;
   /** One sentence describing the screen; the whole phone becomes one image for screen readers. */
   label?: string;
+  /** Pixel width of the whole phone; the height follows the frame's aspect ratio. */
+  width?: number;
 }) {
   return (
     <div
       className={`phone ${className}`.trim()}
-      style={{ aspectRatio: `${FRAME.width} / ${FRAME.height}` }}
+      style={{ aspectRatio: `${FRAME.width} / ${FRAME.height}`, width, maxWidth: '100%' }}
       aria-hidden={decorative || undefined}
       role={label ? 'img' : undefined}
       aria-label={label}

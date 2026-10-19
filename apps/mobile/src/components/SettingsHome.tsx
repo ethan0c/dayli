@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { StatusPill, TextButton } from '@/components/Controls';
+import { Skeleton } from '@/components/Skeleton';
 import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
@@ -47,7 +48,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: inTab ? NAV_INSET : 48 }} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior={inTab ? 'never' : 'automatic'}>
       <TabHeader date={now.date} label={who} title={settings.name.trim() || 'You'} inset={inTab}
-        details={<View style={{ alignSelf: 'flex-start' }}><StatusPill label={loading && !customerInfo ? 'Checking plan…' : plan.label} tone={plan.tone} tabular={false} /></View>} />
+        details={<View style={{ alignSelf: 'flex-start' }}>{loading && !customerInfo ? <Skeleton width={132} height={28} round={14} /> : <StatusPill label={plan.label} tone={plan.tone} tabular={false} />}</View>} />
       <View style={styles.body}>
 
         <Group title="Profile">

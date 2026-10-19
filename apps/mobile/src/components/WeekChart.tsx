@@ -1,5 +1,9 @@
 import { monthDay, toMinutes, weekdayShort } from '@dayli/core';
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+
+import { springs } from '@/lib/motion';
 
 import { T } from '@/components/Text';
 import { useTheme } from '@/theme';
@@ -46,55 +50,62 @@ export type WeekDay = {
 export function WeekChart({ days, selected, today, onSelect, height = 120, accessibilityLabel }: {
   days: WeekDay[]; selected?: string; today: string; onSelect?: (date: string) => void; height?: number; accessibilityLabel?: string;
 }) {
-  const { c } = useTheme();
-  const tones = { ink: c.inkPrimary, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
   return (
     <View style={styles.row} accessible={!onSelect} accessibilityRole={onSelect ? undefined : 'image'} accessibilityLabel={accessibilityLabel}>
-      {days.map((day) => {
-        const isSel = day.date === selected;
-        const isToday = day.date === today;
-        const labelColor = day.labelTone ? tones[day.labelTone] : c.inkSecondary;
-        const column = (
-          <>
-            <T token="caption" color={isToday ? c.accentInk : c.inkSecondary} style={styles.weekday}>{weekdayShort(day.date)}</T>
-            <View style={[styles.num, isSel ? { backgroundColor: c.inkPrimary } : null]}>
-              <T token="subhead" color={isSel ? c.onPrimary : c.inkPrimary} tabular style={{ fontSize: 13 }}>{String(Number(day.date.slice(-2)))}</T>
-            </View>
-            <View style={[styles.track, { height, backgroundColor: day.unknown ? c.changedBg : c.row, borderWidth: day.unknown ? 1.5 : 0, borderColor: c.changed }]}>
-              {day.unknown ? <T token="subhead" color={c.changed} style={{ alignSelf: 'center', marginTop: height / 2 - 9 }}>?</T> : null}
-              {day.blocks.map((b) => {
-                const s = Math.max(START, toMinutes(b.start));
-                const e = Math.min(END, Math.max(toMinutes(b.end), s + 15));
-                const top = ((s - START) / SPAN) * height;
-                const h = Math.max(4, ((e - s) / SPAN) * height);
-                const color = tones[b.tone];
-                return (
-                  <View key={b.id} style={[styles.block, { top, height: h },
-                    b.outline ? { borderWidth: 1.5, borderColor: color, borderStyle: b.outline } : { backgroundColor: color }]} />
-                );
-              })}
-              {(day.marks ?? []).map((m) => {
-                const top = ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height;
-                const color = m.tone === 'red' ? c.conflict : c.inkPrimary;
-                return m.kind === 'ring'
-                  ? <View key={m.id} style={[styles.ring, { top: top - 5, borderColor: color, backgroundColor: c.surface }]} />
-                  : <View key={m.id} style={[styles.dot, { top: top - 4, backgroundColor: color }]} />;
-              })}
-              {isToday ? <View style={[styles.now, { backgroundColor: c.inkPrimary, top: nowTop(height) }]} /> : null}
-            </View>
-            {day.label ? <T token="caption" color={labelColor} tabular style={[styles.label, day.labelTone && day.labelTone !== 'grey' ? { fontFamily: undefined } : null, day.labelStrike ? { textDecorationLine: 'line-through' } : null]}>{day.label}</T> : null}
-          </>
-        );
-        if (!onSelect) return <View key={day.date} style={styles.col}>{column}</View>;
-        return (
-          <Pressable key={day.date} onPress={() => onSelect(day.date)} accessibilityRole="button" accessibilityState={{ selected: isSel }}
-            accessibilityLabel={`${weekdayShort(day.date)}, ${monthDay(day.date)}${isToday ? ', today' : ''}, ${day.blocks.length} ${day.blocks.length === 1 ? 'block' : 'blocks'}`}
-            style={({ pressed }) => [styles.col, { opacity: pressed ? 0.7 : 1 }]}>
-            {column}
-          </Pressable>
-        );
-      })}
+      {days.map((day) => <DayColumn key={day.date} day={day} selected={day.date === selected} today={day.date === today} height={height} onSelect={onSelect} />)}
     </View>
+  );
+}
+
+function DayColumn({ day, selected, today, height, onSelect }: { day: WeekDay; selected: boolean; today: boolean; height: number; onSelect?: (date: string) => void }) {
+  const { c } = useTheme();
+  const tones = { ink: c.inkPrimary, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
+  const labelColor = day.labelTone ? tones[day.labelTone] : c.inkSecondary;
+  // The ink pill behind the number pops in on a spring when this day is chosen.
+  const sel = useSharedValue(selected ? 1 : 0);
+  useEffect(() => {
+    sel.value = withSpring(selected ? 1 : 0, springs.snappy);
+  }, [selected, sel]);
+  const pill = useAnimatedStyle(() => ({ opacity: sel.value, transform: [{ scale: 0.6 + 0.4 * sel.value }] }));
+  const column = (
+    <>
+      <T token="caption" color={today ? c.accentInk : c.inkSecondary} style={styles.weekday}>{weekdayShort(day.date)}</T>
+      <View style={styles.num}>
+        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: 14, backgroundColor: c.inkPrimary }, pill]} />
+        <T token="subhead" color={selected ? c.onPrimary : c.inkPrimary} tabular style={{ fontSize: 13 }}>{String(Number(day.date.slice(-2)))}</T>
+      </View>
+      <View style={[styles.track, { height, backgroundColor: day.unknown ? c.changedBg : c.row, borderWidth: day.unknown ? 1.5 : 0, borderColor: c.changed }]}>
+        {day.unknown ? <T token="subhead" color={c.changed} style={{ alignSelf: 'center', marginTop: height / 2 - 9 }}>?</T> : null}
+        {day.blocks.map((b) => {
+          const s = Math.max(START, toMinutes(b.start));
+          const e = Math.min(END, Math.max(toMinutes(b.end), s + 15));
+          const top = ((s - START) / SPAN) * height;
+          const h = Math.max(4, ((e - s) / SPAN) * height);
+          const color = tones[b.tone];
+          return (
+            <View key={b.id} style={[styles.block, { top, height: h },
+              b.outline ? { borderWidth: 1.5, borderColor: color, borderStyle: b.outline } : { backgroundColor: color }]} />
+          );
+        })}
+        {(day.marks ?? []).map((m) => {
+          const top = ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height;
+          const color = m.tone === 'red' ? c.conflict : c.inkPrimary;
+          return m.kind === 'ring'
+            ? <View key={m.id} style={[styles.ring, { top: top - 5, borderColor: color, backgroundColor: c.surface }]} />
+            : <View key={m.id} style={[styles.dot, { top: top - 4, backgroundColor: color }]} />;
+        })}
+        {today ? <View style={[styles.now, { backgroundColor: c.inkPrimary, top: nowTop(height) }]} /> : null}
+      </View>
+      {day.label ? <T token="caption" color={labelColor} tabular style={[styles.label, day.labelTone && day.labelTone !== 'grey' ? { fontFamily: undefined } : null, day.labelStrike ? { textDecorationLine: 'line-through' } : null]}>{day.label}</T> : null}
+    </>
+  );
+  if (!onSelect) return <View style={styles.col}>{column}</View>;
+  return (
+    <Pressable onPress={() => onSelect(day.date)} accessibilityRole="button" accessibilityState={{ selected }}
+      accessibilityLabel={`${weekdayShort(day.date)}, ${monthDay(day.date)}${today ? ', today' : ''}, ${day.blocks.length} ${day.blocks.length === 1 ? 'block' : 'blocks'}`}
+      style={({ pressed }) => [styles.col, { opacity: pressed ? 0.7 : 1 }]}>
+      {column}
+    </Pressable>
   );
 }
 
@@ -119,7 +130,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 6 },
   col: { flex: 1, alignItems: 'center', gap: 6 },
   weekday: { fontSize: 11, lineHeight: 14 },
-  num: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  num: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   track: { width: '100%', borderRadius: 6, position: 'relative', overflow: 'visible' },
   block: { position: 'absolute', left: 0, right: 0, borderRadius: 6 },
   ring: { position: 'absolute', left: '50%', marginLeft: -5, width: 10, height: 10, borderRadius: 5, borderWidth: 2 },

@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { CategoryDot, ListRow, SectionTitle, StatusPill } from '@/components/Controls';
@@ -14,7 +15,7 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
  * Today and Plan before anything is added: three ways to start as rows, then two
  * example rows showing what the screen will look like. No cards, no tiles.
  */
-export function TodayStart({ date, tab = 'Today' }: { date: string; tab?: 'Today' | 'Plan' }) {
+export function TodayStart({ date, tab = 'Today', header }: { date: string; tab?: 'Today' | 'Plan'; header?: ReactNode }) {
   const { c } = useTheme();
   const open = (source?: 'image' | 'file') => {
     feedback('tap');
@@ -24,8 +25,8 @@ export function TodayStart({ date, tab = 'Today' }: { date: string; tab?: 'Today
   };
   return (
     <View>
-      <TabHeader date={date} label="Your week starts here" title={tab}
-        details={<T token="callout" color={c.inkSecondary}>Add one thing and {tab} fills in. Everything is checked with you first.</T>} />
+      {header ?? <TabHeader date={date} label="Your week starts here" title={tab}
+        details={<T token="callout" color={c.inkSecondary}>Add one thing and {tab} fills in. Everything is checked with you first.</T>} />}
 
       <View style={styles.section}>
         <SectionTitle title="Start with" />

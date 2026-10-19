@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
-import { SkeletonRows } from '@/components/Skeleton';
+import { SkeletonReview } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { ease } from '@/lib/motion';
 import { useTheme } from '@/theme';
@@ -25,10 +25,10 @@ export function ProgressLine() {
 }
 
 /**
- * The import loading state: a progress line, a light heading that changes, and agenda-shaped
- * placeholders where the result will land. No box, no dots.
+ * The import loading state: a progress line, a light heading that changes, and the review
+ * drawn as placeholders where the result will land. No box, no dots.
  */
-export function Reading({ source, rows = 3 }: { source: string; rows?: number }) {
+export function Reading({ source, chart = 'week' }: { source: string; chart?: 'week' | 'term' }) {
   const { c } = useTheme();
   const [line, setLine] = useState(0);
   useEffect(() => {
@@ -44,7 +44,7 @@ export function Reading({ source, rows = 3 }: { source: string; rows?: number })
           {source[0]?.toUpperCase() + source.slice(1)} · Nothing is saved until you confirm.
         </T>
       </View>
-      {rows > 0 ? <SkeletonRows count={rows} /> : null}
+      <SkeletonReview chart={chart} />
     </View>
   );
 }

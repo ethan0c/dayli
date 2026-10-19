@@ -8,6 +8,7 @@ import Animated from 'react-native-reanimated';
 import { CategoryDot, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { ItemRow } from '@/components/ItemRow';
 import { TimeField } from '@/components/Native';
+import { PlanCalendarControl, PlanMonthCalendar } from '@/components/PlanCalendar';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
@@ -45,9 +46,11 @@ export default function PlanScreen() {
   const removeItem = useStore((s) => s.removeItem);
   const updateItem = useStore((s) => s.updateItem);
   const [selected, updateSelected] = useState(useStore.getState().selectedPlanDate ?? now.date);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const setSelected = useCallback((date: string) => {
     updateSelected(date);
     useStore.getState().setSelectedPlanDate(date);
+    setCalendarOpen(false);
   }, []);
   /** Which untimed shifts have a time picker open, per field. */
   const [timing, setTiming] = useState<Record<string, { start?: boolean; end?: boolean }>>({});
@@ -117,10 +120,21 @@ export default function PlanScreen() {
     .sort((a, b) => b.date.localeCompare(a.date))[0];
 
   const openCapture = () => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } });
+  const header = (
+    <TabHeader date={selected} label="" title="Plan"
+      context={<PlanCalendarControl selected={selected} expanded={calendarOpen} onToggle={() => setCalendarOpen((open) => !open)}
+        onPreviousWeek={() => setSelected(addDays(selected, -7))} onNextWeek={() => setSelected(addDays(selected, 7))} />}
+      details={<>
+        {calendarOpen ? <PlanMonthCalendar selected={selected} today={now.date} onSelect={setSelected} /> : null}
+        <T token="callout" color={c.inkSecondary} tabular={!starting}>
+          {starting ? 'Add one thing and Plan fills in. Everything is checked with you first.' : `${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}
+        </T>
+      </>} />
+  );
 
   if (starting) return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-      <TodayStart date={now.date} tab="Plan" />
+      <TodayStart date={selected} tab="Plan" header={header} />
     </ScrollView>
   );
 
@@ -162,8 +176,7 @@ export default function PlanScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
       <ScrollView contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
-        <TabHeader date={now.date} label={`Week of ${monthDay(weekStart)}`} title="Plan"
-          details={<T token="callout" color={c.inkSecondary} tabular>{`${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}</T>} />
+        {header}
         <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined}
           style={styles.chart} {...swipe.panHandlers}>
           <WeekChart days={days} selected={selected} today={now.date} onSelect={(date) => { if (date !== selected) feedback('select'); setSelected(date); }} />

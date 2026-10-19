@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Composer } from "@/components/Composer";
@@ -21,7 +21,7 @@ import { requestExtraction } from "@/lib/api";
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/lib/capture-input";
 import { devStep } from "@/lib/dev";
 import { feedback } from "@/lib/feedback";
-import { enter, springs } from "@/lib/motion";
+import { enter, exit, springs } from "@/lib/motion";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
 import { requestNotifications, syncReminders } from "@/lib/notifications";
 import { useStore } from "@/store";
@@ -126,7 +126,7 @@ export default function OnboardingScreen() {
       {step === "plus" ? <Backdrop source={PHOTOS.plus} height={460} fadeFrom={120} dim={0.3} /> : null}
       <View style={styles.header}>
         {history.length > 0 ? (
-          <Animated.View entering={FadeIn.duration(160)} exiting={FadeOut.duration(120)}>
+          <Animated.View entering={enter.fade} exiting={exit.fade}>
             <Press accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} scale={0.9} onPress={back} style={styles.back}>
               <GlassCircle size={36} plain><Icon name="chevronLeft" size={22} color={barOn} /></GlassCircle>
             </Press>
@@ -515,7 +515,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
         </T>
       </View>
       {busy ? (
-        <Reading source={busy === "Message" ? "your message" : busy} />
+        <Reading source={busy === "Message" ? "your message" : busy} chart={/\.pdf$/i.test(busy) ? "term" : "week"} />
       ) : (
         <Composer
           value={text}

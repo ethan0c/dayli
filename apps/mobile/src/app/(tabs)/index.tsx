@@ -107,9 +107,11 @@ export default function TodayScreen() {
   const nextTitle = featured ? `${featured.title}${featured.start ? ` · ${featured.end ? formatRange(featured.start, featured.end) : formatTime(featured.start)}` : ''}` : null;
   const hours = todayView === 'hours';
   const viewToggle = (
-    <IconButton icon={hours ? 'list' : 'chart'} tone="glass" size={44} haptic="select"
-      label={hours ? 'Show the list' : 'Show the day by the hour'}
-      onPress={() => setSettings({ todayView: hours ? 'list' : 'hours' })} />
+    <Animated.View key={hours ? 'list' : 'chart'} entering={enter.fade} exiting={exit.fade}>
+      <IconButton icon={hours ? 'list' : 'chart'} tone="glass" size={44} haptic="select"
+        label={hours ? 'Show the list' : 'Show the day by the hour'}
+        onPress={() => setSettings({ todayView: hours ? 'list' : 'hours' })} />
+    </Animated.View>
   );
   const todayDetail = `${todays.length} ${todays.length === 1 ? 'thing' : 'things'}${conflictsToday ? ` · ${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : ''}`;
 

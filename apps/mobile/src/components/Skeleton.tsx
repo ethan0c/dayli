@@ -40,6 +40,88 @@ export function SkeletonCard({ height = 72 }: { height?: number }) {
   return <Skeleton height={height} round={radius.card} />;
 }
 
+/** The day bar before it has a day: the track and its four labels. */
+export function SkeletonDayBar({ labels = true }: { labels?: boolean }) {
+  return (
+    <View style={{ gap: 8 }} accessible={false}>
+      <Skeleton height={6} round={3} />
+      {labels ? <View style={styles.between}>{[36, 30, 30, 48].map((w, i) => <Skeleton key={i} width={w} height={11} round={5} />)}</View> : null}
+    </View>
+  );
+}
+
+/** Seven day bars before the week is known. */
+export function SkeletonWeekChart({ height = 120 }: { height?: number }) {
+  return (
+    <View style={styles.week} accessible={false}>
+      {Array.from({ length: 7 }, (_, i) => (
+        <View key={i} style={styles.weekCol}>
+          <Skeleton width={22} height={11} round={5} />
+          <Skeleton width={28} height={28} round={14} />
+          <Skeleton height={height} round={6} />
+          <Skeleton width={30} height={11} round={5} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** The term line before its dates are known. */
+export function SkeletonTermLine() {
+  return (
+    <View style={{ gap: 8 }} accessible={false}>
+      <View style={styles.between}>{[24, 28, 24].map((w, i) => <Skeleton key={i} width={w} height={11} round={5} />)}</View>
+      <Skeleton height={6} round={3} />
+      <View style={styles.between}>{[34, 40, 30].map((w, i) => <Skeleton key={i} width={w} height={11} round={5} />)}</View>
+    </View>
+  );
+}
+
+/** The day by the hour before it has a day: hour rules and two blocks. */
+export function SkeletonHourView({ hours = 8 }: { hours?: number }) {
+  return (
+    <View style={{ gap: 44 }} accessible={false}>
+      {Array.from({ length: hours }, (_, i) => (
+        <View key={i} style={styles.hourRow}>
+          <Skeleton width={34} height={11} round={5} />
+          <Skeleton height={i === 1 || i === 4 ? 36 : StyleSheet.hairlineWidth} round={8} style={{ flex: 1 }} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/**
+ * The shape of a review while Semli reads: the big number, the week as bars, and
+ * three rows. The result lands exactly where these sit.
+ */
+export function SkeletonReview({ chart = 'week' }: { chart?: 'week' | 'term' }) {
+  return (
+    <View style={{ gap: 24 }} accessible={false}>
+      <View style={{ gap: 8 }}>
+        <Skeleton width={150} height={12} round={6} />
+        <Skeleton width={190} height={48} round={12} />
+        <Skeleton width={220} height={14} round={7} />
+      </View>
+      {chart === 'week' ? <SkeletonWeekChart /> : <SkeletonTermLine />}
+      <SkeletonRows count={3} />
+    </View>
+  );
+}
+
+/** The recent-screenshots strip before the photo library answers. */
+export function SkeletonShots({ count = 4 }: { count?: number }) {
+  return (
+    <View style={{ flexDirection: 'row', gap: 8 }} accessible={false}>
+      {Array.from({ length: count }, (_, i) => <Skeleton key={i} width={104} height={150} round={14} />)}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 72, paddingVertical: 16 },
+  between: { flexDirection: 'row', justifyContent: 'space-between' },
+  week: { flexDirection: 'row', gap: 6 },
+  weekCol: { flex: 1, alignItems: 'center', gap: 6 },
+  hourRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 });

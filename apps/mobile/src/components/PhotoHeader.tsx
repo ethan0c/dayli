@@ -1,4 +1,8 @@
+import { useEffect, useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+
+import { durations, ease } from '@/lib/motion';
 
 const STEPS = 28;
 
@@ -8,9 +12,17 @@ const STEPS = 28;
  */
 export function PhotoHeader({ source, height, to, fadeFrom = 0.45, dim = 0 }: { source: number; height: number; to: string; fadeFrom?: number; dim?: number }) {
   const top = height * fadeFrom;
+  const [ready, setReady] = useState(false);
+  const loaded = useSharedValue(0);
+  useEffect(() => {
+    if (ready) loaded.value = withTiming(1, { duration: durations.base, easing: ease });
+  }, [ready, loaded]);
+  const fade = useAnimatedStyle(() => ({ opacity: loaded.value }));
   return (
     <View pointerEvents="none" style={[styles.wrap, { height }]}>
-      <Image source={source} resizeMode="cover" style={{ width: '100%', height }} accessibilityIgnoresInvertColors />
+      <Animated.View style={[{ width: '100%', height }, fade]}>
+        <Image source={source} resizeMode="cover" style={{ width: '100%', height }} accessibilityIgnoresInvertColors onLoad={() => setReady(true)} />
+      </Animated.View>
       {dim > 0 ? <View style={[StyleSheet.absoluteFill, { backgroundColor: to, opacity: dim }]} /> : null}
       <View style={{ position: 'absolute', left: 0, right: 0, top, height: height - top }}>
         {Array.from({ length: STEPS }, (_, i) => {

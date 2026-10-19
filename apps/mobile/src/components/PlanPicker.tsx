@@ -149,7 +149,8 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
               </View>
               <T token="body" color={c.inkPrimary} style={{ flex: 1 }}>{label}</T>
               {saving >= 5 ? <StatusPill label={`Save ${saving}%`} tone="green" tabular={false} /> : null}
-              <T token="callout" color={c.inkSecondary} tabular>{pack ? (months > 1 ? perMonth(pack, months) : `${pack.product.priceString} / mo`) : loading ? '…' : 'Unavailable'}</T>
+              <T token="callout" color={c.inkSecondary} tabular>{pack ? (months > 1 ? perMonth(pack, months) : `${pack.product.priceString} / mo`) : loading ? '' : 'Unavailable'}</T>
+              {!pack && loading ? <Skeleton width={64} height={14} round={7} /> : null}
             </Pressable>
           );
         })}
