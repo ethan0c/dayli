@@ -62,9 +62,9 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
           <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
         </Group>
 
-        <Group title="Account" footer="Accounts are coming soon. Keep planning as a guest for now.">
-          <Row label="Account settings" value="Preview" onPress={() => router.push('/account?section=manage')} />
-          <Row label="Save your plan" value="Preview" onPress={() => router.push('/account')} />
+        <Group title="Account" footer="Planning as a guest. Your schedule is stored on this phone.">
+          <Row label="Account settings" value="Guest" onPress={() => router.push('/account?section=manage')} />
+          <Row label="Log in or sign up" onPress={() => router.push('/auth')} />
           <Row label="Share your schedule" value="Preview" onPress={() => router.push('/share-schedule')} last />
         </Group>
 

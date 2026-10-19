@@ -16,7 +16,6 @@ import { PlanPicker } from "@/components/PlanPicker";
 import { Reading } from "@/components/Reading";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
-import { Wordmark } from "@/components/Wordmark";
 import { track } from "@/lib/analytics";
 import { requestExtraction } from "@/lib/api";
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/lib/capture-input";
@@ -37,7 +36,7 @@ import { SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
  * three one-tap questions → the demo → your own import → the review sheet (the aha)
  * → reminders priming → the paywall after value → Today.
  */
-const STEPS = ["welcome", "role", "major", "week", "demo", "own", "heads-up", "plus"] as const;
+const STEPS = ["role", "major", "week", "demo", "own", "heads-up", "plus"] as const;
 type Step = (typeof STEPS)[number];
 
 type Picked = { input: Parameters<typeof requestExtraction>[1]["input"]; source: string } | null;
@@ -58,7 +57,7 @@ export default function OnboardingScreen() {
 
   // `?step=plus` opens a specific step; useful when previewing copy and layout.
   const params = useLocalSearchParams<{ step?: string }>();
-  const requested = (STEPS as readonly string[]).includes(params.step ?? "") ? (params.step as Step) : "welcome";
+  const requested = (STEPS as readonly string[]).includes(params.step ?? "") ? (params.step as Step) : "role";
   const [step, setStep] = useState<Step>(requested);
   // Reset when the link changes (derived state, no effect).
   const [lastRequested, setLastRequested] = useState(requested);
@@ -70,7 +69,8 @@ export default function OnboardingScreen() {
   // Development: `dev-step.txt` in Documents opens a step directly (see lib/dev.ts).
   useEffect(() => {
     void devStep().then((v) => {
-      if (v && (STEPS as readonly string[]).includes(v)) setStep(v as Step);
+      if (v === "welcome") router.replace("/auth");
+      else if (v && (STEPS as readonly string[]).includes(v)) setStep(v as Step);
     });
   }, []);
 
@@ -143,7 +143,6 @@ export default function OnboardingScreen() {
       </View>
 
       <Animated.View key={step} entering={enter.fromRight} style={{ flex: 1 }}>
-      {step === "welcome" && <Welcome onNext={() => go("role")} />}
       {step === "role" && (
         <OneTapStep title="Right now you are a" subtitle="So the examples fit your week. One tap." gap={28}>
           {ROLES.map((r) => (
@@ -262,31 +261,6 @@ function Segment({ on, fill, track }: { on: boolean; fill: string; track: string
 }
 
 /* ---------- Welcome: the wordmark assembles itself ---------- */
-
-function Welcome({ onNext }: { onNext: () => void }) {
-  const { c } = useTheme();
-  return (
-    <View style={styles.center}>
-      <View style={styles.middle}>
-        <Animated.View entering={enter.rise}>
-          <Wordmark width={192} ink={c.inkPrimary} dot={c.accent} />
-        </Animated.View>
-        <Animated.View entering={enter.rise.delay(350)} style={{ gap: 10, alignItems: "center" }}>
-          <T style={[styles.h1, { textAlign: "center", maxWidth: 300 }]}>The daily planner for college students.</T>
-          <T token="callout" color={c.inkSecondary} style={{ textAlign: "center", maxWidth: 290 }}>
-            Drop in a syllabus, a work schedule, or a text. Semli tells you what matters today.
-          </T>
-          <T token="caption" color={c.inkSecondary} style={{ textAlign: "center" }}>
-            Takes a minute. No account.
-          </T>
-        </Animated.View>
-      </View>
-      <Animated.View entering={enter.fade.delay(600)} style={styles.footer}>
-        <Button label="Let's go" onPress={onNext} />
-      </Animated.View>
-    </View>
-  );
-}
 
 /* ---------- One question per screen, auto-advance ---------- */
 
@@ -647,7 +621,6 @@ const styles = StyleSheet.create({
   progress: { flex: 1, flexDirection: "row", gap: 5 },
   bar: { flex: 1, height: 3, borderRadius: 2 },
   center: { flex: 1 },
-  middle: { flex: 1, alignItems: "center", justifyContent: "center", gap: 28 },
   page: { flexGrow: 1, gap: 24 },
   titleBlock: { gap: 6 },
   /** Light 30/36, the question size on every onboarding board. */

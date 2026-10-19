@@ -88,6 +88,8 @@ function RootLayout() {
             headerBackButtonDisplayMode: 'minimal',
             contentStyle: { backgroundColor: c.canvas },
           }}>
+          {/* Auth is the fallback for a new install; existing planners still resolve / to tabs. */}
+          <Stack.Screen name="auth" options={{ presentation: 'fullScreenModal' }} />
           {/* Review is a full-screen cover: it can be reached from onboarding too, so it sits outside the guards. */}
           <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false, headerShown: true, ...navigationButtonOptions('close') }} />
           <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', headerShown: true, headerTransparent: true, title: '', headerTintColor: '#F5F4F0', ...navigationButtonOptions('close') }} />
