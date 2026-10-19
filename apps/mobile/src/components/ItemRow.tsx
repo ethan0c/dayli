@@ -4,22 +4,30 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
-import { radius, useTheme } from '@/theme';
+import { courseTint, useStore } from '@/store';
+import { radius, useTheme, type Palette } from '@/theme';
+
+type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline'> & { courseId?: string | null };
 
 type Props = {
-  item: Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline'>;
+  item: RowItem;
   conflict?: boolean;
   onPress?: () => void;
   onToggle?: () => void;
 };
 
-/** Tasks are neutral rows with a check circle; events are tinted by category with a time chip. */
+/** Events take their course's tint, or their category's; tasks stay neutral with a check circle. */
+export function useItemColors(item: RowItem, c: Palette): { fill: string; ink: string } {
+  const courses = useStore((s) => s.courses);
+  if (item.kind !== 'event') return { fill: c.row, ink: c.inkPrimary };
+  const tint = courseTint(courses, item.courseId);
+  return tint ? c.tint[tint] : c.category[item.category];
+}
+
 export function ItemRow({ item, conflict, onPress, onToggle }: Props) {
   const { c } = useTheme();
+  const { fill, ink } = useItemColors(item, c);
   const isEvent = item.kind === 'event';
-  const cat = c.category[item.category];
-  const bg = isEvent ? cat.fill : c.row;
-  const ink = isEvent ? cat.ink : c.inkPrimary;
   const timeLabel = item.start ? (item.end ? formatRange(item.start, item.end) : formatTime(item.start)) : null;
 
   return (
@@ -27,14 +35,11 @@ export function ItemRow({ item, conflict, onPress, onToggle }: Props) {
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
-        { backgroundColor: bg, opacity: item.done ? 0.55 : pressed ? 0.85 : 1 },
+        { backgroundColor: fill, opacity: item.done ? 0.55 : pressed ? 0.85 : 1 },
         conflict ? { borderWidth: 1.5, borderColor: c.conflict } : null,
       ]}>
       <Icon name={item.icon} color={ink} />
-      <T
-        numberOfLines={1}
-        color={ink}
-        style={[styles.title, item.done ? { textDecorationLine: 'line-through' } : null]}>
+      <T numberOfLines={1} color={ink} style={[styles.title, item.done ? { textDecorationLine: 'line-through' } : null]}>
         {item.title}
       </T>
       {isEvent ? (
@@ -49,11 +54,11 @@ export function ItemRow({ item, conflict, onPress, onToggle }: Props) {
         <Pressable
           hitSlop={12}
           onPress={onToggle}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: item.done }}
           style={[
             styles.circle,
-            item.done
-              ? { backgroundColor: c.inkPrimary, borderColor: c.inkPrimary }
-              : { backgroundColor: c.canvas, borderColor: c.line },
+            item.done ? { backgroundColor: c.inkPrimary, borderColor: c.inkPrimary } : { backgroundColor: c.canvas, borderColor: c.line },
           ]}>
           {item.done ? <Icon name="tick" size={13} color={c.canvas} strokeWidth={3} /> : null}
         </Pressable>
@@ -63,14 +68,7 @@ export function ItemRow({ item, conflict, onPress, onToggle }: Props) {
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    minHeight: 52,
-    borderRadius: radius.row,
-    paddingHorizontal: 14,
-  },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, borderRadius: radius.row, paddingHorizontal: 14 },
   title: { flex: 1, minWidth: 0 },
   chip: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.chip },
   circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },

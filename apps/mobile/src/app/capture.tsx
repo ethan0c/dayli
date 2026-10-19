@@ -5,9 +5,10 @@ import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
+import { Reading } from '@/components/Reading';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { requestExtraction } from '@/lib/api';
@@ -27,6 +28,7 @@ export default function CaptureScreen() {
   const courses = useStore((s) => s.courses);
   const schedules = useStore((s) => s.schedules);
   const setPending = useStore((s) => s.setPending);
+  const recordImport = useStore((s) => s.recordImport);
 
   async function run(input: ExtractRequest['input'], source: string) {
     setError(null);
@@ -49,6 +51,7 @@ export default function CaptureScreen() {
       setError(IMPORT_MESSAGES.empty);
       return;
     }
+    recordImport();
     setPending({ extraction: res.extraction, source });
     router.replace('/review');
   }
@@ -123,14 +126,7 @@ export default function CaptureScreen() {
           <Action icon="file" label="PDF" onPress={pickPdf} disabled={!!busy} />
         </View>
 
-        {busy ? (
-          <View style={[styles.status, { backgroundColor: c.accentSoft, borderColor: c.accentBorder }]}>
-            <ActivityIndicator color={c.accentInk} />
-            <T token="subhead" color={c.accentInk}>
-              Reading {busy === 'Message' ? 'your message' : busy}…
-            </T>
-          </View>
-        ) : null}
+        {busy ? <Reading source={busy === 'Message' ? 'your message' : busy} /> : null}
         {error ? (
           <View accessibilityRole="alert" style={[styles.status, { backgroundColor: c.conflictBg, borderColor: 'transparent' }]}>
             <Icon name="alert" size={16} color={c.conflict} />

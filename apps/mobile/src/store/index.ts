@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { CommitPlan } from '@dayli/core';
 import type { Course, Extraction, Item, ScheduleVersion } from '@dayli/schema';
+import { COURSE_TINTS, type TintName } from '@dayli/tokens';
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -30,6 +31,8 @@ export interface Pending {
 }
 
 export type PlanId = 'monthly' | 'semester' | 'yearly';
+export type Appearance = 'system' | 'light' | 'dark';
+export type StoredCourse = Course & { batchId?: string; color?: TintName };
 
 interface Settings {
   name: string;
@@ -40,12 +43,20 @@ interface Settings {
   isStudent: boolean;
   planIntent: PlanId | null;
   weekKinds: string[];
+  appearance: Appearance;
+}
+
+/** AI imports used this calendar month (free tier allows a few). */
+interface Usage {
+  month: string;
+  imports: number;
 }
 
 interface State {
   hydrated: boolean;
   items: Record<string, Item>;
-  courses: (Course & { batchId?: string })[];
+  courses: StoredCourse[];
+  usage: Usage;
   schedules: (ScheduleVersion & { batchId?: string })[];
   batches: Batch[];
   pending: Pending | null;
@@ -57,6 +68,7 @@ interface State {
   showToast: (message: string, batchId?: string) => void;
   hideToast: () => void;
   setSettings: (patch: Partial<Settings>) => void;
+  recordImport: () => void;
 
   toggleDone: (id: string) => void;
   updateItem: (id: string, patch: Partial<Item>) => void;
@@ -82,13 +94,19 @@ export const useStore = create<State>()(
       batches: [],
       pending: null,
       toast: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [] },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system' },
+      usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),
       setPending: (pending) => set({ pending }),
       showToast: (message, batchId) => set({ toast: { message, batchId } }),
       hideToast: () => set({ toast: null }),
       setSettings: (patch) => set({ settings: { ...get().settings, ...patch } }),
+      recordImport: () => {
+        const month = nowIso().slice(0, 7);
+        const u = get().usage;
+        set({ usage: { month, imports: u.month === month ? u.imports + 1 : 1 } });
+      },
 
       toggleDone: (id) => {
         const it = get().items[id];
@@ -160,7 +178,9 @@ export const useStore = create<State>()(
               },
             ]
           : get().schedules;
-        const courses = extra?.course ? [...get().courses, { ...extra.course, batchId: b.id }] : get().courses;
+        const courses = extra?.course
+          ? [...get().courses, { ...extra.course, batchId: b.id, color: COURSE_TINTS[get().courses.length % COURSE_TINTS.length] }]
+          : get().courses;
         set({ items, schedules, courses, batches: [b, ...get().batches], pending: null });
         return b.id;
       },
@@ -189,7 +209,7 @@ export const useStore = create<State>()(
         const s = sampleWeek(date);
         set({
           items: { ...get().items, ...Object.fromEntries(s.items.map((i) => [i.id, i])) },
-          courses: [...get().courses.filter((c) => c.sourceId !== SAMPLE_SOURCE), ...s.courses],
+          courses: [...get().courses.filter((c) => c.sourceId !== SAMPLE_SOURCE), ...s.courses.map((k, i) => ({ ...k, color: COURSE_TINTS[i % COURSE_TINTS.length] }))],
           schedules: [...get().schedules.filter((c) => c.sourceId !== SAMPLE_SOURCE), ...s.schedules],
           settings: { ...get().settings, seeded: true },
         });
@@ -200,7 +220,7 @@ export const useStore = create<State>()(
     {
       name: 'dayli',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (s) => ({ items: s.items, courses: s.courses, schedules: s.schedules, batches: s.batches, settings: s.settings }),
+      partialize: (s) => ({ items: s.items, courses: s.courses, schedules: s.schedules, batches: s.batches, settings: s.settings, usage: s.usage }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<State>;
         return { ...current, ...p, settings: { ...current.settings, ...(p.settings ?? {}) } };
@@ -212,6 +232,14 @@ export const useStore = create<State>()(
 
 function batch(label: string, changes: Change[]): Batch {
   return { id: newId(), createdAt: nowIso(), label, changes, undone: false };
+}
+
+/** A course's tint; older records without one take the next tint in order. */
+export function courseTint(courses: StoredCourse[], courseId: string | null | undefined): TintName | null {
+  if (!courseId) return null;
+  const i = courses.findIndex((k) => k.id === courseId);
+  if (i < 0) return null;
+  return courses[i]!.color ?? COURSE_TINTS[i % COURSE_TINTS.length]!;
 }
 
 /** All items as a stable sorted array. */

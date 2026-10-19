@@ -13,10 +13,11 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon, type IconKey } from "@/components/Icon";
+import { PlanPicker } from "@/components/PlanPicker";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
 import { Wordmark } from "@/components/Wordmark";
-import { FREE_IMPORTS_PER_MONTH, PLANS, money, perMonth } from "@/lib/plans";
+import { FREE_IMPORTS_PER_MONTH, PLANS } from "@/lib/plans";
 import { useStore, type PlanId } from "@/store";
 import { radius, textStyle, useTheme } from "@/theme";
 
@@ -438,116 +439,14 @@ function PriceStep({
     <ScrollView contentContainerStyle={styles.page}>
       <T token="display">Free to start.</T>
       <T token="callout" color={c.inkSecondary}>
-        {FREE_IMPORTS_PER_MONTH} imports a month, reminders, and the calendar
-        are free forever. Plus gives you unlimited imports.
+        {FREE_IMPORTS_PER_MONTH} imports a month, reminders, and the calendar are free forever. Plus reads everything you throw at it.
       </T>
-
-      <Pressable
-        onPress={() => {
-          Haptics.selectionAsync();
-          onStudent(!student);
-        }}
-        accessibilityRole="switch"
-        accessibilityState={{ checked: student }}
-        style={[
-          styles.studentRow,
-          {
-            backgroundColor: student ? c.accentSoft : c.row,
-            borderColor: student ? c.accentBorder : "transparent",
-          },
-        ]}
-      >
-        <View style={{ flex: 1, gap: 2 }}>
-          <T token="headline">{"I'm a college student"}</T>
-          <T token="caption" color={c.inkSecondary}>
-            {
-              "Student pricing works on the honor system. No student ID or school email needed. Turn this off to see regular prices."
-            }
-          </T>
-        </View>
-        <View
-          style={[
-            styles.toggle,
-            { backgroundColor: student ? c.inkPrimary : c.line },
-          ]}
-        >
-          <View
-            style={[
-              styles.knob,
-              {
-                backgroundColor: c.canvas,
-                alignSelf: student ? "flex-end" : "flex-start",
-              },
-            ]}
-          />
-        </View>
-      </Pressable>
-
-      <View style={{ gap: 8 }}>
-        {PLANS.map((p) => {
-          const on = plan === p.id;
-          const price = student ? p.student : p.regular;
-          return (
-            <Pressable
-              key={p.id}
-              onPress={() => {
-                Haptics.selectionAsync();
-                onPlan(on ? null : p.id);
-              }}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: on }}
-              style={[
-                styles.plan,
-                {
-                  backgroundColor: c.row,
-                  borderColor: on ? c.inkPrimary : "transparent",
-                },
-              ]}
-            >
-              <View style={{ flex: 1, gap: 2 }}>
-                <View
-                  style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
-                >
-                  <T token="headline">{p.name}</T>
-                  {p.tag ? (
-                    <View
-                      style={[styles.tag, { backgroundColor: c.accentSoft }]}
-                    >
-                      <T token="caption" color={c.accentInk}>
-                        {p.tag}
-                      </T>
-                    </View>
-                  ) : null}
-                </View>
-                <T token="caption" color={c.inkSecondary}>
-                  {perMonth(p, student)}
-                  {student ? ` · regular ${money(p.regular)}` : ""}
-                </T>
-              </View>
-              <T token="title" tabular>
-                {money(price)}
-              </T>
-              <T token="caption" color={c.inkSecondary}>
-                /{p.period}
-              </T>
-            </Pressable>
-          );
-        })}
-      </View>
+      <PlanPicker student={student} onStudent={onStudent} plan={plan} onPlan={onPlan} />
       <T token="caption" color={c.inkSecondary}>
-        {
-          "Plus will include a 7-day free trial when it launches. Choose a plan to save your preference. There’s nothing to pay today."
-        }
+        {"Every plan starts with a 7-day free trial. You'll be asked after your first import, not now."}
       </T>
       <View style={styles.footer}>
-        <Button
-          label={
-            plan
-              ? `Start free, then ${PLANS.find((p) => p.id === plan)!.name}`
-              : "Start free"
-          }
-          onPress={onNext}
-        />
+        <Button label={plan ? `Start free, then ${PLANS.find((p) => p.id === plan)!.name}` : 'Start free'} onPress={onNext} />
       </View>
     </ScrollView>
   );
@@ -660,7 +559,6 @@ const styles = StyleSheet.create({
     padding: 2,
     justifyContent: "center",
   },
-  knob: { width: 22, height: 22, borderRadius: 11 },
   plan: {
     flexDirection: "row",
     alignItems: "baseline",
@@ -669,6 +567,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     borderWidth: 1.5,
   },
-  tag: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: radius.pill },
   dot: { width: 56, height: 56, borderRadius: 28 },
 });

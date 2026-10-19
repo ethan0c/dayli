@@ -12,7 +12,7 @@ import { T } from '@/components/Text';
 import { useNow } from '@/lib/now';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { NAV_INSET, radius, useTheme } from '@/theme';
+import { NAV_INSET, dayTint, radius, useTheme } from '@/theme';
 
 export default function TodayScreen() {
   const { c } = useTheme();
@@ -52,9 +52,8 @@ export default function TodayScreen() {
   return (
     <ScrollView
       style={{ backgroundColor: c.canvas }}
-      contentContainerStyle={{ paddingBottom: NAV_INSET }}
-      contentInsetAdjustmentBehavior="never">
-      <View style={[styles.head, { backgroundColor: c.header, paddingTop: insets.top + 8 }]}>
+      contentContainerStyle={{ paddingBottom: NAV_INSET }}>
+      <View style={[styles.head, { backgroundColor: dayTint(c, hour), paddingTop: insets.top + 8 }]}>
         <View style={styles.headRow}>
           <T token="display" style={{ flex: 1 }}>
             {greeting}

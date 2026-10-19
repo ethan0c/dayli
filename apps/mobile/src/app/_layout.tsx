@@ -3,6 +3,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Appearance } from 'react-native';
 
 import { useStore } from '@/store';
 import { useTheme } from '@/theme';
@@ -13,12 +14,18 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({ Onest_400Regular, Onest_500Medium, Onest_600SemiBold });
   const hydrated = useStore((s) => s.hydrated);
   const onboarded = useStore((s) => s.settings.onboarded);
+  const appearance = useStore((s) => s.settings.appearance);
   const { c, dark } = useTheme();
   const ready = (fontsLoaded || !!fontError) && hydrated;
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
+
+  // Native views (tab bar, SwiftUI pickers) follow this; our tokens follow it through useTheme.
+  useEffect(() => {
+    Appearance.setColorScheme(appearance === 'system' ? 'unspecified' : appearance);
+  }, [appearance]);
 
   if (!ready) return null;
 

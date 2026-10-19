@@ -21,6 +21,32 @@ const lav: Record<keyof typeof lavender, string> = lavender;
 
 export type Category = 'school' | 'work' | 'personal';
 
+/** Six soft tints at the same lightness, so any mix of them stays calm. */
+export type TintName = 'lavender' | 'apricot' | 'mint' | 'sky' | 'butter' | 'rose';
+export const TINT_NAMES: TintName[] = ['lavender', 'apricot', 'mint', 'sky', 'butter', 'rose'];
+/** Tints handed to courses in order, so each course reads differently in a list. */
+export const COURSE_TINTS: TintName[] = ['lavender', 'sky', 'rose', 'butter', 'mint', 'apricot'];
+
+type Tint = { fill: string; ink: string };
+
+const lightTint: Record<TintName, Tint> = {
+  lavender: { fill: lav[200], ink: lav[800] },
+  apricot: { fill: '#FBDCC8', ink: '#7A3E1A' },
+  mint: { fill: '#CDEBDD', ink: '#1F5A40' },
+  sky: { fill: '#D4E6FB', ink: '#1F4A80' },
+  butter: { fill: '#FBEFC4', ink: '#6B4F00' },
+  rose: { fill: '#FBD9E3', ink: '#7A2B48' },
+};
+
+const darkTint: Record<TintName, Tint> = {
+  lavender: { fill: lav[900], ink: '#E4DDFF' },
+  apricot: { fill: '#4A2C1C', ink: '#FFD9C2' },
+  mint: { fill: '#1C3A2D', ink: '#CDEBDD' },
+  sky: { fill: '#1B2E4A', ink: '#CFE3FF' },
+  butter: { fill: '#3D3512', ink: '#FBEFC4' },
+  rose: { fill: '#45202E', ink: '#FFD6E2' },
+};
+
 const light = {
   canvas: '#FFFFFF',
   header: '#F1F0F4',
@@ -44,11 +70,12 @@ const light = {
   added: '#2E8B57',
   addedBg: '#DDF2E6',
   chip: 'rgba(255,255,255,0.72)',
+  tint: lightTint,
   category: {
-    school: { fill: lav[200], ink: lav[800] },
-    work: { fill: '#FBDCC8', ink: '#7A3E1A' },
-    personal: { fill: '#CDEBDD', ink: '#1F5A40' },
-  } satisfies Record<Category, { fill: string; ink: string }>,
+    school: lightTint.lavender,
+    work: lightTint.apricot,
+    personal: lightTint.mint,
+  } satisfies Record<Category, Tint>,
 };
 
 export type Palette = typeof light;
@@ -76,10 +103,11 @@ const dark: Palette = {
   added: '#5CC08A',
   addedBg: '#16301F',
   chip: 'rgba(255,255,255,0.12)',
+  tint: darkTint,
   category: {
-    school: { fill: lav[900], ink: '#E4DDFF' },
-    work: { fill: '#4A2C1C', ink: '#FFD9C2' },
-    personal: { fill: '#1C3A2D', ink: '#CDEBDD' },
+    school: darkTint.lavender,
+    work: darkTint.apricot,
+    personal: darkTint.mint,
   },
 };
 

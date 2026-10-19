@@ -9,7 +9,7 @@ import { ItemRow } from '@/components/ItemRow';
 import { T } from '@/components/Text';
 import { Button } from '@/components/Sheet';
 import { useNow } from '@/lib/now';
-import { useItemList, useStore } from '@/store';
+import { courseTint, useItemList, useStore } from '@/store';
 import { NAV_INSET, radius, useTheme } from '@/theme';
 
 export default function SchoolScreen() {
@@ -40,21 +40,24 @@ export default function SchoolScreen() {
           const upcoming = all.filter((i) => !i.done && i.date >= now.date);
           const next = upcoming.find((i) => i.isDeadline);
           const isOpen = open === course.id;
+          const tint = c.tint[courseTint(courses, course.id) ?? 'lavender'];
           return (
-            <View key={course.id} style={[styles.card, { backgroundColor: c.row }]}>
+            <View key={course.id} style={[styles.card, { backgroundColor: tint.fill }]}>
               <Pressable onPress={() => setOpen(isOpen ? null : course.id)} style={styles.cardHead}>
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                   {course.code ? (
-                    <T token="overline" color={c.inkSecondary}>
+                    <T token="overline" color={tint.ink}>
                       {course.code}
                     </T>
                   ) : null}
-                  <T token="headline">{course.title}</T>
-                  <T token="subhead" color={c.inkSecondary}>
+                  <T token="headline" color={tint.ink}>
+                    {course.title}
+                  </T>
+                  <T token="subhead" color={tint.ink}>
                     {next ? `Next: ${next.title} · ${monthDay(next.date)} (${relativeDay(now.date, next.date)})` : `${upcoming.length} upcoming`}
                   </T>
                 </View>
-                <Icon name={isOpen ? 'chevronLeft' : 'chevronRight'} size={16} color={c.inkTertiary} />
+                <Icon name={isOpen ? 'chevronLeft' : 'chevronRight'} size={16} color={tint.ink} />
               </Pressable>
               {isOpen ? (
                 <View style={styles.cardBody}>
