@@ -1,22 +1,28 @@
-import { isLocalDate, localParts } from '@dayli/core';
+import { formatTime, isLocalDate, localParts, monthDay, weekdayShort } from '@dayli/core';
 import type { Category } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
-import { Icon } from '@/components/Icon';
+import { CategoryDot, Chip, GroupLabel } from '@/components/Controls';
 import { DateField, NativeToggle, TimeField } from '@/components/Native';
+import { Press } from '@/components/Press';
+import { Segmented } from '@/components/Segmented';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { buildManualItem, defaultManualTimes, type ManualDraft } from '@/lib/manual-item';
-import { useCourseList, useStore } from '@/store';
+import { courseTint, useCourseList, useStore } from '@/store';
 import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
 
-const categories: { value: Category; label: string }[] = [
-  { value: 'personal', label: 'Personal' }, { value: 'school', label: 'School' }, { value: 'work', label: 'Work' },
+const categories: { key: Category; label: string }[] = [
+  { key: 'personal', label: 'Personal' }, { key: 'school', label: 'School' }, { key: 'work', label: 'Work' },
 ];
 
+type Field = 'title' | 'employer' | 'notes';
+type Picker = 'date' | 'start' | 'end' | 'time';
+
+/** New to-do or event by hand: a pill title, hairline rows with pills and toggles, one primary button. */
 export default function CreateScreen() {
   const { c } = useTheme();
   const params = useLocalSearchParams<{ kind?: string; date?: string }>();
@@ -28,9 +34,12 @@ export default function CreateScreen() {
     courseId: null, employer: '', notes: '',
   }));
   const [error, setError] = useState<string | null>(null);
+  const [focus, setFocus] = useState<Field | null>(null);
+  const [picker, setPicker] = useState<Picker | null>(null);
   const saving = useRef(false);
   const patch = (values: Partial<ManualDraft>) => { setDraft((previous) => ({ ...previous, ...values })); setError(null); };
   const event = draft.kind === 'event';
+
   const save = () => {
     if (saving.current) return;
     const result = buildManualItem(draft);
@@ -43,68 +52,121 @@ export default function CreateScreen() {
     router.back();
   };
 
-  return <Sheet title={event ? 'New event' : 'New to-do'} footer={<>
-    {error ? <T token="callout" color={c.conflict} accessibilityRole="alert">{error}</T> : null}
-    <Button label={event ? 'Add event' : 'Add to-do'} onPress={save} />
-  </>}>
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
-      <View style={[styles.titleField, { backgroundColor: event ? c.category[draft.category].fill : c.row }]}>
-        <Icon name={event ? 'calendar' : 'check'} color={event ? c.category[draft.category].ink : c.inkPrimary} size={23} />
+  /** A one-line field is a pill: grey at rest, white with an ink ring while focused. */
+  const pillField = (name: Field) => [
+    styles.pillField,
+    textStyle('body', c.inkPrimary),
+    focus === name ? { backgroundColor: c.surface, borderColor: c.inkPrimary } : { backgroundColor: c.row, borderColor: 'transparent' },
+  ];
+
+  const timeControl = (which: 'start' | 'end' | 'time') => {
+    const key = which === 'end' ? 'end' : 'start';
+    if (picker === which) return <TimeField date={draft.date} time={draft[key]} onChange={(value) => patch({ [key]: value })} />;
+    return <FieldPill label={formatTime(draft[key])} accessibilityLabel={`${which === 'end' ? 'Ends' : which === 'start' ? 'Starts' : 'Time'}, ${formatTime(draft[key])}`} onPress={() => setPicker(which)} />;
+  };
+
+  return (
+    <Sheet title={event ? 'New event' : 'New to-do'} footer={<>
+      {error ? <T token="callout" color={c.conflict} accessibilityRole="alert">{error}</T> : null}
+      <Button label={event ? 'Add event' : 'Add to-do'} onPress={save} />
+    </>}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
         <TextInput accessibilityLabel={event ? 'Event title' : 'To-do title'} value={draft.title} onChangeText={(title) => patch({ title })}
-          placeholder={event ? 'What’s happening?' : 'What needs doing?'} placeholderTextColor={event ? c.category[draft.category].ink : c.inkSecondary}
-          multiline maxLength={500} style={[styles.titleInput, textStyle('headline', event ? c.category[draft.category].ink : c.inkPrimary)]} />
-      </View>
-      <View style={[styles.fields, { backgroundColor: c.row }]}>
-        <FieldRow label={draft.isDeadline && !event ? 'Due date' : 'Date'}><DateField date={draft.date} time={draft.start} onChange={(date) => patch({ date })} /></FieldRow>
-        {event ? <>
-          <FieldRow label="All day"><NativeToggle label="All day" value={draft.allDay} onChange={(allDay) => patch({ allDay })} /></FieldRow>
-          {!draft.allDay ? <>
-            <FieldRow label="Starts"><TimeField date={draft.date} time={draft.start} onChange={(start) => patch({ start })} /></FieldRow>
-            <FieldRow label="Ends"><TimeField date={draft.date} time={draft.end} onChange={(end) => patch({ end })} /></FieldRow>
-            {draft.end < draft.start ? <T token="caption" color={c.inkSecondary}>Ends the next day.</T> : null}
-          </> : null}
-        </> : <>
-          <FieldRow label="Deadline"><NativeToggle label="Deadline" value={draft.isDeadline} onChange={(isDeadline) => patch({ isDeadline })} /></FieldRow>
-          <FieldRow label="Set a time"><NativeToggle label="Set a time" value={draft.hasDueTime} onChange={(hasDueTime) => patch({ hasDueTime })} /></FieldRow>
-          {draft.hasDueTime ? <FieldRow label={draft.isDeadline ? 'Due at' : 'Time'}><TimeField date={draft.date} time={draft.start} onChange={(start) => patch({ start })} /></FieldRow> : null}
-        </>}
-      </View>
-      <View style={styles.section}>
-        <T token="subhead" color={c.inkSecondary}>Keep it with</T>
-        <View accessibilityRole="radiogroup" accessibilityLabel="Category" style={[styles.segments, { backgroundColor: c.row }]}>
-          {categories.map(({ value, label }) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: draft.category === value }}
-            onPress={() => { feedback('select'); patch({ category: value, courseId: null }); }}
-            style={[styles.segment, { backgroundColor: draft.category === value ? c.surface : 'transparent' }]}><T token="subhead">{label}</T></Pressable>)}
+          placeholder={event ? 'What’s happening?' : 'What needs doing?'} placeholderTextColor={c.inkSecondary}
+          onFocus={() => setFocus('title')} onBlur={() => setFocus((f) => (f === 'title' ? null : f))}
+          maxLength={500} returnKeyType="done" style={pillField('title')} />
+
+        <View style={styles.rows}>
+          <FieldRow label="Date">
+            {picker === 'date'
+              ? <DateField date={draft.date} time={draft.start} onChange={(date) => patch({ date })} />
+              : <FieldPill label={`${weekdayShort(draft.date)}, ${monthDay(draft.date)}`} accessibilityLabel={`Date, ${weekdayShort(draft.date)} ${monthDay(draft.date)}`} onPress={() => setPicker('date')} />}
+          </FieldRow>
+          {event ? (
+            <>
+              <FieldRow label="All day"><NativeToggle label="All day" value={draft.allDay} onChange={(allDay) => patch({ allDay })} /></FieldRow>
+              {!draft.allDay ? (
+                <>
+                  <FieldRow label="Starts">{timeControl('start')}</FieldRow>
+                  <FieldRow label="Ends" last={draft.end >= draft.start}>{timeControl('end')}</FieldRow>
+                  {draft.end < draft.start ? <T token="caption" color={c.inkSecondary} style={styles.rowNote}>Ends the next day.</T> : null}
+                </>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <FieldRow label="Deadline"><NativeToggle label="Deadline" value={draft.isDeadline} onChange={(isDeadline) => patch({ isDeadline })} /></FieldRow>
+              <FieldRow label="Set a time" last={!draft.hasDueTime}><NativeToggle label="Set a time" value={draft.hasDueTime} onChange={(hasDueTime) => patch({ hasDueTime })} /></FieldRow>
+              {draft.hasDueTime ? <FieldRow label="Time" last>{timeControl('time')}</FieldRow> : null}
+            </>
+          )}
         </View>
-        {draft.category === 'school' && courses.length > 0 ? <View style={styles.courses} accessibilityRole="radiogroup" accessibilityLabel="Course">
-          {[{ id: null, label: 'No course' }, ...courses.map((course) => ({ id: course.id, label: course.code ?? course.title }))].map(({ id, label }) => <Pressable key={id ?? 'none'}
-            accessibilityRole="radio" accessibilityState={{ selected: draft.courseId === id }} onPress={() => patch({ courseId: id })}
-            style={[styles.course, { backgroundColor: draft.courseId === id ? c.accentSoft : c.row }]}><T token="subhead" color={draft.courseId === id ? c.accentInk : c.inkSecondary}>{label}</T></Pressable>)}
-        </View> : null}
-        {draft.category === 'work' ? <TextInput accessibilityLabel="Employer" value={draft.employer} onChangeText={(employer) => patch({ employer })}
-          placeholder="Employer (optional)" placeholderTextColor={c.inkSecondary} style={[styles.input, textStyle('body', c.inkPrimary), { backgroundColor: c.row }]} /> : null}
-      </View>
-      <TextInput accessibilityLabel="Notes" value={draft.notes} onChangeText={(notes) => patch({ notes })} placeholder="Notes (optional)" placeholderTextColor={c.inkSecondary}
-        multiline style={[styles.input, styles.notes, textStyle('body', c.inkPrimary), { backgroundColor: c.row }]} />
-    </ScrollView>
-  </Sheet>;
+
+        <View style={styles.section}>
+          <GroupLabel>Keep it with</GroupLabel>
+          <Segmented options={categories} value={draft.category} onChange={(category) => patch({ category, courseId: null })} label="Category" />
+          {draft.category === 'school' && courses.length > 0 ? (
+            <View style={styles.chips} accessibilityRole="radiogroup" accessibilityLabel="Course">
+              <Chip label="No course" on={draft.courseId === null} onPress={() => patch({ courseId: null })} />
+              {courses.map((course) => {
+                const on = draft.courseId === course.id;
+                const tint = c.tint[courseTint(courses, course.id) ?? 'lavender'];
+                return (
+                  <Press key={course.id} accessibilityRole="radio" accessibilityState={{ selected: on }} haptic="select" scale={0.96} onPress={() => patch({ courseId: course.id })}
+                    style={[styles.courseChip, { backgroundColor: on ? c.inkPrimary : c.row }]}>
+                    <CategoryDot color={on ? tint.fill : tint.ink} />
+                    <T token="subhead" color={on ? c.onPrimary : c.inkPrimary}>{course.code ?? course.title}</T>
+                  </Press>
+                );
+              })}
+            </View>
+          ) : null}
+          {draft.category === 'work' ? (
+            <TextInput accessibilityLabel="Employer" value={draft.employer} onChangeText={(employer) => patch({ employer })}
+              placeholder="Employer (optional)" placeholderTextColor={c.inkSecondary}
+              onFocus={() => setFocus('employer')} onBlur={() => setFocus((f) => (f === 'employer' ? null : f))}
+              returnKeyType="done" style={pillField('employer')} />
+          ) : null}
+        </View>
+
+        <TextInput accessibilityLabel="Notes" value={draft.notes} onChangeText={(notes) => patch({ notes })} placeholder="Notes, optional" placeholderTextColor={c.inkSecondary}
+          onFocus={() => setFocus('notes')} onBlur={() => setFocus((f) => (f === 'notes' ? null : f))}
+          multiline style={[styles.notes, textStyle('body', c.inkPrimary), focus === 'notes' ? { backgroundColor: c.surface, borderColor: c.inkPrimary } : { backgroundColor: c.row, borderColor: 'transparent' }]} />
+      </ScrollView>
+    </Sheet>
+  );
 }
 
-function FieldRow({ label, children }: { label: string; children: ReactNode }) {
-  return <View style={styles.fieldRow}><T token="body" style={{ flex: 1 }}>{label}</T>{children}</View>;
+/** A hairline row: the label on the left, one control on the right. */
+function FieldRow({ label, children, last }: { label: string; children: ReactNode; last?: boolean }) {
+  const { c } = useTheme();
+  return (
+    <View style={[styles.row, !last ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line } : null]}>
+      <T token="body" style={{ flex: 1 }}>{label}</T>
+      {children}
+    </View>
+  );
+}
+
+/** The 36-high grey pill that opens a native date or time picker. */
+function FieldPill({ label, onPress, accessibilityLabel }: { label: string; onPress: () => void; accessibilityLabel?: string }) {
+  const { c } = useTheme();
+  return (
+    <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} haptic="select" scale={0.97} onPress={onPress} style={[styles.pill, { backgroundColor: c.row }]}>
+      <T token="subhead" tabular numberOfLines={1}>{label}</T>
+    </Press>
+  );
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24, gap: 20 },
-  titleField: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 18 },
-  titleInput: { flex: 1, minHeight: 32, padding: 0, textAlignVertical: 'center' },
-  fields: { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 18 },
-  fieldRow: { minHeight: 52, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  content: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, paddingBottom: 24, gap: 22 },
+  pillField: { height: 52, borderRadius: 999, paddingHorizontal: 20, paddingVertical: 0, borderWidth: 1.5 },
+  rows: { marginTop: -2 },
+  row: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  rowNote: { paddingTop: 8 },
   section: { gap: 10 },
-  segments: { flexDirection: 'row', padding: 4, borderRadius: 16, gap: 3 },
-  segment: { flex: 1, minHeight: 44, padding: 8, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
-  courses: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  course: { minHeight: 44, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 14, justifyContent: 'center' },
-  input: { minHeight: 52, padding: 16, borderRadius: 16 },
-  notes: { minHeight: 100, textAlignVertical: 'top' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  courseChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, height: 40, borderRadius: 999 },
+  pill: { height: 36, paddingHorizontal: 14, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  notes: { minHeight: 96, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1.5, textAlignVertical: 'top' },
 });

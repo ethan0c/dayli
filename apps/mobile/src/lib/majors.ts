@@ -54,8 +54,12 @@ export const MAJORS: Profile[] = [
     icon: 'heart',
     chips: [{ key: 'clinicals', label: 'Clinicals', icon: 'heart' }],
     demo: {
-      text: 'I work Fri 4–10, have a pharm exam Monday at 9, and need to buy scrubs Wednesday',
-      rows: [{ title: 'Buy scrubs', kind: 'task', cat: 'personal', icon: 'bag' }, workShift, { title: 'Pharm exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am' }],
+      text: 'Clinical Tuesday 7–3, pharm exam next Friday, and I\'m working Sat 4–10',
+      rows: [
+        { title: 'Clinical', kind: 'event', cat: 'school', icon: 'heart', chip: 'Tue 7 am–3 pm' },
+        { title: 'Pharm exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Fri, next week' },
+        { title: 'Work', kind: 'event', cat: 'work', icon: 'work', chip: 'Sat 4–10 pm' },
+      ],
     },
     sample: {
       courses: [
