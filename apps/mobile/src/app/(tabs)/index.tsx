@@ -3,14 +3,17 @@ import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { HomeCaptureCard } from '@/components/HomeCaptureCard';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
+import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { StarterPreview } from '@/components/StarterPreview';
 import { feedback } from '@/lib/feedback';
+import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, radius, useCardSurface, useTheme } from '@/theme';
@@ -103,7 +106,7 @@ export default function TodayScreen() {
       ) : null}
 
       {featured ? <View style={styles.featureWrap}>
-        <Pressable accessibilityRole="button" accessibilityLabel={`${ongoing ? 'Now' : 'Next'}: ${featured.title}, ${featured.start ? formatTime(featured.start) : ''}`} onPress={() => router.push(`/item/${featured.id}`)} style={({ pressed }) => [styles.feature, featureSurface, { opacity: pressed ? 0.85 : 1 }]}>
+        <Press accessibilityRole="button" accessibilityLabel={`${ongoing ? 'Now' : 'Next'}: ${featured.title}, ${featured.start ? formatTime(featured.start) : ''}`} onPress={() => router.push(`/item/${featured.id}`)} scale={0.985} style={[styles.feature, featureSurface]}>
           <View style={styles.featureTop}>
             <T token="subhead" color={c.accentInk}>{ongoing ? `Now${featured.end ? ` · until ${formatTime(featured.end)}` : ''}` : `Next${featured.start ? ` · ${featured.end ? formatRange(featured.start, featured.end) : formatTime(featured.start)}` : ''}`}</T>
             <Icon name="chevronRight" size={17} color={c.accentInk} />
@@ -111,13 +114,13 @@ export default function TodayScreen() {
           <T token="title">{featured.title}</T>
           <T token="caption" color={c.inkSecondary}>{[featured.employer, featured.category === 'school' ? 'Coursework' : featured.category === 'work' ? 'Work' : 'Personal'].filter(Boolean).join(' · ')}</T>
           {conflictSet.has(featured.id) ? <T token="caption" color={c.conflict}>Schedule conflict · tap to review</T> : null}
-        </Pressable>
+        </Press>
       </View> : todays.length ? <View style={styles.head}><T token="callout" color={c.inkSecondary}>{summary}</T></View> : null}
 
       <Section title="On your list">
         {!todays.length ? <HomeCaptureCard onCapture={openCapture} /> : openItems.map((item) => {
           const planned = item.date !== now.date && workDates[item.id] === now.date;
-          return <View key={item.id}>
+          return <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
             <ItemRow item={item} planned={planned} conflict={conflictSet.has(item.id)} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => {
               feedback(item.done ? 'uncomplete' : 'complete');
               toggleDone(item.id);
@@ -126,14 +129,14 @@ export default function TodayScreen() {
               <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>{item.isDeadline ? 'Due' : 'Original date'} {monthDay(item.date)} · working on it today</T>
               <TextAction label="Undo" accessibilityLabel={`Remove ${item.title} from today’s work plan`} muted onPress={() => unplanTask(item.id)} />
             </View> : null}
-          </View>;
+          </Animated.View>;
         })}
         {todays.length > 0 && openItems.length === 0 ? <T token="callout" color={c.inkSecondary}>{featured ? 'Your next commitment is above.' : 'Everything on your list is done.'}</T> : null}
         {completed.length ? <>
           <Pressable accessibilityRole="button" accessibilityState={{ expanded: completedExpanded }} onPress={() => setCompletedExpanded((open) => !open)} style={styles.disclosure}>
             <T token="caption" color={c.inkSecondary}>Completed · {completed.length}</T><Icon name={completedExpanded ? 'chevronLeft' : 'chevronRight'} size={16} color={c.inkSecondary} />
           </Pressable>
-          {completedExpanded ? completed.map((item) => <ItemRow key={item.id} item={item} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('uncomplete'); toggleDone(item.id); }} />) : null}
+          {completedExpanded ? <Animated.View entering={enter.drop} exiting={exit.fade}>{completed.map((item) => <ItemRow key={item.id} item={item} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('uncomplete'); toggleDone(item.id); }} />)}</Animated.View> : null}
         </> : null}
       </Section>
 
@@ -144,7 +147,7 @@ export default function TodayScreen() {
             <T token="caption" color={c.inkSecondary}>{overdueExpanded ? 'Hide' : 'Show'}</T>
           </Pressable>
           {overdueExpanded ? (
-            <>
+            <Animated.View entering={enter.drop} exiting={exit.fade}>
               {overdue.map((item) => (
                 <View key={item.id} style={[styles.overdue, { borderBottomColor: c.line }]}>
                   <Pressable accessibilityRole="button" onPress={() => router.push(`/item/${item.id}`)} style={{ flex: 1, gap: 3 }}>
@@ -155,7 +158,7 @@ export default function TodayScreen() {
               ))}
               {overdue.length > 1 ? <TextAction label="Bring all into today" onPress={() => workOnToday(overdue.map((item) => item.id))} /> : null}
               <T token="caption" color={c.inkSecondary}>Their original dates stay the same.</T>
-            </>
+            </Animated.View>
           ) : null}
         </View>
       ) : null}
@@ -216,7 +219,7 @@ export default function TodayScreen() {
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
-  return <View style={styles.section}><T token="headline" accessibilityRole="header">{title}</T>{children}</View>;
+  return <Animated.View layout={layout} style={styles.section}><T token="headline" accessibilityRole="header">{title}</T>{children}</Animated.View>;
 }
 
 function DisclosureSection({ title, children }: { title: string; children: ReactNode }) {
@@ -226,7 +229,7 @@ function DisclosureSection({ title, children }: { title: string; children: React
     <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setExpanded((open) => !open)} style={styles.disclosure}>
       <T token="subhead" color={c.inkSecondary}>{title}</T><T token="caption" color={c.inkSecondary}>{expanded ? 'Hide' : 'Show'}</T>
     </Pressable>
-    {expanded ? children : null}
+    {expanded ? <Animated.View entering={enter.drop} exiting={exit.fade}>{children}</Animated.View> : null}
   </View>;
 }
 

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
+import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { radius, useCardSurface, useTheme } from '@/theme';
@@ -9,14 +10,15 @@ import { radius, useCardSurface, useTheme } from '@/theme';
 export function AccountButton() {
   const { c } = useTheme();
   return (
-    <Pressable
+    <Press
       accessibilityRole="button"
       accessibilityLabel="Your profile and settings"
       onPress={() => router.push('/settings')}
       hitSlop={6}
-      style={({ pressed }) => [styles.account, { backgroundColor: c.row, opacity: pressed ? 0.65 : 1 }]}>
+      scale={0.9}
+      style={[styles.account, { backgroundColor: c.row }]}>
       <View accessible={false} style={styles.brandDots}><View style={[styles.todayDot, { backgroundColor: c.inkPrimary }]} /><View style={[styles.nextDot, { backgroundColor: c.accent }]} /></View>
-    </Pressable>
+    </Press>
   );
 }
 
@@ -70,12 +72,12 @@ export function CaptureCard({ school = false, compact = false }: { school?: bool
             : 'A syllabus, a shift schedule, or a quick message. Turn what’s coming up into a plan.'}
         </T>
       </View>
-      <Pressable accessibilityRole="button" onPress={open} style={({ pressed }) => [styles.captureButton, { backgroundColor: c.inkPrimary, opacity: pressed ? 0.8 : 1 }]}>
+      <Press accessibilityRole="button" onPress={open} style={[styles.captureButton, { backgroundColor: c.inkPrimary }]}>
         <Icon name={school ? 'file' : 'plus'} size={18} color={c.onPrimary} />
         <T token="subhead" color={c.onPrimary}>{school ? 'Add your first syllabus' : 'Add to your plan'}</T>
         <View style={{ flex: 1 }} />
         <Icon name="chevronRight" size={16} color={c.onPrimary} />
-      </Pressable>
+      </Press>
       <View style={styles.reassurance}>
         <Icon name="check" size={14} color={c.inkSecondary} />
         <T token="caption" color={c.inkSecondary}>You review everything before it’s added.</T>
@@ -87,14 +89,14 @@ export function CaptureCard({ school = false, compact = false }: { school?: bool
 export function ImportRow({ icon, title, detail }: { icon: IconKey; title: string; detail: string }) {
   const { c } = useTheme();
   return (
-    <Pressable accessibilityRole="button" onPress={() => router.push('/capture')} style={({ pressed }) => [styles.importRow, { borderColor: c.line, opacity: pressed ? 0.65 : 1 }]}>
+    <Press accessibilityRole="button" haptic="tap" onPress={() => router.push('/capture')} scale={0.985} style={[styles.importRow, { borderColor: c.line }]}>
       <View style={[styles.importIcon, { backgroundColor: c.row }]}><Icon name={icon} size={20} color={c.inkSecondary} /></View>
       <View style={{ flex: 1, gap: 3 }}>
         <T token="subhead">{title}</T>
         <T token="caption" color={c.inkSecondary}>{detail}</T>
       </View>
       <Icon name="chevronRight" size={16} color={c.inkTertiary} />
-    </Pressable>
+    </Press>
   );
 }
 

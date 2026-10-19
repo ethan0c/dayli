@@ -47,16 +47,11 @@ export function WeekStrip({ week, selected, today, marked, onSelect, onPrev, onN
   const index = week.indexOf(selected);
   const dayWidth = width / 7;
   const target = index * dayWidth + (dayWidth - PILL) / 2;
+  // Starts in place (no slide on mount or when a new week mounts), springs on later selections.
   const x = useSharedValue(target);
-  const [settled, setSettled] = useState(false);
   useEffect(() => {
-    if (!settled) {
-      x.value = target;
-      setSettled(true);
-    } else {
-      x.value = withSpring(target, springs.gentle);
-    }
-  }, [target, settled, x]);
+    x.value = withSpring(target, springs.gentle);
+  }, [target, x]);
   const pill = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
 
   return (

@@ -2,6 +2,7 @@ import { addDays, conflictIds, monthDay, pendingDates, weekdayLong, weekOf } fro
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { ClockHeader } from '@/components/ClockHeader';
 import { Icon } from '@/components/Icon';
@@ -12,6 +13,7 @@ import { StarterPreview } from '@/components/StarterPreview';
 import { BrandHeader } from '@/components/ScreenHeader';
 import { WeekStrip } from '@/components/WeekStrip';
 import { feedback } from '@/lib/feedback';
+import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { useScheduleList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
@@ -85,7 +87,7 @@ export default function PlanScreen() {
             </T>
           </View>
         ))}
-        {dayItems.length > 0 ? <View style={styles.group}>{dayItems.map(renderItem)}</View> : null}
+        {dayItems.length > 0 ? <Animated.View key={selected} entering={enter.fade} layout={layout} style={styles.group}>{dayItems.map((it) => <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>{renderItem(it)}</Animated.View>)}</Animated.View> : null}
         {starting ? <StarterPreview /> : null}
         {dayItems.length === 0 && !starting ? <CaptureCard /> : null}
         {dayItems.length === 0 && !starting ? <View style={[styles.weekNote, { borderColor: c.line }]}>

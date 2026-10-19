@@ -2,11 +2,14 @@ import { localParts } from '@dayli/core';
 import { router, usePathname } from 'expo-router';
 import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { AddButton } from '@/components/AddButton';
+import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
+import { enter } from '@/lib/motion';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -74,18 +77,19 @@ export function AddMenu({ bottom, children, nativeTrigger = false }: { bottom: n
       <View style={styles.overlay} accessibilityViewIsModal onAccessibilityEscape={close}>
         <Pressable accessible={false} onPress={close} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
         <View style={[styles.menu, { bottom: bottom + 68 }]}>
-          {actions.map(({ action, label, icon }) => (
-            <Pressable key={action} accessibilityRole="button" accessibilityLabel={label} onPress={() => choose(action)}
-              style={({ pressed }) => [styles.action, { backgroundColor: pressed ? c.row : c.surface }]}>
-              <Icon name={icon} size={21} color={action === 'capture' ? c.accentInk : c.inkPrimary} />
-              <T token="body">{label}</T>
-            </Pressable>
+          {actions.map(({ action, label, icon }, i) => (
+            <Animated.View key={action} entering={reduceMotion ? undefined : enter.staggered(actions.length - 1 - i)}>
+              <Press accessibilityRole="button" accessibilityLabel={label} onPress={() => choose(action)} style={[styles.action, { backgroundColor: c.surface }]}>
+                <Icon name={icon} size={21} color={action === 'capture' ? c.accentInk : c.inkPrimary} />
+                <T token="body">{label}</T>
+              </Press>
+            </Animated.View>
           ))}
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Close add menu" accessibilityState={{ expanded: true }} onPress={close}
+        <Press accessibilityRole="button" accessibilityLabel="Close add menu" accessibilityState={{ expanded: true }} onPress={close} scale={0.92}
           style={[styles.toggle, { bottom, backgroundColor: c.surface }]}>
           <Icon name="x" size={24} color={c.inkPrimary} />
-        </Pressable>
+        </Press>
       </View>
     </Modal>
   </AddMenuContext.Provider>;

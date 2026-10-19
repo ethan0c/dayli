@@ -24,7 +24,7 @@ export default function ItemScreen() {
 
   if (!item) {
     return (
-      <Sheet title="Item unavailable">
+      <Sheet title="Item unavailable" nav="push">
         <T token="callout" color={c.inkSecondary} style={{ padding: 20, paddingHorizontal: SCREEN_GUTTER }}>
           We couldn’t find this item. It may have been deleted. Close this screen to return to your plan.
         </T>
@@ -42,6 +42,7 @@ export default function ItemScreen() {
   return (
     <Sheet
       title={item.kind === 'task' ? 'To-do' : 'Event'}
+      nav="push"
       footer={
         <>
           {item.kind === 'task' ? (

@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/Icon';
 import { NativeToggle } from '@/components/Native';
 import { Button } from '@/components/Sheet';
+import { Skeleton } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
 import { track } from '@/lib/analytics';
@@ -177,7 +178,7 @@ export function PlanPicker({ hero = false, docked = false, freeImportsLeft }: { 
           <View style={{ gap: 6 }}>
             <View style={styles.priceRow}>
               {loading ? (
-                <ActivityIndicator color={c.accent} accessibilityLabel="Loading prices" />
+                <Skeleton width={128} height={40} round={10} />
               ) : (
                 <T token="displayXl" style={styles.price} adjustsFontSizeToFit minimumFontScale={0.6} numberOfLines={1}>
                   {selected?.product.priceString ?? '—'}

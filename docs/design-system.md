@@ -98,6 +98,8 @@ Card style changes visual depth only. It does not change the order, content, dat
 
 ## Motion and accessibility
 
+The full motion system, including the Robinhood teardown, the tokens, and the rules, is in [motion.md](motion.md). The short version: two springs, three durations, one easing, `Press` for every button, layout animation on every list, skeletons for every wait, tickers for every changing number.
+
 Respect Reduce Motion in the Add menu. Keep completion feedback direct and retain haptics for selection, completion, review readiness, confirmation, and undo. Avoid ornamental looping motion.
 
 Text contrast is at least 4.5:1 on core surfaces, event tints, buttons, and semantic fills. Empty completion outlines meet 3:1. `packages/tokens/src/colors.test.ts` checks those combinations in both appearances. The custom navigation uses independent press targets; agenda completion no longer nests inside the item-detail button.

@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
-import { Stack, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { FieldRow, Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
@@ -33,17 +33,6 @@ export default function SettingsHome() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <Pressable onPress={() => router.dismiss()} hitSlop={10} accessibilityLabel="Done">
-              <T token="headline" color={c.accent}>
-                Done
-              </T>
-            </Pressable>
-          ),
-        }}
-      />
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="automatic">
         <Group footer="Your name is for the morning greeting. Your field of study shapes the examples and the sample week.">
           <FieldRow label="Name" value={settings.name} onChange={(name) => setSettings({ name })} placeholder="Your first name" last={!settings.isStudent} />

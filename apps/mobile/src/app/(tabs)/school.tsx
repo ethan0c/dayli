@@ -1,7 +1,8 @@
 import { diffDays, monthDay, relativeDay } from '@dayli/core';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
@@ -10,6 +11,7 @@ import { StarterPreview } from '@/components/StarterPreview';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
+import { enter, exit, layout, springs } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { useCourseList, courseTint, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, radius, useCardSurface, useTheme } from '@/theme';
@@ -42,7 +44,7 @@ export default function SchoolScreen() {
           const isOpen = open === course.id;
           const tint = c.tint[courseTint(courses, course.id) ?? 'lavender'];
           return (
-            <View key={course.id} style={[styles.card, surface]}>
+            <Animated.View key={course.id} layout={layout} style={[styles.card, surface]}>
               <Pressable accessibilityRole="button" accessibilityState={{ expanded: isOpen }} accessibilityLabel={`${course.title}, ${upcoming.length} upcoming items`} onPress={() => { feedback('tap'); setOpen(isOpen ? null : course.id); }} style={styles.cardHead}>
                 <View style={[styles.courseMarker, { backgroundColor: tint.ink }]} />
                 <View style={{ flex: 1, minWidth: 0, gap: 5 }}>
@@ -56,7 +58,7 @@ export default function SchoolScreen() {
                   </T>
                   {course.instructor ? <T token="caption" color={c.inkSecondary}>{course.instructor}</T> : null}
                 </View>
-                <View style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }}><Icon name="chevronRight" size={16} color={c.inkTertiary} /></View>
+                <Chevron open={isOpen} color={c.inkTertiary} />
               </Pressable>
               <View style={[styles.nextDeadline, { borderColor: c.line }]}>
                 <Icon name={next ? 'calendar' : 'check'} size={16} color={next && diffDays(now.date, next.date) <= 1 ? c.conflict : c.inkSecondary} />
@@ -66,7 +68,7 @@ export default function SchoolScreen() {
                 </View>
               </View>
               {isOpen ? (
-                <View style={styles.cardBody}>
+                <Animated.View entering={enter.drop} exiting={exit.fade} style={styles.cardBody}>
                   {upcoming.length === 0 ? (
                     <T token="callout" color={c.inkSecondary}>
                       No upcoming events or to-dos for this course.
@@ -81,9 +83,9 @@ export default function SchoolScreen() {
                       </View>
                     ))
                   )}
-                </View>
+                </Animated.View>
               ) : null}
-            </View>
+            </Animated.View>
           );
         })}
         {courses.length === 0 ? (
@@ -98,6 +100,16 @@ export default function SchoolScreen() {
       </View>
     </ScrollView>
   );
+}
+
+/** Turns to point down when the course is open. */
+function Chevron({ open, color }: { open: boolean; color: string }) {
+  const r = useSharedValue(open ? 90 : 0);
+  useEffect(() => {
+    r.value = withSpring(open ? 90 : 0, springs.snappy);
+  }, [open, r]);
+  const style = useAnimatedStyle(() => ({ transform: [{ rotate: `${r.value}deg` }] }));
+  return <Animated.View style={style}><Icon name="chevronRight" size={16} color={color} /></Animated.View>;
 }
 
 const styles = StyleSheet.create({

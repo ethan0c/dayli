@@ -1,5 +1,7 @@
 import { Stack } from 'expo-router';
 
+import { BackButton } from '@/components/NavButtons';
+
 import { mobileFonts, useTheme } from '@/theme';
 
 /** Deep links like /settings/data get the You screen underneath, so the back button always works. */
@@ -20,7 +22,7 @@ export default function SettingsLayout() {
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: c.canvas },
       }}>
-      <Stack.Screen name="index" options={{ title: 'You' }} />
+      <Stack.Screen name="index" options={{ title: 'You', headerLeft: () => <BackButton /> }} />
       <Stack.Screen name="reminders" options={{ title: 'Reminders' }} />
       <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
       <Stack.Screen name="major" options={{ title: 'Field of study' }} />

@@ -11,7 +11,7 @@ import { configureNotifications, useReminderSync } from '@/lib/notifications';
 
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
-import { useTheme } from '@/theme';
+import { mobileFonts, useTheme } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
 configureNotifications();
@@ -43,17 +43,30 @@ function RootLayout() {
   return (
     <PurchasesProvider>
       <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas } }}>
-          <Stack.Screen name="review" options={{ presentation: 'modal', gestureEnabled: false }} />
+        <Stack
+          screenOptions={{
+            // Screens opt in with <Stack.Screen options={{ headerShown: true }} /> (the Sheet does this).
+            headerShown: false,
+            headerStyle: { backgroundColor: c.canvas },
+            headerShadowVisible: false,
+            headerTintColor: c.inkPrimary,
+            headerTitleStyle: { fontFamily: mobileFonts.semibold, fontSize: 17, color: c.inkPrimary },
+            headerTitleAlign: 'center',
+            headerBackButtonDisplayMode: 'minimal',
+            contentStyle: { backgroundColor: c.canvas },
+          }}>
+          {/* Review is a full-screen cover: it can be reached from onboarding too, so it sits outside the guards. */}
+          <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
           <Stack.Protected guard={!onboarded}>
             <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
           </Stack.Protected>
           <Stack.Protected guard={onboarded}>
             <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="capture" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="create" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="item/[id]" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
+            {/* Flows slide up as full-screen covers with an X; detail screens push with a back chevron. */}
+            <Stack.Screen name="capture" options={{ presentation: 'fullScreenModal' }} />
+            <Stack.Screen name="create" options={{ presentation: 'fullScreenModal' }} />
+            <Stack.Screen name="item/[id]" />
+            <Stack.Screen name="settings" />
           </Stack.Protected>
         </Stack>
         <StatusBar style={dark ? 'light' : 'dark'} />

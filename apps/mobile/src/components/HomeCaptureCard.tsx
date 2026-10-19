@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
+import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { radius, textStyle, useCardSurface, useTheme } from '@/theme';
 
@@ -31,15 +32,16 @@ export function HomeCaptureCard({ onCapture }: { onCapture: (text: string, sourc
         <Pressable accessibilityRole="button" onPress={() => onCapture(draft, 'file')} style={styles.action}>
           <Icon name="file" color={c.accentInk} size={18} /><T token="subhead" color={c.accentInk}>File</T>
         </Pressable>
-        <Pressable
+        <Press
           accessibilityRole="button"
           accessibilityLabel="Continue with your message"
           accessibilityState={{ disabled: !draft.trim() }}
           disabled={!draft.trim()}
           onPress={() => onCapture(draft)}
+          scale={0.9}
           style={[styles.send, { backgroundColor: c.inkPrimary, opacity: draft.trim() ? 1 : 0.4 }]}>
           <Icon name="chevronRight" color={c.onPrimary} size={20} />
-        </Pressable>
+        </Press>
       </View>
       <T token="caption" color={c.inkSecondary}>You’ll review everything before it’s added.</T>
     </View>

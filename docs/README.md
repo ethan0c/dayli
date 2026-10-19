@@ -5,6 +5,7 @@
 | [overview.md](overview.md) | Product concept, audience, feature summary (source of truth for *why*) |
 | [product-plan.md](product-plan.md) | MVP scope, information architecture, screens, key flows, milestones, metrics, risks |
 | [design-system.md](design-system.md) | Visual language derived from the reference UI: tokens, type, components, motion, accessibility |
+| [motion.md](motion.md) | Robinhood interaction teardown, the motion tokens (two springs, three durations, one easing), the rules every screen follows, and the native navigation model |
 | [brand-and-logo.md](brand-and-logo.md) | Brand platform, voice, logo concepts, the recommended mark, app icon, deliverables |
 | [technical-plan.md](technical-plan.md) | Stack, architecture, data model, AI capture pipeline, schedule diffing, integrations, privacy |
 | [mvp.md](mvp.md) | **The working checklist**: what must ship for the paid beta, in order, with exit criteria |

@@ -51,7 +51,7 @@ export default function DataScreen() {
       </Group>
 
       <Group title="Get started again" footer="Replay the intro without changing your existing plans.">
-        <Row icon="undo" tint={c.tint.sky.fill} label="Replay the intro" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissAll(); }} last />
+        <Row icon="undo" tint={c.tint.sky.fill} label="Replay the intro" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} last />
       </Group>
 
       <Group title="Danger zone" footer="Everything is stored on this phone. Clearing removes your events, to-dos, courses, schedules, and history. This cannot be undone.">

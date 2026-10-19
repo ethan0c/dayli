@@ -1,9 +1,11 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon, type IconKey } from "@/components/Icon";
+import { Press } from "@/components/Press";
 import { PlanPicker } from "@/components/PlanPicker";
 import { Reading } from "@/components/Reading";
 import { Button } from "@/components/Sheet";
@@ -13,6 +15,7 @@ import { track } from "@/lib/analytics";
 import { requestExtraction } from "@/lib/api";
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/lib/capture-input";
 import { feedback } from "@/lib/feedback";
+import { enter } from "@/lib/motion";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
 import { requestNotifications, syncReminders } from "@/lib/notifications";
 import { FREE_IMPORTS_PER_MONTH } from "@/lib/plans";
@@ -96,6 +99,7 @@ export default function OnboardingScreen() {
         ))}
       </View>
 
+      <Animated.View key={step} entering={enter.fromRight} style={{ flex: 1 }}>
       {step === "welcome" && <Welcome onNext={() => go("role")} />}
       {step === "role" && (
         <OneTapStep title="Right now you are a" subtitle="So the examples fit your week.">
@@ -160,6 +164,7 @@ export default function OnboardingScreen() {
       )}
       {step === "heads-up" && <HeadsUpStep onDone={() => go("plus")} />}
       {step === "plus" && <PlusStep onFinish={finish} />}
+      </Animated.View>
     </View>
   );
 }
@@ -168,36 +173,13 @@ export default function OnboardingScreen() {
 
 function Welcome({ onNext }: { onNext: () => void }) {
   const { c } = useTheme();
-  const [rise] = useState(() => new Animated.Value(0));
-  const [line] = useState(() => new Animated.Value(0));
-  useEffect(() => {
-    Animated.sequence([
-      Animated.spring(rise, { toValue: 1, friction: 7, tension: 50, useNativeDriver: true }),
-      Animated.timing(line, { toValue: 1, duration: 500, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-    ]).start();
-  }, [rise, line]);
   return (
     <View style={styles.center}>
       <View style={styles.middle}>
-        <Animated.View
-          style={{
-            opacity: rise,
-            transform: [
-              { translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) },
-              { scale: rise.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) },
-            ],
-          }}
-        >
+        <Animated.View entering={enter.rise}>
           <Wordmark width={220} ink={c.inkPrimary} />
         </Animated.View>
-        <Animated.View
-          style={{
-            opacity: line,
-            transform: [{ translateY: line.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
-            gap: 12,
-            alignItems: "center",
-          }}
-        >
+        <Animated.View entering={enter.rise.delay(350)} style={{ gap: 12, alignItems: "center" }}>
           <T token="display" style={{ textAlign: "center" }}>
             The daily planner for college students.
           </T>
@@ -209,9 +191,9 @@ function Welcome({ onNext }: { onNext: () => void }) {
           </T>
         </Animated.View>
       </View>
-      <View style={styles.footer}>
+      <Animated.View entering={enter.fade.delay(600)} style={styles.footer}>
         <Button label="Let's go" onPress={onNext} />
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -234,14 +216,13 @@ function OneTapStep({ title, subtitle, children }: { title: string; subtitle: st
 function Choice({ label, hint, icon, on, onPress }: { label: string; hint?: string; icon?: IconKey; on: boolean; onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <Pressable
-      onPress={() => {
-        feedback("select");
-        onPress();
-      }}
+    <Press
+      haptic="select"
+      onPress={onPress}
       accessibilityRole="radio"
       accessibilityState={{ selected: on }}
-      style={({ pressed }) => [styles.choice, { backgroundColor: on ? c.inkPrimary : c.row, opacity: pressed ? 0.85 : 1 }]}
+      scale={0.98}
+      style={[styles.choice, { backgroundColor: on ? c.inkPrimary : c.row }]}
     >
       {icon ? <Icon name={icon} size={18} color={on ? c.canvas : c.inkPrimary} /> : null}
       <View style={{ flex: 1, gap: 1 }}>
@@ -255,7 +236,7 @@ function Choice({ label, hint, icon, on, onPress }: { label: string; hint?: stri
         ) : null}
       </View>
       <Icon name="chevronRight" size={16} color={on ? c.canvas : c.inkTertiary} />
-    </Pressable>
+    </Press>
   );
 }
 
@@ -336,7 +317,6 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
   const { text, rows } = profile.demo;
   const [typed, setTyped] = useState("");
   const [shown, setShown] = useState(0);
-  const [anims] = useState(() => rows.map(() => new Animated.Value(0)));
 
   useEffect(() => {
     let i = 0;
@@ -351,7 +331,6 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
             setTimeout(() => {
               setShown(idx + 1);
               feedback("select");
-              Animated.spring(anims[idx]!, { toValue: 1, friction: 6, tension: 60, useNativeDriver: true }).start();
             }, 450 + idx * 380),
           );
         });
@@ -361,7 +340,7 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
       clearInterval(type);
       timers.forEach(clearTimeout);
     };
-  }, [anims, rows, text]);
+  }, [rows, text]);
 
   return (
     <View style={styles.page}>
@@ -373,21 +352,11 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
         <T color={c.canvas}>{typed}</T>
       </View>
       <View style={{ gap: 8, marginTop: 8 }}>
-        {rows.map((r, i) => {
+        {rows.slice(0, shown).map((r) => {
           const fill = r.kind === "event" ? c.category[r.cat].fill : c.row;
           const ink = r.kind === "event" ? c.category[r.cat].ink : c.inkPrimary;
           return (
-            <Animated.View
-              key={r.title}
-              style={[
-                styles.row,
-                {
-                  backgroundColor: fill,
-                  opacity: anims[i],
-                  transform: [{ translateY: anims[i]!.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
-                },
-              ]}
-            >
+            <Animated.View key={r.title} entering={enter.rise} style={[styles.row, { backgroundColor: fill }]}>
               <Icon name={r.icon} color={ink} />
               <T color={ink} style={{ flex: 1 }}>
                 {r.title}
@@ -505,15 +474,10 @@ function OwnStep({ onSample }: { onSample: () => void }) {
 function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: string; onPress: () => void; disabled: boolean }) {
   const { c } = useTheme();
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole="button"
-      style={({ pressed }) => [styles.action, { backgroundColor: c.row, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 }]}
-    >
+    <Press onPress={onPress} disabled={disabled} haptic="tap" accessibilityRole="button" style={[styles.action, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
       <Icon name={icon} size={20} color={c.inkPrimary} />
       <T token="subhead">{label}</T>
-    </Pressable>
+    </Press>
   );
 }
 
@@ -543,9 +507,9 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
   return (
     <View style={styles.center}>
       <View style={styles.middle}>
-        <View style={[styles.bigIcon, { backgroundColor: c.tint.butter.fill }]}>
+        <Animated.View entering={enter.rise} style={[styles.bigIcon, { backgroundColor: c.tint.butter.fill }]}>
           <Icon name="bell" size={30} color={c.tint.butter.ink} />
-        </View>
+        </Animated.View>
         <T token="display" style={{ textAlign: "center" }}>
           Want a heads-up?
         </T>
