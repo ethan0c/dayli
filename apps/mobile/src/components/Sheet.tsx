@@ -29,8 +29,7 @@ export function Sheet({
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[styles.root, { backgroundColor: c.canvas, paddingTop: Platform.OS === 'ios' ? 8 : insets.top }]}>
       <View style={styles.head}>
-        <View style={styles.close} />
-        <T token="headline" style={{ flex: 1, textAlign: 'center' }} accessibilityRole="header">{title}</T>
+        <T token="title" style={{ flex: 1 }} accessibilityRole="header">{title}</T>
         <Pressable onPress={close} style={styles.close} accessibilityRole="button" accessibilityLabel="Close">
           <Icon name="x" size={21} color={c.inkSecondary} />
         </Pressable>
@@ -75,10 +74,10 @@ export function Button({
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: SCREEN_GUTTER - 8, minHeight: 56, paddingBottom: 8 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: SCREEN_GUTTER, paddingRight: SCREEN_GUTTER - 8, minHeight: 64, paddingTop: 12, paddingBottom: 8 },
   close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  subtitle: { textAlign: 'center', paddingHorizontal: SCREEN_GUTTER, paddingBottom: 20, fontSize: 14, lineHeight: 20 },
+  subtitle: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 24 },
   body: { flex: 1 },
   footer: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, gap: 8 },
-  btn: { minHeight: 52, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  btn: { minHeight: 52, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
 });

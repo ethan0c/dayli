@@ -75,4 +75,17 @@ describe('planReminders', () => {
     expect(inQuietHours('07:00', DEFAULT_REMINDERS)).toBe(false);
     expect(inQuietHours('12:00', DEFAULT_REMINDERS)).toBe(false);
   });
+
+  it('reminds two days before a free trial converts, even with reminders off', () => {
+    const plan = planReminders([], { ...DEFAULT_REMINDERS, enabled: false, briefing: false }, now, {
+      trial: { endsAt: '2026-10-26T14:03:00Z', label: '$14.99 per 6 months' },
+    });
+    expect(plan.map((p) => [p.id, p.date, p.time])).toEqual([['trial-reminder', '2026-10-24', '18:00']]);
+    expect(plan[0]!.body).toContain('$14.99 per 6 months');
+  });
+
+  it('drops the trial reminder once it is in the past', () => {
+    const plan = planReminders([], DEFAULT_REMINDERS, now, { trial: { endsAt: '2026-10-20T14:03:00Z', label: 'x' } });
+    expect(plan).toEqual([]);
+  });
 });

@@ -1,18 +1,18 @@
 /* Semli web tokens. Mirrors packages/tokens; keep both in step. */
 :root {
-  --canvas: #ffffff;
-  --header: #f1f0f4;
-  --row: #f2f2f5;
+  --canvas: #faf9f6;
+  --header: #faf9f6;
+  --row: #f0efeb;
   --surface: #ffffff;
-  --ink: #18171c;
-  --ink-2: #6b6a75;
-  --ink-3: #a09fa8;
-  --line: #e4e3ea;
-  --nav: #1c1b21;
-  --accent: #6f57d4;
-  --accent-soft: #f6f4fe;
-  --accent-border: #dcd4fb;
-  --accent-ink: #5843b0;
+  --ink: #222320;
+  --ink-2: #686963;
+  --ink-3: #686963;
+  --line: #e5e4de;
+  --nav: #222320;
+  --accent: #7057bd;
+  --accent-soft: #f0ecf8;
+  --accent-border: #dcd4ef;
+  --accent-ink: #7057bd;
   --lav-500: #8a74e6;
   --school: #dcd4fb;
   --school-ink: #43338a;
@@ -20,36 +20,36 @@
   --work-ink: #7a3e1a;
   --personal: #cdebdd;
   --personal-ink: #1f5a40;
-  --conflict: #e5544a;
-  --conflict-bg: #fce3e0;
+  --conflict: #a2342f;
+  --conflict-bg: #fbedeb;
   --chip: rgba(255, 255, 255, 0.72);
-  --font: var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --canvas: #0f0e13;
-    --header: #17161c;
-    --row: #1e1d24;
-    --surface: #25242c;
-    --ink: #f4f3f8;
-    --ink-2: #a4a3ae;
-    --ink-3: #6e6d78;
-    --line: #2e2d35;
+    --canvas: #151515;
+    --header: #151515;
+    --row: #292929;
+    --surface: #202020;
+    --ink: #f5f4f0;
+    --ink-2: #b4b4ac;
+    --ink-3: #b4b4ac;
+    --line: #363632;
     --nav: #2a2931;
-    --accent: #c5b8f7;
-    --accent-soft: #1d1a2b;
-    --accent-border: #3a3160;
-    --accent-ink: #c5b8f7;
+    --accent: #c3aff8;
+    --accent-soft: #2b253a;
+    --accent-border: #453b5a;
+    --accent-ink: #c3aff8;
     --school: #2e2460;
     --school-ink: #e4ddff;
     --work: #4a2c1c;
     --work-ink: #ffd9c2;
     --personal: #1c3a2d;
     --personal-ink: #cdebdd;
-    --conflict: #f07a70;
-    --conflict-bg: #3a1d1b;
+    --conflict: #ffaca4;
+    --conflict-bg: #3b2524;
     --chip: rgba(255, 255, 255, 0.12);
     color-scheme: dark;
   }
@@ -78,6 +78,7 @@ body {
   background: var(--canvas);
   color: var(--ink);
   font-family: var(--font);
+  letter-spacing: 0;
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -239,8 +240,9 @@ textarea {
   gap: 2px;
   padding: 4px;
   border-radius: 999px;
-  background: var(--nav);
-  color: #a4a3ae;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
   font-size: 12px;
   font-weight: 500;
 }
@@ -249,8 +251,8 @@ textarea {
   border-radius: 999px;
 }
 .navpill .on {
-  background: #f4f3f8;
-  color: #18171c;
+  background: var(--row);
+  color: var(--ink);
 }
 .clockrow {
   display: flex;
@@ -258,6 +260,7 @@ textarea {
   align-items: flex-start;
 }
 .clock {
+  font-family: var(--font-urbanist), var(--font);
   font-size: 44px;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -285,7 +288,8 @@ textarea {
   border-radius: 50%;
 }
 .week .sel b {
-  background: var(--surface);
+  background: var(--ink);
+  color: var(--canvas);
 }
 .week small {
   display: block;
@@ -308,19 +312,21 @@ textarea {
   min-height: 44px;
   padding: 0 12px;
   border-radius: 14px;
-  background: var(--row);
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
 }
 .row.ev {
-  background: var(--school);
-  color: var(--school-ink);
+  background: transparent;
+  color: var(--ink);
 }
 .row.ev.work {
-  background: var(--work);
-  color: var(--work-ink);
+  background: transparent;
+  color: var(--ink);
 }
 .row.ev.personal {
-  background: var(--personal);
-  color: var(--personal-ink);
+  background: transparent;
+  color: var(--ink);
 }
 .row .t {
   flex: 1;
@@ -1352,3 +1358,9 @@ textarea {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* The app preview uses the same open agenda and detached action as mobile. */
+.screen-nav { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: auto; padding: 10px 12px 18px; }
+.screen-nav .navpill { margin: 0; min-width: 0; flex: 1; justify-content: space-around; }
+.screen-nav .navpill span { padding-inline: 10px; }
+.screen-add { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: var(--canvas); background: var(--ink); font-size: 24px; }

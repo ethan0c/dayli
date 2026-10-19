@@ -3,7 +3,7 @@
 Status: Oct 19, 2026. This replaces the milestone table in product-plan.md as the working checklist. The MVP exists to run one test: **do 50 engaged students pay after a 7-day trial?** Everything below either makes that test possible or makes the product worth paying for. Anything else waits for [phase-2.md](phase-2.md).
 
 ## Already built (verified on the simulator unless noted)
-- Onboarding (5 steps, honor-system pricing), Today, Plan (reference design), School, item detail, settings stack, light/dark, native tab bar with glass "+".
+- Onboarding v2 (Oct 19: one-tap questions → demo → your own import → review → heads-up sheet → Plus with trial timeline and "Continue free"), Today, Plan (reference design), School, item detail, settings stack, light/dark, native tab bar with glass "+".
 - Capture: text, screenshot, camera, PDF → Claude extraction → review with evidence lines and native date/time pickers → commit with undo.
 - Work-schedule diffing, duplicate matching, conflict and overload detection, pending-week state. 26 unit tests.
 - Website: landing, try-it box, pricing, terms, privacy, contact, delete-account, API route.

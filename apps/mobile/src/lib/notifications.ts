@@ -75,6 +75,7 @@ export async function sendTestNotification(): Promise<void> {
 export function useReminderSync() {
   const items = useStore((s) => s.items);
   const reminders = useStore((s) => s.settings.reminders);
+  const trial = useStore((s) => s.settings.trial);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
@@ -82,7 +83,7 @@ export function useReminderSync() {
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [items, reminders]);
+  }, [items, reminders, trial]);
   useEffect(() => {
     const sub = AppState.addEventListener('change', (s) => s === 'active' && void syncReminders().catch(() => {}));
     return () => sub.remove();

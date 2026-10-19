@@ -11,7 +11,7 @@ import { feedback } from '@/lib/feedback';
 import { track } from '@/lib/analytics';
 import { requestNotifications, syncReminders } from '@/lib/notifications';
 import { newId, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, radius, textStyle, useTheme } from '@/theme';
+import { SCREEN_GUTTER, radius, textStyle, useCardSurface, useTheme } from '@/theme';
 
 export default function ReviewScreen() {
   const { c } = useTheme();
@@ -92,9 +92,9 @@ export default function ReviewScreen() {
     const { settings, setSettings } = useStore.getState();
     setPending(null);
     if (!settings.onboarded) {
-      // First import during onboarding: hand control back to the onboarding screen, which continues to the heads-up.
+      // First import during onboarding: the cleared `pending` closes this sheet (effect above) and the
+      // onboarding screen continues to the heads-up. The reminders ask happens there, with priming.
       setSettings({ onboardingImportDone: true });
-      router.back();
       return;
     }
     if (!settings.remindersAsked) {
@@ -188,6 +188,7 @@ function Pill({ label, bg, ink }: { label: string; bg: string; ink: string }) {
 
 function DraftCard({ draft: d, onEdit }: { draft: Draft; onEdit: (patch: Partial<Draft>) => void }) {
   const { c } = useTheme();
+  const surface = useCardSurface();
   const cat = c.category[d.category];
   const on = d.include;
   const attention = on && (d.needsInput || !isLocalDate(d.date));
@@ -195,7 +196,8 @@ function DraftCard({ draft: d, onEdit }: { draft: Draft; onEdit: (patch: Partial
     <View
       style={[
         styles.card,
-        { backgroundColor: d.kind === 'event' ? cat.fill : c.row, opacity: on ? 1 : 0.5 },
+        surface,
+        { opacity: on ? 1 : 0.5 },
         attention ? { borderWidth: 1.5, borderColor: c.accent } : null,
       ]}>
       <View style={styles.cardRow}>
@@ -204,7 +206,9 @@ function DraftCard({ draft: d, onEdit }: { draft: Draft; onEdit: (patch: Partial
           value={d.title}
           onChangeText={(title) => onEdit({ title })}
           editable={on}
-          style={[textStyle('body', d.kind === 'event' ? cat.ink : c.inkPrimary), { flex: 1, minWidth: 0, padding: 0 }]}
+          accessibilityLabel="Item title"
+          multiline
+          style={[textStyle('body', c.inkPrimary), { flex: 1, minWidth: 0, padding: 0 }]}
         />
         <NativeToggle value={on} onChange={(include) => {
             feedback('select');
@@ -244,6 +248,6 @@ const styles = StyleSheet.create({
   diff: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingBottom: 4 },
   pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill },
   course: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.row, borderWidth: 1 },
-  card: { borderRadius: radius.card, padding: 12, gap: 8 },
+  card: { borderRadius: radius.card, padding: 16, gap: 12, marginVertical: 4 },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 });

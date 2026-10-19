@@ -5,7 +5,7 @@ import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams, useNavigation, type NativeStackNavigationProp } from 'expo-router';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { Reading } from '@/components/Reading';
@@ -165,10 +165,11 @@ export default function CaptureScreen() {
   }, [navigation, params.source]);
 
   return (
-    <Sheet title="Tell Semli" subtitle="A message, a screenshot, or a syllabus. Nothing is saved until you confirm.">
-      <View style={styles.body}>
+    <Sheet title="Add anything." subtitle="A thought, a schedule, a whole syllabus. You review the details before anything is added.">
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         <TextInput
           id="capture-text"
+          accessibilityLabel="What would you like to add?"
           value={text}
           onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
           multiline
@@ -194,7 +195,7 @@ export default function CaptureScreen() {
             </T>
           </View>
         ) : null}
-      </View>
+      </ScrollView>
       <View style={styles.footer}>
         <Button label="Review what Semli finds" disabled={!canSend} onPress={() => run({ kind: 'text', text: text.trim() }, 'Message')} />
       </View>
@@ -211,6 +212,8 @@ function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: stri
         onPress();
       }}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
       style={({ pressed }) => [styles.action, { backgroundColor: c.row, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 }]}>
       <Icon name={icon} size={20} color={c.inkPrimary} />
       <T token="subhead">{label}</T>
@@ -219,10 +222,10 @@ function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: stri
 }
 
 const styles = StyleSheet.create({
-  body: { flex: 1, paddingHorizontal: SCREEN_GUTTER, gap: 12 },
-  input: { minHeight: 120, maxHeight: 220, borderRadius: radius.card, padding: 16, textAlignVertical: 'top' },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 16, gap: 16 },
+  input: { minHeight: 160, maxHeight: 260, borderRadius: radius.card, padding: 18, textAlignVertical: 'top' },
   actions: { flexDirection: 'row', gap: 8 },
-  action: { flex: 1, height: 64, borderRadius: radius.row, alignItems: 'center', justifyContent: 'center', gap: 4 },
+  action: { flex: 1, minHeight: 64, paddingVertical: 12, borderRadius: radius.row, alignItems: 'center', justifyContent: 'center', gap: 6 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.row, borderWidth: 1 },
   footer: { paddingHorizontal: SCREEN_GUTTER, paddingVertical: 16 },
 });

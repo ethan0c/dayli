@@ -1,34 +1,38 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  Animated,
-  Easing,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
+import { Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Icon } from "@/components/Icon";
+import { Icon, type IconKey } from "@/components/Icon";
 import { PlanPicker } from "@/components/PlanPicker";
+import { Reading } from "@/components/Reading";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
 import { Wordmark } from "@/components/Wordmark";
 import { track } from "@/lib/analytics";
+import { requestExtraction } from "@/lib/api";
+import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/lib/capture-input";
 import { feedback } from "@/lib/feedback";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
+import { requestNotifications, syncReminders } from "@/lib/notifications";
 import { FREE_IMPORTS_PER_MONTH } from "@/lib/plans";
 import { useStore } from "@/store";
 import { SCREEN_GUTTER, radius, textStyle, useTheme } from "@/theme";
 
-const STEPS = 5;
+/**
+ * One real result before any ask. The order follows docs/onboarding-research.md §3:
+ * three one-tap questions → the demo → your own import → the review sheet (the aha)
+ * → reminders priming → the paywall after value → Today.
+ */
+const STEPS = ["welcome", "role", "major", "week", "demo", "own", "heads-up", "plus"] as const;
+type Step = (typeof STEPS)[number];
 
-const ROLES: { id: Role; label: string }[] = [
-  { id: "student", label: "Student" },
-  { id: "both", label: "Student with a job" },
-  { id: "working", label: "Working" },
+type Picked = { input: Parameters<typeof requestExtraction>[1]["input"]; source: string } | null;
+
+const ROLES: { id: Role; label: string; hint: string }[] = [
+  { id: "student", label: "Student", hint: "Classes, exams, deadlines" },
+  { id: "both", label: "Student with a job", hint: "Classes plus shifts that change" },
+  { id: "working", label: "Working", hint: "Shifts, appointments, life" },
 ];
 
 export default function OnboardingScreen() {
@@ -37,111 +41,132 @@ export default function OnboardingScreen() {
   const settings = useStore((s) => s.settings);
   const setSettings = useStore((s) => s.setSettings);
   const loadSample = useStore((s) => s.loadSample);
-  // `?step=3` opens a specific step; useful when previewing copy and layout.
+  const showToast = useStore((s) => s.showToast);
+  const importDone = useStore((s) => s.settings.onboardingImportDone);
+
+  // `?step=plus` opens a specific step; useful when previewing copy and layout.
   const params = useLocalSearchParams<{ step?: string }>();
-  const requested = Math.min(Math.max(Number(params.step) || 0, 0), STEPS - 1);
-  const [step, setStep] = useState(requested);
-  // Reset when the link changes (derived state, the React-sanctioned way, no effect).
+  const requested = (STEPS as readonly string[]).includes(params.step ?? "") ? (params.step as Step) : "welcome";
+  const [step, setStep] = useState<Step>(requested);
+  // Reset when the link changes (derived state, no effect).
   const [lastRequested, setLastRequested] = useState(requested);
   if (lastRequested !== requested) {
     setLastRequested(requested);
     setStep(requested);
   }
+
   const [name, setName] = useState(settings.name);
   const [role, setRole] = useState<Role>(settings.isStudent ? "both" : "working");
   const [major, setMajor] = useState<string | null>(settings.major);
   const [kinds, setKinds] = useState<string[]>(settings.weekKinds);
-
+  const [usedSample, setUsedSample] = useState(false);
   const student = role !== "working";
   const profile = profileFor(major, student);
 
-  const next = () => {
+  const go = (next: Step) => {
     feedback("tap");
-    setStep((s) => Math.min(s + 1, STEPS - 1));
+    track("onboarding_step", { step: next });
+    setStep(next);
   };
 
-  const finish = (withSample: boolean) => {
-    setSettings({
-      name: name.trim(),
-      weekKinds: kinds,
-      isStudent: student,
-      major: student ? (major ?? "other") : null,
-      onboarded: true,
-      seeded: true,
-    });
-    track("onboarding_completed", { role, major: student ? (major ?? "other") : null, sample: withSample });
-    if (withSample) loadSample();
+  // The review sheet flips this when the first import is confirmed; carry on to the heads-up.
+  const [seenImportDone, setSeenImportDone] = useState(importDone);
+  if (importDone !== seenImportDone) {
+    setSeenImportDone(importDone);
+    if (importDone && step === "own") setStep("heads-up");
+  }
+
+  const saveProfile = () =>
+    setSettings({ name: name.trim(), weekKinds: kinds, isStudent: student, major: student ? (major ?? "other") : null });
+
+  const finish = () => {
+    setSettings({ onboarded: true, seeded: true, onboardingImportDone: false });
+    track("onboarding_completed", { role, major: student ? (major ?? "other") : null, sample: usedSample });
     feedback("success");
+    showToast(usedSample ? "You're set. This is a sample week; add your own any time." : "You're set.");
     router.replace("/");
   };
 
+  const progress = STEPS.indexOf(step);
+
   return (
-    <View
-      style={[
-        styles.root,
-        {
-          backgroundColor: c.canvas,
-          paddingTop: insets.top + 12,
-          paddingBottom: Math.max(insets.bottom, 16),
-        },
-      ]}
-    >
+    <View style={[styles.root, { backgroundColor: c.canvas, paddingTop: insets.top + 12, paddingBottom: Math.max(insets.bottom, 16) }]}>
       <View style={styles.progress}>
-        {Array.from({ length: STEPS }, (_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.bar,
-              { backgroundColor: i <= step ? c.inkPrimary : c.line },
-            ]}
-          />
+        {STEPS.map((s, i) => (
+          <View key={s} style={[styles.bar, { backgroundColor: i <= progress ? c.inkPrimary : c.line }]} />
         ))}
       </View>
 
-      {step === 0 && <Welcome onNext={next} />}
-      {step === 1 && (
-        <AboutYouStep
+      {step === "welcome" && <Welcome onNext={() => go("role")} />}
+      {step === "role" && (
+        <OneTapStep title="Right now you are a" subtitle="So the examples fit your week.">
+          {ROLES.map((r) => (
+            <Choice
+              key={r.id}
+              label={r.label}
+              hint={r.hint}
+              on={role === r.id}
+              onPress={() => {
+                setRole(r.id);
+                if (r.id === "working") setKinds((ks) => ks.filter((k) => k !== "classes"));
+                go(r.id === "working" ? "week" : "major");
+              }}
+            />
+          ))}
+        </OneTapStep>
+      )}
+      {step === "major" && (
+        <OneTapStep title="What are you studying?" subtitle="Pick the closest. You can change it later in You.">
+          {MAJORS.map((m) => (
+            <Choice
+              key={m.id}
+              label={m.label}
+              icon={m.icon}
+              on={major === m.id}
+              onPress={() => {
+                setMajor(m.id);
+                go("week");
+              }}
+            />
+          ))}
+        </OneTapStep>
+      )}
+      {step === "week" && (
+        <WeekStep
           name={name}
           onName={setName}
-          role={role}
-          onRole={(r) => {
-            feedback("select");
-            setRole(r);
-            if (r === "working") setKinds((ks) => ks.filter((k) => k !== "classes"));
-          }}
-          major={major}
-          onMajor={(m) => {
-            feedback("select");
-            setMajor(m);
-          }}
           profile={profile}
+          student={student}
           kinds={kinds}
           onToggle={(k) => {
             feedback("select");
-            setKinds((ks) =>
-              ks.includes(k) ? ks.filter((x) => x !== k) : [...ks, k],
-            );
+            setKinds((ks) => (ks.includes(k) ? ks.filter((x) => x !== k) : [...ks, k]));
           }}
-          onNext={next}
+          onNext={() => {
+            saveProfile();
+            go("demo");
+          }}
         />
       )}
-      {step === 2 && <DemoStep key={profile.id} profile={profile} onNext={next} />}
-      {step === 3 && (
-        <PriceStep onNext={next} />
-      )}
-      {step === 4 && (
-        <DoneStep
-          name={name.trim()}
-          student={student}
-          onSample={() => finish(true)}
-          onEmpty={() => finish(false)}
+      {step === "demo" && <DemoStep key={profile.id} profile={profile} onNext={() => go("own")} />}
+      {step === "own" && (
+        <OwnStep
+          onSample={() => {
+            saveProfile();
+            loadSample();
+            setUsedSample(true);
+            // Reminders are asked later, after their first real import.
+            go("plus");
+          }}
         />
       )}
+      {step === "heads-up" && <HeadsUpStep onDone={() => go("plus")} />}
+      {step === "plus" && <PlusStep onFinish={finish} />}
     </View>
   );
 }
 
-/* ---------- Step 0: the wordmark assembles itself ---------- */
+/* ---------- Welcome: the wordmark assembles itself ---------- */
 
 function Welcome({ onNext }: { onNext: () => void }) {
   const { c } = useTheme();
@@ -149,18 +174,8 @@ function Welcome({ onNext }: { onNext: () => void }) {
   const [line] = useState(() => new Animated.Value(0));
   useEffect(() => {
     Animated.sequence([
-      Animated.spring(rise, {
-        toValue: 1,
-        friction: 7,
-        tension: 50,
-        useNativeDriver: true,
-      }),
-      Animated.timing(line, {
-        toValue: 1,
-        duration: 500,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
+      Animated.spring(rise, { toValue: 1, friction: 7, tension: 50, useNativeDriver: true }),
+      Animated.timing(line, { toValue: 1, duration: 500, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
     ]).start();
   }, [rise, line]);
   return (
@@ -170,18 +185,8 @@ function Welcome({ onNext }: { onNext: () => void }) {
           style={{
             opacity: rise,
             transform: [
-              {
-                translateY: rise.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [40, 0],
-                }),
-              },
-              {
-                scale: rise.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.9, 1],
-                }),
-              },
+              { translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) },
+              { scale: rise.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) },
             ],
           }}
         >
@@ -190,14 +195,7 @@ function Welcome({ onNext }: { onNext: () => void }) {
         <Animated.View
           style={{
             opacity: line,
-            transform: [
-              {
-                translateY: line.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [12, 0],
-                }),
-              },
-            ],
+            transform: [{ translateY: line.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
             gap: 12,
             alignItems: "center",
           }}
@@ -205,13 +203,11 @@ function Welcome({ onNext }: { onNext: () => void }) {
           <T token="display" style={{ textAlign: "center" }}>
             The daily planner for college students.
           </T>
-          <T
-            token="callout"
-            color={c.inkSecondary}
-            style={{ textAlign: "center", maxWidth: 300 }}
-          >
-            Drop in a syllabus, a work schedule, or a text. Semli tells you what
-            matters today.
+          <T token="callout" color={c.inkSecondary} style={{ textAlign: "center", maxWidth: 300 }}>
+            Drop in a syllabus, a work schedule, or a text. Semli tells you what matters today.
+          </T>
+          <T token="caption" color={c.inkTertiary} style={{ textAlign: "center" }}>
+            Takes a minute. No account.
           </T>
         </Animated.View>
       </View>
@@ -222,71 +218,102 @@ function Welcome({ onNext }: { onNext: () => void }) {
   );
 }
 
-/* ---------- Step 1: about you ---------- */
+/* ---------- One question per screen, auto-advance ---------- */
 
-function Chip({
-  label,
-  icon,
-  on,
-  onPress,
-  role = "checkbox",
-}: {
-  label: string;
-  icon?: Profile["icon"];
-  on: boolean;
-  onPress: () => void;
-  role?: "checkbox" | "radio";
-}) {
+function OneTapStep({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+  const { c } = useTheme();
+  return (
+    <ScrollView contentContainerStyle={styles.page}>
+      <T token="display">{title}</T>
+      <T token="callout" color={c.inkSecondary}>
+        {subtitle}
+      </T>
+      <View style={{ gap: 8, marginTop: 8 }}>{children}</View>
+    </ScrollView>
+  );
+}
+
+function Choice({ label, hint, icon, on, onPress }: { label: string; hint?: string; icon?: IconKey; on: boolean; onPress: () => void }) {
   const { c } = useTheme();
   return (
     <Pressable
-      onPress={onPress}
-      accessibilityRole={role}
-      accessibilityState={role === "radio" ? { selected: on } : { checked: on }}
-      style={[styles.chip, { backgroundColor: on ? c.inkPrimary : c.row }]}
+      onPress={() => {
+        feedback("select");
+        onPress();
+      }}
+      accessibilityRole="radio"
+      accessibilityState={{ selected: on }}
+      style={({ pressed }) => [styles.choice, { backgroundColor: on ? c.inkPrimary : c.row, opacity: pressed ? 0.85 : 1 }]}
     >
-      {icon ? <Icon name={icon} size={16} color={on ? c.canvas : c.inkPrimary} /> : null}
-      <T token="subhead" color={on ? c.canvas : c.inkPrimary}>
-        {label}
-      </T>
+      {icon ? <Icon name={icon} size={18} color={on ? c.canvas : c.inkPrimary} /> : null}
+      <View style={{ flex: 1, gap: 1 }}>
+        <T token="headline" color={on ? c.canvas : c.inkPrimary}>
+          {label}
+        </T>
+        {hint ? (
+          <T token="caption" color={on ? c.canvas : c.inkSecondary}>
+            {hint}
+          </T>
+        ) : null}
+      </View>
+      <Icon name="chevronRight" size={16} color={on ? c.canvas : c.inkTertiary} />
     </Pressable>
   );
 }
 
-function AboutYouStep({
+/* ---------- Your week + optional name ---------- */
+
+function WeekStep({
   name,
   onName,
-  role,
-  onRole,
-  major,
-  onMajor,
   profile,
+  student,
   kinds,
   onToggle,
   onNext,
 }: {
   name: string;
   onName: (v: string) => void;
-  role: Role;
-  onRole: (r: Role) => void;
-  major: string | null;
-  onMajor: (m: string) => void;
   profile: Profile;
+  student: boolean;
   kinds: string[];
   onToggle: (k: string) => void;
   onNext: () => void;
 }) {
   const { c } = useTheme();
-  const student = role !== "working";
   const chips = chipsFor(profile, student);
   return (
-    <ScrollView
-      contentContainerStyle={styles.page}
-      keyboardShouldPersistTaps="handled"
-    >
-      <T token="display">First, the basics.</T>
+    <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
+      <T token="display">{"What's in a typical week?"}</T>
+      <T token="callout" color={c.inkSecondary}>
+        Tap everything that applies.
+      </T>
+      <View style={styles.chips}>
+        {chips.map((k) => {
+          const on = kinds.includes(k.key);
+          return (
+            <Pressable
+              key={k.key}
+              onPress={() => onToggle(k.key)}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: on }}
+              style={[styles.chip, { backgroundColor: on ? c.inkPrimary : c.row }]}
+            >
+              <Icon name={k.icon} size={16} color={on ? c.canvas : c.inkPrimary} />
+              <T token="subhead" color={on ? c.canvas : c.inkPrimary}>
+                {k.label}
+              </T>
+            </Pressable>
+          );
+        })}
+      </View>
+      {kinds.includes("chaos") ? (
+        <T token="callout" color={c.accentInk}>
+          {"A busy week is a good place to start. Semli can help you keep track."}
+        </T>
+      ) : null}
       <T token="overline" color={c.inkSecondary} style={styles.ov}>
-        What should Semli call you?
+        What should Semli call you? Optional.
       </T>
       <TextInput
         value={name}
@@ -295,48 +322,8 @@ function AboutYouStep({
         placeholderTextColor={c.inkTertiary}
         autoCapitalize="words"
         autoCorrect={false}
-        style={[
-          styles.input,
-          textStyle("body", c.inkPrimary),
-          { backgroundColor: c.row },
-        ]}
+        style={[styles.input, textStyle("body", c.inkPrimary), { backgroundColor: c.row }]}
       />
-
-      <T token="overline" color={c.inkSecondary} style={styles.ov}>
-        Right now you are a
-      </T>
-      <View style={styles.chips}>
-        {ROLES.map((r) => (
-          <Chip key={r.id} label={r.label} on={role === r.id} onPress={() => onRole(r.id)} role="radio" />
-        ))}
-      </View>
-
-      {student ? (
-        <>
-          <T token="overline" color={c.inkSecondary} style={styles.ov}>
-            What are you studying?
-          </T>
-          <View style={styles.chips}>
-            {MAJORS.map((m) => (
-              <Chip key={m.id} label={m.label} icon={m.icon} on={major === m.id} onPress={() => onMajor(m.id)} role="radio" />
-            ))}
-          </View>
-        </>
-      ) : null}
-
-      <T token="overline" color={c.inkSecondary} style={styles.ov}>
-        {"What's in a typical week?"}
-      </T>
-      <View style={styles.chips}>
-        {chips.map((k) => (
-          <Chip key={k.key} label={k.label} icon={k.icon} on={kinds.includes(k.key)} onPress={() => onToggle(k.key)} />
-        ))}
-      </View>
-      {kinds.includes("chaos") ? (
-        <T token="callout" color={c.accentInk}>
-          {"A busy week is a good place to start. Semli can help you keep track."}
-        </T>
-      ) : null}
       <View style={styles.footer}>
         <Button label="Next" onPress={onNext} />
       </View>
@@ -344,7 +331,7 @@ function AboutYouStep({
   );
 }
 
-/* ---------- Step 2: watch a message turn into a plan ---------- */
+/* ---------- Watch it work ---------- */
 
 function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void }) {
   const { c } = useTheme();
@@ -363,19 +350,11 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
         clearInterval(type);
         rows.forEach((_, idx) => {
           timers.push(
-            setTimeout(
-              () => {
-                setShown(idx + 1);
-                feedback("select");
-                Animated.spring(anims[idx]!, {
-                  toValue: 1,
-                  friction: 6,
-                  tension: 60,
-                  useNativeDriver: true,
-                }).start();
-              },
-              450 + idx * 380,
-            ),
+            setTimeout(() => {
+              setShown(idx + 1);
+              feedback("select");
+              Animated.spring(anims[idx]!, { toValue: 1, friction: 6, tension: 60, useNativeDriver: true }).start();
+            }, 450 + idx * 380),
           );
         });
       }
@@ -407,14 +386,7 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
                 {
                   backgroundColor: fill,
                   opacity: anims[i],
-                  transform: [
-                    {
-                      translateY: anims[i]!.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [16, 0],
-                      }),
-                    },
-                  ],
+                  transform: [{ translateY: anims[i]!.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
                 },
               ]}
             >
@@ -429,143 +401,214 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
                   </T>
                 </View>
               ) : (
-                <View
-                  style={[
-                    styles.circle,
-                    { borderColor: c.line, backgroundColor: c.canvas },
-                  ]}
-                />
+                <View style={[styles.circle, { borderColor: c.line, backgroundColor: c.canvas }]} />
               )}
             </Animated.View>
           );
         })}
       </View>
       <View style={styles.footer}>
-        <Button
-          label={shown === rows.length ? "Continue" : "Reading…"}
-          disabled={shown < rows.length}
-          onPress={onNext}
-        />
+        <Button label={shown === rows.length ? "Now try yours" : "Reading…"} disabled={shown < rows.length} onPress={onNext} />
       </View>
     </View>
   );
 }
 
-/* ---------- Step 3: price, honestly ---------- */
+/* ---------- Bring your own: the real thing, with the sample week as the fallback ---------- */
 
-function PriceStep({ onNext }: { onNext: () => void }) {
+function OwnStep({ onSample }: { onSample: () => void }) {
   const { c } = useTheme();
+  const apiUrl = useStore((s) => s.settings.apiUrl);
+  const setPending = useStore((s) => s.setPending);
+  const recordImport = useStore((s) => s.recordImport);
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function run(input: NonNullable<Picked>["input"], source: string) {
+    setError(null);
+    setBusy(source);
+    track("import_started", { kind: input.kind, where: "onboarding" });
+    try {
+      const res = await requestExtraction(apiUrl, { input, context: extractionContext() });
+      if (!res.ok) {
+        track("import_failed", { kind: input.kind, where: "onboarding" });
+        setError(res.error);
+        return;
+      }
+      if (res.extraction.items.length === 0) {
+        setError("Semli didn't find anything with a date in that. Try adding when it happens, or use the sample week.");
+        return;
+      }
+      feedback("ready");
+      recordImport();
+      track("import_succeeded", { kind: input.kind, items: res.extraction.items.length, type: res.extraction.detected_type, where: "onboarding" });
+      setPending({ extraction: res.extraction, source });
+      router.push("/review");
+    } catch {
+      track("import_failed", { kind: input.kind, where: "onboarding" });
+      setError("Semli couldn't read that right now. You can use the sample week and try yours later.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const pick = async (fn: () => Promise<Picked>) => {
+    setError(null);
+    try {
+      const picked = await fn();
+      if (picked) await run(picked.input, picked.source);
+    } catch (e) {
+      setError(e instanceof InputError ? e.message : "Semli couldn't open that. Try another file, or type it instead.");
+    }
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.page}>
-      <T token="display">Free to start.</T>
+    <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
+      <T token="display">Now, your week.</T>
       <T token="callout" color={c.inkSecondary}>
-        {FREE_IMPORTS_PER_MONTH} imports a month, reminders, and the calendar are free forever. Semli Plus adds unlimited imports.
+        Paste what’s coming up, or add a screenshot of your schedule. You check what Semli finds before anything is saved.
       </T>
-      <PlanPicker />
-      <T token="caption" color={c.inkSecondary}>
-        {"Choose a plan to see its price and any eligible offers, or continue for free."}
-      </T>
+      <TextInput
+        value={text}
+        onChangeText={setText}
+        multiline
+        editable={!busy}
+        placeholder="I work Friday 4–10, have an exam Monday, and need to return a library book Wednesday…"
+        placeholderTextColor={c.inkTertiary}
+        style={[styles.textarea, textStyle("body", c.inkPrimary), { backgroundColor: c.row }]}
+      />
+      <View style={styles.actions}>
+        <Action icon="image" label="Screenshot" disabled={!!busy} onPress={() => void pick(() => pickImageInput(false))} />
+        <Action icon="camera" label="Camera" disabled={!!busy} onPress={() => void pick(() => pickImageInput(true))} />
+        <Action icon="file" label="Syllabus PDF" disabled={!!busy} onPress={() => void pick(pickPdfInput)} />
+      </View>
+      {busy ? <Reading source={busy === "Message" ? "your message" : busy} /> : null}
+      {error ? (
+        <View style={[styles.status, { backgroundColor: c.tint.rose.fill }]}>
+          <Icon name="alert" size={16} color={c.tint.rose.ink} />
+          <T token="subhead" color={c.tint.rose.ink} style={{ flex: 1 }}>
+            {error}
+          </T>
+        </View>
+      ) : null}
       <View style={styles.footer}>
-        <Button label="Continue" onPress={onNext} />
+        <Button
+          label="See what Semli finds"
+          disabled={text.trim().length === 0 || !!busy}
+          onPress={() => void run({ kind: "text", text: text.trim() }, "Message")}
+        />
+        <Button variant="ghost" label="Use a sample week instead" disabled={!!busy} onPress={onSample} />
       </View>
     </ScrollView>
   );
 }
 
-/* ---------- Step 4: done ---------- */
-
-function DoneStep({
-  name,
-  student,
-  onSample,
-  onEmpty,
-}: {
-  name: string;
-  student: boolean;
-  onSample: () => void;
-  onEmpty: () => void;
-}) {
+function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: string; onPress: () => void; disabled: boolean }) {
   const { c } = useTheme();
-  const [pop] = useState(() => new Animated.Value(0));
-  useEffect(() => {
-    Animated.spring(pop, {
-      toValue: 1,
-      friction: 5,
-      tension: 70,
-      useNativeDriver: true,
-    }).start();
-  }, [pop]);
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      style={({ pressed }) => [styles.action, { backgroundColor: c.row, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 }]}
+    >
+      <Icon name={icon} size={20} color={c.inkPrimary} />
+      <T token="subhead">{label}</T>
+    </Pressable>
+  );
+}
+
+/* ---------- Heads-up: our sheet first, the system prompt only on yes ---------- */
+
+function HeadsUpStep({ onDone }: { onDone: () => void }) {
+  const { c } = useTheme();
+  const setSettings = useStore((s) => s.setSettings);
+  const [asking, setAsking] = useState(false);
+  const yes = async () => {
+    setAsking(true);
+    setSettings({ remindersAsked: true });
+    const ok = await requestNotifications().catch(() => false);
+    track("onboarding_step", { step: ok ? "heads-up-yes" : "heads-up-denied" });
+    if (ok) {
+      setSettings({ reminders: { ...useStore.getState().settings.reminders, enabled: true, briefing: true } });
+      await syncReminders().catch(() => {});
+    }
+    setAsking(false);
+    onDone();
+  };
+  const notNow = () => {
+    setSettings({ remindersAsked: true });
+    track("onboarding_step", { step: "heads-up-no" });
+    onDone();
+  };
   return (
     <View style={styles.center}>
       <View style={styles.middle}>
-        <Animated.View
-          style={[
-            styles.dot,
-            { backgroundColor: c.accent, transform: [{ scale: pop }] },
-          ]}
-        />
+        <View style={[styles.bigIcon, { backgroundColor: c.tint.butter.fill }]}>
+          <Icon name="bell" size={30} color={c.tint.butter.ink} />
+        </View>
         <T token="display" style={{ textAlign: "center" }}>
-          {name ? `You're set, ${name}.` : "You're set."}
+          Want a heads-up?
         </T>
-        <T
-          token="callout"
-          color={c.inkSecondary}
-          style={{ textAlign: "center", maxWidth: 300 }}
-        >
-          {student
-            ? "Start with a sample week in your field to see how it feels, or go straight to your own."
-            : "Start with a sample week to see how it feels, or go straight to your own."}
+        <T token="callout" color={c.inkSecondary} style={{ textAlign: "center", maxWidth: 320 }}>
+          A reminder before shifts and deadlines, and a short note each morning with what’s on. Nothing else, and never at night.
         </T>
       </View>
       <View style={styles.footer}>
-        <Button label="Show me a sample week" onPress={onSample} />
-        <Button variant="ghost" label="Start with my own" onPress={onEmpty} />
+        <Button label={asking ? "One sec…" : "Yes, remind me"} disabled={asking} onPress={() => void yes()} />
+        <Button variant="ghost" label="Not now" disabled={asking} onPress={notNow} />
       </View>
     </View>
   );
 }
 
+/* ---------- Plus, after the value moment ---------- */
+
+function PlusStep({ onFinish }: { onFinish: () => void }) {
+  const { c } = useTheme();
+  const trialStarted = useStore((s) => !!s.settings.trial);
+  useEffect(() => {
+    track("paywall_shown", { reason: "onboarding" });
+  }, []);
+  return (
+    <ScrollView contentContainerStyle={styles.page}>
+      <T token="display">Keep it reading.</T>
+      <T token="callout" color={c.inkSecondary}>
+        Your calendar, to-dos, and reminders are free forever. Plus reads every syllabus and schedule you send it, with a free week to try it.
+      </T>
+      <PlanPicker />
+      <View style={styles.footer}>
+        <Button
+          variant={trialStarted ? "primary" : "ghost"}
+          label={trialStarted ? "Continue" : `Continue free · ${FREE_IMPORTS_PER_MONTH} imports a month`}
+          onPress={onFinish}
+        />
+      </View>
+    </ScrollView>
+  );
+}
+
 const styles = StyleSheet.create({
   root: { flex: 1, paddingHorizontal: SCREEN_GUTTER },
-  progress: { flexDirection: "row", gap: 6, paddingBottom: 24 },
+  progress: { flexDirection: "row", gap: 5, paddingBottom: 24 },
   bar: { flex: 1, height: 3, borderRadius: 2 },
   center: { flex: 1 },
-  middle: { flex: 1, alignItems: "center", justifyContent: "center", gap: 28 },
+  middle: { flex: 1, alignItems: "center", justifyContent: "center", gap: 24 },
   page: { flexGrow: 1, gap: 14, paddingBottom: 8 },
   footer: { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
   ov: { paddingTop: 8 },
   input: { height: 52, borderRadius: radius.row, paddingHorizontal: 16 },
+  textarea: { minHeight: 120, maxHeight: 200, borderRadius: radius.card, padding: 16, textAlignVertical: "top" },
+  actions: { flexDirection: "row", gap: 8 },
+  action: { flex: 1, height: 64, borderRadius: radius.row, alignItems: "center", justifyContent: "center", gap: 4 },
+  status: { flexDirection: "row", alignItems: "center", gap: 10, padding: 12, borderRadius: radius.row },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  chip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 14,
-    height: 40,
-    borderRadius: radius.pill,
-  },
-  bubble: {
-    alignSelf: "flex-end",
-    maxWidth: "88%",
-    padding: 14,
-    borderRadius: 20,
-    borderBottomRightRadius: 6,
-    minHeight: 48,
-    marginTop: 8,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    minHeight: 52,
-    paddingHorizontal: 14,
-    borderRadius: radius.row,
-  },
-  chipTime: {
-    paddingHorizontal: 9,
-    paddingVertical: 3,
-    borderRadius: radius.chip,
-  },
+  chip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, height: 40, borderRadius: radius.pill },
+  choice: { flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.card },
+  bubble: { alignSelf: "flex-end", maxWidth: "88%", padding: 14, borderRadius: 20, borderBottomRightRadius: 6, minHeight: 48, marginTop: 8 },
+  row: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: 52, paddingHorizontal: 14, borderRadius: radius.row },
+  chipTime: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.chip },
   circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5 },
-  dot: { width: 56, height: 56, borderRadius: 28 },
+  bigIcon: { width: 72, height: 72, borderRadius: 36, alignItems: "center", justifyContent: "center" },
 });

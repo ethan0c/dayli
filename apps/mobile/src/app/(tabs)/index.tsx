@@ -218,7 +218,6 @@ export default function TodayScreen() {
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
-  const { c } = useTheme();
   return <View style={styles.section}><T token="headline" accessibilityRole="header">{title}</T>{children}</View>;
 }
 

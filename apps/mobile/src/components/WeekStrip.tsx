@@ -36,14 +36,14 @@ export function WeekStrip({ week, selected, today, marked, onSelect, onPrev, onN
             accessibilityHint="Swipe left or right to change week. Tap the date above to return to today."
             accessibilityActions={[{ name: 'increment', label: 'Next week' }, { name: 'decrement', label: 'Previous week' }]}
             onAccessibilityAction={({ nativeEvent }) => { feedback('select'); if (nativeEvent.actionName === 'increment') onNext(); else if (nativeEvent.actionName === 'decrement') onPrev(); }}>
-            <View style={[styles.num, isSel ? { backgroundColor: c.surface } : null]}>
-              <T token={isSel ? 'headline' : 'body'} color={isToday && !isSel ? c.accent : c.inkPrimary} tabular maxFontSizeMultiplier={1.5}>
+            <T token="caption" color={isToday ? c.accentInk : c.inkSecondary} maxFontSizeMultiplier={1.5}>
+              {weekdayShort(date)}
+            </T>
+            <View style={[styles.num, isSel ? { backgroundColor: c.inkPrimary } : null]}>
+              <T token="body" color={isSel ? c.onPrimary : c.inkPrimary} tabular maxFontSizeMultiplier={1.5}>
                 {String(Number(date.slice(-2)))}
               </T>
             </View>
-            <T token="caption" color={c.inkSecondary} maxFontSizeMultiplier={1.5}>
-              {weekdayShort(date).toLowerCase()}
-            </T>
           </Pressable>
         );
       })}
@@ -52,7 +52,7 @@ export function WeekStrip({ week, selected, today, marked, onSelect, onPrev, onN
 }
 
 const styles = StyleSheet.create({
-  wrap: { flexDirection: 'row', alignItems: 'flex-start' },
-  day: { flex: 1, minHeight: 62, alignItems: 'center', gap: 5 },
+  wrap: { flexDirection: 'row', alignItems: 'flex-start', marginHorizontal: -12 },
+  day: { flex: 1, minHeight: 76, alignItems: 'center', gap: 10 },
   num: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 });

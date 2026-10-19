@@ -11,10 +11,11 @@ import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
 import { courseTint, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, radius, useCardSurface, useTheme } from '@/theme';
 
 export default function SchoolScreen() {
   const { c } = useTheme();
+  const surface = useCardSurface();
   const now = useNow();
   const courses = useStore((s) => s.courses);
   const items = useItemList();
@@ -30,19 +31,9 @@ export default function SchoolScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-      <ScreenHeader title="School" subtitle="Your semester" safeTop />
-      <View style={styles.head}>
-        {courses.length > 0 ? (
-          <View style={[styles.summary, { borderColor: c.line }]}>
-            <Icon name="school" size={18} color={c.accentInk} />
-            <T token="subhead">{courses.length} {courses.length === 1 ? 'course' : 'courses'}</T>
-            <View style={[styles.summaryDot, { backgroundColor: c.inkTertiary }]} />
-            <T token="subhead" color={c.inkSecondary}>{deadlines.length} due in the next 7 days</T>
-          </View>
-        ) : null}
-      </View>
+      <ScreenHeader title="School." eyebrow="Your semester" subtitle={courses.length ? `${courses.length} ${courses.length === 1 ? 'course' : 'courses'} · ${deadlines.length} due in the next 7 days` : 'Your courses and deadlines, together.'} safeTop />
       <View style={styles.list}>
-        <SectionHeading title="Your courses" detail={courses.length === 0 ? 'Less setup. More of your semester in view.' : 'Tap a course to see what’s ahead.'} action={courses.length > 0 ? { label: 'Add syllabus', onPress: () => router.push('/capture') } : undefined} />
+        <SectionHeading title="Your courses" action={courses.length > 0 ? { label: 'Add syllabus', onPress: () => router.push({ pathname: '/capture', params: { source: 'file' } }) } : undefined} />
         {courses.map((course) => {
           const all = byCourse.get(course.id) ?? [];
           const upcoming = all.filter((i) => !i.done && i.date >= now.date);
@@ -50,10 +41,9 @@ export default function SchoolScreen() {
           const isOpen = open === course.id;
           const tint = c.tint[courseTint(courses, course.id) ?? 'lavender'];
           return (
-            <View key={course.id} style={[styles.card, { backgroundColor: c.row }]}>
-              <View style={[styles.courseAccent, { backgroundColor: tint.fill }]} />
+            <View key={course.id} style={[styles.card, surface]}>
               <Pressable accessibilityRole="button" accessibilityState={{ expanded: isOpen }} accessibilityLabel={`${course.title}, ${upcoming.length} upcoming items`} onPress={() => { feedback('tap'); setOpen(isOpen ? null : course.id); }} style={styles.cardHead}>
-                <View style={[styles.courseIcon, { backgroundColor: tint.fill }]}><Icon name="book" size={22} color={tint.ink} /></View>
+                <View style={[styles.courseMarker, { backgroundColor: tint.ink }]} />
                 <View style={{ flex: 1, minWidth: 0, gap: 5 }}>
                   {course.code ? (
                     <T token="caption" color={c.inkSecondary}>
@@ -115,9 +105,10 @@ const styles = StyleSheet.create({
   summary: { flexDirection: 'row', alignItems: 'center', gap: 9, paddingTop: 16, marginTop: 12, borderTopWidth: StyleSheet.hairlineWidth, flexWrap: 'wrap' },
   summaryDot: { width: 3, height: 3, borderRadius: 2 },
   list: { padding: 24, paddingHorizontal: SCREEN_GUTTER, gap: 14 },
-  card: { borderRadius: radius.card, overflow: 'hidden' },
+  card: { borderRadius: radius.card },
+  courseMarker: { width: 6, height: 6, borderRadius: 3, marginTop: 8 },
   courseAccent: { height: 5 },
-  cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 18 },
+  cardHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, padding: 18 },
   courseIcon: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   nextDeadline: { marginHorizontal: 18, paddingVertical: 14, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', gap: 10 },
   cardBody: { paddingHorizontal: 12, paddingBottom: 12, gap: 10 },

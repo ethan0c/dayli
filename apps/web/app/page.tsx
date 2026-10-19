@@ -85,10 +85,9 @@ function PlanScreen() {
           <span className="chip">Fri</span>
         </div>
       </div>
-      <div className="navpill" aria-hidden="true">
-        <span className="on">Today</span>
-        <span>Plan</span>
-        <span>School</span>
+      <div className="screen-nav" aria-hidden="true">
+        <div className="navpill"><span>Today</span><span className="on">Plan</span><span>School</span></div>
+        <span className="screen-add">+</span>
       </div>
     </div>
   );
@@ -148,7 +147,7 @@ export default function Home() {
       <section className={`hero ${styles.hero}`} aria-labelledby="home-title">
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>The daily planner for college students</p>
-          <h1 id="home-title">Your syllabus.<br />Your shifts.<br /><span>One clear plan.</span></h1>
+          <h1 id="home-title">Your week,<br /><span>already organized.</span></h1>
           <p>
             Send Semli what you have. It finds the dates, spots schedule changes, and brings school, work, and life into one place.
           </p>

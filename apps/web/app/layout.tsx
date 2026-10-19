@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from 'next';
-import { Urbanist } from 'next/font/google';
+import { Inter, Urbanist } from 'next/font/google';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { DESCRIPTION, KEYWORDS, SITE_URL, SUPPORT_EMAIL, TAGLINE } from '@/lib/site';
 import './globals.css';
 
 const urbanist = Urbanist({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-urbanist', display: 'swap' });
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-inter', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -20,8 +21,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FFFFFF' },
-    { media: '(prefers-color-scheme: dark)', color: '#0F0E13' },
+    { media: '(prefers-color-scheme: light)', color: '#FAF9F6' },
+    { media: '(prefers-color-scheme: dark)', color: '#151515' },
   ],
 };
 
@@ -50,7 +51,7 @@ const JSON_LD = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={urbanist.variable}>
+    <html lang="en" className={`${inter.variable} ${urbanist.variable}`}>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
         <div className="wrap">
