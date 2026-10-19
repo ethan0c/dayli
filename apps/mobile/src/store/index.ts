@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_API_URL } from '@/lib/api';
+import { profileFor } from '@/lib/majors';
 import { SAMPLE_SOURCE, sampleWeek } from '@/store/sample';
 
 export interface Change {
@@ -47,6 +48,8 @@ interface Settings {
   /** UI sounds; they also follow the ring/silent switch. */
   sounds: boolean;
   haptics: boolean;
+  /** Field of study when isStudent; drives the sample week and onboarding copy. */
+  major: string | null;
 }
 
 /** AI imports used this calendar month (free tier allows a few). */
@@ -97,7 +100,7 @@ export const useStore = create<State>()(
       batches: [],
       pending: null,
       toast: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true, major: null },
       usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),
@@ -209,7 +212,8 @@ export const useStore = create<State>()(
         const today = new Date();
         const pad = (n: number) => String(n).padStart(2, '0');
         const date = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
-        const s = sampleWeek(date);
+        const { major, isStudent } = get().settings;
+        const s = sampleWeek(date, profileFor(major, isStudent), isStudent);
         set({
           items: { ...get().items, ...Object.fromEntries(s.items.map((i) => [i.id, i])) },
           courses: [...get().courses.filter((c) => c.sourceId !== SAMPLE_SOURCE), ...s.courses.map((k, i) => ({ ...k, color: COURSE_TINTS[i % COURSE_TINTS.length] }))],

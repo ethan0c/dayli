@@ -121,7 +121,7 @@ export default function CaptureScreen() {
           multiline
           autoFocus
           editable={!busy}
-          placeholder="I work Friday 4–10, have an exam Monday, and need to buy scrubs Wednesday…"
+          placeholder="I work Friday 4–10, have an exam Monday, and need to return a library book Wednesday…"
           placeholderTextColor={c.inkTertiary}
           style={[styles.input, textStyle('body', c.inkPrimary), { backgroundColor: c.row }]}
         />

@@ -17,7 +17,7 @@ const ICONS: Record<Draft['icon'], string> = {
   heart: 'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z',
 };
 
-const SAMPLE = 'I work Friday 4-10 and Saturday 11-5 at Olive Garden, have a pharm exam next Monday at 9, and need to buy scrubs Wednesday.';
+const SAMPLE = 'I work Friday 4-10 and Saturday 11-5 at the campus café, have a stats exam next Monday at 9, and need to return a library book Wednesday.';
 const ACCEPT = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
 /** What the status line says while Claude works, by elapsed time. */
@@ -163,7 +163,7 @@ export function TryIt() {
   let n = 0; // running index so rows stagger across groups
 
   return (
-    <section className={`try${busy ? ' busy' : ''}`} id="try">
+    <section className={`try${busy ? ' busy' : ''}`} id="try" aria-labelledby="try-title">
       <form
         onSubmit={submit}
         onDragOver={(e) => {
@@ -175,7 +175,7 @@ export function TryIt() {
         }}
         onDrop={onDrop}
       >
-        <h2>Try it with your own week</h2>
+        <h2 id="try-title">Try it with your own week</h2>
         <p className="sub">Paste a message, or drop in a screenshot or syllabus. You&apos;ll see what Semli would add.</p>
         <textarea
           id="try-text"
@@ -210,7 +210,7 @@ export function TryIt() {
                 Reading…
               </>
             ) : (
-              'Show me'
+              'Preview my plan'
             )}
           </button>
           {!text && !file ? (
@@ -251,7 +251,7 @@ export function TryIt() {
         ) : !result ? (
           <>
             <div className="ov">What Semli would add</div>
-            <p className="empty">Results show up here, one row per event or to-do, grouped by day.</p>
+            <p className="empty">Your events and to-dos will appear here, grouped by day.</p>
           </>
         ) : (
           <>

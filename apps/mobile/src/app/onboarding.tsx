@@ -11,25 +11,23 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Icon, type IconKey } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
 import { PlanPicker } from "@/components/PlanPicker";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
 import { Wordmark } from "@/components/Wordmark";
 import { feedback } from "@/lib/feedback";
+import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
 import { FREE_IMPORTS_PER_MONTH, PLANS } from "@/lib/plans";
 import { useStore, type PlanId } from "@/store";
 import { SCREEN_GUTTER, radius, textStyle, useTheme } from "@/theme";
 
 const STEPS = 5;
 
-const WEEK_KINDS: { key: string; label: string; icon: IconKey }[] = [
-  { key: "classes", label: "Classes", icon: "school" },
-  { key: "work", label: "A job", icon: "work" },
-  { key: "clinicals", label: "Clinicals", icon: "heart" },
-  { key: "labs", label: "Labs", icon: "exam" },
-  { key: "sports", label: "Sports", icon: "calendar" },
-  { key: "chaos", label: "Pure chaos", icon: "sparkle" },
+const ROLES: { id: Role; label: string }[] = [
+  { id: "student", label: "Student" },
+  { id: "both", label: "Student with a job" },
+  { id: "working", label: "Working" },
 ];
 
 export default function OnboardingScreen() {
@@ -49,9 +47,13 @@ export default function OnboardingScreen() {
     setStep(requested);
   }
   const [name, setName] = useState(settings.name);
+  const [role, setRole] = useState<Role>(settings.isStudent ? "both" : "working");
+  const [major, setMajor] = useState<string | null>(settings.major);
   const [kinds, setKinds] = useState<string[]>(settings.weekKinds);
-  const [student, setStudent] = useState(settings.isStudent);
   const [plan, setPlan] = useState<PlanId | null>(settings.planIntent);
+
+  const student = role !== "working";
+  const profile = profileFor(major, student);
 
   const next = () => {
     feedback("tap");
@@ -63,6 +65,7 @@ export default function OnboardingScreen() {
       name: name.trim(),
       weekKinds: kinds,
       isStudent: student,
+      major: student ? (major ?? "other") : null,
       planIntent: plan,
       onboarded: true,
       seeded: true,
@@ -97,9 +100,21 @@ export default function OnboardingScreen() {
 
       {step === 0 && <Welcome onNext={next} />}
       {step === 1 && (
-        <WeekStep
+        <AboutYouStep
           name={name}
           onName={setName}
+          role={role}
+          onRole={(r) => {
+            feedback("select");
+            setRole(r);
+            if (r === "working") setKinds((ks) => ks.filter((k) => k !== "classes"));
+          }}
+          major={major}
+          onMajor={(m) => {
+            feedback("select");
+            setMajor(m);
+          }}
+          profile={profile}
           kinds={kinds}
           onToggle={(k) => {
             feedback("select");
@@ -110,11 +125,11 @@ export default function OnboardingScreen() {
           onNext={next}
         />
       )}
-      {step === 2 && <DemoStep onNext={next} />}
+      {step === 2 && <DemoStep key={profile.id} profile={profile} onNext={next} />}
       {step === 3 && (
         <PriceStep
           student={student}
-          onStudent={setStudent}
+          onStudent={(v) => setRole(v ? "both" : "working")}
           plan={plan}
           onPlan={setPlan}
           onNext={next}
@@ -123,6 +138,7 @@ export default function OnboardingScreen() {
       {step === 4 && (
         <DoneStep
           name={name.trim()}
+          student={student}
           onSample={() => finish(true)}
           onEmpty={() => finish(false)}
         />
@@ -212,22 +228,63 @@ function Welcome({ onNext }: { onNext: () => void }) {
   );
 }
 
-/* ---------- Step 1: what's your week like ---------- */
+/* ---------- Step 1: about you ---------- */
 
-function WeekStep({
+function Chip({
+  label,
+  icon,
+  on,
+  onPress,
+  role = "checkbox",
+}: {
+  label: string;
+  icon?: Profile["icon"];
+  on: boolean;
+  onPress: () => void;
+  role?: "checkbox" | "radio";
+}) {
+  const { c } = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole={role}
+      accessibilityState={role === "radio" ? { selected: on } : { checked: on }}
+      style={[styles.chip, { backgroundColor: on ? c.inkPrimary : c.row }]}
+    >
+      {icon ? <Icon name={icon} size={16} color={on ? c.canvas : c.inkPrimary} /> : null}
+      <T token="subhead" color={on ? c.canvas : c.inkPrimary}>
+        {label}
+      </T>
+    </Pressable>
+  );
+}
+
+function AboutYouStep({
   name,
   onName,
+  role,
+  onRole,
+  major,
+  onMajor,
+  profile,
   kinds,
   onToggle,
   onNext,
 }: {
   name: string;
   onName: (v: string) => void;
+  role: Role;
+  onRole: (r: Role) => void;
+  major: string | null;
+  onMajor: (m: string) => void;
+  profile: Profile;
   kinds: string[];
   onToggle: (k: string) => void;
   onNext: () => void;
 }) {
   const { c } = useTheme();
+  const student = role !== "working";
+  const chips = chipsFor(profile, student);
   return (
     <ScrollView
       contentContainerStyle={styles.page}
@@ -250,34 +307,36 @@ function WeekStep({
           { backgroundColor: c.row },
         ]}
       />
+
+      <T token="overline" color={c.inkSecondary} style={styles.ov}>
+        Right now you are a
+      </T>
+      <View style={styles.chips}>
+        {ROLES.map((r) => (
+          <Chip key={r.id} label={r.label} on={role === r.id} onPress={() => onRole(r.id)} role="radio" />
+        ))}
+      </View>
+
+      {student ? (
+        <>
+          <T token="overline" color={c.inkSecondary} style={styles.ov}>
+            What are you studying?
+          </T>
+          <View style={styles.chips}>
+            {MAJORS.map((m) => (
+              <Chip key={m.id} label={m.label} icon={m.icon} on={major === m.id} onPress={() => onMajor(m.id)} role="radio" />
+            ))}
+          </View>
+        </>
+      ) : null}
+
       <T token="overline" color={c.inkSecondary} style={styles.ov}>
         {"What's in a typical week?"}
       </T>
       <View style={styles.chips}>
-        {WEEK_KINDS.map((k) => {
-          const on = kinds.includes(k.key);
-          return (
-            <Pressable
-              key={k.key}
-              onPress={() => onToggle(k.key)}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: on }}
-              style={[
-                styles.chip,
-                { backgroundColor: on ? c.inkPrimary : c.row },
-              ]}
-            >
-              <Icon
-                name={k.icon}
-                size={16}
-                color={on ? c.canvas : c.inkPrimary}
-              />
-              <T token="subhead" color={on ? c.canvas : c.inkPrimary}>
-                {k.label}
-              </T>
-            </Pressable>
-          );
-        })}
+        {chips.map((k) => (
+          <Chip key={k.key} label={k.label} icon={k.icon} on={kinds.includes(k.key)} onPress={() => onToggle(k.key)} />
+        ))}
       </View>
       {kinds.includes("chaos") ? (
         <T token="callout" color={c.accentInk}>
@@ -293,64 +352,45 @@ function WeekStep({
 
 /* ---------- Step 2: watch a message turn into a plan ---------- */
 
-const DEMO_TEXT =
-  "I work Fri 4–10, have a pharm exam Monday at 9, and need to buy scrubs Wednesday";
-const DEMO_ROWS: {
-  title: string;
-  kind: "event" | "task";
-  cat: "work" | "school" | "personal";
-  icon: IconKey;
-  chip?: string;
-}[] = [
-  { title: "Buy scrubs", kind: "task", cat: "personal", icon: "bag" },
-  {
-    title: "Work shift",
-    kind: "event",
-    cat: "work",
-    icon: "work",
-    chip: "Fri · 4–10 pm",
-  },
-  {
-    title: "Pharm exam",
-    kind: "event",
-    cat: "school",
-    icon: "exam",
-    chip: "Mon · 9 am",
-  },
-];
-
-function DemoStep({ onNext }: { onNext: () => void }) {
+function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void }) {
   const { c } = useTheme();
+  const { text, rows } = profile.demo;
   const [typed, setTyped] = useState("");
   const [shown, setShown] = useState(0);
-  const [anims] = useState(() => DEMO_ROWS.map(() => new Animated.Value(0)));
+  const [anims] = useState(() => rows.map(() => new Animated.Value(0)));
 
   useEffect(() => {
     let i = 0;
+    const timers: ReturnType<typeof setTimeout>[] = [];
     const type = setInterval(() => {
       i += 2;
-      setTyped(DEMO_TEXT.slice(0, i));
-      if (i >= DEMO_TEXT.length) {
+      setTyped(text.slice(0, i));
+      if (i >= text.length) {
         clearInterval(type);
-        DEMO_ROWS.forEach((_, idx) => {
-          setTimeout(
-            () => {
-              setShown(idx + 1);
-              feedback("select");
-              Animated.spring(anims[idx]!, {
-                toValue: 1,
-                friction: 6,
-                tension: 60,
-                useNativeDriver: true,
-              }).start();
-            },
-            450 + idx * 380,
+        rows.forEach((_, idx) => {
+          timers.push(
+            setTimeout(
+              () => {
+                setShown(idx + 1);
+                feedback("select");
+                Animated.spring(anims[idx]!, {
+                  toValue: 1,
+                  friction: 6,
+                  tension: 60,
+                  useNativeDriver: true,
+                }).start();
+              },
+              450 + idx * 380,
+            ),
           );
         });
       }
     }, 28);
-    return () => clearInterval(type);
-  }, [anims]);
+    return () => {
+      clearInterval(type);
+      timers.forEach(clearTimeout);
+    };
+  }, [anims, rows, text]);
 
   return (
     <View style={styles.page}>
@@ -362,7 +402,7 @@ function DemoStep({ onNext }: { onNext: () => void }) {
         <T color={c.canvas}>{typed}</T>
       </View>
       <View style={{ gap: 8, marginTop: 8 }}>
-        {DEMO_ROWS.map((r, i) => {
+        {rows.map((r, i) => {
           const fill = r.kind === "event" ? c.category[r.cat].fill : c.row;
           const ink = r.kind === "event" ? c.category[r.cat].ink : c.inkPrimary;
           return (
@@ -408,10 +448,8 @@ function DemoStep({ onNext }: { onNext: () => void }) {
       </View>
       <View style={styles.footer}>
         <Button
-          label={
-            shown === DEMO_ROWS.length ? "Continue" : "Reading…"
-          }
-          disabled={shown < DEMO_ROWS.length}
+          label={shown === rows.length ? "Continue" : "Reading…"}
+          disabled={shown < rows.length}
           onPress={onNext}
         />
       </View>
@@ -456,10 +494,12 @@ function PriceStep({
 
 function DoneStep({
   name,
+  student,
   onSample,
   onEmpty,
 }: {
   name: string;
+  student: boolean;
   onSample: () => void;
   onEmpty: () => void;
 }) {
@@ -490,8 +530,9 @@ function DoneStep({
           color={c.inkSecondary}
           style={{ textAlign: "center", maxWidth: 300 }}
         >
-          Start with a sample week to see how it feels, or go straight to your
-          own.
+          {student
+            ? "Start with a sample week in your field to see how it feels, or go straight to your own."
+            : "Start with a sample week to see how it feels, or go straight to your own."}
         </T>
       </View>
       <View style={styles.footer}>
@@ -544,28 +585,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.chip,
   },
   circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5 },
-  studentRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    padding: 14,
-    borderRadius: radius.card,
-    borderWidth: 1,
-  },
-  toggle: {
-    width: 44,
-    height: 26,
-    borderRadius: 13,
-    padding: 2,
-    justifyContent: "center",
-  },
-  plan: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    gap: 6,
-    padding: 14,
-    borderRadius: radius.card,
-    borderWidth: 1.5,
-  },
   dot: { width: 56, height: 56, borderRadius: 28 },
 });

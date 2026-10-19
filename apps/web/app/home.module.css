@@ -1,0 +1,537 @@
+.home {
+  gap: 88px;
+}
+
+.hero {
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.heroCopy {
+  padding-block: 20px;
+}
+
+.heroCopy .eyebrow,
+.eyebrow {
+  margin: 0 0 16px;
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.hero h1 {
+  font-size: clamp(44px, 5.2vw, 66px);
+  line-height: 1.04;
+}
+
+.hero h1 span {
+  color: var(--accent-ink);
+}
+
+.heroCopy > p:not(.eyebrow):not(.availability) {
+  max-width: 42ch;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.heroCopy .availability {
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--ink-2);
+}
+
+.availability span {
+  display: block;
+}
+
+.heroVisual {
+  position: relative;
+  min-width: 0;
+  padding: 0 12px 28px 0;
+}
+
+.heroPhone {
+  width: 260px;
+  margin-left: auto;
+}
+
+.heroPhone :global(.screen) {
+  font-size: 11px;
+}
+
+.heroPhone :global(.screen .head) {
+  padding: 44px 12px 8px;
+}
+
+.heroPhone :global(.clock) {
+  font-size: 36px;
+}
+
+.heroPhone :global(.date) {
+  font-size: 10px;
+}
+
+.heroPhone :global(.week) {
+  margin-top: 8px;
+}
+
+.heroPhone :global(.week b) {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+.heroPhone :global(.week small) {
+  font-size: 9px;
+}
+
+.heroPhone :global(.screen .rows) {
+  padding: 8px;
+  gap: 5px;
+}
+
+.heroPhone :global(.row) {
+  min-height: 36px;
+  padding-inline: 9px;
+  gap: 7px;
+  border-radius: 11px;
+}
+
+.heroPhone :global(.row .chip) {
+  font-size: 9px;
+  padding-inline: 6px;
+}
+
+.heroPhone :global(.navpill) {
+  margin-bottom: 12px;
+  font-size: 10px;
+}
+
+.heroPhone :global(.navpill span) {
+  padding: 5px 10px;
+}
+
+.heroSource {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 100px;
+  width: 230px;
+  transform: rotate(-5deg);
+}
+
+.document {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 12px 40px rgba(24, 23, 28, 0.06);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.hero .document p {
+  margin: 0;
+  max-width: none;
+  font-size: inherit;
+  color: inherit;
+}
+
+.hero .document p + p {
+  margin-top: 12px;
+}
+
+.documentFile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-2);
+  margin-bottom: 22px;
+}
+
+.documentFile svg {
+  width: 16px;
+  height: 16px;
+}
+
+.hero .document p.documentTitle {
+  margin-top: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.hero .document p.muted {
+  color: var(--ink-2);
+  font-size: 10px;
+}
+
+.documentRule {
+  height: 1px;
+  background: var(--line);
+  margin-block: 18px;
+}
+
+.hero .document p.highlight {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.compact {
+  padding: 20px;
+}
+
+.hero .sourceCaption,
+.hero .visualCaption {
+  font-size: 11px;
+  color: var(--ink-2);
+  margin-top: 12px;
+  text-align: center;
+}
+
+.hero .visualCaption {
+  text-align: right;
+  padding-right: 8px;
+}
+
+.flowArrow {
+  position: absolute;
+  left: 42%;
+  top: 28px;
+  color: var(--accent);
+  font-size: 40px;
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  padding-block: 24px;
+}
+
+.featureCopy h2,
+.faq h2,
+.finalCta h2 {
+  font-size: clamp(30px, 3.3vw, 44px);
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.featureCopy > p:not(.eyebrow) {
+  color: var(--ink-2);
+  max-width: 43ch;
+  margin-top: 20px;
+  line-height: 1.7;
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-color: var(--accent-border);
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 24px;
+}
+
+.semesterPreview,
+.shiftPreview {
+  padding: 28px;
+  background: var(--row);
+  border-radius: 24px;
+  min-width: 0;
+}
+
+.previewCaption {
+  color: var(--ink-2);
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.semesterHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.semesterHeader > span:last-child {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.semesterHeader svg,
+.semesterRow > svg,
+.previewNote svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.semesterRow {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: 14px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.semesterRow:nth-of-type(3) {
+  background: var(--school);
+  color: var(--school-ink);
+}
+
+.semesterRow > span:first-child {
+  width: 28px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.semesterRow > span:first-child strong {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.semesterRow > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.semesterRow strong,
+.shiftRow strong {
+  font-weight: 500;
+}
+
+.semesterRow small,
+.shiftRow small {
+  display: block;
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.checkCircle {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  flex: none;
+}
+
+.previewNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-2);
+  margin-top: 20px;
+}
+
+.workFeature .featureCopy {
+  order: 2;
+}
+
+.shiftRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.shiftRow small,
+.shiftRow s {
+  color: var(--ink-2);
+  font-size: 11px;
+}
+
+.shiftRow > span {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.shiftRow:first-of-type > span strong {
+  background: var(--school);
+  color: var(--school-ink);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.faq {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.faq :global(.faq-list) {
+  max-width: none;
+}
+
+.finalCta {
+  text-align: center;
+  padding: 56px 24px;
+  background: var(--accent-soft);
+  border-radius: 28px;
+}
+
+.finalCta > p:not(.eyebrow) {
+  margin: 20px auto 28px;
+  max-width: 42ch;
+  color: var(--ink-2);
+}
+
+.finalCta small {
+  display: block;
+  margin-top: 16px;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+@media (max-width: 1060px) and (min-width: 821px) {
+  .heroSource {
+    width: 190px;
+  }
+  .heroPhone {
+    width: 235px;
+  }
+  .compact {
+    padding: 16px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 820px) {
+  .home {
+    gap: 56px;
+  }
+  .hero,
+  .feature,
+  .faq {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  .heroCopy {
+    padding: 0;
+  }
+  .hero h1 {
+    font-size: clamp(42px, 7vw, 60px);
+  }
+  .heroVisual {
+    width: min(100%, 440px);
+    margin-inline: auto;
+  }
+  .heroPhone {
+    width: 230px;
+  }
+  .heroSource {
+    width: 210px;
+    top: 70px;
+  }
+  .hero .visualCaption {
+    text-align: center;
+  }
+  .feature {
+    padding: 0;
+  }
+  .workFeature .featureCopy {
+    order: initial;
+  }
+  .home :global(.try) {
+    padding: 20px 16px;
+    gap: 28px;
+  }
+  .home :global(.try) form {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroVisual {
+    padding-right: 0;
+  }
+  .heroPhone {
+    width: 210px;
+  }
+  .heroPhone :global(.screen) {
+    font-size: 10px;
+  }
+  .heroPhone :global(.screen .head) {
+    padding-top: 40px;
+  }
+  .heroPhone :global(.clock) {
+    font-size: 30px;
+  }
+  .heroPhone :global(.row) {
+    min-height: 30px;
+    padding-inline: 7px;
+    gap: 6px;
+  }
+  .heroPhone :global(.navpill) {
+    font-size: 9px;
+  }
+  .heroPhone :global(.navpill span) {
+    padding-inline: 8px;
+  }
+  .heroSource {
+    width: 175px;
+    top: 58px;
+  }
+  .compact {
+    padding: 14px;
+    font-size: 10px;
+  }
+  .hero .compact p.documentTitle {
+    font-size: 14px;
+  }
+  .compact .documentFile {
+    margin-bottom: 16px;
+  }
+  .hero .compact p + p {
+    margin-top: 8px;
+  }
+  .compact .documentRule {
+    margin-block: 12px;
+  }
+  .hero .sourceCaption {
+    font-size: 10px;
+  }
+  .semesterPreview,
+  .shiftPreview {
+    padding: 20px 16px;
+  }
+  .semesterRow {
+    padding: 14px 12px;
+    gap: 12px;
+    font-size: 13px;
+  }
+  .shiftRow {
+    font-size: 13px;
+  }
+  .home :global(.teaser) {
+    padding: 24px 20px;
+  }
+}

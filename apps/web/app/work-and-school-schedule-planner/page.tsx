@@ -15,11 +15,11 @@ export default function WorkSchoolPage() {
       path="/work-and-school-schedule-planner"
       name="Work and school schedule planner"
       title="Work shifts and classes, one calendar."
-      lede="Your schedule drops on Thursday for a week that starts Monday. Screenshot it, and Semli puts the shifts next to your classes, tells you what changed since last week, and warns you when a shift lands on a lab or the night before an exam."
+      lede="Your schedule drops on Thursday for a week that starts Monday. Screenshot it, and Semli puts the shifts next to your classes, tells you what changed since last week, and warns you when a shift lands on a lab, a clinical, or the night before an exam."
       steps={[
         { title: 'Screenshot the schedule', body: 'HotSchedules, 7shifts, a group chat, or a photo of the printed sheet on the wall. Any of them.' },
         { title: 'See what changed', body: 'New, changed, and removed shifts, each one named. Confirm them together or one at a time. Nothing is doubled up.' },
-        { title: 'Catch the clashes', body: 'A shift over a clinical, or two closing shifts before a Monday exam, shows up as a heads-up on Today.' },
+        { title: 'Catch the clashes', body: 'A shift over a lab, or two closing shifts before a Monday exam, shows up as a heads-up on Today.' },
       ]}
       detail={
         <>
@@ -37,7 +37,7 @@ export default function WorkSchoolPage() {
           </p>
           <h2>What the heads-up looks like</h2>
           <p>
-            &ldquo;Olive Garden shift overlaps Clinical rotation on Oct 22.&rdquo; Or: &ldquo;Only 2.5 free hours before Pharm exam
+            &ldquo;Café shift overlaps Chem lab on Oct 22.&rdquo; Or: &ldquo;Only 2.5 free hours before Stats exam
             2. Want to look at the week?&rdquo; Semli points at the problem early and leaves the decision to you.
           </p>
         </>

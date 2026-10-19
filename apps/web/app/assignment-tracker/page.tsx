@@ -27,7 +27,7 @@ export default function AssignmentTrackerPage() {
           <p>
             Each assignment keeps its course, so you can look at one class on the School tab or everything at once on Today.
             Exams and quizzes are marked as deadlines and get a heads-up card when the days before them are already full of
-            shifts or clinicals.
+            shifts, labs, or clinicals.
           </p>
           <h2>Assignments posted outside Canvas</h2>
           <p>

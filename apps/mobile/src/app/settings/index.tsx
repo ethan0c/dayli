@@ -5,6 +5,7 @@ import { FieldRow, Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
 import { feedback } from '@/lib/feedback';
+import { profileFor } from '@/lib/majors';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
@@ -33,8 +34,11 @@ export default function SettingsHome() {
         }}
       />
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="automatic">
-        <Group footer="Semli uses your name in the morning greeting and nowhere else.">
-          <FieldRow label="Name" value={settings.name} onChange={(name) => setSettings({ name })} placeholder="Your first name" last />
+        <Group footer="Your name is for the morning greeting. Your field of study shapes the examples and the sample week.">
+          <FieldRow label="Name" value={settings.name} onChange={(name) => setSettings({ name })} placeholder="Your first name" last={!settings.isStudent} />
+          {settings.isStudent ? (
+            <Row icon="school" tint={c.tint.butter.fill} label="Studying" value={profileFor(settings.major, true).label} onPress={() => router.push('/settings/major')} last />
+          ) : null}
         </Group>
 
         <Group title="Preferences" footer="Sounds follow your ring/silent switch.">
