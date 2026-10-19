@@ -14,7 +14,7 @@ Robinhood's 2024 identity is the reference: neutrals first, one accent used spar
 ## Brand
 - Mark: two dots (big = today, small accent = next), ratio 240 : 102 on a fixed diagonal. `design/icon-b-dots.svg`.
 - Wordmark: lowercase `semli.` in Onest SemiBold; the tittle of the i and the full stop are the two dots. Outlines are generated with `design/generate-wordmark.py`. Mark and wordmark use the app's ink and accent values, never their own.
-- Where it appears: app icon, splash, onboarding welcome, settings footer, website, store. Never on Today, Plan, School or other in-app screens. "You" is the fourth tab; there is no account button in a header.
+- Where it appears: app icon, splash, onboarding welcome, account and sharing previews, settings footer, website, store. Never on Today, Plan or School. "You" is the fourth tab; account entry lives in its settings rows.
 - Launch splash: white (#FFFFFF) with the ink Onest wordmark and its original purple dots in both light and dark mode, centered at 240 points wide. Render the transparent PNG at the wordmark's natural aspect ratio, with no square padding. Use contain scaling; no photo, tagline, or loading delay. Native splash changes require a new build and release-build verification.
 
 ## Color
@@ -73,14 +73,14 @@ Native chrome uses the matching SF Symbol: Today `house`, Plan `calendar` (was c
 - Liquid Glass tab bar with five tabs: Today, Plan, School, You, and Add. Add carries the `search` role, so iOS 26 draws it as the detached circle beside the main pill (the pattern helthy uses for its fifth tab); older iOS shows it as a trailing tab. Every "add" entry point navigates to the Add tab, with `?source=image|file` to open a picker on arrival. There is no add menu.
 - Chrome buttons at the top of a screen (the Today list/graph toggle, close, back, the onboarding chevron) sit in a Liquid Glass circle on iOS 26 (`components/Glass.tsx`: `GlassCircle`, `GlassGroup` for several together), and in the grey circle elsewhere.
 - Detail screens push with one glass back chevron on the left (item detail, every settings page). Set this explicitly even for the first route in a nested stack: opening Appearance from the You tab does not give it a native back button automatically.
-- Create and Review slide up as full-screen covers with one glass X on the left. Add is a tab; `/capture` redirects there. No half sheets for primary flows.
+- Create, Review, Account preview and Share schedule preview slide up as full-screen covers with one glass X on the left. Add is a tab; `/capture` redirects there. No half sheets for primary flows.
 - `navigationButtonOptions` in `components/NavButtons.tsx` owns header controls: one native glass item on iOS 26, one circular fallback elsewhere, automatic back hidden to prevent duplicate controls. Configure it in the navigator before mounting; `Sheet` only updates it for a custom close action. Back returns through the parent stack when needed, or goes home when opened without history.
 
 Navigation audit:
 
 | Screens | Exit control |
 | --- | --- |
-| New to-do / New event, import review | Glass X; review retains its discard/cleanup action |
+| New to-do / New event, import review, Account preview, Share schedule preview | Glass X; review retains its discard/cleanup action |
 | Item detail, item unavailable | Glass back chevron |
 | You via `/settings`, Name, Reminders, Appearance, Field of study, Semli Plus, Your data, Semli server | Glass back chevron, including direct entry from a tab |
 | Onboarding after the first step | Glass back chevron to the previous step |
