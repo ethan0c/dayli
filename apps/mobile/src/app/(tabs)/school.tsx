@@ -11,7 +11,7 @@ import { Button } from '@/components/Sheet';
 import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
 import { courseTint, useItemList, useStore } from '@/store';
-import { NAV_INSET, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
 
 export default function SchoolScreen() {
   const { c } = useTheme();
@@ -99,8 +99,8 @@ export default function SchoolScreen() {
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: 20, paddingBottom: 16, gap: 4 },
-  list: { padding: 16, gap: 10 },
+  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 16, gap: 4 },
+  list: { padding: 16, paddingHorizontal: SCREEN_GUTTER, gap: 10 },
   card: { borderRadius: radius.card, overflow: 'hidden' },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16 },
   cardBody: { paddingHorizontal: 10, paddingBottom: 12, gap: 8 },

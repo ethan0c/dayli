@@ -12,7 +12,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe('friendly import failures', () => {
   it('offers a next step when the connection fails', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
-    expect(await requestExtraction('https://dayli.test', request)).toEqual({ ok: false, error: IMPORT_MESSAGES.connection });
+    expect(await requestExtraction('https://semli.test', request)).toEqual({ ok: false, error: IMPORT_MESSAGES.connection });
   });
 
   it.each([
@@ -24,17 +24,17 @@ describe('friendly import failures', () => {
     [504, IMPORT_MESSAGES.timeout],
   ])('explains an unreadable HTTP %i response without showing server details', async (status, error) => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('<html>Proxy error</html>', { status })));
-    expect(await requestExtraction('https://dayli.test', request)).toEqual({ ok: false, error });
+    expect(await requestExtraction('https://semli.test', request)).toEqual({ ok: false, error });
   });
 
   it('handles an unexpected response shape', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ message: 'Internal error' })));
-    expect(await requestExtraction('https://dayli.test', request)).toEqual({ ok: false, error: IMPORT_MESSAGES.unavailable });
+    expect(await requestExtraction('https://semli.test', request)).toEqual({ ok: false, error: IMPORT_MESSAGES.unavailable });
   });
 
   it('keeps a helpful error returned by Semli', async () => {
     const body = { ok: false, error: IMPORT_MESSAGES.request };
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(body, { status: 400 })));
-    expect(await requestExtraction('https://dayli.test', request)).toEqual(body);
+    expect(await requestExtraction('https://semli.test', request)).toEqual(body);
   });
 });

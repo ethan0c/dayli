@@ -12,7 +12,7 @@ import { WeekStrip } from '@/components/WeekStrip';
 import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
 import { useItemList, useStore } from '@/store';
-import { NAV_INSET, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, radius, useTheme } from '@/theme';
 
 export default function PlanScreen() {
   const { c } = useTheme();
@@ -89,7 +89,7 @@ export default function PlanScreen() {
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: 16, paddingBottom: 12 },
-  list: { padding: 16, gap: 8 },
+  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 12 },
+  list: { padding: 16, paddingHorizontal: SCREEN_GUTTER, gap: 8 },
   pending: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingHorizontal: 14, borderRadius: radius.row, borderWidth: 1, borderStyle: 'dashed' },
 });

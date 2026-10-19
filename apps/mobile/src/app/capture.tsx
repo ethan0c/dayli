@@ -14,7 +14,7 @@ import { T } from '@/components/Text';
 import { requestExtraction } from '@/lib/api';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
-import { radius, textStyle, useTheme } from '@/theme';
+import { SCREEN_GUTTER, radius, textStyle, useTheme } from '@/theme';
 
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'] as const;
 type ImageType = (typeof IMAGE_TYPES)[number];
@@ -166,10 +166,10 @@ function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: stri
 }
 
 const styles = StyleSheet.create({
-  body: { flex: 1, paddingHorizontal: 20, gap: 12 },
+  body: { flex: 1, paddingHorizontal: SCREEN_GUTTER, gap: 12 },
   input: { minHeight: 120, maxHeight: 220, borderRadius: radius.card, padding: 16, textAlignVertical: 'top' },
   actions: { flexDirection: 'row', gap: 8 },
   action: { flex: 1, height: 64, borderRadius: radius.row, alignItems: 'center', justifyContent: 'center', gap: 4 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.row, borderWidth: 1 },
-  footer: { paddingHorizontal: 20, paddingVertical: 16 },
+  footer: { paddingHorizontal: SCREEN_GUTTER, paddingVertical: 16 },
 });

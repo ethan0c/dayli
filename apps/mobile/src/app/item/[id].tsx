@@ -10,7 +10,7 @@ import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { radius, textStyle, useTheme } from '@/theme';
+import { SCREEN_GUTTER, radius, textStyle, useTheme } from '@/theme';
 
 export default function ItemScreen() {
   const { c } = useTheme();
@@ -25,7 +25,7 @@ export default function ItemScreen() {
   if (!item) {
     return (
       <Sheet title="Item unavailable">
-        <T token="callout" color={c.inkSecondary} style={{ padding: 20 }}>
+        <T token="callout" color={c.inkSecondary} style={{ padding: 20, paddingHorizontal: SCREEN_GUTTER }}>
           We couldn’t find this item. It may have been deleted. Close this screen to return to your plan.
         </T>
       </Sheet>
@@ -104,7 +104,7 @@ function Row({ icon, label }: { icon: React.ComponentProps<typeof Icon>['name'];
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: 20, gap: 14 },
+  body: { paddingHorizontal: SCREEN_GUTTER, gap: 14 },
   hero: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: radius.card },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 4 },
   link: { paddingHorizontal: 4, paddingTop: 8 },

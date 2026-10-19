@@ -6,7 +6,7 @@ import { POST } from './route';
 
 vi.mock('@dayli/extract', () => ({ extract: vi.fn() }));
 
-const request = () => new Request('https://dayli.test/api/extract', {
+const request = () => new Request('https://semli.test/api/extract', {
   method: 'POST',
   body: JSON.stringify({
     input: { kind: 'text', text: 'Exam tomorrow at 9' },
@@ -18,7 +18,7 @@ beforeEach(() => vi.clearAllMocks());
 
 describe('import API errors', () => {
   it.each(['not json', '{}'])('gives a readable response to incomplete input: %s', async (body) => {
-    const res = await POST(new Request('https://dayli.test/api/extract', { method: 'POST', body }));
+    const res = await POST(new Request('https://semli.test/api/extract', { method: 'POST', body }));
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ ok: false, error: IMPORT_MESSAGES.request });
     expect(extract).not.toHaveBeenCalled();

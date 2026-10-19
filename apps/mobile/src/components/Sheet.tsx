@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
-import { useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 /** Chrome shared by the modal screens: grabber, title row with close, safe-area padding. */
 export function Sheet({
@@ -80,9 +80,9 @@ export function Button({
 const styles = StyleSheet.create({
   root: { flex: 1 },
   grab: { width: 36, height: 4, borderRadius: 2, alignSelf: 'center', marginBottom: 12 },
-  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingHorizontal: 20, paddingBottom: 12 },
+  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingHorizontal: SCREEN_GUTTER, paddingBottom: 12 },
   close: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   body: { flex: 1 },
-  footer: { paddingHorizontal: 20, paddingTop: 12, gap: 8 },
+  footer: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, gap: 8 },
   btn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
 });

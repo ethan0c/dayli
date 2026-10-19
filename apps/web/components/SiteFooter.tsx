@@ -9,6 +9,9 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
     links: [
       { label: 'Try it', href: '/#try' },
       { label: 'Pricing', href: '/pricing' },
+      { label: 'Syllabus to calendar', href: '/syllabus-to-calendar' },
+      { label: 'Assignment tracker', href: '/assignment-tracker' },
+      { label: 'Work and school planner', href: '/work-and-school-schedule-planner' },
     ],
   },
   {

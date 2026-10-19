@@ -1327,3 +1327,28 @@ textarea {
     background: var(--row);
   }
 }
+
+/* Landing pages: links to the neighbouring jobs */
+.related {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+.related h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-bottom: 10px;
+}
+.related ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 0;
+  margin: 0;
+}
+.related a {
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

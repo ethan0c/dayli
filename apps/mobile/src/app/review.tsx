@@ -9,7 +9,7 @@ import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { newId, useItemList, useStore } from '@/store';
-import { radius, textStyle, useTheme } from '@/theme';
+import { SCREEN_GUTTER, radius, textStyle, useTheme } from '@/theme';
 
 export default function ReviewScreen() {
   const { c } = useTheme();
@@ -226,7 +226,7 @@ function DraftCard({ draft: d, onEdit }: { draft: Draft; onEdit: (patch: Partial
 }
 
 const styles = StyleSheet.create({
-  list: { paddingHorizontal: 16, paddingBottom: 16, gap: 8 },
+  list: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 16, gap: 8 },
   diff: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingBottom: 4 },
   pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill },
   course: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.row, borderWidth: 1 },

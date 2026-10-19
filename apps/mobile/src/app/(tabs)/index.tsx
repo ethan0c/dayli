@@ -12,7 +12,7 @@ import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { NAV_INSET, dayTint, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, dayTint, radius, useTheme } from '@/theme';
 
 export default function TodayScreen() {
   const { c } = useTheme();
@@ -159,7 +159,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   const { c } = useTheme();
   return (
     <View style={styles.section}>
-      <T token="overline" color={c.inkSecondary} style={{ paddingHorizontal: 4 }}>
+      <T token="overline" color={c.inkSecondary}>
         {title}
       </T>
       {children}
@@ -170,7 +170,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Empty({ text }: { text: string }) {
   const { c } = useTheme();
   return (
-    <T token="callout" color={c.inkSecondary} style={{ paddingHorizontal: 4, paddingVertical: 6 }}>
+    <T token="callout" color={c.inkSecondary} style={{ paddingVertical: 6 }}>
       {text}
     </T>
   );
@@ -208,11 +208,11 @@ function Card({
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: 20, paddingBottom: 16, gap: 6 },
+  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 16, gap: 6 },
   headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   avatar: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
-  note: { marginHorizontal: 16, marginTop: 12, padding: 12, borderRadius: radius.row, borderWidth: 1, flexDirection: 'row', gap: 10, alignItems: 'center' },
-  section: { paddingHorizontal: 16, paddingTop: 20, gap: 8 },
+  note: { marginHorizontal: SCREEN_GUTTER, marginTop: 12, padding: 12, borderRadius: radius.row, borderWidth: 1, flexDirection: 'row', gap: 10, alignItems: 'center' },
+  section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 20, gap: 8 },
   tl: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   tlTime: { width: 58 },
   up: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 14, borderRadius: radius.row },

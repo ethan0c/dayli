@@ -33,5 +33,8 @@ export function dayTint(c: Palette, hour: number): string {
   return c.tint.lavender.fill;
 }
 
+/** Shared horizontal screen margin, based on the Cal AI app reference. */
+export const SCREEN_GUTTER = space.xl;
+
 /** Space left under scrolling content so the tab bar never covers the last row. */
 export const NAV_INSET = 104;

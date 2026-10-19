@@ -7,7 +7,7 @@ import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
-import { useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 const shadow = { shadowColor: '#18171C', shadowOpacity: 0.16, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 };
 
@@ -61,11 +61,11 @@ export function Toast({ offset }: { offset: number }) {
 }
 
 const styles = StyleSheet.create({
-  fab: { position: 'absolute', right: 16, width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', ...shadow },
+  fab: { position: 'absolute', right: SCREEN_GUTTER, width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', ...shadow },
   toast: {
     position: 'absolute',
-    left: 16,
-    right: 16,
+    left: SCREEN_GUTTER,
+    right: SCREEN_GUTTER,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,

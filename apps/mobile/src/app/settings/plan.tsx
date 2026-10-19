@@ -4,7 +4,7 @@ import { PlanPicker } from '@/components/PlanPicker';
 import { T } from '@/components/Text';
 import { FREE_IMPORTS_PER_MONTH, PLANS } from '@/lib/plans';
 import { useStore } from '@/store';
-import { radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, radius, useTheme } from '@/theme';
 
 export default function PlanScreen() {
   const { c } = useTheme();
@@ -46,6 +46,6 @@ export default function PlanScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { padding: 16, paddingBottom: 48, gap: 20 },
+  body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, paddingBottom: 48, gap: 20 },
   status: { padding: 18, borderRadius: radius.card, gap: 4 },
 });

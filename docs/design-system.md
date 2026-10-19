@@ -101,7 +101,7 @@ Six soft fills at the same lightness, each with its own ink: lavender, apricot, 
 ## 5. Spacing, radius, elevation
 
 - **Grid:** 4 pt. Scale: 4, 8, 12, 16, 20, 24, 32, 40, 56.
-- **Screen gutter:** 16 pt. Row gap: 8 pt. Section gap: 24 pt.
+- **Screen gutter:** 24 pt, shared through `SCREEN_GUTTER` in the mobile theme. Based on the side margins in [Cal AI’s app previews](https://www.calai.app/food-db.webp). Apply it to screen headers, content, sheets, and onboarding. Row gap: 8 pt. Section gap: 24 pt.
 - **Row height:** 52 pt (min 44 pt touch target).
 - **Radius:** chip `999`, row `16`, card `20`, sheet `28` (top corners), nav pill `999`, capture button circle.
 - **Elevation:** flat everywhere except floating elements:

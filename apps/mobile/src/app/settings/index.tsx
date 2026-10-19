@@ -7,7 +7,7 @@ import { Wordmark } from '@/components/Wordmark';
 import { feedback } from '@/lib/feedback';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
 import { useStore } from '@/store';
-import { useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 const APPEARANCE_LABEL = { system: 'System', light: 'Light', dark: 'Dark' } as const;
 
@@ -86,6 +86,6 @@ export default function SettingsHome() {
 }
 
 const styles = StyleSheet.create({
-  body: { padding: 16, paddingBottom: 48, gap: 22 },
+  body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, paddingBottom: 48, gap: 22 },
   about: { alignItems: 'center', gap: 8, paddingTop: 16 },
 });

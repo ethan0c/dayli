@@ -7,7 +7,7 @@ import { Group, Row } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
-import { radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, radius, useTheme } from '@/theme';
 
 export default function DataScreen() {
   const { c } = useTheme();
@@ -88,7 +88,7 @@ export default function DataScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { padding: 16, paddingBottom: 48, gap: 22 },
+  body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, paddingBottom: 48, gap: 22 },
   empty: { padding: 16 },
   batch: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 10 },
   undo: { flexDirection: 'row', alignItems: 'center', gap: 4 },

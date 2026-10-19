@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { NavButton } from '@/components/NavPill';
 import { CaptureFab, Toast } from '@/components/Overlay';
-import { radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, radius, useTheme } from '@/theme';
 
 /** The floating nav pill and capture button from the reference design, on every platform. */
 export default function AppTabs() {
@@ -45,7 +45,7 @@ export default function AppTabs() {
 }
 
 const styles = StyleSheet.create({
-  bar: { position: 'absolute', left: 16, right: 96, flexDirection: 'row', alignItems: 'center' },
+  bar: { position: 'absolute', left: SCREEN_GUTTER, right: SCREEN_GUTTER + 80, flexDirection: 'row', alignItems: 'center' },
   pill: {
     flexDirection: 'row',
     padding: 4,

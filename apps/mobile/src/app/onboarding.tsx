@@ -19,7 +19,7 @@ import { Wordmark } from "@/components/Wordmark";
 import { feedback } from "@/lib/feedback";
 import { FREE_IMPORTS_PER_MONTH, PLANS } from "@/lib/plans";
 import { useStore, type PlanId } from "@/store";
-import { radius, textStyle, useTheme } from "@/theme";
+import { SCREEN_GUTTER, radius, textStyle, useTheme } from "@/theme";
 
 const STEPS = 5;
 
@@ -503,7 +503,7 @@ function DoneStep({
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, paddingHorizontal: 20 },
+  root: { flex: 1, paddingHorizontal: SCREEN_GUTTER },
   progress: { flexDirection: "row", gap: 6, paddingBottom: 24 },
   bar: { flex: 1, height: 3, borderRadius: 2 },
   center: { flex: 1 },

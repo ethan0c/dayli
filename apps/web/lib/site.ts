@@ -3,9 +3,12 @@
  * Prices mirror docs/pricing-and-positioning.md; change them in both places.
  */
 
-export const SITE_URL = 'https://dayli.app';
+export const SITE_URL = 'https://semli.app';
 export const SITE_NAME = 'Semli';
-export const SUPPORT_EMAIL = 'hello@dayli.app';
+export const SUPPORT_EMAIL = 'hello@semli.app';
+
+/** Search terms the site is written to answer; used in metadata and the landing pages. */
+export const KEYWORDS = ['student planner', 'daily planner for college students', 'syllabus to calendar', 'assignment tracker', 'work and school schedule planner', 'college schedule app', 'class schedule planner'];
 
 export const TAGLINE = 'The daily planner for college students.';
 export const DESCRIPTION =

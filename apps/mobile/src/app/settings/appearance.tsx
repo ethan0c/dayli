@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 
 import { Group, Row } from '@/components/Settings';
 import { feedback } from '@/lib/feedback';
+import { SCREEN_GUTTER } from '@/theme';
 import { useStore, type Appearance } from '@/store';
 
 const OPTIONS: { id: Appearance; label: string }[] = [
@@ -33,4 +34,4 @@ export default function AppearanceScreen() {
   );
 }
 
-const styles = StyleSheet.create({ body: { padding: 16, gap: 22 } });
+const styles = StyleSheet.create({ body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, gap: 22 } });
