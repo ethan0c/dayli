@@ -144,8 +144,8 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
               accessibilityState={{ selected: on, disabled: disabled || !pack }} disabled={disabled || !pack}
               onPress={() => { setTerm(key); feedback('select'); setNotice(null); }}
               style={({ pressed }) => [styles.planRow, { borderBottomColor: c.line, opacity: pressed ? 0.7 : !pack && !loading ? 0.4 : 1 }]}>
-              <View style={[styles.radio, on ? { backgroundColor: c.accent } : { borderWidth: 1.5, borderColor: c.controlOutline }]}>
-                {on ? <View style={[styles.radioDot, { backgroundColor: c.onAccent }]} /> : null}
+              <View style={[styles.radio, on ? { backgroundColor: c.controlFill } : { borderWidth: 1.5, borderColor: c.controlOutline }]}>
+                {on ? <View style={[styles.radioDot, { backgroundColor: c.controlInk }]} /> : null}
               </View>
               <T token="body" color={c.inkPrimary} style={{ flex: 1 }}>{label}</T>
               {saving >= 5 ? <StatusPill label={`Save ${saving}%`} tone="green" tabular={false} /> : null}
@@ -186,8 +186,8 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
 
       <View style={{ gap: 12, paddingTop: 4, alignItems: 'center' }}>
         <Press haptic="tap" accessibilityRole="button" accessibilityState={{ disabled: disabled || !selected }} disabled={disabled || !selected} onPress={() => void buyPlan()}
-          style={[styles.cta, { backgroundColor: c.accent, opacity: disabled || !selected ? 0.4 : 1 }]}>
-          <T token="headline" color={c.onAccent}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
+          style={[styles.cta, { backgroundColor: c.controlFill, opacity: disabled || !selected ? 0.4 : 1 }]}>
+          <T token="headline" color={c.controlInk}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
         </Press>
         <T token="caption" color={c.inkSecondary} style={styles.center}>
           {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.period.replace('/ ', 'per ')}. Auto-renews. Cancel any time.` : 'Prices are shown before you confirm.'}

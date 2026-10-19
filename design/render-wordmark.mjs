@@ -9,6 +9,8 @@ const splash = await sharp(file('design/splash-icon.svg'))
   .resize({ width: 1440 }).png().toBuffer();
 await sharp(splash).toFile(file('design/splash-icon.png'));
 await sharp(splash).toFile(file('apps/mobile/assets/images/splash-icon.png'));
+await sharp(file('design/wordmark-ink.svg')).resize({ width: 1440 }).png()
+  .toFile(file('apps/mobile/assets/images/splash-icon-light.png'));
 
 if (process.argv.includes('--splash-only')) process.exit(0);
 

@@ -59,7 +59,7 @@ export function WeekChart({ days, selected, today, onSelect, height = 120, acces
 
 function DayColumn({ day, selected, today, height, onSelect }: { day: WeekDay; selected: boolean; today: boolean; height: number; onSelect?: (date: string) => void }) {
   const { c } = useTheme();
-  const tones = { ink: c.inkPrimary, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
+  const tones = { ink: c.chartBooked, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
   const labelColor = day.labelTone ? tones[day.labelTone] : c.inkSecondary;
   // The ink pill behind the number pops in on a spring when this day is chosen.
   const sel = useSharedValue(selected ? 1 : 0);
@@ -71,8 +71,8 @@ function DayColumn({ day, selected, today, height, onSelect }: { day: WeekDay; s
     <>
       <T token="caption" color={today ? c.accentInk : c.inkSecondary} style={styles.weekday}>{weekdayShort(day.date)}</T>
       <View style={styles.num}>
-        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: 14, backgroundColor: c.accent }, pill]} />
-        <T token="subhead" color={selected ? c.onAccent : c.inkPrimary} tabular style={{ fontSize: 13 }}>{String(Number(day.date.slice(-2)))}</T>
+        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: 14, backgroundColor: c.controlFill }, pill]} />
+        <T token="subhead" color={selected ? c.controlInk : c.inkPrimary} tabular style={{ fontSize: 13 }}>{String(Number(day.date.slice(-2)))}</T>
       </View>
       <View style={[styles.track, { height, backgroundColor: day.unknown ? c.changedBg : c.row, borderWidth: day.unknown ? 1.5 : 0, borderColor: c.changed }]}>
         {day.unknown ? <T token="subhead" color={c.changed} style={{ alignSelf: 'center', marginTop: height / 2 - 9 }}>?</T> : null}
@@ -89,7 +89,7 @@ function DayColumn({ day, selected, today, height, onSelect }: { day: WeekDay; s
         })}
         {(day.marks ?? []).map((m) => {
           const top = ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height;
-          const color = m.tone === 'red' ? c.conflict : c.inkPrimary;
+          const color = m.tone === 'red' ? c.conflict : c.chartBooked;
           return m.kind === 'ring'
             ? <View key={m.id} style={[styles.ring, { top: top - 5, borderColor: color, backgroundColor: c.surface }]} />
             : <View key={m.id} style={[styles.dot, { top: top - 4, backgroundColor: color }]} />;

@@ -24,6 +24,9 @@ describe.each(Object.entries(palettes))('%s theme', (_name, c) => {
       [c.onPrimary, c.conflict], [c.onPrimary, c.added]]) {
       expect(contrast(ink!, fill!), `${ink} on ${fill}`).toBeGreaterThanOrEqual(4.5);
     }
+    for (const [ink, fill] of [[c.controlInk, c.controlFill], [c.selectionInk, c.selectionFill], [c.chartOnBooked, c.chartBooked]]) {
+      expect(contrast(ink!, fill!), `${ink} on ${fill}`).toBeGreaterThanOrEqual(4.5);
+    }
   });
   it('keeps empty completion controls visible', () => {
     expect(contrast(c.controlOutline, c.canvas)).toBeGreaterThanOrEqual(3);

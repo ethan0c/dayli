@@ -16,7 +16,7 @@ export default function AppearanceScreen() {
   const setSettings = useStore((s) => s.setSettings);
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
-      <Group footer="Dark is the same six roles inverted.">
+      <Group footer="Light is paper and ink. Dark adds soft purple.">
         {OPTIONS.map((o, i) => (
           <Row
             key={o.id}

@@ -29,7 +29,7 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
   const a = dayNumber(from);
   const span = Math.max(1, dayNumber(to) - a);
   const pct = (date: string) => Math.min(100, Math.max(0, ((dayNumber(date) - a) / span) * 100));
-  const tones = { ink: c.inkPrimary, red: c.conflict, green: c.added };
+  const tones = { ink: c.chartBooked, red: c.conflict, green: c.added };
   const labelled = marks.filter((m) => m.label);
   return (
     <View style={{ gap: 8 }}>

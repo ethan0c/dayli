@@ -29,8 +29,8 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
       const e = Math.min(END, iv ? iv.end - base : start + 60);
       const past = e <= nowMin || it.done;
       const color = highlight
-        ? it.id === highlight ? c.inkPrimary : c.controlOutline
-        : past ? c.added : c.inkPrimary;
+        ? it.id === highlight ? c.chartBooked : c.controlOutline
+        : past ? c.added : c.chartBooked;
       return { id: it.id, left: ((s - START) / SPAN) * 100, width: ((e - s) / SPAN) * 100, color, dim: highlight ? it.id !== highlight : false };
     })
     .filter((b) => b.width > 0)

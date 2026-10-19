@@ -41,8 +41,8 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
         const h = Math.max(22, end - top);
         const conflict = conflicts.has(it.id);
         const past = it.done || (it.end ? toMinutes(it.end) <= nowMin : toMinutes(it.start!) + 60 <= nowMin);
-        const bg = conflict ? c.conflictBg : past ? c.addedBg : it.kind === 'task' ? c.row : c.inkPrimary;
-        const ink = conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkPrimary : c.onPrimary;
+        const bg = conflict ? c.conflictBg : past ? c.addedBg : it.kind === 'task' ? c.row : c.chartBooked;
+        const ink = conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkPrimary : c.chartOnBooked;
         const sub = it.kind === 'event' && it.end ? formatRange(it.start!, it.end) : formatTime(it.start!);
         const column = lanes.get(it.id) ?? { lane: 0, lanes: 1 };
         return (
@@ -52,7 +52,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
               {past && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
               <T token="subhead" color={ink} numberOfLines={1} style={{ fontSize: 12, lineHeight: 16 }}>{it.title}{h < 40 ? ` · ${sub}` : ''}{conflict ? ' · Overlaps' : ''}</T>
             </View>
-            {h >= 40 ? <T token="caption" color={conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkSecondary : dark ? '#686963' : '#B4B4AC'} numberOfLines={1}>{sub}{it.employer ? ` · ${it.employer}` : ''}</T> : null}
+            {h >= 40 ? <T token="caption" color={conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkSecondary : dark ? c.chartOnBooked : '#B4B4AC'} numberOfLines={1}>{sub}{it.employer ? ` · ${it.employer}` : ''}</T> : null}
           </Pressable>
         );
       })}

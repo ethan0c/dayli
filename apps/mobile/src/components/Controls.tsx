@@ -31,9 +31,9 @@ export function TextButton({ label, onPress, tone = 'accent', haptic = 'select',
   );
 }
 
-/** Icon button: a 44 circle, grey, ink or purple. `glass` is for chrome at the top of a screen: Liquid Glass on iOS 26, the grey circle elsewhere. */
+/** Icon button: a 44 circle, grey, ink or theme primary. `glass` is for chrome at the top of a screen: Liquid Glass on iOS 26, the grey circle elsewhere. */
 export function IconButton({ icon, onPress, label, tone = 'grey', size = 44, haptic = 'tap', disabled, style }: {
-  icon: IconKey; onPress: () => void; label: string; tone?: 'grey' | 'ink' | 'accent' | 'bare' | 'glass'; size?: number; haptic?: Cue; disabled?: boolean; style?: StyleProp<ViewStyle>;
+  icon: IconKey; onPress: () => void; label: string; tone?: 'grey' | 'ink' | 'primary' | 'bare' | 'glass'; size?: number; haptic?: Cue; disabled?: boolean; style?: StyleProp<ViewStyle>;
 }) {
   const { c } = useTheme();
   if (tone === 'glass') {
@@ -43,11 +43,11 @@ export function IconButton({ icon, onPress, label, tone = 'grey', size = 44, hap
       </Press>
     );
   }
-  const bg = tone === 'accent' ? c.accent : tone === 'ink' ? c.inkPrimary : tone === 'grey' ? c.row : 'transparent';
+  const bg = tone === 'primary' ? c.controlFill : tone === 'ink' ? c.inkPrimary : tone === 'grey' ? c.row : 'transparent';
   return (
     <Press accessibilityRole="button" accessibilityLabel={label} haptic={haptic} onPress={onPress} disabled={disabled} scale={0.9}
       style={[{ width: size, height: size, borderRadius: size / 2, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.4 : 1 }, style]}>
-      <Icon name={icon} size={size >= 44 ? 22 : 18} color={tone === 'accent' ? c.onAccent : tone === 'ink' ? c.onPrimary : c.inkPrimary} strokeWidth={tone === 'ink' || tone === 'accent' ? 2 : 1.75} />
+      <Icon name={icon} size={size >= 44 ? 22 : 18} color={tone === 'primary' ? c.controlInk : tone === 'ink' ? c.onPrimary : c.inkPrimary} strokeWidth={tone === 'ink' || tone === 'primary' ? 2 : 1.75} />
     </Press>
   );
 }
@@ -57,9 +57,9 @@ export function Chip({ label, icon, on, onPress }: { label: string; icon?: IconK
   const { c } = useTheme();
   return (
     <Press accessibilityRole="checkbox" accessibilityState={{ checked: on }} haptic="select" onPress={onPress} scale={0.96}
-      style={[styles.chip, { backgroundColor: on ? c.accent : c.row }]}>
-      {icon ? <Icon name={icon} size={16} color={on ? c.onAccent : c.inkPrimary} /> : null}
-      <T token="subhead" color={on ? c.onAccent : c.inkPrimary}>
+      style={[styles.chip, { backgroundColor: on ? c.controlFill : c.row }]}>
+      {icon ? <Icon name={icon} size={16} color={on ? c.controlInk : c.inkPrimary} /> : null}
+      <T token="subhead" color={on ? c.controlInk : c.inkPrimary}>
         {label}
       </T>
     </Press>

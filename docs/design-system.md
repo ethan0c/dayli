@@ -15,12 +15,12 @@ Robinhood's 2024 identity is the reference: neutrals first, one accent used spar
 - Mark: two dots (big = today, small accent = next), ratio 240 : 102 on a fixed diagonal. `design/icon-b-dots.svg`.
 - Wordmark: lowercase `semli.` in Onest SemiBold; the tittle of the i and the full stop are the two dots. Outlines are generated with `design/generate-wordmark.py`. Mark and wordmark use the app's ink and accent values, never their own.
 - Where it appears: app icon, splash, onboarding welcome, settings footer, website, store. Never on Today, Plan, School or other in-app screens. "You" is the fourth tab; there is no account button in a header.
-- Launch splash: a solid brand-purple (#7057BD) canvas and the outlined Onest wordmark in white, including both dots, centered at 240 points wide. Render its transparent PNG at the wordmark's natural aspect ratio, with no square padding. Use contain scaling; no photo, tagline, or loading delay. Native splash changes require a new build and release-build verification.
+- Launch splash: light mode uses paper (#FAF9F6) with the ink Onest wordmark and its original purple dots. Dark mode uses brand-purple (#7057BD) with the white wordmark. Both are centered at 240 points wide. Render transparent PNGs at the wordmark's natural aspect ratio, with no square padding. Use contain scaling; no photo, tagline, or loading delay. Native splash changes require a new build and release-build verification; the launch theme follows the device appearance.
 
 ## Color
 Six roles (light / dark): paper #FAF9F6 / #151515 · row #F0EFEB / #292929 · surface #FFFFFF / #202020 · ink #222320 / #F5F4F0 · secondary #686963 / #B4B4AC · line #E5E4DE / #363632 · accent #7057BD / #C3AFF8. Status: terracotta #9F431F / #E8A274 (bg #F8EDE5 / #3A2A20), green #246C43 / #5CC08A (bg #DDF2E6 / #16301F), amber #80510A / #E2A84B (bg #FBEFD5 / #3A2D14). The former pink course tint is muted clay; its persisted `rose` key stays compatible with saved courses.
 
-Purple carries the app's interactive identity: primary actions and the composer send button, selected tabs, selected dates, chips and segmented controls, disclosure chevrons, text links, the word Plus, and the small dot in the mark. Use `accent` with `onAccent` for filled controls, or `accentSoft` with `accentInk` for a quiet selection. Body text and booked events remain ink; green means done, terracotta means a conflict, and amber means input is needed. Course and category tints are a 6px dot beside text, never a fill.
+Light mode keeps the original paper-and-ink treatment: primary actions, send, selected tabs/dates, chips, segmented controls and booked graph marks use ink. Purple stays in the original small accents such as links, Plus, today labels and brand dots. Dark mode extends lavender to those interactive controls, disclosure chevrons, and booked events across day, hourly, week and term graphs. Use `controlFill/controlInk`, `selectionFill/selectionInk`, `disclosureInk`, and `chartBooked/chartOnBooked` so both appearances stay consistent. Body text stays ink; green means done, terracotta means a conflict, and amber means input is needed. Course and category tints are a 6px dot beside text, never a fill.
 
 Meaning: filled terracotta pill for due today / overdue; terracotta text on a grey pill for a colliding time; green pill for done and newly added, green check when complete; grey pills for times and neutral states; amber only when Semli needs input. Filled status colors use `onPrimary` for legible text and icons in either theme.
 
@@ -43,7 +43,7 @@ Fonts load locally on iOS from the Geist release (OFL); the web uses the same fi
 
 ## Buttons
 Five roles, all fully round, press shrinks 3% and dims to 88% on `spring.snappy`, one haptic per role.
-1. Primary: purple fill with `onAccent` text, 52 high, one per screen. Haptic tap.
+1. Primary: ink in light mode, purple in dark, with `controlInk` text, 52 high, one per screen. Haptic tap.
 2. Secondary: grey fill, same pill. Chips are the 40-high version; tiles (icon + label) the 64-high version. One component shared by capture and onboarding.
 3. Text: accent, underlined (offset 5, 1.5px); muted variant in the same accent without underline. Haptic select.
 4. Icon: 44 circle, grey or ink. The glass plus in the tab bar is the one 56 exception.

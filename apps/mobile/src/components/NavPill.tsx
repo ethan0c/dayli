@@ -26,10 +26,10 @@ export function NavButton({ icon, label, isFocused, onPress, ...props }: Props) 
       accessibilityRole="tab"
       accessibilityState={{ selected: !!isFocused }}
       accessibilityLabel={label}
-      style={[styles.seg, isFocused ? { backgroundColor: c.accentSoft } : null]}>
-      <Icon name={icon} size={20} color={isFocused ? c.accentInk : c.inkSecondary} />
+      style={[styles.seg, isFocused ? { backgroundColor: c.selectionFill } : null]}>
+      <Icon name={icon} size={20} color={isFocused ? c.selectionInk : c.inkSecondary} />
       {fontScale < 1.6 ? (
-        <T token="caption" maxFontSizeMultiplier={1.3} color={isFocused ? c.accentInk : c.inkSecondary}>
+        <T token="caption" maxFontSizeMultiplier={1.3} color={isFocused ? c.selectionInk : c.inkSecondary}>
           {label}
         </T>
       ) : null}

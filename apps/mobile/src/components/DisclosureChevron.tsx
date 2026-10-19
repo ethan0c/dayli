@@ -15,7 +15,7 @@ export function DisclosureChevron({ expanded, size = 16 }: { expanded: boolean; 
   const rotation = useAnimatedStyle(() => ({ transform: [{ rotate: `${angle.value}deg` }] }));
   return (
     <Animated.View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={rotation}>
-      <Icon name="chevronRight" size={size} color={c.accentInk} />
+      <Icon name="chevronRight" size={size} color={c.disclosureInk} />
     </Animated.View>
   );
 }
