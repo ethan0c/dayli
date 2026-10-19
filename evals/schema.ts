@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { ExtractContext, ExtractedItem, Extraction } from '@dayli/schema';
+import { ExtractContext, ExtractedItem, Extraction, LocalDate, LocalTime } from '@dayli/schema';
 
 export const ExpectedItem = ExtractedItem.partial().omit({ title: true, evidence: true, confidence: true, question: true }).extend({
   match: z.string().min(1),
-  date: z.string().nullable(),
-  start: z.string().nullable(),
-  end: z.string().nullable(),
+  date: LocalDate.nullable(),
+  start: LocalTime.nullable(),
+  end: LocalTime.nullable(),
   needsQuestion: z.boolean().optional(),
 });
 export type ExpectedItem = z.infer<typeof ExpectedItem>;

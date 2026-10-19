@@ -7,7 +7,7 @@
     "notes": "friday-shift",
     "input": {
       "kind": "text",
-      "text": "I work Friday 4-10 pm at the campus caf\u00e9."
+      "text": "I work Friday 4-10 pm at the campus café."
     },
     "context": {
       "today": "2026-10-19",
@@ -20,7 +20,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-23",
           "start": "16:00",
           "end": "22:00",
@@ -99,7 +99,7 @@
     "notes": "weekend-shifts",
     "input": {
       "kind": "text",
-      "text": "I work Friday 4-10 pm and Saturday 11 am-5 pm at the campus caf\u00e9."
+      "text": "I work Friday 4-10 pm and Saturday 11 am-5 pm at the campus café."
     },
     "context": {
       "today": "2026-10-19",
@@ -112,7 +112,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-23",
           "start": "16:00",
           "end": "22:00",
@@ -120,7 +120,7 @@
           "category": "work"
         },
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-24",
           "start": "11:00",
           "end": "17:00",
@@ -151,7 +151,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-23",
           "start": "22:00",
           "end": "06:00",
@@ -182,7 +182,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-24",
           "start": "08:00",
           "end": "12:00",
@@ -190,7 +190,7 @@
           "category": "work"
         },
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-24",
           "start": "17:00",
           "end": "22:00",
@@ -221,7 +221,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-22",
           "start": "20:00",
           "end": "00:00",
@@ -359,7 +359,7 @@
           "kind": "task"
         },
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-23",
           "start": "16:00",
           "end": "22:00",
@@ -420,7 +420,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-21",
           "start": "17:00",
           "end": "23:00",
@@ -495,7 +495,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-20",
           "start": "09:00",
           "end": "15:00",
@@ -503,7 +503,7 @@
           "category": "work"
         },
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-22",
           "start": "16:00",
           "end": "22:00",
@@ -627,7 +627,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-16",
           "start": "16:00",
           "end": "22:00",
@@ -658,7 +658,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-10-22",
           "start": "16:30",
           "end": "23:15",
@@ -863,7 +863,7 @@
       "metadata": {},
       "items": [
         {
-          "match": "shift|work|caf\u00e9|cafe",
+          "match": "shift|work|café|cafe",
           "date": "2026-11-01",
           "start": "01:30",
           "end": "03:30",
@@ -1564,7 +1564,7 @@
     "provenance": "public",
     "source": "https://archives.njit.edu/vhlib/syllabi/bio/bio-2025-01-01-Sp-2025/BIOL-205-H02-Spring-2025-Barden.pdf",
     "format": "university-syllabus",
-    "notes": "Five-page syllabus: cross-page date/topic/assignment table, readings, recurrence, irregular Wednesday presentation. Initial spot-check annotation; extras ungraded until exhaustive review.",
+    "notes": "Source-reviewed pp.1–5. Noon Canvas submission policy on p.2 applies to assignments, not reading-only preparation. Optional OpenStax reading excluded. Related reading and response may be combined. In-class exams/presentations use class hours; Wednesday presentation and final need confirmation. Class topics/group work covered by recurrence. Annotation correction: earlier draft incorrectly applied submission time to reading-only entries.",
     "input": {
       "kind": "pdf",
       "file": "inputs/public/njit-biology.pdf"
@@ -1576,36 +1576,183 @@
       "employers": []
     },
     "expected": {
-      "complete": false,
+      "complete": true,
       "metadata": {
         "detected_type": "syllabus"
       },
       "items": [
         {
-          "match": "exam.*1|midterm.*1",
+          "match": "class|lecture",
+          "date": "2025-01-21",
+          "start": "13:00",
+          "end": "14:20",
+          "kind": "event",
+          "category": "school",
+          "repeat_weekdays": [
+            "tue",
+            "fri"
+          ],
+          "repeat_until": "2025-05-02"
+        },
+        {
+          "match": "syllabus",
+          "date": "2025-01-21",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": false
+        },
+        {
+          "match": "focal.*organism|identify.*organism",
+          "date": "2025-01-24",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "depict.*evolution|evolution.*assignment",
+          "date": "2025-01-28",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:reading.*(?:assignment|response)|assignment).*1\\b",
+          "date": "2025-01-31",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:reading.*(?:assignment|response)|assignment).*2\\b",
+          "date": "2025-02-11",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:reading.*(?:assignment|response)|assignment).*3\\b",
+          "date": "2025-02-21",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:reading.*(?:assignment|response)|assignment).*4\\b",
+          "date": "2025-03-04",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:reading.*(?:assignment|response)|assignment).*5\\b",
+          "date": "2025-03-11",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:reading.*(?:assignment|response)|assignment).*6\\b",
+          "date": "2025-03-25",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:reading.*(?:assignment|response)|assignment).*7\\b",
+          "date": "2025-03-28",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:reading.*(?:assignment|response)|assignment).*8\\b",
+          "date": "2025-04-11",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:reading.*(?:assignment|response)|assignment).*9\\b",
+          "date": "2025-04-22",
+          "start": "12:00",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "mclennan|phylogeny.*paper",
+          "date": "2025-02-14",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": false
+        },
+        {
+          "match": "exam.*1",
           "date": "2025-02-25",
           "start": "13:00",
-          "end": null,
+          "end": "14:20",
+          "kind": "event",
+          "category": "school",
           "is_deadline": true
         },
         {
-          "match": "exam.*2|midterm.*2",
+          "match": "exam.*2",
           "date": "2025-04-04",
           "start": "13:00",
-          "end": null,
+          "end": "14:20",
+          "kind": "event",
+          "category": "school",
           "is_deadline": true
         },
         {
-          "match": "reading.*(?:assignment|response).*1\\b|assignment.*1\\b",
-          "date": "2025-01-31",
-          "start": null,
-          "end": null
+          "match": "presentation",
+          "date": "2025-05-02",
+          "start": "13:00",
+          "end": "14:20",
+          "kind": "event",
+          "category": "school"
         },
         {
-          "match": "reading.*(?:assignment|response).*9\\b|assignment.*9\\b",
-          "date": "2025-04-22",
+          "match": "presentation",
+          "date": "2025-05-07",
           "start": null,
-          "end": null
+          "end": null,
+          "needsQuestion": true
+        },
+        {
+          "match": "final.*exam",
+          "date": null,
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
         }
       ]
     }
@@ -1615,7 +1762,7 @@
     "provenance": "public",
     "source": "https://inside.tamuc.edu/academics/cvSyllabi/syllabi/202520/22283.pdf",
     "format": "university-syllabus",
-    "notes": "Twenty-page nursing syllabus: dense multi-page table, military time, exams plus assignments, and a conflicting 2024 due year inside Spring 2025. Initial spot checks; not a release-qualified gold set.",
+    "notes": "Source-reviewed calendar pp.17–20 and assessment policy pp.4–7. 39 obligations (including dosage calculation practice quiz on p.6); each dated CoursePoint group counts once, reading/acknowledgement quiz paired. Jan15–19 window uses Jan19 provisionally plus question; online make-up date unknown. Simulation conflicting time and NJE 2024/2025 typo require questions. Class pattern scored, holiday/online exclusions not representable in current schema. Preparatory topic lists and conditional licensure procedures are excluded.",
     "input": {
       "kind": "pdf",
       "file": "inputs/public/east-texas-nursing.pdf"
@@ -1627,30 +1774,196 @@
       "employers": []
     },
     "expected": {
-      "complete": false,
+      "complete": true,
       "metadata": {
         "detected_type": "syllabus"
       },
       "items": [
         {
-          "match": "exam.*1",
+          "match": "class|lecture",
+          "date": "2025-01-13",
+          "start": "11:50",
+          "end": "14:40",
+          "kind": "event",
+          "category": "school",
+          "repeat_weekdays": [
+            "mon"
+          ],
+          "repeat_until": "2025-04-28"
+        },
+        {
+          "match": "dosage.*(?:exam|test)",
+          "date": "2025-01-13",
+          "start": "11:50",
+          "end": "14:40",
+          "kind": "event",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "dosage.*(?:make.up|retake)|make.up.*dosage",
+          "date": null,
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "course.?point",
+          "date": "2025-01-19",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "course.?point",
+          "date": "2025-01-26",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "course.?point",
+          "date": "2025-02-02",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "course.?point",
           "date": "2025-02-10",
-          "start": "11:50",
+          "start": "23:59",
           "end": null,
+          "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
-          "match": "exam.*2",
-          "date": "2025-03-24",
-          "start": "11:50",
+          "match": "course.?point",
+          "date": "2025-02-23",
+          "start": "23:59",
           "end": null,
+          "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
-          "match": "final|exam.*3",
-          "date": "2025-05-05",
-          "start": "10:00",
+          "match": "course.?point",
+          "date": "2025-03-02",
+          "start": "23:59",
           "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "course.?point",
+          "date": "2025-03-16",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "course.?point",
+          "date": "2025-03-23",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "course.?point",
+          "date": "2025-04-06",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "course.?point",
+          "date": "2025-04-13",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "course.?point",
+          "date": "2025-04-22",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:acknowledg|reading).*quiz.*1\\b|quiz.*1\\b",
+          "date": "2025-01-19",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "(?:acknowledg|reading).*quiz.*2\\b|quiz.*2\\b",
+          "date": "2025-01-26",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:acknowledg|reading).*quiz.*3\\b|quiz.*3\\b",
+          "date": "2025-02-16",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:acknowledg|reading).*quiz.*4\\b|quiz.*4\\b",
+          "date": "2025-02-23",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "(?:vcs|video.*case.*study).*delegation|delegation.*(?:vcs|video)",
+          "date": "2025-01-19",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "priority.*setting",
+          "date": "2025-01-26",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
@@ -1659,7 +1972,134 @@
           "start": "23:59",
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
+        },
+        {
+          "match": "bon.*application|application.*licensure",
+          "date": "2025-02-10",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "vcs.*informatics|informatics",
+          "date": "2025-02-16",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "practice.*a.*focused|focused.*review.*a",
+          "date": "2025-03-02",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "nclex.*(?:fee|payment)|pearson",
+          "date": "2025-03-16",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "readiness.*(?:board|assessment)|board.*readiness",
+          "date": "2025-03-30",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "handoff",
+          "date": "2025-04-06",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "practice.*b.*focused|focused.*review.*b",
+          "date": "2025-04-13",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "proctored.*focused|focused.*proctored|cms.*focused",
+          "date": "2025-05-04",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "exam.*1",
+          "date": "2025-02-10",
+          "start": "11:50",
+          "end": "14:40",
+          "kind": "event",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "exam.*2",
+          "date": "2025-03-24",
+          "start": "11:50",
+          "end": "14:40",
+          "kind": "event",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "practice.*a.*assessment|assessment.*a",
+          "date": "2025-02-24",
+          "start": "11:50",
+          "end": "14:40",
+          "kind": "event",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "practice.*(?:b.*assessment|assessment.*b)|assessment.*b",
+          "date": "2025-04-07",
+          "start": "11:50",
+          "end": "14:40",
+          "kind": "event",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "proctored.*(?:exam|assessment)",
+          "date": "2025-04-28",
+          "start": "11:50",
+          "end": "14:40",
+          "kind": "event",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "simulation",
+          "date": "2025-04-14",
+          "start": "11:50",
+          "end": "14:40",
+          "kind": "event",
+          "category": "school",
+          "needsQuestion": true
         },
         {
           "match": "clinical.*hour",
@@ -1667,7 +2107,37 @@
           "start": null,
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
+        },
+        {
+          "match": "final|exam.*3",
+          "date": "2025-05-05",
+          "start": "10:00",
+          "end": null,
+          "kind": "event",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "nje.*certificate|certificate.*completion",
+          "date": "2025-05-08",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "dosage.*(?:practice.*quiz|quiz.*practice)",
+          "date": null,
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
         }
       ]
     }
@@ -1677,7 +2147,7 @@
     "provenance": "public",
     "source": "https://legacy.camosun.ca/learn/course-outlines/Nursing%20%28NURS%29/NURS-143-X04-Various-2025W.pdf",
     "format": "university-syllabus",
-    "notes": "Eight-page outline uses only Week 5/9/14/Exam Week and gives no term start date. Exact calendar dates must stay null; no invented January dates. More weekly topics remain unannotated.",
+    "notes": "Source-reviewed pp.4–7: five assessment requirements plus two numeracy practice quizzes (Weeks3/11). No dated term start or class hours: all dates/times null with questions. Week5/9/14/exam-week labels must not become invented dates. Ordinary skills/lecture topics excluded.",
     "input": {
       "kind": "pdf",
       "file": "inputs/public/camosun-nursing.pdf"
@@ -1689,7 +2159,7 @@
       "employers": []
     },
     "expected": {
-      "complete": false,
+      "complete": true,
       "metadata": {
         "detected_type": "syllabus"
       },
@@ -1699,6 +2169,8 @@
           "date": null,
           "start": null,
           "end": null,
+          "kind": "task",
+          "category": "school",
           "is_deadline": true,
           "needsQuestion": true
         },
@@ -1707,6 +2179,9 @@
           "date": null,
           "start": null,
           "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
           "needsQuestion": true
         },
         {
@@ -1714,6 +2189,8 @@
           "date": null,
           "start": null,
           "end": null,
+          "kind": "task",
+          "category": "school",
           "is_deadline": true,
           "needsQuestion": true
         },
@@ -1722,6 +2199,38 @@
           "date": null,
           "start": null,
           "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "demonstrat.*(?:all|course).*skill|all.*skill",
+          "date": null,
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "numeracy.*(?:practice.*)?quiz|practice.*numeracy",
+          "date": null,
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "numeracy.*(?:practice.*)?quiz|practice.*numeracy",
+          "date": null,
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
           "is_deadline": true,
           "needsQuestion": true
         }
@@ -1733,7 +2242,7 @@
     "provenance": "public",
     "source": "https://directory.msutexas.edu/storage/files/syllabus_20250113021948.pdf",
     "format": "university-syllabus",
-    "notes": "Multiple exams, six similarly named evaluations, semester recurrence, reading week ranges. Graded-date spot checks; class/reading annotations pending.",
+    "notes": "Source-reviewed pp.1–4. Regular course exams use class hours; final has separate hours. Six evaluation deadlines and volunteer write-up have no due times. Volunteer proposal is explicitly required but undated. Weekly chapter/topic ranges are lecture preparation, not separately dated submissions. Class pattern endpoints from first/last teaching week; holiday exclusions not scored.",
     "input": {
       "kind": "pdf",
       "file": "inputs/public/msutexas-psychology.pdf"
@@ -1745,44 +2254,59 @@
       "employers": []
     },
     "expected": {
-      "complete": false,
+      "complete": true,
       "metadata": {
         "detected_type": "syllabus"
       },
       "items": [
         {
+          "match": "class|lecture",
+          "date": "2025-01-20",
+          "start": "12:00",
+          "end": "12:50",
+          "kind": "event",
+          "category": "school",
+          "repeat_weekdays": [
+            "mon",
+            "wed",
+            "fri"
+          ],
+          "repeat_until": "2025-05-09"
+        },
+        {
           "match": "exam.*1",
           "date": "2025-02-10",
           "start": "12:00",
-          "end": null,
+          "end": "12:50",
+          "kind": "event",
+          "category": "school",
           "is_deadline": true
         },
         {
           "match": "exam.*2",
           "date": "2025-03-07",
           "start": "12:00",
-          "end": null,
+          "end": "12:50",
+          "kind": "event",
+          "category": "school",
           "is_deadline": true
         },
         {
           "match": "exam.*3",
           "date": "2025-03-31",
           "start": "12:00",
-          "end": null,
+          "end": "12:50",
+          "kind": "event",
+          "category": "school",
           "is_deadline": true
         },
         {
           "match": "exam.*4",
           "date": "2025-04-23",
           "start": "12:00",
-          "end": null,
-          "is_deadline": true
-        },
-        {
-          "match": "final",
-          "date": "2025-05-14",
-          "start": "15:30",
-          "end": "17:30",
+          "end": "12:50",
+          "kind": "event",
+          "category": "school",
           "is_deadline": true
         },
         {
@@ -1791,6 +2315,7 @@
           "start": null,
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
@@ -1799,6 +2324,7 @@
           "start": null,
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
@@ -1807,6 +2333,7 @@
           "start": null,
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
@@ -1815,6 +2342,7 @@
           "start": null,
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
@@ -1823,6 +2351,7 @@
           "start": null,
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
@@ -1831,15 +2360,36 @@
           "start": null,
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
-          "match": "volunteer.*(?:project|write|report)",
+          "match": "volunteer.*(?:write|report|project)",
           "date": "2025-04-30",
           "start": null,
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
+        },
+        {
+          "match": "final",
+          "date": "2025-05-14",
+          "start": "15:30",
+          "end": "17:30",
+          "kind": "event",
+          "category": "school",
+          "is_deadline": true
+        },
+        {
+          "match": "volunteer.*proposal|proposal.*volunteer",
+          "date": null,
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
         }
       ]
     }
@@ -1849,7 +2399,7 @@
     "provenance": "public",
     "source": "https://fred.ifas.ufl.edu/media/fredifasufledu/undergradsyll/fall2024/AEB4283Mullally.pdf",
     "format": "university-syllabus",
-    "notes": "Long economics syllabus with a week/range table, recurring quizzes, and an apparent 11:45 pm typo in a midday class. Dated-homework spot checks; remaining output deliberately ungraded.",
+    "notes": "Source-reviewed pp.1–4. Three dated homework submissions, two distinct meeting patterns, one unresolved lecture-quiz series. Quiz dates are not stated: date null, Friday due time23:59 retained, question required. Tuesday11:45pm typo requires question. Dec4 is latest scheduled course activity, used as term boundary. Optional office hours, topic/readings ranges, and unscheduled extra-credit policy excluded.",
     "input": {
       "kind": "pdf",
       "file": "inputs/public/florida-economics.pdf"
@@ -1861,17 +2411,43 @@
       "employers": []
     },
     "expected": {
-      "complete": false,
+      "complete": true,
       "metadata": {
         "detected_type": "syllabus"
       },
       "items": [
+        {
+          "match": "class|lecture",
+          "date": "2024-08-22",
+          "start": "12:50",
+          "end": "13:40",
+          "kind": "event",
+          "category": "school",
+          "repeat_weekdays": [
+            "thu"
+          ],
+          "repeat_until": "2024-12-04"
+        },
+        {
+          "match": "class|lecture",
+          "date": "2024-08-27",
+          "start": "11:45",
+          "end": "13:40",
+          "kind": "event",
+          "category": "school",
+          "repeat_weekdays": [
+            "tue"
+          ],
+          "repeat_until": "2024-12-04",
+          "needsQuestion": true
+        },
         {
           "match": "homework.*1",
           "date": "2024-09-26",
           "start": "23:59",
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
@@ -1880,6 +2456,7 @@
           "start": "23:59",
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
         },
         {
@@ -1888,7 +2465,18 @@
           "start": "23:59",
           "end": null,
           "kind": "task",
+          "category": "school",
           "is_deadline": true
+        },
+        {
+          "match": "lecture.*quiz|quiz",
+          "date": null,
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "needsQuestion": true
         }
       ]
     }

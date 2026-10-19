@@ -3,7 +3,7 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { Extraction, type ExtractContext, type ExtractRequest } from '@dayli/schema';
 
 export const MODEL = 'claude-opus-5-5';
-export const PROMPT_VERSION = '2026-10-19.3';
+export const PROMPT_VERSION = '2026-10-19.5';
 
 const SYSTEM = `You read the things busy students and shift workers send to their planner app, Semli, and turn them into calendar events and to-dos.
 
@@ -11,13 +11,16 @@ Inputs can be a typed or dictated message, a screenshot (work schedule apps, pri
 
 How to read them:
 - An event happens at a time (class, shift, exam, appointment). A task is something to do, optionally by a date (assignment, errand, reading).
-- Exams, quizzes, and anything "due" have is_deadline = true. Exams are events when they have a time, otherwise tasks.
+- Exams, quizzes (including practice quizzes), and anything that must be finished "by" a date have is_deadline = true. Exams are events when they have a time, otherwise tasks.
 - category: "work" for job shifts and job duties, "school" for classes, assignments, exams, and clinicals, "personal" for everything else.
 - Resolve relative dates ("Friday", "next Tue", "tomorrow") against the reference date and timezone given below. "Friday" means the next Friday on or after the reference date. If a date is genuinely ambiguous, pick the most likely one and ask a short question.
 - If a year is missing, use the next occurrence on or after the reference date.
 - Times are 24-hour HH:mm in the user's local time. "4-10" for a shift means 16:00-22:00. Overnight shifts keep their real end time (e.g. 22:00 to 06:00).
 - For a work schedule, set detected_type "work_schedule", the employer name, and covers_from/covers_to to the full week or period the schedule shows, even on days with no shifts. Only include the user's own shifts. If the schedule lists several people, include only rows for the name the user mentions; if no name is given and it lists several people, ask which one is theirs.
+- Read dense schedules one date column at a time. Locate the user's row or named shift card in each column, then read the times from that same cell. Never borrow times from the person above or below. Scan all columns and all work areas before finishing: identical shifts on consecutive days are separate events, and split shifts on one day must both be included. Training shifts count; availability and time off do not. If text is unreadable, ask for a clearer image rather than guessing.
 - For a syllabus, set detected_type "syllabus" and the course. Include every dated assignment, quiz, exam, and project. Put the class meeting pattern as one repeating event (repeat_weekdays plus repeat_until at the end of the term) dated on the first meeting on or after the reference date.
+- Read the whole syllabus, including assessment tables, general due-time policies, and schedule tables continued on later pages. Apply an explicitly stated due-time policy to the assignments it covers; a submission cutoff does not automatically apply to reading-only preparation. Readings paired with a reading-response assignment may be combined in that task. Lecture topics, optional readings or office hours, breaks/holidays, and conditional university policies are not separate obligations. Include named practice quizzes and required assessments even when they are ungraded.
+- In-class exams and assessments use that day's stated class hours unless the document gives different hours. On an irregular weekday, do not copy a different weekday's hours: leave missing times null and ask. Never invent a due time where no applicable policy exists. When only a week number or an unspecified set of Fridays is given, keep the date null and ask for the actual date; do not invent a term start or a first/last quiz date. If a quiz series has no individual dates, return one unresolved series item and one question about its schedule, rather than a separate undated task and question for every lecture topic. For a due-date window, use the last date provisionally and ask which day applies. Flag contradictory years or AM/PM labels with a specific question.
 - For a course schedule or registration screenshot, set detected_type "course_schedule" and add each class as a repeating event.
 - Titles are short and natural: "Olive Garden shift", "Stats exam 2", "Return library book". Don't repeat the date in the title.
 - Write user-facing questions in plain, friendly language. Ask one specific question about the missing detail, without technical terms or blame.
@@ -59,7 +62,7 @@ export async function extract(req: ExtractRequest, client = new Anthropic()): Pr
     max_tokens: 16000,
     system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
     output_config: {
-      effort: req.input.kind === 'text' ? 'low' : 'medium',
+      effort: req.input.kind === 'text' ? 'low' : 'high',
       format: zodOutputFormat(Extraction),
     },
     messages: [{ role: 'user', content }],

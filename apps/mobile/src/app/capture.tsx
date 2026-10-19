@@ -13,6 +13,9 @@ import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { requestExtraction } from '@/lib/api';
 import { feedback } from '@/lib/feedback';
+import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
+import { hasSemliPro, purchaseErrorMessage } from '@/lib/revenuecat';
+import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, radius, textStyle, useTheme } from '@/theme';
 
@@ -22,6 +25,7 @@ const MAX_BYTES = 20 * 1024 * 1024;
 
 export default function CaptureScreen() {
   const { c } = useTheme();
+  const { refreshCustomerInfo, presentPaywall } = usePurchases();
   const [text, setText] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setErrorText] = useState<string | null>(null);
@@ -38,29 +42,49 @@ export default function CaptureScreen() {
   async function run(input: ExtractRequest['input'], source: string) {
     setError(null);
     setBusy(source);
-    const res = await requestExtraction(settings.apiUrl, {
-      input,
-      context: {
-        name: settings.name,
-        today: localParts(new Date()).date,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        courses: courses.map((k) => ({ code: k.code, title: k.title })),
-        employers: [...new Set(schedules.map((s) => s.employer))],
-      },
-    });
-    setBusy(null);
-    if (!res.ok) {
-      setError(res.error);
-      return;
+    const usage = useStore.getState().usage;
+    const month = new Date().toISOString().slice(0, 7);
+    if (usage.month === month && usage.imports >= FREE_IMPORTS_PER_MONTH) {
+      try {
+        const info = await refreshCustomerInfo();
+        if (!hasSemliPro(info) && !(await presentPaywall())) {
+          setBusy(null);
+          return;
+        }
+      } catch (failure) {
+        setError(purchaseErrorMessage(failure));
+        setBusy(null);
+        return;
+      }
     }
-    if (res.extraction.items.length === 0) {
-      setError(IMPORT_MESSAGES.empty);
-      return;
+    try {
+      const res = await requestExtraction(settings.apiUrl, {
+        input,
+        context: {
+          name: settings.name,
+          today: localParts(new Date()).date,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          courses: courses.map((k) => ({ code: k.code, title: k.title })),
+          employers: [...new Set(schedules.map((s) => s.employer))],
+        },
+      });
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      if (res.extraction.items.length === 0) {
+        setError(IMPORT_MESSAGES.empty);
+        return;
+      }
+      feedback('ready');
+      recordImport();
+      setPending({ extraction: res.extraction, source });
+      router.replace('/review');
+    } catch {
+      setError(IMPORT_MESSAGES.unavailable);
+    } finally {
+      setBusy(null);
     }
-    feedback('ready');
-    recordImport();
-    setPending({ extraction: res.extraction, source });
-    router.replace('/review');
   }
 
   async function pickImage(fromCamera: boolean) {

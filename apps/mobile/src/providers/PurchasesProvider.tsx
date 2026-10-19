@@ -67,11 +67,21 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     // This SDK listener is registered in JS and can be attached before configuration.
     // Keep it attached if initial configuration fails and the user later retries.
     Purchases.addCustomerInfoUpdateListener(updateCustomerInfo);
-    void refresh();
+    let disposed = false;
+    // Begin the network read after the SDK's asynchronous initialization settles.
+    void initializePurchases().then(() => {
+      if (!disposed) void refresh();
+    }).catch((failure: unknown) => {
+      if (!disposed) {
+        setError(purchaseErrorMessage(failure));
+        setLoading(false);
+      }
+    });
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') void refresh();
     });
     return () => {
+      disposed = true;
       subscription.remove();
       Purchases.removeCustomerInfoUpdateListener(updateCustomerInfo);
     };
