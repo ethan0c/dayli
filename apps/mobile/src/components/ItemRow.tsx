@@ -6,19 +6,21 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 
 import { CategoryDot, StatusPill, itemStatus } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
+import { SwipeRow } from '@/components/SwipeRow';
 import { T } from '@/components/Text';
 import { springs } from '@/lib/motion';
 import { courseTint, useStore } from '@/store';
 import { useTheme } from '@/theme';
 
 type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date'> & { courseId?: string | null; employer?: string | null };
-type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: string; onPress?: () => void; onToggle?: () => void; last?: boolean };
+type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: string; onPress?: () => void; onToggle?: () => void; onDelete?: () => void; last?: boolean };
 
 /**
  * One agenda row: a check (to-dos) or a category dot (events), the title with its context,
  * and a status pill on the right that is the only colored thing on the row.
+ * Swipe right to complete a to-do, left to delete, when the handlers are given.
  */
-export function ItemRow({ item, conflict, planned, today, onPress, onToggle, last }: Props) {
+export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onDelete, last }: Props) {
   const { c } = useTheme();
   const courses = useStore((s) => s.courses);
   const course = item.courseId ? courses.find((k) => k.id === item.courseId) : undefined;
@@ -29,7 +31,8 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, las
   const where = course?.code ?? item.employer ?? (item.category === 'school' ? 'Coursework' : item.category === 'work' ? 'Work' : 'Personal');
   const sub = [where, conflict ? 'overlaps something else' : null, planned ? 'working on it today' : null].filter(Boolean).join(' · ');
   return (
-    <View style={[styles.row, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
+    <SwipeRow onDelete={onDelete} onComplete={!isEvent ? onToggle : undefined} completed={item.done}>
+    <View style={[styles.row, { backgroundColor: c.canvas }, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
       {!isEvent ? (
         <Pressable onPress={onToggle} disabled={!onToggle} accessibilityRole="checkbox" hitSlop={8}
           accessibilityLabel={`${item.done ? 'Mark incomplete' : 'Complete'}: ${item.title}`} accessibilityState={{ checked: item.done }} style={styles.checkTarget}>
@@ -48,6 +51,7 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, las
         <StatusPill label={status.label} tone={status.tone} />
       </Pressable>
     </View>
+    </SwipeRow>
   );
 }
 
