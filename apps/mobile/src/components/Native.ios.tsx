@@ -42,7 +42,9 @@ export function TimeField({ date, time, onChange }: DateFieldProps) {
 export function NativeToggle({ value, onChange, label, activeColor }: ToggleProps) {
   const { c } = useTheme();
   return (
-    <Host style={{ width: 52, height: 32 }} matchContents>
+    // The React Native row owns sizing and safe-area placement. Letting each
+    // tiny host adapt to the screen edge moves its switch as the row scrolls.
+    <Host style={{ width: 52, height: 32, flexShrink: 0 }} alignment="center" ignoreSafeArea="all">
       <Toggle isOn={value} onIsOnChange={onChange} modifiers={[tint(activeColor ?? c.added), ...(label ? [accessibilityLabel(label)] : [])]} />
     </Host>
   );

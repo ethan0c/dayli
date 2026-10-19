@@ -96,6 +96,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 **Account and sharing frontend previews**
 - Built `/account`: guest welcome, email entry, six-digit code layout, signed-in account layout, and logout-of-preview. Entry from You → Account → Save your plan. All account state is local to this screen; no authentication, sessions, emails, uploads or billing changes occur.
+- You → Account → Account settings opens the account controls directly, without stepping through email/code. Log out resets only the preview; Delete account opens a preview confirmation with Cancel and Reset account preview. Neither removes local planner data or changes Plus access. Real logout/deletion still require the deferred authentication backend.
 - Built `/share-schedule`: day/week selection, category filters, title redaction, a message preview with Open preview, and a read-only schedule. Entry from the glass share button in Plan or You → Account → Share your schedule. Create share link remains unavailable until a backend exists; there are no public URLs yet.
 - Preview rendering uses an explicit field allowlist. Notes, source files, employer metadata, account data, private IDs and completed entries are excluded. The title switch substitutes Busy/To-do before the viewer receives data.
 - Backend/auth/database setup is intentionally skipped at the user's request. Accounts, cloud backup, permanent links, recipient access/revocation and cross-device sync remain future work. Existing guest data and RevenueCat access are untouched by the previews.
