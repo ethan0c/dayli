@@ -1,7 +1,7 @@
 import { fontFamily, lavender } from '@dayli/tokens';
 import { StyleSheet, Text, View } from 'react-native';
 
-/** The dayli. wordmark: Outfit SemiBold with the i's tittle and the period as lavender dots. */
+/** The dayli. wordmark: Onest SemiBold with the i's tittle and the period as lavender dots. */
 export function Wordmark({ size = 32, ink }: { size?: number; ink: string }) {
   const dot = size * 0.19;
   const text = { fontFamily: fontFamily.semibold, fontSize: size, lineHeight: size * 1.1, letterSpacing: -size * 0.045, color: ink };

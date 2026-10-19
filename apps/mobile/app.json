@@ -15,14 +15,6 @@
         "NSPhotoLibraryUsageDescription": "Dayli reads screenshots of schedules and syllabi you choose."
       }
     },
-    "android": {
-      "package": "app.dayli.mobile",
-      "adaptiveIcon": {
-        "backgroundColor": "#1C1B21",
-        "foregroundImage": "./assets/images/icon.png"
-      },
-      "predictiveBackGestureEnabled": false
-    },
     "web": {
       "output": "server",
       "favicon": "./assets/images/favicon.png"

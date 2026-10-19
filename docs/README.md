@@ -12,6 +12,6 @@
 
 1. **Platform** — decided: Expo (iOS first) + Next.js web, one TypeScript codebase. Backend/sync (Supabase or other) deferred until the beta shows it is needed; everything is on-device for now.
 2. **Logo** — decided: wordmark only, app icon is a `d.` crop of it. See brand-and-logo §3.
-3. **Typeface** — decided: Outfit.
+3. **Typeface** — decided: Onest.
 4. **Name clearance** — trademark, App Store, and domain checks for "Dayli" before any public brand spend.
 5. **SMS in MVP** — keep (strong differentiator) or move to V1.1 (A2P 10DLC registration takes weeks and costs money). See product-plan §7.

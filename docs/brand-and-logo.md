@@ -25,7 +25,7 @@ Status: draft · October 2026
 Decision (Oct 19, 2026): Dayli has one logo, the `dayli.` wordmark. There is no separate symbol. Where a square mark is required (app icon, avatar, favicon), the icon is a crop of the wordmark: the lowercase **d** and the lavender period, set in the same letterforms. It reads as the start of the name, not as a second logo.
 
 ### 3.1 Wordmark
-Lowercase `dayli.` in Outfit SemiBold, tracked −4.5%. Two lavender (500) circles: the tittle of the i and the closing period, both 0.19 em wide. Today, and what's next.
+Lowercase `dayli.` in Onest SemiBold, tracked −4.5%. Two lavender (500) circles: the tittle of the i and the closing period, both 0.19 em wide. Today, and what's next.
 
 - Custom pass before launch: shorten the y descender so it sits tight on the baseline, open the a slightly, and round terminals to match the icon stroke. These make the mark ownable against the word "daily".
 - Always lowercase, always with the period. In running text the product is "Dayli".
@@ -37,7 +37,7 @@ Lowercase `dayli.` in Outfit SemiBold, tracked −4.5%. Two lavender (500) circl
 | Light | Lavender 200 `#DCD4FB` | Ink | Lavender 600 `#6F57D4` |
 | Tinted / dark (iOS 18+) | System | Single-color from the layered file | |
 
-The letter and dot together span 56% of the icon width, centered. Generated from the Outfit glyph outline by `design/` (see `icon-1024.png`, `icon-light-1024.png`); rebuild from the SVGs if the typeface changes.
+The letter and dot together span 56% of the icon width, centered. Generated from the Onest glyph outline by `design/` (see `icon-1024.png`, `icon-light-1024.png`); rebuild from the SVGs if the typeface changes.
 
 ### 3.3 Requirements checked
 1. Legible at 16 px (favicon shows `d.`) and 60 px (iOS icon).

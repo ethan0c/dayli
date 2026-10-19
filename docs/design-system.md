@@ -26,7 +26,7 @@ Status: draft · October 2026 · Visual board: [Dayli Brand Board](https://claud
 
 ## 3. Typography
 
-**Primary face: Outfit** (OFL, Google Fonts). Round, geometric, closest to the reference clock. Chosen Oct 19, 2026 over Onest, Figtree, and Plus Jakarta Sans. Bundled in the app via `@expo-google-fonts/outfit`; SF Pro as fallback.
+**Primary face: Onest** (OFL, Google Fonts). Friendly, balanced, very readable small. Final choice Oct 19, 2026 (briefly Onest). Bundled in the app via `@expo-google-fonts/onest`; SF Pro as fallback.
 
 | Token | Size / line | Weight | Tracking | Use |
 |---|---|---|---|---|

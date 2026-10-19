@@ -89,11 +89,11 @@ export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, x
 
 export const radius = { chip: 999, row: 16, card: 20, sheet: 28, pill: 999 } as const;
 
-/** Outfit weights used by the app. Font family names match @expo-google-fonts/outfit exports. */
+/** Onest weights used by the app. Font family names match @expo-google-fonts/onest exports. */
 export const fontFamily = {
-  regular: 'Outfit_400Regular',
-  medium: 'Outfit_500Medium',
-  semibold: 'Outfit_600SemiBold',
+  regular: 'Onest_400Regular',
+  medium: 'Onest_500Medium',
+  semibold: 'Onest_600SemiBold',
 } as const;
 
 export const typeScale = {
