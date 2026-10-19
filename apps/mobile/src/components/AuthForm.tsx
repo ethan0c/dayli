@@ -90,8 +90,8 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           <Button label={busy ? 'One moment…' : copy.action} disabled={busy} onPress={() => void submit()} />
           {signup ? <T token="caption" color={c.inkSecondary} style={styles.center}>By creating an account, you agree to our <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.terms)}>Terms</T> and <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.privacy)}>Privacy policy</T>.</T> : null}
           <TextButton label={forgot ? 'Back to log in' : signup ? 'Already have an account? Log in' : 'New to Semli? Sign up'} tone="muted"
-            onPress={() => { setPassword(''); if (forgot && router.canGoBack()) router.back(); else router.replace(signup || forgot ? '/auth/login' : '/auth/signup'); }} />
-          <TextButton label="Continue as a guest" tone="muted" onPress={guest} />
+            onPress={() => { setPassword(''); if (forgot && router.canGoBack()) router.back(); else router.replace(signup || forgot ? '/auth/login' : '/auth/signup'); }} style={styles.footerLink} />
+          <TextButton label="Continue as a guest" tone="muted" onPress={guest} style={styles.footerLink} />
         </View>
       </ScrollView>
     </Sheet>
@@ -105,4 +105,5 @@ const styles = StyleSheet.create({
   line: { flex: 1, height: StyleSheet.hairlineWidth },
   start: { alignSelf: 'flex-start', minHeight: 44 },
   center: { textAlign: 'center' },
+  footerLink: { alignSelf: 'center', minHeight: 44 },
 });
