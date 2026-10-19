@@ -7,6 +7,7 @@ import { Wordmark } from '@/components/Wordmark';
 import { feedback } from '@/lib/feedback';
 import { profileFor } from '@/lib/majors';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
+import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -14,6 +15,7 @@ const APPEARANCE_LABEL = { system: 'System', light: 'Light', dark: 'Dark' } as c
 
 export default function SettingsHome() {
   const { c } = useTheme();
+  const { isPro, customerInfo, loading } = usePurchases();
   const settings = useStore((s) => s.settings);
   const setSettings = useStore((s) => s.setSettings);
   const usage = useStore((s) => s.usage);
@@ -67,7 +69,7 @@ export default function SettingsHome() {
             icon="heart"
             tint={c.tint.rose.fill}
             label="Your plan"
-            value={`Free · ${used} of ${FREE_IMPORTS_PER_MONTH} imports`}
+            value={isPro ? 'Semli Pro' : !customerInfo ? loading ? 'Checking…' : 'Check plan' : `Free · ${used} of ${FREE_IMPORTS_PER_MONTH} imports`}
             onPress={() => router.push('/settings/plan')}
             last
           />

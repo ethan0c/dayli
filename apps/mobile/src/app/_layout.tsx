@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
 
+import { PurchasesProvider } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { useTheme } from '@/theme';
 
@@ -31,6 +32,7 @@ export default function RootLayout() {
 
   const theme = dark ? DarkTheme : DefaultTheme;
   return (
+    <PurchasesProvider>
     <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas } }}>
         <Stack.Protected guard={!onboarded}>
@@ -46,5 +48,6 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style={dark ? 'light' : 'dark'} />
     </ThemeProvider>
+    </PurchasesProvider>
   );
 }

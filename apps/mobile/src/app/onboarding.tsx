@@ -18,8 +18,8 @@ import { T } from "@/components/Text";
 import { Wordmark } from "@/components/Wordmark";
 import { feedback } from "@/lib/feedback";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
-import { FREE_IMPORTS_PER_MONTH, PLANS } from "@/lib/plans";
-import { useStore, type PlanId } from "@/store";
+import { FREE_IMPORTS_PER_MONTH } from "@/lib/plans";
+import { useStore } from "@/store";
 import { SCREEN_GUTTER, radius, textStyle, useTheme } from "@/theme";
 
 const STEPS = 5;
@@ -50,7 +50,6 @@ export default function OnboardingScreen() {
   const [role, setRole] = useState<Role>(settings.isStudent ? "both" : "working");
   const [major, setMajor] = useState<string | null>(settings.major);
   const [kinds, setKinds] = useState<string[]>(settings.weekKinds);
-  const [plan, setPlan] = useState<PlanId | null>(settings.planIntent);
 
   const student = role !== "working";
   const profile = profileFor(major, student);
@@ -66,7 +65,6 @@ export default function OnboardingScreen() {
       weekKinds: kinds,
       isStudent: student,
       major: student ? (major ?? "other") : null,
-      planIntent: plan,
       onboarded: true,
       seeded: true,
     });
@@ -127,13 +125,7 @@ export default function OnboardingScreen() {
       )}
       {step === 2 && <DemoStep key={profile.id} profile={profile} onNext={next} />}
       {step === 3 && (
-        <PriceStep
-          student={student}
-          onStudent={(v) => setRole(v ? "both" : "working")}
-          plan={plan}
-          onPlan={setPlan}
-          onNext={next}
-        />
+        <PriceStep onNext={next} />
       )}
       {step === 4 && (
         <DoneStep
@@ -459,32 +451,20 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
 
 /* ---------- Step 3: price, honestly ---------- */
 
-function PriceStep({
-  student,
-  onStudent,
-  plan,
-  onPlan,
-  onNext,
-}: {
-  student: boolean;
-  onStudent: (v: boolean) => void;
-  plan: PlanId | null;
-  onPlan: (p: PlanId | null) => void;
-  onNext: () => void;
-}) {
+function PriceStep({ onNext }: { onNext: () => void }) {
   const { c } = useTheme();
   return (
     <ScrollView contentContainerStyle={styles.page}>
       <T token="display">Free to start.</T>
       <T token="callout" color={c.inkSecondary}>
-        {FREE_IMPORTS_PER_MONTH} imports a month, reminders, and the calendar are free forever. Plus reads everything you throw at it.
+        {FREE_IMPORTS_PER_MONTH} imports a month, reminders, and the calendar are free forever. Semli Pro adds unlimited imports.
       </T>
-      <PlanPicker student={student} onStudent={onStudent} plan={plan} onPlan={onPlan} />
+      <PlanPicker />
       <T token="caption" color={c.inkSecondary}>
-        {"Every plan starts with a 7-day free trial. You'll be asked after your first import, not now."}
+        {"Choose a plan to see its price and any eligible offers, or continue for free."}
       </T>
       <View style={styles.footer}>
-        <Button label={plan ? `Start free, then ${PLANS.find((p) => p.id === plan)!.name}` : 'Start free'} onPress={onNext} />
+        <Button label="Continue" onPress={onNext} />
       </View>
     </ScrollView>
   );

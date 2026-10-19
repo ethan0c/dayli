@@ -1,90 +1,75 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { NativeToggle } from '@/components/Native';
+import { Button } from '@/components/Sheet';
 import { T } from '@/components/Text';
-import { feedback } from '@/lib/feedback';
-import { PLANS, money, perMonth } from '@/lib/plans';
-import type { PlanId } from '@/store';
+import { customerCenterEnabled, hasSemliPro, usingTestStore } from '@/lib/revenuecat';
+import { usePurchases } from '@/providers/PurchasesProvider';
 import { radius, useTheme } from '@/theme';
 
-type Props = {
-  student: boolean;
-  onStudent: (v: boolean) => void;
-  plan: PlanId | null;
-  onPlan: (p: PlanId | null) => void;
-};
-
-/** The honor-system student toggle and the three Plus plans. Used in onboarding and in You → Your plan. */
-export function PlanPicker({ student, onStudent, plan, onPlan }: Props) {
+/** Prices come from the current offering; purchases run through the hosted native paywall. */
+export function PlanPicker() {
   const { c } = useTheme();
-  const tints = [c.tint.sky, c.tint.lavender, c.tint.mint];
+  const { offering, customerInfo, isPro, loading, busy, error, unavailableReason, refresh, presentPaywall, restore, manageSubscription } = usePurchases();
+  const [notice, setNotice] = useState<string | null>(null);
+  const disabled = busy || loading || !!unavailableReason;
+  const packages = [
+    { label: 'Lifetime', period: 'One-time purchase', pack: offering?.lifetime },
+    { label: 'Yearly', period: 'Billed yearly', pack: offering?.annual },
+    { label: 'Monthly', period: 'Billed monthly', pack: offering?.monthly },
+  ];
+
+  async function restorePlan() {
+    setNotice(null);
+    try {
+      const info = await restore();
+      setNotice(hasSemliPro(info) ? 'Your Semli Pro purchase is restored.' : 'No Semli Pro purchases were found for this store account.');
+    } catch {
+      // The provider renders a friendly error shared by all subscription controls.
+    }
+  }
+
   return (
     <View style={{ gap: 12 }}>
-      <View style={[styles.studentRow, { backgroundColor: student ? c.accentSoft : c.row, borderColor: student ? c.accentBorder : 'transparent' }]}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <T token="headline">{"I'm a college student"}</T>
-          <T token="caption" color={c.inkSecondary}>
-            {"We don't check IDs or .edu emails. We trust you. If you're not a student anymore, switch this off and pay the regular price."}
-          </T>
+      {!isPro ? packages.map(({ label, period, pack }) => pack ? (
+        <View key={pack.identifier} style={[styles.plan, { backgroundColor: c.row }]}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <T token="headline">{label}</T>
+            <T token="caption" color={c.inkSecondary}>{period}</T>
+          </View>
+          <T token="title" tabular>{pack.product.priceString}</T>
         </View>
-        <NativeToggle
-          value={student}
-          onChange={(v) => {
-            feedback('select');
-            onStudent(v);
-          }}
-        />
-      </View>
-
-      <View style={{ gap: 8 }}>
-        {PLANS.map((p, i) => {
-          const on = plan === p.id;
-          const price = student ? p.student : p.regular;
-          const tint = tints[i]!;
-          return (
-            <Pressable
-              key={p.id}
-              onPress={() => {
-                feedback('select');
-                onPlan(on ? null : p.id);
-              }}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: on }}
-              style={[styles.plan, { backgroundColor: on ? tint.fill : c.row, borderColor: on ? tint.ink : 'transparent' }]}>
-              <View style={{ flex: 1, gap: 2 }}>
-                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-                  <T token="headline" color={on ? tint.ink : c.inkPrimary}>
-                    {p.name}
-                  </T>
-                  {p.tag ? (
-                    <View style={[styles.tag, { backgroundColor: on ? c.chip : tint.fill }]}>
-                      <T token="caption" color={tint.ink}>
-                        {p.tag}
-                      </T>
-                    </View>
-                  ) : null}
-                </View>
-                <T token="caption" color={on ? tint.ink : c.inkSecondary}>
-                  {perMonth(p, student)}
-                  {student ? ` · regular ${money(p.regular)}` : ''}
-                </T>
-              </View>
-              <T token="title" color={on ? tint.ink : c.inkPrimary} tabular>
-                {money(price)}
-              </T>
-              <T token="caption" color={on ? tint.ink : c.inkSecondary}>
-                /{p.period}
-              </T>
-            </Pressable>
-          );
-        })}
-      </View>
+      ) : null) : null}
+      {loading || busy ? <ActivityIndicator accessibilityLabel={busy ? 'Updating your plan' : 'Loading plans'} color={c.accent} /> : null}
+      {unavailableReason || error ? (
+        <T token="callout" color={c.inkSecondary} accessibilityRole="alert">{unavailableReason ?? error}</T>
+      ) : null}
+      {!loading && !unavailableReason && !isPro && !offering?.availablePackages.length && !error ? (
+        <T token="callout" color={c.inkSecondary}>Plans aren’t available right now. You can keep using Semli for free.</T>
+      ) : null}
+      {notice ? <T token="callout" accessibilityLiveRegion="polite">{notice}</T> : null}
+      {!isPro ? (
+        <Button label="View Semli Pro plans" disabled={disabled || !offering?.availablePackages.length} onPress={() => {
+          setNotice(null);
+          void presentPaywall().catch(() => {});
+        }} />
+      ) : null}
+      {customerCenterEnabled || customerInfo?.managementURL ? (
+        <Button label="Manage subscription" variant="ghost" disabled={disabled} onPress={() => {
+          setNotice(null);
+          void manageSubscription().catch(() => {});
+        }} />
+      ) : null}
+      <Button label="Restore purchases" variant="ghost" disabled={disabled} onPress={() => void restorePlan()} />
+      {!unavailableReason ? <Button label="Refresh plan" variant="ghost" disabled={busy || loading} onPress={() => {
+        setNotice(null);
+        void refresh();
+      }} /> : null}
+      {usingTestStore && !unavailableReason ? <T token="caption" color={c.inkSecondary}>Test purchases don’t charge you.</T> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  studentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.card, borderWidth: 1 },
-  plan: { flexDirection: 'row', alignItems: 'baseline', gap: 6, padding: 14, borderRadius: radius.card, borderWidth: 1.5 },
-  tag: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: radius.pill },
+  plan: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.card },
 });

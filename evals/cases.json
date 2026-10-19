@@ -1558,5 +1558,339 @@
         }
       ]
     }
+  },
+  {
+    "id": "pdf-njit-biology",
+    "provenance": "public",
+    "source": "https://archives.njit.edu/vhlib/syllabi/bio/bio-2025-01-01-Sp-2025/BIOL-205-H02-Spring-2025-Barden.pdf",
+    "format": "university-syllabus",
+    "notes": "Five-page syllabus: cross-page date/topic/assignment table, readings, recurrence, irregular Wednesday presentation. Initial spot-check annotation; extras ungraded until exhaustive review.",
+    "input": {
+      "kind": "pdf",
+      "file": "inputs/public/njit-biology.pdf"
+    },
+    "context": {
+      "today": "2025-01-20",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": []
+    },
+    "expected": {
+      "complete": false,
+      "metadata": {
+        "detected_type": "syllabus"
+      },
+      "items": [
+        {
+          "match": "exam.*1|midterm.*1",
+          "date": "2025-02-25",
+          "start": "13:00",
+          "end": null,
+          "is_deadline": true
+        },
+        {
+          "match": "exam.*2|midterm.*2",
+          "date": "2025-04-04",
+          "start": "13:00",
+          "end": null,
+          "is_deadline": true
+        },
+        {
+          "match": "reading.*(?:assignment|response).*1\\b|assignment.*1\\b",
+          "date": "2025-01-31",
+          "start": null,
+          "end": null
+        },
+        {
+          "match": "reading.*(?:assignment|response).*9\\b|assignment.*9\\b",
+          "date": "2025-04-22",
+          "start": null,
+          "end": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "pdf-east-texas-nursing",
+    "provenance": "public",
+    "source": "https://inside.tamuc.edu/academics/cvSyllabi/syllabi/202520/22283.pdf",
+    "format": "university-syllabus",
+    "notes": "Twenty-page nursing syllabus: dense multi-page table, military time, exams plus assignments, and a conflicting 2024 due year inside Spring 2025. Initial spot checks; not a release-qualified gold set.",
+    "input": {
+      "kind": "pdf",
+      "file": "inputs/public/east-texas-nursing.pdf"
+    },
+    "context": {
+      "today": "2025-01-13",
+      "timezone": "America/Chicago",
+      "courses": [],
+      "employers": []
+    },
+    "expected": {
+      "complete": false,
+      "metadata": {
+        "detected_type": "syllabus"
+      },
+      "items": [
+        {
+          "match": "exam.*1",
+          "date": "2025-02-10",
+          "start": "11:50",
+          "end": null,
+          "is_deadline": true
+        },
+        {
+          "match": "exam.*2",
+          "date": "2025-03-24",
+          "start": "11:50",
+          "end": null,
+          "is_deadline": true
+        },
+        {
+          "match": "final|exam.*3",
+          "date": "2025-05-05",
+          "start": "10:00",
+          "end": null,
+          "is_deadline": true
+        },
+        {
+          "match": "preceptor.*agreement",
+          "date": "2025-02-10",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        },
+        {
+          "match": "clinical.*hour",
+          "date": "2025-04-20",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        }
+      ]
+    }
+  },
+  {
+    "id": "pdf-camosun-nursing",
+    "provenance": "public",
+    "source": "https://legacy.camosun.ca/learn/course-outlines/Nursing%20%28NURS%29/NURS-143-X04-Various-2025W.pdf",
+    "format": "university-syllabus",
+    "notes": "Eight-page outline uses only Week 5/9/14/Exam Week and gives no term start date. Exact calendar dates must stay null; no invented January dates. More weekly topics remain unannotated.",
+    "input": {
+      "kind": "pdf",
+      "file": "inputs/public/camosun-nursing.pdf"
+    },
+    "context": {
+      "today": "2025-01-01",
+      "timezone": "America/Vancouver",
+      "courses": [],
+      "employers": []
+    },
+    "expected": {
+      "complete": false,
+      "metadata": {
+        "detected_type": "syllabus"
+      },
+      "items": [
+        {
+          "match": "mid.*term",
+          "date": null,
+          "start": null,
+          "end": null,
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "video|self.evaluation",
+          "date": null,
+          "start": null,
+          "end": null,
+          "needsQuestion": true
+        },
+        {
+          "match": "skills.*test|assessment.*skills",
+          "date": null,
+          "start": null,
+          "end": null,
+          "is_deadline": true,
+          "needsQuestion": true
+        },
+        {
+          "match": "final.*exam",
+          "date": null,
+          "start": null,
+          "end": null,
+          "is_deadline": true,
+          "needsQuestion": true
+        }
+      ]
+    }
+  },
+  {
+    "id": "pdf-msutexas-psychology",
+    "provenance": "public",
+    "source": "https://directory.msutexas.edu/storage/files/syllabus_20250113021948.pdf",
+    "format": "university-syllabus",
+    "notes": "Multiple exams, six similarly named evaluations, semester recurrence, reading week ranges. Graded-date spot checks; class/reading annotations pending.",
+    "input": {
+      "kind": "pdf",
+      "file": "inputs/public/msutexas-psychology.pdf"
+    },
+    "context": {
+      "today": "2025-01-19",
+      "timezone": "America/Chicago",
+      "courses": [],
+      "employers": []
+    },
+    "expected": {
+      "complete": false,
+      "metadata": {
+        "detected_type": "syllabus"
+      },
+      "items": [
+        {
+          "match": "exam.*1",
+          "date": "2025-02-10",
+          "start": "12:00",
+          "end": null,
+          "is_deadline": true
+        },
+        {
+          "match": "exam.*2",
+          "date": "2025-03-07",
+          "start": "12:00",
+          "end": null,
+          "is_deadline": true
+        },
+        {
+          "match": "exam.*3",
+          "date": "2025-03-31",
+          "start": "12:00",
+          "end": null,
+          "is_deadline": true
+        },
+        {
+          "match": "exam.*4",
+          "date": "2025-04-23",
+          "start": "12:00",
+          "end": null,
+          "is_deadline": true
+        },
+        {
+          "match": "final",
+          "date": "2025-05-14",
+          "start": "15:30",
+          "end": "17:30",
+          "is_deadline": true
+        },
+        {
+          "match": "social.*(?:evaluation|media).*1\\b",
+          "date": "2025-02-19",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        },
+        {
+          "match": "social.*(?:evaluation|media).*2\\b",
+          "date": "2025-02-26",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        },
+        {
+          "match": "social.*(?:evaluation|media).*3\\b",
+          "date": "2025-03-19",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        },
+        {
+          "match": "social.*(?:evaluation|media).*4\\b",
+          "date": "2025-04-09",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        },
+        {
+          "match": "social.*(?:evaluation|media).*5\\b",
+          "date": "2025-04-16",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        },
+        {
+          "match": "social.*(?:evaluation|media).*6\\b",
+          "date": "2025-05-07",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        },
+        {
+          "match": "volunteer.*(?:project|write|report)",
+          "date": "2025-04-30",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        }
+      ]
+    }
+  },
+  {
+    "id": "pdf-florida-economics",
+    "provenance": "public",
+    "source": "https://fred.ifas.ufl.edu/media/fredifasufledu/undergradsyll/fall2024/AEB4283Mullally.pdf",
+    "format": "university-syllabus",
+    "notes": "Long economics syllabus with a week/range table, recurring quizzes, and an apparent 11:45 pm typo in a midday class. Dated-homework spot checks; remaining output deliberately ungraded.",
+    "input": {
+      "kind": "pdf",
+      "file": "inputs/public/florida-economics.pdf"
+    },
+    "context": {
+      "today": "2024-08-14",
+      "timezone": "America/New_York",
+      "courses": [],
+      "employers": []
+    },
+    "expected": {
+      "complete": false,
+      "metadata": {
+        "detected_type": "syllabus"
+      },
+      "items": [
+        {
+          "match": "homework.*1",
+          "date": "2024-09-26",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        },
+        {
+          "match": "homework.*2",
+          "date": "2024-10-24",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        },
+        {
+          "match": "homework.*3",
+          "date": "2024-12-04",
+          "start": "23:59",
+          "end": null,
+          "kind": "task",
+          "is_deadline": true
+        }
+      ]
+    }
   }
 ]
