@@ -11,8 +11,18 @@ export const TAGLINE = 'The daily planner for college students.';
 export const DESCRIPTION =
   'Drop in a syllabus, a work schedule, or a message, and Dayli tells you what matters today.';
 
-/** Dayli Plus. Semester is 4 months. */
-export const PLUS_PRICE = { monthly: 4.99, semester: 14.99, yearly: 29.99 } as const;
+/**
+ * Dayli Plus. Semester is 4 months. Student pricing is on the honor system:
+ * nothing is verified; the toggle just says we trust you.
+ */
+export const PLUS_PLANS = [
+  { id: 'monthly', name: 'Monthly', months: 1, student: 4.99, regular: 7.99, billed: 'monthly' },
+  { id: 'semester', name: 'Semester', months: 4, student: 14.99, regular: 24.99, billed: 'every 4 months', tag: 'Most popular' },
+  { id: 'yearly', name: 'Yearly', months: 12, student: 29.99, regular: 49.99, billed: 'yearly', tag: 'Best value' },
+] as const;
+export type PlanId = (typeof PLUS_PLANS)[number]['id'];
+export const plan = (id: PlanId) => PLUS_PLANS.find((p) => p.id === id)!;
+export const money = (n: number) => `$${n.toFixed(2)}`;
 export const FREE_IMPORTS_PER_MONTH = 3;
 export const TRIAL_DAYS = 7;
 

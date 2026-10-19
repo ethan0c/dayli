@@ -59,7 +59,7 @@ export default function PlanScreen() {
           <View key={e} style={[styles.pending, { borderColor: c.line }]}>
             <Icon name="work" size={18} color={c.inkSecondary} />
             <T color={c.inkSecondary} style={{ flex: 1 }}>
-              {e} schedule not posted yet
+              {e} schedule hasn’t been added yet
             </T>
           </View>
         ))}
@@ -77,7 +77,7 @@ export default function PlanScreen() {
         ))}
         {dayItems.length === 0 && pendingEmployers.length === 0 ? (
           <T token="callout" color={c.inkSecondary} style={{ padding: 8 }}>
-            Nothing planned.
+            Nothing planned for this day yet. Tap + to add something.
           </T>
         ) : null}
       </ScrollView>

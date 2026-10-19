@@ -17,7 +17,6 @@ export function textStyle(token: TypeToken, color: string): TextStyle {
     lineHeight: t.line,
     letterSpacing: t.size * t.tracking,
     color,
-    ...(token === 'overline' ? { textTransform: 'uppercase' as const } : null),
   };
 }
 

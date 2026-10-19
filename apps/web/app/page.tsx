@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { PhoneFrame } from '@/components/PhoneFrame';
-import { FREE_IMPORTS_PER_MONTH, PLUS_PRICE } from '@/lib/site';
+import { FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
 import { TryIt } from './TryIt';
 
 const CAL = 'M3 4h18v18H3z M16 2v4M8 2v4M3 10h18';
@@ -98,7 +98,7 @@ export default function Home() {
           <h1>The daily planner for college students.</h1>
           <p>
             Drop in a syllabus, a work schedule, or a quick message. Dayli reads the dates, spots what changed, and
-            tells you what matters today. You never have to type it in.
+            helps you see what’s coming up today.
           </p>
           <div className="cta">
             <a className="btn" href="#try">
@@ -117,12 +117,12 @@ export default function Home() {
 
       <section className="steps" aria-label="How it works">
         <div className="step">
-          <h3>Send it the mess</h3>
+          <h3>Start with what you have</h3>
           <p>A screenshot of next week&apos;s shifts, a syllabus PDF, or a text like &ldquo;exam Monday, work Fri 4–10&rdquo;.</p>
         </div>
         <div className="step">
           <h3>Check what it found</h3>
-          <p>Every date and time, with the line it came from. Anything unclear gets a question, not a guess.</p>
+          <p>Review the dates and times alongside the text they came from. Dayli asks you to check details that look unclear.</p>
         </div>
         <div className="step">
           <h3>See what changed</h3>
@@ -137,7 +137,7 @@ export default function Home() {
           <h2>Free to start. Plus for the whole semester.</h2>
           <p>
             Free gives you the calendar, tasks, reminders, and {FREE_IMPORTS_PER_MONTH} AI imports a month. Plus is unlimited imports
-            for ${PLUS_PRICE.semester} a semester, or ${PLUS_PRICE.yearly} a year.
+            for {money(plan('semester').student)} a semester, or {money(plan('yearly').student)} a year, for students.
           </p>
         </div>
         <Link className="btn ghost" href="/pricing">

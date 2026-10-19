@@ -64,7 +64,7 @@ export default function ReviewScreen() {
         ? `Syllabus${ex.course ? ` · ${ex.course.code ?? ex.course.title}` : ''}`
         : ex.detected_type === 'course_schedule'
           ? 'Class schedule'
-          : 'From your message';
+          : 'Review your plan';
 
   const edit = (key: string, patch: Partial<Draft>) =>
     setDrafts((ds) => ds.map((d) => (d.key === key ? { ...d, ...patch, needsInput: false } : d)));
@@ -91,7 +91,9 @@ export default function ReviewScreen() {
     router.replace('/plan');
   };
 
-  const cta = plan.schedule
+  const cta = total === 0
+    ? 'No changes to save'
+    : plan.schedule
     ? `Update ${total} ${total === 1 ? 'shift' : 'shifts'}`
     : `Add ${plan.create.length + plan.update.length} ${plan.create.length + plan.update.length === 1 ? 'item' : 'items'}`;
 
@@ -108,11 +110,11 @@ export default function ReviewScreen() {
         <>
           {invalid.length > 0 ? (
             <T token="subhead" color={c.conflict} style={{ textAlign: 'center' }}>
-              {invalid.length} {invalid.length === 1 ? 'item needs' : 'items need'} a date, or switch {invalid.length === 1 ? 'it' : 'them'} off.
+              Add a date to {invalid.length === 1 ? 'this item' : `these ${invalid.length} items`}, or turn {invalid.length === 1 ? 'it' : 'them'} off to leave {invalid.length === 1 ? 'it' : 'them'} out.
             </T>
           ) : (
             <T token="subhead" color={c.inkSecondary} style={{ textAlign: 'center' }}>
-              Nothing changes until you confirm.
+              {total === 0 ? (included.length > 0 ? 'Your plan is already up to date. You can close this screen.' : 'Turn on an item to add it to your plan.') : 'Review the details, then confirm to save your changes.'}
             </T>
           )}
           <Button label={cta} disabled={invalid.length > 0 || total === 0} onPress={confirm} />
@@ -124,7 +126,7 @@ export default function ReviewScreen() {
             <Pill label={`${plan.schedule.diff.added.length} new`} bg={c.addedBg} ink={c.added} />
             <Pill label={`${plan.schedule.diff.changed.length} changed`} bg={c.changedBg} ink={c.changed} />
             <Pill label={`${plan.schedule.diff.removed.length} removed`} bg={c.conflictBg} ink={c.conflict} />
-            <Pill label={`${plan.schedule.diff.unchanged.length} same`} bg={c.row} ink={c.inkSecondary} />
+            <Pill label={`${plan.schedule.diff.unchanged.length} unchanged`} bg={c.row} ink={c.inkSecondary} />
           </View>
         ) : null}
         {newCourse ? (

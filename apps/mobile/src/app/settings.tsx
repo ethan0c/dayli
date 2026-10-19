@@ -25,15 +25,15 @@ export default function SettingsScreen() {
           value={settings.apiUrl}
           onChange={(apiUrl) => setSettings({ apiUrl })}
           placeholder="http://192.168.1.10:3000"
-          hint="Where the web app runs. On a real phone, use your computer's network address."
+          hint="For local setup, enter the address where Dayli is running. On a phone, use your computer's network address."
         />
 
         <T token="overline" color={c.inkSecondary} style={styles.ov}>
-          Import history
+          Recent changes
         </T>
         {batches.length === 0 ? (
           <T token="callout" color={c.inkSecondary}>
-            Nothing imported yet.
+            Your imports and edits will appear here. You can undo them anytime.
           </T>
         ) : (
           batches.slice(0, 20).map((b) => (
@@ -63,7 +63,7 @@ export default function SettingsScreen() {
         <Button variant="ghost" label="Replay the intro" onPress={() => setSettings({ onboarded: false })} />
         <Button variant="ghost" label="Clear everything" onPress={clearAll} />
         <T token="caption" color={c.inkSecondary}>
-          Everything is stored on this phone for now. Accounts and sync come later.
+          Your plan is saved on this device. Clearing everything removes your events, to-dos, courses, schedules, and history. This cannot be undone.
         </T>
 
         <View style={styles.about}>

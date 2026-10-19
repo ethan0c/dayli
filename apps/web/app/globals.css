@@ -139,12 +139,6 @@ textarea {
   padding: 0 18px;
 }
 
-.foot-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .hero {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
@@ -460,10 +454,8 @@ textarea {
   gap: 8px;
 }
 .results .ov {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--ink-2);
   padding: 8px 4px 0;
 }
@@ -662,6 +654,60 @@ textarea {
 }
 
 /* Pricing */
+.student {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 52ch;
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 500;
+}
+.student input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.student .sw {
+  flex: none;
+  width: 40px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--line);
+  position: relative;
+  margin-top: 1px;
+  transition: background 0.15s;
+}
+.student .sw::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(24, 23, 28, 0.2);
+  transition: transform 0.15s;
+}
+.student input:checked + .sw {
+  background: var(--accent);
+}
+.student input:checked + .sw::after {
+  transform: translateX(16px);
+}
+.student input:focus-visible + .sw {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.student small {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-2);
+  margin-top: 2px;
+}
 .plans {
   display: flex;
   flex-direction: column;
@@ -785,10 +831,8 @@ textarea {
   vertical-align: top;
 }
 .cmp thead th {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--ink-2);
 }
 .cmp tbody th {

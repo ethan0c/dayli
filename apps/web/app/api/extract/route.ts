@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { extract } from '@dayli/extract';
-import { ExtractRequest, type ExtractResponse } from '@dayli/schema';
+import { ExtractRequest, IMPORT_MESSAGES, type ExtractResponse } from '@dayli/schema';
 
 export const maxDuration = 60;
 
@@ -23,11 +23,11 @@ export async function POST(request: Request) {
   try {
     json = await request.json();
   } catch {
-    return reply({ ok: false, error: 'The request was not valid JSON.' }, 400);
+    return reply({ ok: false, error: IMPORT_MESSAGES.request }, 400);
   }
   const parsed = ExtractRequest.safeParse(json);
   if (!parsed.success) {
-    return reply({ ok: false, error: 'The request was missing something Dayli needs.' }, 400);
+    return reply({ ok: false, error: IMPORT_MESSAGES.request }, 400);
   }
 
   try {
@@ -36,19 +36,19 @@ export async function POST(request: Request) {
     return reply({ ok: true, extraction: result.extraction });
   } catch (err) {
     if (err instanceof Anthropic.AuthenticationError) {
-      return reply({ ok: false, error: 'The Dayli server is not signed in to Claude. Set ANTHROPIC_API_KEY.' }, 500);
+      return reply({ ok: false, error: IMPORT_MESSAGES.unavailable }, 500);
     }
     if (err instanceof Anthropic.RateLimitError) {
-      return reply({ ok: false, error: 'Dayli is busy right now. Try again in a minute.' }, 429);
+      return reply({ ok: false, error: IMPORT_MESSAGES.busy }, 429);
     }
     if (err instanceof Anthropic.APIConnectionError) {
-      return reply({ ok: false, error: "Dayli couldn't reach Claude. Try again." }, 502);
+      return reply({ ok: false, error: IMPORT_MESSAGES.unavailable }, 502);
     }
     // A plain Error from the SDK when no credentials are configured at all.
     if (err instanceof Error && /authentication method|API_KEY/i.test(err.message)) {
-      return reply({ ok: false, error: 'The Dayli server is not signed in to Claude. Set ANTHROPIC_API_KEY.' }, 500);
+      return reply({ ok: false, error: IMPORT_MESSAGES.unavailable }, 500);
     }
     console.error('[extract]', err);
-    return reply({ ok: false, error: "Dayli couldn't read that right now. Try again." }, 502);
+    return reply({ ok: false, error: IMPORT_MESSAGES.unavailable }, 502);
   }
 }

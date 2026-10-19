@@ -105,7 +105,7 @@ export const typeScale = {
   callout: { size: 15, line: 20, weight: 'regular', tracking: 0 },
   subhead: { size: 13, line: 18, weight: 'medium', tracking: 0 },
   caption: { size: 12, line: 16, weight: 'regular', tracking: 0.01 },
-  overline: { size: 11, line: 14, weight: 'semibold', tracking: 0.06 },
+  overline: { size: 12, line: 16, weight: 'semibold', tracking: 0 },
 } as const satisfies Record<
   string,
   { size: number; line: number; weight: keyof typeof fontFamily; tracking: number }

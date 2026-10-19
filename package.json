@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "npm run test --workspace @dayli/core",
+    "test": "vitest run",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "dev:web": "npm run dev --workspace web",
     "dev:mobile": "npm run start --workspace mobile"

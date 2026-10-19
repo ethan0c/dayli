@@ -93,6 +93,10 @@ export default function TermsPage() {
             Dayli Plus is a paid subscription. The current prices and plans (monthly, semester, yearly) are shown on our{' '}
             <Link href="/pricing">pricing page</Link> and in the app. Prices are in US dollars and may differ by region.
           </p>
+          <p>
+            Student pricing is on the honor system. We don&apos;t verify enrollment; we trust you to pick the right price and to switch to
+            the regular price when you are no longer a student.
+          </p>
           <h3>6.3 Where you buy it</h3>
           <ul>
             <li>

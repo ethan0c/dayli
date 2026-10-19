@@ -68,9 +68,9 @@ function normalize(raw: ExtractedItem, today: string): Omit<Draft, 'key'> {
   const start = isLocalTime(raw.start) ? raw.start : null;
   const end = raw.kind === 'event' && isLocalTime(raw.end) ? raw.end : null;
   let question = raw.question;
-  if (!date) question ??= 'What date is this?';
-  else if (dayNumber(date) < dayNumber(today) - 1) question ??= 'This date is in the past. Is it right?';
-  else if (dayNumber(date) > dayNumber(today) + 400) question ??= 'This is over a year away. Is the year right?';
+  if (!date) question ??= 'When does this happen?';
+  else if (dayNumber(date) < dayNumber(today) - 1) question ??= 'This date has already passed. Does it look right?';
+  else if (dayNumber(date) > dayNumber(today) + 400) question ??= 'This date is more than a year away. Does the year look right?';
   if (raw.kind === 'event' && !start && !raw.is_deadline) question ??= 'What time does this start?';
   const needsInput = question !== null || raw.confidence < CONFIDENCE_THRESHOLD;
   return {

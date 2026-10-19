@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { FREE_IMPORTS_PER_MONTH, PLUS_PRICE, TRIAL_DAYS } from '@/lib/site';
+import { FREE_IMPORTS_PER_MONTH, TRIAL_DAYS, money, plan } from '@/lib/site';
 import { PlanCards } from './PlanCards';
 
 export const metadata: Metadata = {
   title: 'Pricing',
-  description: `Dayli is free with ${FREE_IMPORTS_PER_MONTH} AI imports a month. Dayli Plus is unlimited imports for $${PLUS_PRICE.monthly} a month, $${PLUS_PRICE.semester} a semester, or $${PLUS_PRICE.yearly} a year.`,
+  description: `Dayli is free with ${FREE_IMPORTS_PER_MONTH} AI imports a month. Dayli Plus is unlimited imports for students at ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} a semester, or ${money(plan('yearly').student)} a year.`,
   alternates: { canonical: '/pricing' },
 };
 
@@ -14,9 +14,9 @@ const ROWS: { label: string; free: string | boolean; plus: string | boolean }[] 
   { label: 'Add by hand', free: true, plus: true },
   { label: 'AI imports from text, screenshots, and PDFs', free: `${FREE_IMPORTS_PER_MONTH} a month`, plus: 'Unlimited' },
   { label: 'Syllabus import', free: 'Counts as an import', plus: true },
-  { label: 'Work schedule diffing', free: false, plus: true },
-  { label: 'Canvas sync', free: false, plus: 'When it ships' },
-  { label: 'Planning suggestions', free: false, plus: 'When it ships' },
+  { label: 'See changes to your work schedule', free: false, plus: true },
+  { label: 'Canvas sync', free: false, plus: 'Coming soon' },
+  { label: 'Planning suggestions', free: false, plus: 'Coming soon' },
   { label: 'Export your data', free: true, plus: true },
 ];
 
@@ -30,8 +30,12 @@ const FAQS = [
     a: 'One message, one screenshot, or one PDF sent to Dayli to read. A ten-page syllabus is one import. Adding something by hand is never an import.',
   },
   {
+    q: 'How does student pricing work?',
+    a: `Student pricing works on the honor system. No student ID or school email needed. Students pay ${money(plan('monthly').student)}, ${money(plan('semester').student)}, or ${money(plan('yearly').student)}. Everyone else pays ${money(plan('monthly').regular)}, ${money(plan('semester').regular)}, or ${money(plan('yearly').regular)}. Turn off student pricing to see regular prices.`,
+  },
+  {
     q: 'Why a semester plan?',
-    a: `Because that's how students think about time. $${PLUS_PRICE.semester} covers four months. If you'd rather not think about it, yearly is $${PLUS_PRICE.yearly}, which works out to $${(PLUS_PRICE.yearly / 12).toFixed(2)} a month.`,
+    a: `It covers a full semester in one payment. ${money(plan('semester').student)} covers four months. If you'd rather not think about it, yearly is ${money(plan('yearly').student)}, which works out to ${money(plan('yearly').student / 12)} a month.`,
   },
   {
     q: 'Is there a trial?',
@@ -67,7 +71,7 @@ export default function PricingPage() {
   return (
     <main className="page">
       <header className="page-head">
-        <h1>Free to start. Plus when the semester gets real.</h1>
+        <h1>Start free. Get more room with Plus.</h1>
         <p className="lede">
           Use Dayli free for as long as you like. Plus removes the import limit, so every syllabus and every new work schedule goes
           straight in.

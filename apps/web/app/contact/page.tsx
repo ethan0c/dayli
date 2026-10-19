@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 };
 
 const REASONS = [
-  { title: 'Something broke', body: 'A screenshot it couldn’t read, a date it got wrong, a crash. Send the file if you can; it helps.', subject: 'Bug' },
-  { title: 'Plus and billing', body: 'Trials, charges, cancelling, refunds.', subject: 'Billing' },
-  { title: 'Campus groups', body: 'Nursing cohorts, study groups, RAs, student orgs. We want to talk to you.', subject: 'Campus' },
-  { title: 'Anything else', body: 'Ideas, press, or just to say what you wish it did.', subject: 'Hello' },
+  { title: 'Help with Dayli', body: 'Having trouble with a file, a date, or the app? Tell us what happened and what you were trying to do.', subject: 'Bug' },
+  { title: 'Plus and billing', body: 'Ask about a trial, a charge, cancellation, or a refund.', subject: 'Billing' },
+  { title: 'Campus groups', body: 'Bring Dayli to your study group, cohort, or campus organization. Tell us about your group.', subject: 'Campus' },
+  { title: 'Anything else', body: 'Share an idea, ask a question, or tell us what would make Dayli more useful.', subject: 'Hello' },
 ];
 
 export default function ContactPage() {

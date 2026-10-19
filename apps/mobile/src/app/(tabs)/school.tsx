@@ -60,7 +60,7 @@ export default function SchoolScreen() {
                 <View style={styles.cardBody}>
                   {upcoming.length === 0 ? (
                     <T token="callout" color={c.inkSecondary}>
-                      Nothing upcoming.
+                      No upcoming events or to-dos for this course.
                     </T>
                   ) : (
                     upcoming.slice(0, 12).map((it) => (
@@ -84,7 +84,7 @@ export default function SchoolScreen() {
               Drop in a syllabus
             </T>
             <T token="callout" color={c.inkSecondary} style={{ textAlign: 'center' }}>
-              Dayli sets up the course and pulls out every exam and due date.
+              Dayli finds your course, exams, and due dates. Review the details before adding them to your plan.
             </T>
             <Button label="Add a syllabus" onPress={() => router.push('/capture')} />
           </View>

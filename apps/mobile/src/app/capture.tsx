@@ -1,5 +1,5 @@
 import { localParts } from '@dayli/core';
-import type { ExtractRequest } from '@dayli/schema';
+import { IMPORT_MESSAGES, type ExtractRequest } from '@dayli/schema';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
@@ -46,7 +46,7 @@ export default function CaptureScreen() {
       return;
     }
     if (res.extraction.items.length === 0) {
-      setError("Dayli didn't find anything with a date in that. Try adding when it happens.");
+      setError(IMPORT_MESSAGES.empty);
       return;
     }
     setPending({ extraction: res.extraction, source });
@@ -54,41 +54,49 @@ export default function CaptureScreen() {
   }
 
   async function pickImage(fromCamera: boolean) {
-    const perm = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      setError(fromCamera ? 'Dayli needs camera access for that. You can allow it in Settings.' : 'Dayli needs photo access for that. You can allow it in Settings.');
-      return;
-    }
-    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.85 };
-    const result = fromCamera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
-    if (result.canceled) return;
-    const asset = result.assets[0];
-    if (!asset) return;
+    setError(null);
     try {
+      const perm = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        setError(fromCamera
+          ? 'To take a photo, allow Dayli to use your camera in your device settings. You can also type the details instead.'
+          : 'To choose a screenshot, allow Dayli to access your photos in your device settings. You can also type the details instead.');
+        return;
+      }
+      const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.85 };
+      const result = fromCamera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
+      if (result.canceled) return;
+      const asset = result.assets[0];
+      if (!asset) return;
+      if (asset.fileSize && asset.fileSize > MAX_BYTES) {
+        setError(IMPORT_MESSAGES.tooLarge);
+        return;
+      }
       const file = new File(asset.uri);
       const data = await file.base64();
       const guess = asset.mimeType ?? (asset.uri.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg');
       const mediaType = (IMAGE_TYPES as readonly string[]).includes(guess) ? (guess as ImageType) : 'image/jpeg';
       await run({ kind: 'image', mediaType, data }, fromCamera ? 'Photo' : 'Screenshot');
     } catch {
-      setError("Couldn't read that image.");
+      setError("We couldn't open this photo. Try choosing it again, or type the details instead.");
     }
   }
 
   async function pickPdf() {
-    const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', copyToCacheDirectory: true });
-    if (result.canceled) return;
-    const asset = result.assets[0];
-    if (!asset) return;
-    if (asset.size && asset.size > MAX_BYTES) {
-      setError('That PDF is over 20 MB. Try a smaller one.');
-      return;
-    }
+    setError(null);
     try {
+      const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', copyToCacheDirectory: true });
+      if (result.canceled) return;
+      const asset = result.assets[0];
+      if (!asset) return;
+      if (asset.size && asset.size > MAX_BYTES) {
+        setError(IMPORT_MESSAGES.tooLarge);
+        return;
+      }
       const data = await new File(asset.uri).base64();
       await run({ kind: 'pdf', data }, asset.name);
     } catch {
-      setError("Couldn't read that file.");
+      setError(IMPORT_MESSAGES.file);
     }
   }
 
@@ -124,7 +132,7 @@ export default function CaptureScreen() {
           </View>
         ) : null}
         {error ? (
-          <View style={[styles.status, { backgroundColor: c.conflictBg, borderColor: 'transparent' }]}>
+          <View accessibilityRole="alert" style={[styles.status, { backgroundColor: c.conflictBg, borderColor: 'transparent' }]}>
             <Icon name="alert" size={16} color={c.conflict} />
             <T token="subhead" color={c.conflict} style={{ flex: 1 }}>
               {error}
@@ -133,7 +141,7 @@ export default function CaptureScreen() {
         ) : null}
       </View>
       <View style={styles.footer}>
-        <Button label="Add" disabled={!canSend} onPress={() => run({ kind: 'text', text: text.trim() }, 'Message')} />
+        <Button label="Review what Dayli finds" disabled={!canSend} onPress={() => run({ kind: 'text', text: text.trim() }, 'Message')} />
       </View>
     </Sheet>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { formatRange, formatTime, localParts, monthDay, toDrafts, weekdayLong, type Draft } from '@dayli/core';
-import { ExtractResponse, type Extraction, type ExtractRequest } from '@dayli/schema';
+import { ExtractResponse, IMPORT_MESSAGES, importErrorForStatus, type Extraction, type ExtractRequest } from '@dayli/schema';
 import { useState } from 'react';
 
 const ICONS: Record<Draft['icon'], string> = {
@@ -41,21 +41,28 @@ export function TryIt() {
     let input: ExtractRequest['input'];
     if (file) {
       if (file.size > 20 * 1024 * 1024) {
-        setError('That file is over 20 MB. Try a smaller one.');
+        setError(IMPORT_MESSAGES.tooLarge);
         return;
       }
-      const data = await fileToBase64(file);
-      if (file.type === 'application/pdf') input = { kind: 'pdf', data };
-      else if (['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(file.type))
-        input = { kind: 'image', mediaType: file.type as 'image/png', data };
-      else {
-        setError('Dayli reads PDFs and images (PNG, JPEG, WebP, GIF).');
+      // Check the format before trying to read the file.
+      let data: string;
+      if (file.type !== 'application/pdf' && !['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(file.type)) {
+        setError(IMPORT_MESSAGES.unsupported);
         return;
       }
+      try {
+        data = await fileToBase64(file);
+      } catch {
+        setError(IMPORT_MESSAGES.file);
+        return;
+      }
+      input = file.type === 'application/pdf'
+        ? { kind: 'pdf', data }
+        : { kind: 'image', mediaType: file.type as 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif', data };
     } else if (text.trim()) {
       input = { kind: 'text', text: text.trim() };
     } else {
-      setError('Type something or pick a file first.');
+      setError('Add a message, screenshot, or PDF so Dayli can find your dates.');
       return;
     }
 
@@ -70,15 +77,25 @@ export function TryIt() {
           context: { today, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, courses: [], employers: [] },
         } satisfies ExtractRequest),
       });
-      const parsed = ExtractResponse.safeParse(await res.json());
-      if (!parsed.success) throw new Error('bad response');
+      let body: unknown;
+      try {
+        body = await res.json();
+      } catch {
+        setError(importErrorForStatus(res.status));
+        return;
+      }
+      const parsed = ExtractResponse.safeParse(body);
+      if (!parsed.success || (!res.ok && parsed.data.ok)) {
+        setError(importErrorForStatus(res.status));
+        return;
+      }
       if (!parsed.data.ok) {
         setError(parsed.data.error);
         return;
       }
       setResult({ extraction: parsed.data.extraction, drafts: toDrafts(parsed.data.extraction, today) });
     } catch {
-      setError("Dayli couldn't read that right now. Try again.");
+      setError(IMPORT_MESSAGES.connection);
     } finally {
       setBusy(false);
     }
@@ -126,7 +143,7 @@ export function TryIt() {
         </label>
         <div className="actions">
           <button className="btn" type="submit" disabled={busy}>
-            {busy ? 'Reading…' : 'Show me'}
+            {busy ? 'Reading…' : 'Preview my plan'}
           </button>
           {!text && !file ? (
             <button className="btn ghost" type="button" onClick={() => setText(SAMPLE)} disabled={busy}>
@@ -139,7 +156,7 @@ export function TryIt() {
             </button>
           ) : null}
         </div>
-        {busy ? <div className="status info">Reading {file ? file.name : 'your message'}…</div> : null}
+        {busy ? <div className="status info" role="status">Reading {file ? file.name : 'your message'}…</div> : null}
         {error ? (
           <div className="status err" role="alert">
             {error}
@@ -151,12 +168,12 @@ export function TryIt() {
         {!result ? (
           <>
             <div className="ov">What Dayli would add</div>
-            <p className="empty">Results show up here, one row per event or to-do, grouped by day.</p>
+            <p className="empty">Your events and to-dos will appear here, grouped by day.</p>
           </>
         ) : (
           <>
             <div className="ov">{typeLabel}</div>
-            {result.drafts.length === 0 ? <p className="empty">Nothing with a date in there.</p> : null}
+            {result.drafts.length === 0 ? <p className="empty">{IMPORT_MESSAGES.empty}</p> : null}
             {[...groups.entries()].map(([date, list]) => (
               <div key={date || 'none'} className="rows">
                 <div className="ov">{date ? `${weekdayLong(date)} · ${monthDay(date)}` : 'No date yet'}</div>

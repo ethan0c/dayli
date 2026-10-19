@@ -76,7 +76,7 @@ export default function TodayScreen() {
         <Pressable onPress={() => router.push('/settings')} style={[styles.note, { backgroundColor: c.accentSoft, borderColor: c.accentBorder }]}>
           <Icon name="sparkle" size={16} color={c.accentInk} />
           <T token="subhead" color={c.accentInk} style={{ flex: 1 }}>
-            This is a sample week so you can see how Dayli works. Add your own, or clear it in You.
+            You’re exploring a sample week. Tap + to add your own plans, or open You to clear the sample.
           </T>
         </Pressable>
       ) : null}
@@ -93,7 +93,7 @@ export default function TodayScreen() {
           {overloads.slice(0, 2).map((o) => (
             <Card key={o.deadlineId} icon="sparkle" tone="accent" action={{ label: 'Open Plan', onPress: () => router.push('/plan') }}>
               <T token="body">
-                Only {o.freeHours} free {o.freeHours === 1 ? 'hour' : 'hours'} before {byId[o.deadlineId]?.title}. Want to look at the week?
+                You have about {o.freeHours} free {o.freeHours === 1 ? 'hour' : 'hours'} before {byId[o.deadlineId]?.title}. Want to look at the week?
               </T>
             </Card>
           ))}
@@ -102,7 +102,7 @@ export default function TodayScreen() {
 
       <Section title="Today">
         {todays.length === 0 ? (
-          <Empty text="Nothing on today. Tap + to add a schedule, a syllabus, or just tell Dayli." />
+          <Empty text="Nothing planned for today yet. Tap + to add a schedule, a syllabus, or a quick message." />
         ) : (
           todays.map((it) => (
             <View key={it.id} style={styles.tl}>
@@ -146,7 +146,7 @@ export default function TodayScreen() {
               {"Next week's shifts"}
             </T>
             <T token="subhead" color={c.inkSecondary}>
-              Not posted yet
+              Not added yet
             </T>
           </Pressable>
         ) : null}

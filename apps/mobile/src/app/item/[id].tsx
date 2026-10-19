@@ -24,9 +24,9 @@ export default function ItemScreen() {
 
   if (!item) {
     return (
-      <Sheet title="Not found">
+      <Sheet title="Item unavailable">
         <T token="callout" color={c.inkSecondary} style={{ padding: 20 }}>
-          This item is gone.
+          We couldn’t find this item. It may have been deleted. Close this screen to return to your plan.
         </T>
       </Sheet>
     );
@@ -46,7 +46,7 @@ export default function ItemScreen() {
         <>
           {item.kind === 'task' ? (
             <Button
-              label={item.done ? 'Mark not done' : 'Mark done'}
+              label={item.done ? 'Mark as unfinished' : 'Mark as done'}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 toggleDone(item.id);
@@ -82,7 +82,7 @@ export default function ItemScreen() {
         {item.done && item.completedAt ? <Row icon="tick" label={`Done ${new Date(item.completedAt).toLocaleDateString()}`} /> : null}
         <Pressable onPress={() => router.back()} style={styles.link}>
           <T token="subhead" color={c.inkSecondary}>
-            Changes to the title save when you tap away.
+            Tap outside the title to save your changes.
           </T>
         </Pressable>
       </View>

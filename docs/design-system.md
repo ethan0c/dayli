@@ -5,6 +5,7 @@ Status: draft · October 2026 · Visual board: [Dayli Brand Board](https://claud
 ## 1. Principles
 
 1. **Calm by default.** Soft neutrals, one accent (lavender), no gradients, no badges unless something needs attention.
+   Never all-caps eyebrows or overlines: uppercase section labels read as AI-generated template UI. Section labels are sentence case, small, and muted.
 2. **Time is the hero.** The big clock and the week strip anchor every Plan screen; content is a simple vertical list, not a grid.
 3. **Shape tells type.** Tasks are neutral rows with a check circle on the right. Events are tinted rows with a time chip on the right. Users can tell them apart without reading.
 4. **One thumb.** Primary actions live in the bottom 40% of the screen: the floating nav pill and the capture button.
@@ -38,7 +39,7 @@ Status: draft · October 2026 · Visual board: [Dayli Brand Board](https://claud
 | `callout` | 15 / 20 | 400 | 0 | Header date, secondary text |
 | `subhead` | 13 / 18 | 500 | 0 | Metadata, chip text |
 | `caption` | 12 / 16 | 400 | +1% | Weekday labels ("mon"), hints |
-| `overline` | 11 / 14 | 600 | +6%, uppercase | Section eyebrows ("COMING UP") |
+| `overline` | 12 / 16 | 600 | 0 | Section labels in sentence case ("Coming up"), muted color. Never uppercase. |
 
 Support Dynamic Type: every token scales; the clock caps at 72 pt.
 
