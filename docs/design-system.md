@@ -11,13 +11,13 @@ Quiet direction · October 19, 2026 · Implemented in shared tokens, mobile scre
 
 ## Typography
 
-Inter Regular, Medium, and SemiBold carry product and marketing text. Urbanist is reserved for large display numerals and the existing outlined wordmark. Font switching does not redraw the logo. Fonts load before the app leaves its splash screen.
+Inter 4 carries everything, at three optical sizes from the official release: the 18pt cut for text, the 24pt cut for titles, and the 28pt Display cut for headings and the clock. The wordmark is a drawn logo (outlines from Urbanist SemiBold) and is not affected by the text font. Fonts load before the app leaves its splash screen.
 
 | Token | Size / line | Weight | Use |
 |---|---|---|---|
-| `displayXl` | 56 / 56 | Urbanist Regular | Display numerals; Plan clock overrides size to 48 / 56 |
-| `display` | 34 / 40 | Inter Medium | Main screen heading |
-| `title` | 24 / 30 | Inter Medium | Featured title and sheet title |
+| `displayXl` | 56 / 56 | Inter Display Regular | Display numerals; Plan clock overrides size to 48 / 56 |
+| `display` | 34 / 40 | Inter Display Medium | Main screen heading |
+| `title` | 24 / 30 | Inter 24pt Medium | Featured title and sheet title |
 | `headline` | 17 / 24 | Inter Medium | Section heading |
 | `body` | 17 / 24 | Inter Regular | Item titles and body text |
 | `callout` | 15 / 22 | Inter Regular | Supporting explanation |

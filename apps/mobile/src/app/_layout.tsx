@@ -1,5 +1,4 @@
-import { Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold, useFonts } from '@expo-google-fonts/urbanist';
-import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -20,7 +19,16 @@ const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 Sentry.init({ dsn: SENTRY_DSN, enabled: !!SENTRY_DSN, tracesSampleRate: 0.2, sendDefaultPii: false });
 
 function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold });
+  // Names match packages/tokens fontFamily / titleFamily / displayFamily.
+  const [fontsLoaded, fontError] = useFonts({
+    'Inter-Regular': require('../../assets/fonts/Inter_18pt-Regular.ttf'),
+    'Inter-Medium': require('../../assets/fonts/Inter_18pt-Medium.ttf'),
+    'Inter-SemiBold': require('../../assets/fonts/Inter_18pt-SemiBold.ttf'),
+    'InterTitle-Medium': require('../../assets/fonts/Inter_24pt-Medium.ttf'),
+    'InterDisplay-Regular': require('../../assets/fonts/Inter_28pt-Regular.ttf'),
+    'InterDisplay-Medium': require('../../assets/fonts/Inter_28pt-Medium.ttf'),
+    'InterDisplay-SemiBold': require('../../assets/fonts/Inter_28pt-SemiBold.ttf'),
+  });
   const hydrated = useStore((s) => s.hydrated);
   const onboarded = useStore((s) => s.settings.onboarded);
   const appearance = useStore((s) => s.settings.appearance);

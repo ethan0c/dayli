@@ -125,18 +125,35 @@ export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, x
 
 export const radius = { chip: 999, row: 14, card: 16, sheet: 28, pill: 999 } as const;
 
-/** Inter carries UI text; Urbanist is reserved for display numerals. */
+/**
+ * Inter 4, from the official release (apps/mobile/assets/fonts, OFL). Three optical sizes:
+ * the 18pt cut for text, 24pt for titles, 28pt (the Display cut) for headings and the clock.
+ * The web gets the same through Google's variable Inter, whose opsz axis picks these itself.
+ */
 export const fontFamily = {
-  regular: 'Inter_400Regular',
-  medium: 'Inter_500Medium',
-  semibold: 'Inter_600SemiBold',
+  regular: 'Inter-Regular',
+  medium: 'Inter-Medium',
+  semibold: 'Inter-SemiBold',
 } as const;
 
-export const numeralFamily = {
-  regular: 'Urbanist_400Regular',
-  medium: 'Urbanist_500Medium',
-  semibold: 'Urbanist_600SemiBold',
+export const titleFamily = {
+  regular: 'Inter-Regular',
+  medium: 'InterTitle-Medium',
+  semibold: 'Inter-SemiBold',
 } as const;
+
+export const displayFamily = {
+  regular: 'InterDisplay-Regular',
+  medium: 'InterDisplay-Medium',
+  semibold: 'InterDisplay-SemiBold',
+} as const;
+
+/** Which cut a type token uses: display for 28px and up, title around 24px, text below. */
+export function familyFor(token: TypeToken, weight: keyof typeof fontFamily): string {
+  if (token === 'displayXl' || token === 'display') return displayFamily[weight];
+  if (token === 'title') return titleFamily[weight];
+  return fontFamily[weight];
+}
 
 export const typeScale = {
   displayXl: { size: 56, line: 56, weight: 'regular', tracking: -0.03 },

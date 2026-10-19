@@ -1,4 +1,4 @@
-import { fontFamily, numeralFamily, palettes, radius, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
+import { familyFor, fontFamily, palettes, radius, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
 import { useColorScheme, type TextStyle, type ViewStyle } from 'react-native';
 
 import { useStore } from '@/store';
@@ -20,7 +20,7 @@ export function useTheme(): { c: Palette; dark: boolean } {
 export function textStyle(token: TypeToken, color: string): TextStyle {
   const t = typeScale[token];
   return {
-    fontFamily: token === 'displayXl' ? numeralFamily[t.weight] : mobileFonts[t.weight],
+    fontFamily: familyFor(token, t.weight),
     fontSize: t.size,
     lineHeight: t.line,
     letterSpacing: t.size * t.tracking,
