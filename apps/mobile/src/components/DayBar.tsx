@@ -1,4 +1,4 @@
-import { toMinutes } from '@dayli/core';
+import { dayNumber, findConflicts, intervalOf, toMinutes } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { StyleSheet, View } from 'react-native';
 
@@ -12,33 +12,44 @@ const SPAN = END - START;
 /**
  * The day as a bar, 6 am to midnight: green for what is done, ink for what is booked,
  * red where two things overlap, and a hairline for now. Semli's chart.
- * With `highlight`, that item is ink and everything else is grey: the day around it.
+ * With `highlight`, that item is ink and everything else grey; overlaps stay red.
  */
 export function DayBar({ items, now, conflicts, highlight, labels = true }: {
   items: Item[]; now: { date: string; time: string }; conflicts: Set<string>; highlight?: string; labels?: boolean;
 }) {
   const { c } = useTheme();
   const nowMin = toMinutes(now.time);
+  const base = dayNumber(now.date) * 1440;
   const blocks = items
-    .filter((it) => it.kind === 'event' && it.start && it.date === now.date)
+    .filter((it) => it.kind === 'event' && it.start)
     .map((it) => {
-      const s = Math.max(START, toMinutes(it.start!));
-      const e = Math.min(END, it.end ? Math.max(toMinutes(it.end), s + 15) : s + 60);
+      const iv = intervalOf(it);
+      const start = iv ? iv.start - base : (dayNumber(it.date) - dayNumber(now.date)) * 1440 + toMinutes(it.start!);
+      const s = Math.max(START, start);
+      const e = Math.min(END, iv ? iv.end - base : start + 60);
       const past = e <= nowMin || it.done;
       const color = highlight
         ? it.id === highlight ? c.inkPrimary : c.controlOutline
-        : conflicts.has(it.id) ? c.conflict : past ? c.added : c.inkPrimary;
+        : past ? c.added : c.inkPrimary;
       return { id: it.id, left: ((s - START) / SPAN) * 100, width: ((e - s) / SPAN) * 100, color, dim: highlight ? it.id !== highlight : false };
     })
     .filter((b) => b.width > 0)
     .sort((a, b) => Number(!a.dim) - Number(!b.dim));
+  const overlaps = findConflicts(items).filter((pair) => conflicts.has(pair.a) || conflicts.has(pair.b)).flatMap((pair) => {
+    const a = intervalOf(items.find((it) => it.id === pair.a)!)!;
+    const b = intervalOf(items.find((it) => it.id === pair.b)!)!;
+    const start = Math.max(START, Math.max(a.start, b.start) - base);
+    const end = Math.min(END, Math.min(a.end, b.end) - base);
+    return end > start ? [{ id: `${pair.a}:${pair.b}`, left: (start - START) / SPAN * 100, width: (end - start) / SPAN * 100 }] : [];
+  });
   const nowLeft = Math.min(100, Math.max(0, ((nowMin - START) / SPAN) * 100));
   return (
-    <View style={styles.wrap} accessible accessibilityLabel={`Day timeline, ${blocks.length} ${blocks.length === 1 ? 'block' : 'blocks'}`}>
+    <View style={styles.wrap} accessible accessibilityLabel={`Day timeline, ${blocks.length} ${blocks.length === 1 ? 'block' : 'blocks'}, ${overlaps.length} ${overlaps.length === 1 ? 'overlap' : 'overlaps'}`}>
       <View style={[styles.track, { backgroundColor: c.row }]}>
         {blocks.map((b) => (
           <View key={b.id} style={[styles.block, { left: `${b.left}%`, width: `${b.width}%`, backgroundColor: b.color, opacity: b.dim ? 0.5 : 1 }]} />
         ))}
+        {overlaps.map((span) => <View key={span.id} style={[styles.block, { left: `${span.left}%`, width: `${span.width}%`, backgroundColor: c.conflict }]} />)}
         {!highlight && nowMin >= START && nowMin <= END ? <View style={[styles.now, { left: `${nowLeft}%`, backgroundColor: c.inkPrimary }]} /> : null}
       </View>
       {labels ? (

@@ -15,10 +15,9 @@ import { track } from '@/lib/analytics';
 import { requestExtraction } from '@/lib/api';
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from '@/lib/capture-input';
 import { feedback } from '@/lib/feedback';
-import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
+import { usePlusAccess } from '@/lib/plus-access';
 import { useNow } from '@/lib/now';
-import { hasSemliPro, purchaseErrorMessage } from '@/lib/revenuecat';
-import { usePurchases } from '@/providers/PurchasesProvider';
+import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { useStore } from '@/store';
 import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -31,7 +30,8 @@ export function AddScreen() {
   const { c } = useTheme();
   const now = useNow();
   const params = useLocalSearchParams<{ source?: string; at?: string }>();
-  const { refreshCustomerInfo, presentPaywall } = usePurchases();
+  const { requireImportAccess } = usePlusAccess();
+  const importing = useRef(false);
   const [text, setText] = useState(() => useStore.getState().captureDraft);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setErrorText] = useState<string | null>(null);
@@ -45,26 +45,18 @@ export function AddScreen() {
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   async function run(input: ExtractRequest['input'], source: string) {
+    if (importing.current) return;
+    importing.current = true;
     setError(null);
     setBusy(source);
     track('import_started', { kind: input.kind });
-    const usage = useStore.getState().usage;
-    const month = new Date().toISOString().slice(0, 7);
-    if (usage.month === month && usage.imports >= FREE_IMPORTS_PER_MONTH) {
+    try {
       try {
-        const info = await refreshCustomerInfo();
-        track('paywall_shown', { reason: 'quota' });
-        if (!hasSemliPro(info) && !(await presentPaywall())) {
-          setBusy(null);
-          return;
-        }
+        if (!(await requireImportAccess())) return;
       } catch (failure) {
         setError(purchaseErrorMessage(failure));
-        setBusy(null);
         return;
       }
-    }
-    try {
       const res = await requestExtraction(apiUrl, { input, context: extractionContext() });
       if (!res.ok) {
         track('import_failed', { kind: input.kind });
@@ -84,6 +76,7 @@ export function AddScreen() {
     } catch {
       setError(IMPORT_MESSAGES.unavailable);
     } finally {
+      importing.current = false;
       setBusy(null);
     }
   }

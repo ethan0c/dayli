@@ -131,7 +131,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
           </View>
         )}
         <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
-          Every syllabus, schedule and screenshot read for you, all term. Calendar, to-dos and reminders stay free forever.
+          Unlimited imports, updates to your work schedule, and suggested times for overlapping plans. Calendar, to-dos, reminders and overlap warnings stay free forever.
         </T>
       </View>
 

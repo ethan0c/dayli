@@ -1,6 +1,5 @@
 import type { Course, Item, ScheduleVersion } from '@dayli/schema';
 import { File, Paths } from 'expo-file-system';
-import { isAvailableAsync, shareAsync } from 'expo-sharing';
 
 /** Everything that is yours, as one JSON file you can AirDrop, save, or bring to a new phone. */
 export function buildBackup(data: { items: Item[]; courses: Course[]; schedules: ScheduleVersion[]; exportedAt: string }): string {
@@ -48,11 +47,19 @@ function nextDay(date: string): string {
 
 /** Writes the text to the cache and opens the system share sheet. False when sharing is unavailable. */
 export async function shareText(name: string, text: string, mimeType: string): Promise<boolean> {
-  if (!(await isAvailableAsync())) return false;
+  // Older development builds may not contain ExpoSharing yet. Loading it only on
+  // export keeps every other screen usable until the native build is updated.
+  let sharing: typeof import('expo-sharing');
+  try {
+    sharing = await import('expo-sharing');
+  } catch {
+    return false;
+  }
+  if (!(await sharing.isAvailableAsync())) return false;
   const file = new File(Paths.cache, name);
   if (file.exists) file.delete();
   file.create();
   file.write(text);
-  await shareAsync(file.uri, { mimeType, dialogTitle: name, UTI: mimeType === 'text/calendar' ? 'public.calendar-event' : 'public.json' });
+  await sharing.shareAsync(file.uri, { mimeType, dialogTitle: name, UTI: mimeType === 'text/calendar' ? 'public.calendar-event' : 'public.json' });
   return true;
 }

@@ -15,7 +15,8 @@ export type RescheduleSlot = { date: string; start: string; end: string };
 
 /**
  * Nearest same-day slot, 8 am–10 pm, keeping the duration and 15 minutes between
- * commitments. Never move a fixed event, a deadline, an ongoing event, or a series.
+ * commitments. Never move a fixed event, a deadline, or an ongoing event.
+ * The caller changes only the selected occurrence, never the whole series.
  * Unknown event times make availability uncertain, so no slot is offered that day.
  */
 export function suggestReschedule(item: Item, items: Item[], now: { date: string; time: string }): RescheduleSlot | null {

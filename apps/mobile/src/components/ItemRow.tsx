@@ -42,10 +42,10 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
         <View style={styles.checkTarget}><CategoryDot color={tint} /></View>
       )}
       <Pressable onPress={onPress} accessibilityRole={onPress ? 'button' : undefined}
-        accessibilityLabel={`${item.title}, ${isEvent ? 'event' : 'to-do'}, ${status.label}${item.done ? ', completed' : ''}`}
+        accessibilityLabel={`${item.title}, ${isEvent ? 'event' : 'to-do'}, ${status.label}${conflict ? ', overlaps another event' : ''}${item.done ? ', completed' : ''}`}
         style={({ pressed }) => [styles.main, { opacity: pressed ? 0.6 : 1 }]}>
         <View style={styles.text}>
-          <T token="body" color={item.done ? c.inkSecondary : c.inkPrimary} numberOfLines={2} style={item.done ? styles.done : undefined}>{item.title}</T>
+          <T token="body" color={item.done ? c.inkSecondary : conflict ? c.conflict : c.inkPrimary} numberOfLines={2} style={item.done ? styles.done : undefined}>{item.title}</T>
           <T token="caption" color={c.inkSecondary} numberOfLines={1}>{sub}</T>
         </View>
         <StatusPill label={status.label} tone={status.tone} />

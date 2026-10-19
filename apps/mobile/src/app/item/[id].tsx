@@ -1,4 +1,4 @@
-import { WEEKDAYS, conflictIds, diffDays, isFlexibleEvent, isLocalDate, isLocalTime, monthDay, relativeDay, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort } from '@dayli/core';
+import { WEEKDAYS, conflictIds, diffDays, isFlexibleEvent, isLocalDate, isLocalTime, monthDay, relativeDay, todayItems, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort } from '@dayli/core';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -120,7 +120,7 @@ export default function ItemScreen() {
   const seriesNoun = /lecture/i.test(item.title) ? 'lecture' : noun;
   const count = (n: number) => `${n} ${n === 1 ? seriesNoun : `${seriesNoun}s`}`;
 
-  const dayItems = items.filter((it) => it.date === item.date);
+  const dayItems = todayItems(items, item.date);
   const showDay = dayItems.some((it) => it.kind === 'event' && it.start);
 
   const reminderLine = reminders.enabled

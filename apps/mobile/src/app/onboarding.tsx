@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Image, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,6 +24,8 @@ import { feedback } from "@/lib/feedback";
 import { enter, exit, springs } from "@/lib/motion";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
 import { requestNotifications, syncReminders } from "@/lib/notifications";
+import { usePlusAccess } from "@/lib/plus-access";
+import { purchaseErrorMessage } from "@/lib/revenuecat";
 import { useStore } from "@/store";
 import { palettes } from "@dayli/tokens";
 
@@ -448,6 +450,8 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
 
 function OwnStep({ onSample }: { onSample: () => void }) {
   const { c } = useTheme();
+  const { requireImportAccess } = usePlusAccess();
+  const importing = useRef(false);
   const apiUrl = useStore((s) => s.settings.apiUrl);
   const setPending = useStore((s) => s.setPending);
   const recordImport = useStore((s) => s.recordImport);
@@ -456,10 +460,18 @@ function OwnStep({ onSample }: { onSample: () => void }) {
   const [error, setError] = useState<string | null>(null);
 
   async function run(input: NonNullable<Picked>["input"], source: string) {
+    if (importing.current) return;
+    importing.current = true;
     setError(null);
     setBusy(source);
     track("import_started", { kind: input.kind, where: "onboarding" });
     try {
+      try {
+        if (!(await requireImportAccess())) return;
+      } catch (failure) {
+        setError(purchaseErrorMessage(failure));
+        return;
+      }
       const res = await requestExtraction(apiUrl, { input, context: extractionContext() });
       if (!res.ok) {
         track("import_failed", { kind: input.kind, where: "onboarding" });
@@ -479,6 +491,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
       track("import_failed", { kind: input.kind, where: "onboarding" });
       setError("Semli couldn't read that right now. You can explore your preview and try yours later.");
     } finally {
+      importing.current = false;
       setBusy(null);
     }
   }

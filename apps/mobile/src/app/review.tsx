@@ -20,6 +20,9 @@ import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
 import { layout } from '@/lib/motion';
 import { requestNotifications, syncReminders } from '@/lib/notifications';
+import { usePlusAccess } from '@/lib/plus-access';
+import { purchaseErrorMessage } from '@/lib/revenuecat';
+import { usePurchases } from '@/providers/PurchasesProvider';
 import { newId, useCourseList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -42,6 +45,11 @@ export default function ReviewScreen() {
   const existing = useItemList();
   const today = localParts(new Date()).date;
   const leaving = useRef(false);
+  const confirming = useRef(false);
+  const { requirePlus } = usePlusAccess();
+  const { isPro } = usePurchases();
+  const [checkingAccess, setCheckingAccess] = useState(false);
+  const [accessError, setAccessError] = useState<string | null>(null);
 
   // Undated drafts start excluded: they are counted as skipped, never block the confirm.
   const [drafts, setDrafts] = useState<Draft[]>(() =>
@@ -206,7 +214,27 @@ export default function ReviewScreen() {
     else router.replace(useStore.getState().settings.onboarded ? '/plan' : '/onboarding');
   };
 
-  const confirm = () => {
+  const confirm = async () => {
+    if (confirming.current || leaving.current) return;
+    confirming.current = true;
+    setAccessError(null);
+    if (isUpdate) {
+      setCheckingAccess(true);
+      const beforeItems = useStore.getState().items;
+      try {
+        if (!(await requirePlus('schedule_update')) || leaving.current) return;
+        if (beforeItems !== useStore.getState().items) {
+          setAccessError('Your calendar changed. Review the updated shifts before saving.');
+          return;
+        }
+      } catch (error) {
+        setAccessError(purchaseErrorMessage(error));
+        return;
+      } finally {
+        confirming.current = false;
+        setCheckingAccess(false);
+      }
+    }
     leaving.current = true;
     const label = plan.schedule
       ? `Updated ${plan.schedule.employer} schedule`
@@ -444,8 +472,10 @@ export default function ReviewScreen() {
       title={title}
       onClose={close}
       footer={<>
+        {isUpdate && !isPro && total > 0 ? <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Preview your changes here. Updating an existing schedule is included with Semli Plus.</T> : null}
+        {accessError ? <T token="callout" color={c.conflict} accessibilityRole="alert">{accessError}</T> : null}
         {footerNote ? <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>{footerNote}</T> : null}
-        <Button label={cta} onPress={total === 0 ? close : confirm} />
+        <Button label={checkingAccess ? 'Checking Plus…' : isUpdate && !isPro && total > 0 ? 'Update with Plus' : cta} disabled={checkingAccess} onPress={total === 0 ? close : () => void confirm()} />
       </>}>
       <ScrollView contentContainerStyle={styles.list} keyboardShouldPersistTaps="handled">
         <View style={styles.hero}>
