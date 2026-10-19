@@ -90,6 +90,7 @@ function RootLayout() {
           }}>
           {/* Review is a full-screen cover: it can be reached from onboarding too, so it sits outside the guards. */}
           <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false, headerShown: true, ...navigationButtonOptions('close') }} />
+          <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', headerShown: true, headerTransparent: true, title: '', headerTintColor: '#F5F4F0', ...navigationButtonOptions('close') }} />
           <Stack.Screen name="account" options={{ presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
           <Stack.Protected guard={!onboarded}>
             <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />

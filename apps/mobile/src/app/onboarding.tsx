@@ -11,6 +11,7 @@ import { File } from "expo-file-system";
 import { Press } from "@/components/Press";
 import { GlassCircle } from "@/components/Glass";
 import { Icon, type IconKey } from "@/components/Icon";
+import { PaywallBackdrop } from "@/components/PhotoPaywall";
 import { PlanPicker } from "@/components/PlanPicker";
 import { Reading } from "@/components/Reading";
 import { Button } from "@/components/Sheet";
@@ -125,7 +126,7 @@ export default function OnboardingScreen() {
     <View style={[styles.root, { backgroundColor: bg, paddingTop: insets.top + 8, paddingBottom: Math.max(insets.bottom, 24) }]}>
       {step === "demo" ? <Backdrop source={PHOTOS.demo} height={560} fadeFrom={300} /> : null}
       {step === "heads-up" ? <Backdrop source={PHOTOS.headsup} full /> : null}
-      {step === "plus" ? <Backdrop source={PHOTOS.plus} height={460} fadeFrom={120} dim={0.3} /> : null}
+      {step === "plus" ? <PaywallBackdrop /> : null}
       <View style={styles.header}>
         {history.length > 0 ? (
           <Animated.View entering={enter.fade} exiting={exit.fade}>
@@ -628,20 +629,13 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
 /* ---------- Plus, after the value moment ---------- */
 
 function PlusStep({ onFinish }: { onFinish: () => void }) {
-  const trialStarted = useStore((s) => !!s.settings.trial);
+  const scroll = useRef<ScrollView>(null);
   useEffect(() => {
     track("paywall_shown", { reason: "onboarding" });
   }, []);
   return (
-    <ScrollView contentContainerStyle={[styles.page, { paddingTop: 150 }]} showsVerticalScrollIndicator={false}>
-      <PlanPicker palette={palettes.dark} onContinueFree={trialStarted ? undefined : onFinish} />
-      {trialStarted ? (
-        <View style={styles.footer}>
-          <Press haptic="tap" accessibilityRole="button" onPress={onFinish} style={[styles.darkButton, { backgroundColor: palettes.dark.inkPrimary }]}>
-            <T token="headline" color={palettes.dark.onPrimary}>Continue</T>
-          </Press>
-        </View>
-      ) : null}
+    <ScrollView ref={scroll} contentContainerStyle={[styles.page, { paddingTop: 150 }]} showsVerticalScrollIndicator={false}>
+      <PlanPicker palette={palettes.dark} onContinueFree={onFinish} onComplete={onFinish} onWelcome={() => scroll.current?.scrollTo({ y: 0, animated: false })} />
     </ScrollView>
   );
 }

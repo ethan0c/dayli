@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 
 import { navigationButtonOptions } from '@/components/NavButtons';
 
+import { palettes } from '@dayli/tokens';
 import { mobileFonts, useTheme } from '@/theme';
 
 /** Deep links like /settings/data get the You screen underneath, so the back button always works. */
@@ -28,7 +29,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="reminders" options={{ title: 'Reminders' }} />
       <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
       <Stack.Screen name="major" options={{ title: 'Field of study' }} />
-      <Stack.Screen name="plan" options={{ title: 'Semli Plus' }} />
+      <Stack.Screen name="plan" options={{ title: 'Semli Plus', headerTransparent: true, headerTintColor: palettes.dark.inkPrimary, headerTitleStyle: { fontFamily: mobileFonts.medium, color: palettes.dark.inkPrimary, fontSize: 16 } }} />
       <Stack.Screen name="data" options={{ title: 'Your data' }} />
       <Stack.Screen name="server" options={{ title: 'Semli server' }} />
     </Stack>

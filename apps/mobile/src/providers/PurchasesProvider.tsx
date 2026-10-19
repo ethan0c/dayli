@@ -1,10 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AppState, Linking } from 'react-native';
+import { router } from 'expo-router';
 import Purchases, { type CustomerInfo, type PurchasesOffering, type PurchasesOfferings, type PurchasesPackage } from 'react-native-purchases';
-import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
+import RevenueCatUI from 'react-native-purchases-ui';
 
-import { customerCenterEnabled, hasSemliPro, initializePurchases, offeringFor, PRO_ENTITLEMENT, purchaseErrorMessage, purchasesUnavailableReason, SubscriptionError } from '@/lib/revenuecat';
+import { customerCenterEnabled, hasSemliPro, initializePurchases, offeringFor, purchaseErrorMessage, purchasesUnavailableReason, SubscriptionError } from '@/lib/revenuecat';
 import { useStore } from '@/store';
+import { requestPaywall } from '@/lib/paywall-request';
 
 interface PurchasesContextValue {
   customerInfo: CustomerInfo | null;
@@ -127,40 +129,12 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     return info;
   }), [run, updateCustomerInfo]);
 
-  const presentPaywall = useCallback(() => run(async () => {
-    const info = await refreshCustomerInfo();
-    if (hasSemliPro(info)) return true;
-    const all = await Purchases.getOfferings();
-    setOfferings(all);
-    const current = offeringFor(all, useStore.getState().settings.isStudent);
-    if (!current || current.availablePackages.length === 0) {
-      throw new SubscriptionError('Plans aren’t available right now. Please try again later.');
-    }
-    let completedInfo: CustomerInfo | null = null;
-    const onCompleted = ({ customerInfo: updated }: { customerInfo: CustomerInfo }) => {
-      completedInfo = updated;
-      updateCustomerInfo(updated);
-    };
-    const result = await RevenueCatUI.presentPaywallIfNeeded({
-      requiredEntitlementIdentifier: PRO_ENTITLEMENT,
-      offering: current,
-      displayCloseButton: true,
-      callbacks: {
-        onPurchaseCompleted: onCompleted,
-        onRestoreCompleted: onCompleted,
-      },
-    });
-    if (result === PAYWALL_RESULT.CANCELLED) return false;
-    if (result === PAYWALL_RESULT.ERROR) throw new SubscriptionError('We couldn’t open the plans. Please try again.');
-    // Use the transaction's CustomerInfo even if a subsequent network refresh fails.
-    // A paywall result alone never grants access, including after restores.
-    const updated = completedInfo ?? await refreshCustomerInfo();
-    if (completedInfo) void refreshCustomerInfo().catch(() => {});
-    if (!hasSemliPro(updated) && (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED)) {
-      throw new SubscriptionError('Your purchase finished, but Semli Plus is not active. Try Restore purchases or contact support.');
-    }
-    return hasSemliPro(updated);
-  }), [refreshCustomerInfo, run, updateCustomerInfo]);
+  // Presentation must not hold the purchase lock: PlanPicker owns purchase/restore actions.
+  // The awaiting import/review resumes only when the paywall closes or the tour finishes.
+  const presentPaywall = useCallback(() => {
+    if (hasSemliPro(customerInfo)) return Promise.resolve(true);
+    return requestPaywall(() => router.push('/paywall'));
+  }, [customerInfo]);
 
   const manageSubscription = useCallback(() => run(async () => {
     if (customerCenterEnabled) {

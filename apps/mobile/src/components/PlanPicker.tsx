@@ -1,12 +1,12 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
 
 import { StatusPill } from '@/components/Controls';
 import { NativeToggle } from '@/components/Native';
 import { Press } from '@/components/Press';
-import { Button } from '@/components/Sheet';
+import { PlusFeatures, PlusWelcome } from '@/components/PlusWelcome';
 import { Skeleton } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
@@ -42,17 +42,17 @@ function perMonth(pack: PurchasesPackage, months: number): string {
   return `${symbolOf(pack)}${(pack.product.price / months).toFixed(2)} / mo`;
 }
 
-/**
- * The paywall, laid out like the rest of the app: the price is the one big number, the terms
- * are rows with a radio, the student toggle is a row, the trial timeline is three lines.
- * One primary pill, then "Continue free" as a text button when the caller offers it.
- */
-export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onContinueFree?: () => void; freeImportsLeft?: number; palette?: Palette }) {
+/** Shared purchase controls for the photographic onboarding, settings and gated paywalls. */
+export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsLeft, palette }: {
+  onContinueFree?: () => void; onComplete?: () => void; onWelcome?: () => void; freeImportsLeft?: number; palette?: Palette;
+}) {
   const theme = useTheme();
   const c = palette ?? theme.c;
   const { offering, offerings, customerInfo, isPro, loading, busy, error, unavailableReason, refresh, purchase, restore, manageSubscription } = usePurchases();
   const student = useStore((s) => s.settings.isStudent);
   const setSettings = useStore((s) => s.setSettings);
+  const [welcome, setWelcome] = useState<'celebrate' | 'tour' | null>(null);
+  const actionInProgress = useRef(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [term, setTerm] = useState<TermKey>('semester');
   const disabled = busy || loading || !!unavailableReason;
@@ -65,13 +65,17 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
   const monthly = plans.find((p) => p.key === 'monthly')?.pack ?? null;
   const entitlement = customerInfo?.entitlements.active[PRO_ENTITLEMENT];
 
+  const showWelcome = (stage: 'celebrate' | 'tour') => { setWelcome(stage); onWelcome?.(); };
+
   async function buyPlan() {
-    if (!selected || !current) return;
+    if (!selected || !current || actionInProgress.current) return;
+    actionInProgress.current = true;
     setNotice(null);
     try {
       const info = await purchase(selected);
       if (!info) return;
       if (hasSemliPro(info)) {
+        showWelcome('celebrate');
         feedback('success');
         track('purchase_completed', { term: current.key, student, trial: !!days });
         const ends = info.entitlements.active[PRO_ENTITLEMENT]?.expirationDate;
@@ -79,10 +83,14 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
       } else setNotice('Your purchase finished, but Plus is not active yet. Try Restore, or email hello@semli.app.');
     } catch {
       // The provider exposes actionable failures in `error`.
+    } finally {
+      actionInProgress.current = false;
     }
   }
 
   async function restorePlan() {
+    if (actionInProgress.current) return;
+    actionInProgress.current = true;
     setNotice(null);
     try {
       const info = await restore();
@@ -90,12 +98,17 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
       setNotice(hasSemliPro(info) ? 'Your Semli Plus purchase is restored.' : 'No Semli Plus purchases were found for this store account.');
     } catch {
       // The provider displays a friendly error.
+    } finally {
+      actionInProgress.current = false;
     }
   }
 
   const legal = async (url: string) => {
     if (!(await openLink(url))) setNotice('We couldn’t open that page. It is at semli.app.');
   };
+
+  if (welcome) return <PlusWelcome stage={welcome} onTour={() => showWelcome('tour')}
+    onDone={() => { setWelcome(null); onComplete?.(); }} c={c} />;
 
   if (isPro) {
     return (
@@ -107,9 +120,17 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
             {entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}.` : 'Every syllabus, schedule and screenshot read for you.'}
           </T>
         </View>
+        <PlusFeatures c={c} />
+        <Press accessibilityRole="button" onPress={() => showWelcome('tour')} style={[styles.cta, { backgroundColor: c.controlFill }]}>
+          <T token="headline" color={c.controlInk}>Explore your Plus features</T>
+        </Press>
+        {onComplete ? <Press accessibilityRole="button" onPress={onComplete} style={styles.textBtn}><T token="subhead" color={c.inkSecondary}>Continue</T></Press> : null}
         {customerCenterEnabled || customerInfo?.managementURL ? (
-          <Button label={busy ? 'Opening…' : 'Manage subscription'} variant="secondary" disabled={disabled} onPress={() => { setNotice(null); void manageSubscription().catch(() => {}); }} />
+          <Press accessibilityRole="button" disabled={disabled} onPress={() => { setNotice(null); void manageSubscription().catch(() => {}); }} style={styles.textBtn}>
+            <T token="subhead" color={c.inkSecondary}>{busy ? 'Opening…' : 'Manage subscription'}</T>
+          </Press>
         ) : null}
+        {__DEV__ ? <Press accessibilityRole="button" onPress={() => showWelcome('celebrate')} style={styles.textBtn}><T token="caption" color={c.inkSecondary}>Preview welcome · development only</T></Press> : null}
         {notice || error ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{notice ?? error}</T> : null}
         <Links onRestore={() => void restorePlan()} onLegal={legal} disabled={disabled} c={c} />
       </View>
@@ -118,7 +139,8 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
 
   return (
     <View style={{ gap: 28 }}>
-      <View style={{ gap: 2 }}>
+      <View style={{ gap: 12 }}>
+        <T token="display" color={c.inkPrimary}>More life. Less juggling.</T>
         <T token="callout" color={c.inkSecondary}>
           Semli <T token="callout" color={c.accentInk}>Plus</T>{days ? ` · ${days} days free, then` : ''}
         </T>
@@ -167,7 +189,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
         <View style={{ gap: 16 }}>
           {[
             { when: 'Today', what: 'Everything in Plus, free.', color: c.added },
-            { when: `Day ${Math.max(1, days - 2)}`, what: 'We remind you the trial is ending.', color: c.changed },
+            { when: `Day ${Math.max(1, days - 2)}`, what: 'Trial reminder, if notifications are enabled.', color: c.changed },
             { when: `Day ${days}`, what: `${selected.product.priceString} ${current.period.replace('/ ', 'per ')}. Cancel before and pay nothing.`, color: c.inkPrimary },
           ].map((r) => (
             <View key={r.when} style={styles.timelineRow}>
@@ -193,7 +215,7 @@ export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onCon
           {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.period.replace('/ ', 'per ')}. Auto-renews. Cancel any time.` : 'Prices are shown before you confirm.'}
         </T>
         {onContinueFree ? (
-          <Pressable accessibilityRole="button" onPress={onContinueFree} style={styles.textBtn}>
+          <Pressable accessibilityRole="button" disabled={busy} onPress={onContinueFree} style={styles.textBtn}>
             <T token="subhead" color={c.inkSecondary}>{`Continue free${freeImportsLeft !== undefined ? ` · ${freeImportsLeft} ${freeImportsLeft === 1 ? 'import' : 'imports'} left this month` : ' · 3 imports a month'}`}</T>
           </Pressable>
         ) : null}
@@ -229,8 +251,8 @@ export function closePaywall() {
 
 const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
-  cta: { alignSelf: 'stretch', height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
+  cta: { alignSelf: 'stretch', minHeight: 52, paddingVertical: 14, paddingHorizontal: 20, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingVertical: 12, flexWrap: 'wrap', borderBottomWidth: StyleSheet.hairlineWidth },
   studentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 16 },
   radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   radioDot: { width: 7, height: 7, borderRadius: 4 },
