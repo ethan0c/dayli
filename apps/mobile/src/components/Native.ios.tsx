@@ -4,6 +4,7 @@ import type { ComponentProps } from 'react';
 import { accessibilityLabel, buttonBorderShape, buttonStyle, controlSize, datePickerStyle, tint } from '@expo/ui/swift-ui/modifiers';
 
 import type { DateFieldProps, NativeButtonProps, ToggleProps } from '@/components/Native';
+import { useTheme } from '@/theme';
 
 function toDate(date: string | null, time: string | null): Date {
   const [y, m, d] = (date ?? localParts(new Date()).date).split('-').map(Number);
@@ -39,9 +40,10 @@ export function TimeField({ date, time, onChange }: DateFieldProps) {
 }
 
 export function NativeToggle({ value, onChange, label }: ToggleProps) {
+  const { c } = useTheme();
   return (
     <Host style={{ width: 52, height: 32 }} matchContents>
-      <Toggle isOn={value} onIsOnChange={onChange} modifiers={label ? [accessibilityLabel(label)] : []} />
+      <Toggle isOn={value} onIsOnChange={onChange} modifiers={[tint(c.inkPrimary), ...(label ? [accessibilityLabel(label)] : [])]} />
     </Host>
   );
 }

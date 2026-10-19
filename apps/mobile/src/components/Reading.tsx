@@ -1,18 +1,32 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 import { SkeletonRows } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { ease } from '@/lib/motion';
-import { radius, useTheme } from '@/theme';
+import { useTheme } from '@/theme';
 
 const LINES = ['Reading', 'Finding the dates', 'Sorting out your week', 'Checking what changed'];
 
+/** A 2px indeterminate line, the only loading indicator in the app. Sits under a header or at the top of content. */
+export function ProgressLine() {
+  const { c } = useTheme();
+  const x = useSharedValue(0);
+  useEffect(() => {
+    x.value = withRepeat(withTiming(1, { duration: 1400, easing: ease }), -1, false);
+  }, [x]);
+  const bar = useAnimatedStyle(() => ({ transform: [{ translateX: -160 + x.value * 560 }] }));
+  return (
+    <View style={[styles.track, { backgroundColor: c.row }]} accessibilityRole="progressbar" accessibilityLabel="Loading">
+      <Animated.View style={[styles.bar, { backgroundColor: c.inkPrimary }, bar]} />
+    </View>
+  );
+}
+
 /**
- * The import loading state: three tinted dots breathe in sequence while the
- * status line changes, and agenda-shaped placeholders show where the result
- * will land, so a 5-second wait feels like work, not a stall.
+ * The import loading state: a progress line, a light heading that changes, and agenda-shaped
+ * placeholders where the result will land. No box, no dots.
  */
 export function Reading({ source, rows = 3 }: { source: string; rows?: number }) {
   const { c } = useTheme();
@@ -21,46 +35,21 @@ export function Reading({ source, rows = 3 }: { source: string; rows?: number })
     const id = setInterval(() => setLine((n) => (n + 1) % LINES.length), 1500);
     return () => clearInterval(id);
   }, []);
-  const colors = [c.tint.lavender, c.tint.apricot, c.tint.mint];
   return (
-    <View style={{ gap: 8 }}>
-      <View style={[styles.card, { backgroundColor: c.accentSoft }]} accessibilityLiveRegion="polite">
-        <View style={styles.dots}>
-          {colors.map((tint, i) => (
-            <Dot key={i} index={i} color={tint.ink} />
-          ))}
-        </View>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <T token="headline" color={c.accentInk}>
-            {LINES[line]}…
-          </T>
-          <T token="caption" color={c.inkSecondary} numberOfLines={1}>
-            {source} · nothing is saved until you confirm
-          </T>
-        </View>
+    <View style={{ gap: 16 }} accessibilityLiveRegion="polite">
+      <ProgressLine />
+      <View style={{ gap: 4 }}>
+        <T token="display">{LINES[line]}…</T>
+        <T token="callout" color={c.inkSecondary}>
+          {source[0]?.toUpperCase() + source.slice(1)} · nothing is saved until you confirm.
+        </T>
       </View>
       {rows > 0 ? <SkeletonRows count={rows} /> : null}
     </View>
   );
 }
 
-function Dot({ index, color }: { index: number; color: string }) {
-  const v = useSharedValue(0);
-  useEffect(() => {
-    v.value = withDelay(
-      index * 160,
-      withRepeat(withSequence(withTiming(1, { duration: 420, easing: ease }), withTiming(0, { duration: 420, easing: ease }), withTiming(0, { duration: 480 })), -1, false),
-    );
-  }, [index, v]);
-  const animated = useAnimatedStyle(() => ({
-    opacity: 0.35 + 0.65 * v.value,
-    transform: [{ translateY: -7 * v.value }, { scale: 0.85 + 0.3 * v.value }],
-  }));
-  return <Animated.View style={[styles.dot, { backgroundColor: color }, animated]} />;
-}
-
 const styles = StyleSheet.create({
-  card: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14, borderRadius: radius.card },
-  dots: { flexDirection: 'row', gap: 6, width: 48, justifyContent: 'center' },
-  dot: { width: 10, height: 10, borderRadius: 5 },
+  track: { height: 2, borderRadius: 1, overflow: 'hidden' },
+  bar: { width: 160, height: 2, borderRadius: 1 },
 });

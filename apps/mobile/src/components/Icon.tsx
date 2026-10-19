@@ -21,7 +21,12 @@ export type IconKey =
   | 'clock'
   | 'volume'
   | 'vibrate'
-  | 'bell';
+  | 'bell'
+  | 'send'
+  | 'remove'
+  | 'appearance'
+  | 'list'
+  | 'search';
 
 type El = { d: string } | { rect: [number, number, number, number, number] } | { circle: [number, number, number] };
 
@@ -58,6 +63,11 @@ const GLYPHS: Record<IconKey, El[]> = {
   bell: [{ d: 'M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9' }, { d: 'M13.7 21a2 2 0 0 1-3.4 0' }],
   volume: [{ d: 'M11 5 6 9H3v6h3l5 4z' }, { d: 'M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14' }],
   vibrate: [{ rect: [7, 3, 10, 18, 2] }, { d: 'M3 9v6M21 9v6' }],
+  send: [{ d: 'M12 19V5M5 12l7-7 7 7' }],
+  remove: [{ circle: [12, 12, 9] }, { d: 'M9 12h6' }],
+  appearance: [{ circle: [12, 12, 3] }, { d: 'M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.2 2.2M16.9 16.9l2.2 2.2M4.9 19.1l2.2-2.2M16.9 7.1l2.2-2.2' }],
+  list: [{ d: 'M4 7h16M4 12h16M4 17h10' }],
+  search: [{ circle: [11, 11, 7] }, { d: 'm20 20-3.5-3.5' }],
 };
 
 export function Icon({

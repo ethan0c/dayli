@@ -1,24 +1,20 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
-import { Icon, type IconKey } from '@/components/Icon';
+import { GroupLabel, ListRow } from '@/components/Controls';
 import { NativeToggle } from '@/components/Native';
 import { T } from '@/components/Text';
-import { radius, textStyle, useTheme } from '@/theme';
+import { textStyle, useTheme } from '@/theme';
 
-/** A grouped list in the iOS Settings idiom, drawn with Semli's tokens. */
+/** A sentence-case label and a run of hairline rows on the paper. No card, no icon tiles. */
 export function Group({ title, footer, children }: { title?: string; footer?: string; children: ReactNode }) {
   const { c } = useTheme();
   return (
     <View style={styles.group}>
-      {title ? (
-        <T token="overline" color={c.inkSecondary} style={styles.title}>
-          {title}
-        </T>
-      ) : null}
-      <View style={[styles.card, { backgroundColor: c.row }]}>{children}</View>
+      {title ? <GroupLabel>{title}</GroupLabel> : null}
+      <View>{children}</View>
       {footer ? (
-        <T token="caption" color={c.inkSecondary} style={styles.title}>
+        <T token="caption" color={c.inkSecondary} style={styles.footer}>
           {footer}
         </T>
       ) : null}
@@ -26,71 +22,39 @@ export function Group({ title, footer, children }: { title?: string; footer?: st
   );
 }
 
-export function Row({
-  label,
-  value,
-  icon,
-  tint,
-  onPress,
-  selected,
-  destructive,
-  last,
-}: {
-  label: string;
-  value?: string;
-  icon?: IconKey;
-  tint?: string;
-  onPress?: () => void;
-  selected?: boolean;
-  destructive?: boolean;
-  last?: boolean;
+export function Row({ label, value, onPress, selected, destructive, last }: {
+  label: string; value?: string; onPress?: () => void; selected?: boolean; destructive?: boolean; last?: boolean;
+  /** Kept for call-site compatibility; icons and tints are no longer drawn on settings rows. */
+  icon?: string; tint?: string;
 }) {
   const { c } = useTheme();
-  const ink = destructive ? c.conflict : c.inkPrimary;
   return (
-    <Pressable
+    <ListRow
+      title={label}
       onPress={onPress}
-      disabled={!onPress}
-      accessibilityRole={onPress ? 'button' : undefined}
-      accessibilityState={selected !== undefined ? { selected } : undefined}
-      style={({ pressed }) => [styles.row, !last ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line } : null, { opacity: pressed ? 0.7 : 1 }]}>
-      {icon ? (
-        <View style={[styles.iconWrap, { backgroundColor: tint ?? c.canvas }]}>
-          <Icon name={icon} size={16} color={ink} />
-        </View>
-      ) : null}
-      <T color={ink} style={{ flex: 1 }}>
-        {label}
-      </T>
-      {value ? (
-        <T token="callout" color={c.inkSecondary} numberOfLines={1} style={{ maxWidth: '50%' }}>
-          {value}
-        </T>
-      ) : null}
-      {selected ? <Icon name="tick" size={16} color={c.accent} strokeWidth={2.5} /> : null}
-      {onPress && selected === undefined && !destructive ? <Icon name="chevronRight" size={16} color={c.inkTertiary} /> : null}
-    </Pressable>
+      last={last}
+      destructive={destructive}
+      chevron={!!onPress && selected === undefined && !destructive}
+      trailing={
+        <>
+          {value ? <T token="callout" color={c.inkSecondary} numberOfLines={1} style={{ maxWidth: '55%' }}>{value}</T> : null}
+          {selected ? <View style={[styles.radio, { backgroundColor: c.inkPrimary }]}><View style={[styles.radioDot, { backgroundColor: c.onPrimary }]} /></View> : selected === false ? <View style={[styles.radio, { borderWidth: 1.5, borderColor: c.controlOutline }]} /> : null}
+        </>
+      }
+    />
   );
 }
 
-export function ToggleRow({ label, icon, tint, value, onChange, last }: { label: string; icon: IconKey; tint: string; value: boolean; onChange: (v: boolean) => void; last?: boolean }) {
-  const { c } = useTheme();
-  return (
-    <View style={[styles.row, !last ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line } : null]}>
-      <View style={[styles.iconWrap, { backgroundColor: tint }]}>
-        <Icon name={icon} size={16} color={c.inkPrimary} />
-      </View>
-      <T style={{ flex: 1 }}>{label}</T>
-      <NativeToggle value={value} onChange={onChange} />
-    </View>
-  );
+export function ToggleRow({ label, value, onChange, last }: { label: string; value: boolean; onChange: (v: boolean) => void; last?: boolean; icon?: string; tint?: string }) {
+  return <ListRow title={label} last={last} chevron={false} trailing={<NativeToggle value={value} onChange={onChange} label={label} />} />;
 }
 
+/** A labelled one-line field inside a settings group. */
 export function FieldRow({ label, value, onChange, placeholder, last }: { label: string; value: string; onChange: (v: string) => void; placeholder: string; last?: boolean }) {
   const { c } = useTheme();
   return (
-    <View style={[styles.row, !last ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line } : null]}>
-      <T style={{ width: 96 }}>{label}</T>
+    <View style={[styles.fieldRow, !last ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line } : null]}>
+      <T token="body" style={{ width: 96 }}>{label}</T>
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -105,9 +69,9 @@ export function FieldRow({ label, value, onChange, placeholder, last }: { label:
 }
 
 const styles = StyleSheet.create({
-  group: { gap: 6 },
-  title: { paddingHorizontal: 16 },
-  card: { borderRadius: radius.card, overflow: 'hidden' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 50, paddingHorizontal: 16 },
-  iconWrap: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  group: { gap: 4 },
+  footer: { paddingTop: 8 },
+  fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56 },
+  radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  radioDot: { width: 7, height: 7, borderRadius: 4 },
 });
