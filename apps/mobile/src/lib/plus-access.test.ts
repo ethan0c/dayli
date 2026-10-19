@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   refreshCustomerInfo: vi.fn(), presentPaywall: vi.fn(), track: vi.fn(),
@@ -21,7 +21,6 @@ beforeEach(() => {
   mocks.presentPaywall.mockResolvedValue(false);
 });
 
-import { afterEach } from 'vitest';
 afterEach(() => vi.useRealTimers());
 
 describe('shared Plus access checks', () => {

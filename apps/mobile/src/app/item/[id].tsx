@@ -52,8 +52,9 @@ function sourceName(sourceId: string): string {
 
 /** A plain text row: body text, 28 high, no icon, no hairline. Highlights when it can be pressed. */
 function Row({ children, trailing, onPress, accessibilityLabel }: { children: ReactNode; trailing?: ReactNode; onPress?: () => void; accessibilityLabel?: string }) {
+  if (!onPress) return <View style={styles.row}>{children}{trailing}</View>;
   return (
-    <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} accessibilityLabel={accessibilityLabel}
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [styles.row, pressed ? { opacity: 0.6 } : null]}>
       {children}
       {trailing}

@@ -38,7 +38,7 @@ describe('rescheduling suggestions', () => {
   });
   it('checks every booking, including an overnight event from yesterday', () => {
     const previous = make({ id: 'night', date: '2026-10-18', start: '22:00', end: '15:00', category: 'work' });
-    expect(suggestReschedule(study, [study, shift, previous], now)).toBeNull();
+    expect(suggestReschedule(study, [study, shift, previous], now)).toEqual({ date: '2026-10-20', start: '19:00', end: '20:00' });
   });
   it('finds a later slot if the nearest earlier slot is taken', () => {
     const earlyShift = { ...shift, end: '20:30' };
@@ -52,14 +52,16 @@ describe('rescheduling suggestions', () => {
     expect(suggestReschedule(done, [done, shift], now)).toBeNull();
   });
   it('returns no suggestion for uncertain availability or unknown duration', () => {
-    expect(suggestReschedule(study, [study, shift, make({ id: 'untimed', start: null, end: null })], now)).toBeNull();
+    expect(suggestReschedule(study, [study, shift, make({ id: 'untimed', start: null, end: null })], now))
+      .toEqual({ date: '2026-10-20', start: '19:00', end: '20:00' });
     for (const item of [make({ start: null }), make({ end: null }), make({ start: '22:00', end: '02:00' })]) {
       expect(suggestReschedule(item, [item, shift], now)).toBeNull();
     }
   });
   it('offers nothing when there is no conflict or no room', () => {
     expect(suggestReschedule(study, [study], now)).toBeNull();
-    expect(suggestReschedule(study, [study, { ...shift, start: '08:00' }], now)).toBeNull();
+    const fullWeek = Array.from({ length: 7 }, (_, offset) => make({ id: `busy-${offset}`, date: `2026-10-${19 + offset}`, start: '08:00', end: '22:00', category: 'work' }));
+    expect(suggestReschedule(study, [study, ...fullWeek], now)).toBeNull();
     expect(suggestReschedule({ ...study, timeFlexibility: 'fixed' }, [study, shift], now)).toBeNull();
   });
   it('ignores completed bookings and keeps non-hour durations', () => {
@@ -72,6 +74,17 @@ describe('rescheduling suggestions', () => {
     const tomorrow = make({ id: 'tomorrow', date: '2026-10-20', seriesId: 'study-group' });
     expect(suggestReschedule(occurrence, [occurrence, shift, tomorrow], now)?.date).toBe(now.date);
     expect(tomorrow.start).toBe('19:00');
+  });
+  it('uses the next day when today has no remaining room, before the course exam', () => {
+    const coursework = { ...study, courseId: 'stats' };
+    const exam = make({ id: 'exam', courseId: 'stats', date: '2026-10-21', start: '09:00', end: '10:00', isDeadline: true });
+    expect(suggestReschedule(coursework, [coursework, shift, exam], { ...now, time: '18:30' }))
+      .toEqual({ date: '2026-10-20', start: '19:00', end: '20:00' });
+  });
+  it('never moves a study session beyond its next course deadline', () => {
+    const coursework = { ...study, courseId: 'stats' };
+    const exam = make({ id: 'exam', courseId: 'stats', date: '2026-10-20', start: '08:00', end: '09:00', isDeadline: true });
+    expect(suggestReschedule(coursework, [coursework, shift, exam], { ...now, time: '18:30' })).toBeNull();
   });
 });
 

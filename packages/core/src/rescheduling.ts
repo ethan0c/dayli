@@ -1,5 +1,5 @@
 import type { Item } from '@dayli/schema';
-import { dayNumber, toMinutes } from './dates';
+import { addDays, dayNumber, toMinutes } from './dates';
 import { findConflicts } from './conflicts';
 import { intervalOf, overlap } from './intervals';
 
@@ -14,33 +14,41 @@ export function isFlexibleEvent(item: Item): boolean {
 export type RescheduleSlot = { date: string; start: string; end: string };
 
 /**
- * Nearest same-day slot, 8 am–10 pm, keeping the duration and 15 minutes between
+ * Nearest same-day slot first, then the next six days, 8 am–10 pm, keeping the duration and 15 minutes between
  * commitments. Never move a fixed event, a deadline, or an ongoing event.
  * The caller changes only the selected occurrence, never the whole series.
- * Unknown event times make availability uncertain, so no slot is offered that day.
+ * Unknown event times make availability uncertain, so that day is skipped.
+ * Coursework stays before the next known deadline in the same course.
  */
 export function suggestReschedule(item: Item, items: Item[], now: { date: string; time: string }): RescheduleSlot | null {
   if (!isFlexibleEvent(item) || item.done || !item.start || !item.end || item.end <= item.start) return null;
-  const base = dayNumber(item.date) * 1440;
   const current = dayNumber(now.date) * 1440 + toMinutes(now.time);
   const original = intervalOf(item)!;
   if (original.start <= current || !findConflicts(items).some((pair) => pair.a === item.id || pair.b === item.id)) return null;
   const others = items.filter((other) => other.id !== item.id && other.kind === 'event' && !other.done);
-  if (others.some((other) => other.date === item.date && (!other.start || !other.end))) return null;
   const busy = others.map(intervalOf).filter((iv) => iv !== null);
   const duration = original.end - original.start;
-  const earliest = Math.ceil(Math.max(base + 8 * 60, current + 15) / 15) * 15;
-  const latest = base + 22 * 60 - duration;
-  const candidates: number[] = [];
-  for (let start = earliest; start <= latest; start += 15) {
-    const padded = { start: start - 15, end: start + duration + 15 };
-    if (!busy.some((iv) => overlap(padded, iv) > 0)) candidates.push(start);
+  const due = item.courseId ? Math.min(...items.filter((other) => other.isDeadline && !other.done && other.courseId === item.courseId)
+    .map((other) => dayNumber(other.date) * 1440 + toMinutes(other.start ?? '23:59')).filter((minute) => minute > original.start)) : Infinity;
+  for (let offset = 0; offset < 7; offset++) {
+    const date = addDays(item.date, offset);
+    if (others.some((other) => other.date === date && (!other.start || !other.end))) continue;
+    const base = dayNumber(date) * 1440;
+    const earliest = Math.ceil(Math.max(base + 8 * 60, current + 15) / 15) * 15;
+    const latest = Math.min(base + 22 * 60, due) - duration;
+    const candidates: number[] = [];
+    for (let start = earliest; start <= latest; start += 15) {
+      const padded = { start: start - 15, end: start + duration + 15 };
+      if (!busy.some((iv) => overlap(padded, iv) > 0)) candidates.push(start);
+    }
+    const preferred = base + toMinutes(item.start);
+    candidates.sort((a, b) => Math.abs(a - preferred) - Math.abs(b - preferred) || a - b);
+    const start = candidates[0];
+    if (start === undefined) continue;
+    const time = (minute: number) => `${String(Math.floor((minute - base) / 60)).padStart(2, '0')}:${String((minute - base) % 60).padStart(2, '0')}`;
+    return { date, start: time(start), end: time(start + duration) };
   }
-  candidates.sort((a, b) => Math.abs(a - original.start) - Math.abs(b - original.start) || a - b);
-  const start = candidates[0];
-  if (start === undefined) return null;
-  const time = (minute: number) => `${String(Math.floor((minute - base) / 60)).padStart(2, '0')}:${String((minute - base) % 60).padStart(2, '0')}`;
-  return { date: item.date, start: time(start), end: time(start + duration) };
+  return null;
 }
 
 /** Separate columns for connected overlapping events, including nested events. */

@@ -1,4 +1,4 @@
-import { findConflicts, formatRange, isFlexibleEvent, localParts, suggestReschedule } from '@dayli/core';
+import { findConflicts, formatRange, isFlexibleEvent, localParts, monthDay, suggestReschedule, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -30,6 +30,7 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
   const movable = others.filter(isFlexibleEvent);
   const upcoming = item.start && `${item.date}T${item.start}` > `${now.date}T${now.time}`;
   const suggestion = isPro ? suggestReschedule(item, items, now) : null;
+  const suggestedLabel = suggestion ? `${suggestion.date === now.date ? 'Today' : `${weekdayShort(suggestion.date)}, ${monthDay(suggestion.date)}`} · ${formatRange(suggestion.start, suggestion.end)}` : '';
 
   async function applySuggestion() {
     if (!suggestion || busy) return;
@@ -70,7 +71,7 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
       {others.map((other) => (
         <View key={other.id} style={styles.fact}>
           <T token="body">{`Overlaps with ${other.title}${other.start && other.end ? ` (${formatRange(other.start, other.end)})` : ''}.`}</T>
-          <TextButton label={`View ${other.title}`} tone="muted" onPress={() => router.push(`/item/${other.id}`)} style={styles.link} />
+          {flexible || !isFlexibleEvent(other) ? <TextButton label={`View ${other.title}`} tone="muted" onPress={() => router.push(`/item/${other.id}`)} style={styles.link} /> : null}
         </View>
       ))}
       {!flexible ? (
@@ -91,13 +92,13 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
       ) : suggestion ? (
         <View style={styles.suggestion}>
           <GroupLabel>Suggested time · Plus</GroupLabel>
-          <T token="title">{formatRange(suggestion.start, suggestion.end)}</T>
-          <T token="callout" color={c.inkSecondary}>Same day, same duration, with 15 minutes between plans. This slot is free in your calendar. Check with anyone joining you before moving it.</T>
+          <T token="title">{suggestedLabel}</T>
+          <T token="callout" color={c.inkSecondary}>{suggestion.date === item.date ? 'Same day, same duration' : 'Same duration, on the next available day'}, with 15 minutes between plans. This slot is free in your calendar. Check with anyone joining you before moving it.</T>
           {item.seriesId ? <T token="caption" color={c.inkSecondary}>Only this occurrence will move.</T> : null}
-          <Button label={busy ? 'Checking…' : `Move to ${formatRange(suggestion.start, suggestion.end)}`} disabled={busy} onPress={() => void applySuggestion()} />
+          <Button label={busy ? 'Checking…' : 'Move to this time'} disabled={busy} onPress={() => void applySuggestion()} />
         </View>
       ) : (
-        <T token="callout" color={c.inkSecondary}>No suitable free time found today between 8 am and 10 pm. Unknown event times can also prevent a suggestion. You can choose another time or date above.</T>
+        <T token="callout" color={c.inkSecondary}>No suitable free time found in the next seven days between 8 am and 10 pm, before any course deadline. Unknown event times can also prevent a suggestion. You can choose another time or date above.</T>
       )}
       {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert">{notice}</T> : null}
     </View>
