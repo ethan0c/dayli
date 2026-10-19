@@ -38,7 +38,7 @@ export function Sheet({ title, subtitle, children, footer, onClose, nav = 'cover
   );
 }
 
-/** Primary (ink) or secondary (grey) pill button, 52 high. One primary per screen. */
+/** Primary (purple) or secondary (grey) pill button, 52 high. One primary per screen. */
 export function Button({ label, onPress, disabled, variant = 'primary' }: {
   label: string; onPress: () => void; disabled?: boolean; variant?: 'primary' | 'secondary' | 'ghost';
 }) {
@@ -46,8 +46,8 @@ export function Button({ label, onPress, disabled, variant = 'primary' }: {
   const primary = variant === 'primary';
   return (
     <Press onPress={onPress} disabled={disabled} haptic="tap" accessibilityRole="button" accessibilityState={{ disabled: !!disabled }}
-      style={[styles.btn, { backgroundColor: primary ? c.inkPrimary : c.row, opacity: disabled ? 0.4 : 1 }]}>
-      <T token="headline" color={primary ? c.onPrimary : c.inkPrimary}>
+      style={[styles.btn, { backgroundColor: primary ? c.accent : c.row, opacity: disabled ? 0.4 : 1 }]}>
+      <T token="headline" color={primary ? c.onAccent : c.inkPrimary}>
         {label}
       </T>
     </Press>

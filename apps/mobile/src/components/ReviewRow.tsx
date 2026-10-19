@@ -4,6 +4,7 @@ import Animated from 'react-native-reanimated';
 
 import { CategoryDot } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
+import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { enter, exit, layout } from '@/lib/motion';
@@ -86,9 +87,7 @@ export function ReviewDisclosure({ label, open, onPress }: { label: string; open
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityState={{ expanded: open }} style={({ pressed }) => [styles.disclosure, { opacity: pressed ? 0.6 : 1 }]}>
       <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>{label}</T>
-      <View style={{ transform: [{ rotate: open ? '90deg' : '0deg' }] }}>
-        <Icon name="chevronRight" size={16} color={c.inkSecondary} />
-      </View>
+      <DisclosureChevron expanded={open} />
     </Pressable>
   );
 }

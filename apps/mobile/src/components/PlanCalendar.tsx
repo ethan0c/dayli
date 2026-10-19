@@ -19,7 +19,7 @@ export function PlanCalendarControl({ selected, expanded, onToggle, onPreviousWe
       <Pressable accessibilityRole="button" accessibilityLabel={`Choose date, ${weekdayLong(selected)}, ${monthDay(selected)}, ${selected.slice(0, 4)}`}
         accessibilityState={{ expanded }} onPress={() => { feedback('select'); onToggle(); }}
         style={({ pressed }) => [styles.monthButton, { opacity: pressed ? 0.7 : 1 }]}>
-        <Icon name="calendar" size={20} color={c.inkPrimary} />
+        <Icon name="calendar" size={20} color={c.accentInk} />
         <View style={styles.controlText}>
           <T token="callout" numberOfLines={1}>{calendarMonthLabel(selected)}</T>
           <T token="caption" color={c.inkSecondary} numberOfLines={1}>{`${weekdayLong(selected)}, ${monthDay(selected)}`}</T>
@@ -63,10 +63,10 @@ export function PlanMonthCalendar({ selected, today, onSelect }: { selected: str
                   accessibilityLabel={`${weekdayLong(date)}, ${monthDay(date)}, ${date.slice(0, 4)}${isToday ? ', today' : ''}`}
                   onPress={() => pick(date)} style={({ pressed }) => [styles.day, { opacity: pressed ? 0.6 : 1 }]}>
                   <View style={[styles.dayCircle, {
-                    backgroundColor: on ? c.inkPrimary : 'transparent',
+                    backgroundColor: on ? c.accent : 'transparent',
                     borderColor: isToday && !on ? c.accent : 'transparent',
                   }]}>
-                    <T token="subhead" tabular color={on ? c.onPrimary : inMonth ? c.inkPrimary : c.inkSecondary}>{Number(date.slice(8))}</T>
+                    <T token="subhead" tabular color={on ? c.onAccent : inMonth ? c.inkPrimary : c.inkSecondary}>{Number(date.slice(8))}</T>
                   </View>
                 </Pressable>
               );

@@ -8,7 +8,7 @@ import { feedback } from '@/lib/feedback';
 import { springs } from '@/lib/motion';
 import { useTheme } from '@/theme';
 
-/** A grey pill track with an ink pill that slides to the chosen option and shows a tick. */
+/** A grey pill track with a purple pill that slides to the chosen option and shows a tick. */
 export function Segmented<K extends string>({ options, value, onChange, label, size = 'regular' }: {
   options: { key: K; label: string }[]; value: K; onChange: (key: K) => void; label: string; size?: 'regular' | 'small';
 }) {
@@ -27,14 +27,14 @@ export function Segmented<K extends string>({ options, value, onChange, label, s
   return (
     <View accessibilityRole="radiogroup" accessibilityLabel={label} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       style={[styles.track, { backgroundColor: c.row, padding: pad, gap }]}>
-      {segW > 0 ? <Animated.View pointerEvents="none" style={[styles.pill, { width: segW, height: h, top: pad, left: pad, backgroundColor: c.inkPrimary }, pill]} /> : null}
+      {segW > 0 ? <Animated.View pointerEvents="none" style={[styles.pill, { width: segW, height: h, top: pad, left: pad, backgroundColor: c.accent }, pill]} /> : null}
       {options.map((o) => {
         const on = o.key === value;
         return (
           <Pressable key={o.key} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => { if (!on) { feedback('select'); onChange(o.key); } }}
             style={[styles.seg, { height: h }]}>
-            {on ? <Icon name="tick" size={14} color={c.onPrimary} strokeWidth={2.5} /> : null}
-            <T token="subhead" color={on ? c.onPrimary : c.inkSecondary}>{o.label}</T>
+            {on ? <Icon name="tick" size={14} color={c.onAccent} strokeWidth={2.5} /> : null}
+            <T token="subhead" color={on ? c.onAccent : c.inkSecondary}>{o.label}</T>
           </Pressable>
         );
       })}

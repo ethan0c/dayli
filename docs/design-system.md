@@ -19,7 +19,7 @@ Robinhood's 2024 identity is the reference: neutrals first, one accent used spar
 ## Color
 Six roles (light / dark): paper #FAF9F6 / #151515 · row #F0EFEB / #292929 · surface #FFFFFF / #202020 · ink #222320 / #F5F4F0 · secondary #686963 / #B4B4AC · line #E5E4DE / #363632 · accent #7057BD / #C3AFF8. Status: terracotta #9F431F / #E8A274 (bg #F8EDE5 / #3A2A20), green #246C43 / #5CC08A (bg #DDF2E6 / #16301F), amber #80510A / #E2A84B (bg #FBEFD5 / #3A2D14). The former pink course tint is muted clay; its persisted `rose` key stays compatible with saved courses.
 
-The accent (lavender, kept) is allowed in exactly five places in the app: the small dot in the mark, text buttons, the now-marker on the timeline, the word Plus, the selected week day. Course and category tints are a 6px dot beside text, never a fill.
+Purple carries the app's interactive identity: primary actions and the composer send button, selected tabs, selected dates, chips and segmented controls, disclosure chevrons, text links, the word Plus, and the small dot in the mark. Use `accent` with `onAccent` for filled controls, or `accentSoft` with `accentInk` for a quiet selection. Body text and booked events remain ink; green means done, terracotta means a conflict, and amber means input is needed. Course and category tints are a 6px dot beside text, never a fill.
 
 Meaning: filled terracotta pill for due today / overdue; terracotta text on a grey pill for a colliding time; green pill for done and newly added, green check when complete; grey pills for times and neutral states; amber only when Semli needs input. Filled status colors use `onPrimary` for legible text and icons in either theme.
 
@@ -42,7 +42,7 @@ Fonts load locally on iOS from the Geist release (OFL); the web uses the same fi
 
 ## Buttons
 Five roles, all fully round, press shrinks 3% and dims to 88% on `spring.snappy`, one haptic per role.
-1. Primary: ink fill, 52 high, one per screen. Haptic tap.
+1. Primary: purple fill with `onAccent` text, 52 high, one per screen. Haptic tap.
 2. Secondary: grey fill, same pill. Chips are the 40-high version; tiles (icon + label) the 64-high version. One component shared by capture and onboarding.
 3. Text: accent, underlined (offset 5, 1.5px); muted variant in the same accent without underline. Haptic select.
 4. Icon: 44 circle, grey or ink. The glass plus in the tab bar is the one 56 exception.
@@ -57,6 +57,7 @@ Native chrome uses the matching SF Symbol: Today `house`, Plan `calendar` (was c
 
 ## Chrome and inputs
 - Copy uses sentence case for headings, controls, status labels, and standalone date labels: "Next due", "Today", "In 3 days", "Active". Keep units and words within a sentence lowercase ("2 courses", "4:00 pm", "Due today"); preserve names and imported titles.
+- Expandable rows use one chevron, pointing right when closed and down when expanded. Rotate it smoothly over the shared base duration; preserve the expanded accessibility state and honor Reduce Motion.
 - Main tabs use `TabHeader`: the same 24 horizontal margin and safe-area top + 20, current date first, a short context label 2 below it, then the large value 6 below the label. Today’s countdown and School’s "Today" occupy the same position and use the same 56/60 type. Plan, You, and Add use the same structure. Details sit 12 below the large value, with 4 between related lines. School omits the term and course count; use "Next assignment due" before Today or Tomorrow, and "Next assignment due in" before a duration. Empty and loading states preserve the header position, and moment photos appear below it. Section titles have 12 below them.
 - Plan replaces the date/context lines with a 44-high calendar control: selected month/year and date, plus glass previous/next week buttons. Tapping the month expands a Monday-first month grid below the large heading, with month browsing and a Today shortcut. A date selection updates the header, week chart, agenda, and saved Plan date together; it also closes the grid. Calendar controls remain available before the first import.
 - Headers: system bar, native SF Symbol chevron and X in glass on iOS 26 (our 1.75-stroke icons in grey circles elsewhere), Geist 16 Medium title, paper background, no shadow, hairline only when content scrolls under.

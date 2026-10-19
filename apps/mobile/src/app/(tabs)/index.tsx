@@ -6,6 +6,7 @@ import Animated from 'react-native-reanimated';
 
 import { GroupLabel, IconButton, ListRow, SectionTitle, TextButton } from '@/components/Controls';
 import { DayBar } from '@/components/DayBar';
+import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { HourView } from '@/components/HourView';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
@@ -171,7 +172,7 @@ export default function TodayScreen() {
           <>
             <Pressable accessibilityRole="button" accessibilityState={{ expanded: completedExpanded }} onPress={() => setCompletedExpanded((o) => !o)} style={styles.disclosure}>
               <T token="caption" color={c.inkSecondary}>Completed · {completed.length}</T>
-              <Icon name={completedExpanded ? 'chevronLeft' : 'chevronRight'} size={16} color={c.inkSecondary} />
+              <DisclosureChevron expanded={completedExpanded} />
             </Pressable>
             {completedExpanded ? (
               <Animated.View entering={enter.drop} exiting={exit.fade}>

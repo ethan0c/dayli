@@ -5,7 +5,7 @@ import { IconButton } from '@/components/Controls';
 import { textStyle, useTheme } from '@/theme';
 
 /**
- * The Add composer: a white rounded rectangle with the attachments inside it and an ink send
+ * The Add composer: a white rounded rectangle with the attachments inside it and a purple send
  * circle. Shared by the Add screen and the "Now, your week" onboarding step.
  */
 export const Composer = forwardRef<ComponentRef<typeof TextInput>, {
@@ -42,7 +42,7 @@ export const Composer = forwardRef<ComponentRef<typeof TextInput>, {
         <IconButton icon="camera" label="Take a photo" tone="bare" size={40} disabled={busy} onPress={onCamera} />
         <IconButton icon="file" label="Add a PDF" tone="bare" size={40} disabled={busy} onPress={onPickPdf} />
         <View style={{ flex: 1 }} />
-        <IconButton icon="send" label="Read it" tone="ink" size={40} disabled={!canSend} haptic="ready" onPress={onSend} />
+        <IconButton icon="send" label="Read it" tone="accent" size={40} disabled={!canSend} haptic="ready" onPress={onSend} />
       </View>
     </View>
   );

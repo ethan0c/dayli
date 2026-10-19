@@ -22,7 +22,7 @@ export default function AppTabs() {
 }
 
 function TabBar() {
-  const tint = DynamicColorIOS({ light: palettes.light.inkPrimary, dark: palettes.dark.inkPrimary });
+  const tint = DynamicColorIOS({ light: palettes.light.accent, dark: palettes.dark.accent });
   return (
     <NativeTabs tintColor={tint} minimizeBehavior="onScrollDown">
       <NativeTabs.Trigger name="index" disableAutomaticContentInsets>
