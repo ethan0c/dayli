@@ -6,6 +6,9 @@ import { useStore } from '@/store';
 export { radius, space };
 export type { Palette, TypeToken };
 
+/** The app's type family (Urbanist), shared with the website and the wordmark. */
+export const mobileFonts = fontFamily;
+
 /** Palette for the current appearance: the user's choice in You, or the system setting. */
 export function useTheme(): { c: Palette; dark: boolean } {
   const scheme = useColorScheme();
@@ -17,7 +20,7 @@ export function useTheme(): { c: Palette; dark: boolean } {
 export function textStyle(token: TypeToken, color: string): TextStyle {
   const t = typeScale[token];
   return {
-    fontFamily: fontFamily[t.weight],
+    fontFamily: mobileFonts[t.weight],
     fontSize: t.size,
     lineHeight: t.line,
     letterSpacing: t.size * t.tracking,

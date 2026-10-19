@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from 'next';
-import { Onest } from 'next/font/google';
+import { Urbanist } from 'next/font/google';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { DESCRIPTION, KEYWORDS, SITE_URL, SUPPORT_EMAIL, TAGLINE } from '@/lib/site';
 import './globals.css';
 
-const onest = Onest({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-onest', display: 'swap' });
+const urbanist = Urbanist({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-urbanist', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -50,7 +50,7 @@ const JSON_LD = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={onest.variable}>
+    <html lang="en" className={urbanist.variable}>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
         <div className="wrap">

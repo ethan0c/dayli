@@ -1,7 +1,6 @@
-import { fontFamily } from '@dayli/tokens';
 import { Stack } from 'expo-router';
 
-import { useTheme } from '@/theme';
+import { mobileFonts, useTheme } from '@/theme';
 
 /** Settings is a native stack inside the modal: headers, back buttons, and transitions come from iOS. */
 export default function SettingsLayout() {
@@ -13,7 +12,7 @@ export default function SettingsLayout() {
         headerShadowVisible: false,
         headerStyle: { backgroundColor: c.canvas },
         headerTintColor: c.inkPrimary,
-        headerTitleStyle: { fontFamily: fontFamily.semibold, color: c.inkPrimary, fontSize: 17 },
+        headerTitleStyle: { fontFamily: mobileFonts.semibold, color: c.inkPrimary, fontSize: 17 },
         headerTitleAlign: 'center',
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: c.canvas },

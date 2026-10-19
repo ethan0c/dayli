@@ -1,7 +1,7 @@
 import { localParts } from '@dayli/core';
 import { router, usePathname } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { AddButton } from '@/components/AddButton';
@@ -17,19 +17,25 @@ const actions: { action: Action; label: string; icon: IconKey }[] = [
   { action: 'event', label: 'Event', icon: 'calendar' },
 ];
 
+const AddMenuContext = createContext<{ open: () => void; expanded: boolean } | null>(null);
+export function useAddMenu() {
+  const value = useContext(AddMenuContext);
+  if (!value) throw new Error('Add controls must be inside AddMenu.');
+  return value;
+}
+
 /** Keeps the native tab bar; the menu floats above its existing add button. */
-export function AddMenu({ bottom }: { bottom: number }) {
+export function AddMenu({ bottom, children, nativeTrigger = false }: { bottom: number; children?: ReactNode; nativeTrigger?: boolean }) {
   const { c } = useTheme();
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
-  const [rotation] = useState(() => new Animated.Value(0));
   const pending = useRef<{ action: Action; date: string } | null>(null);
   const selecting = useRef(false);
 
   useEffect(() => {
     let active = true;
-    void AccessibilityInfo.isReduceMotionEnabled().then((value) => { if (active) setReduceMotion(value); });
+    void AccessibilityInfo.isReduceMotionEnabled().then((value) => { if (active) setReduceMotion(value); }).catch(() => {});
     const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
     return () => { active = false; subscription.remove(); };
   }, []);
@@ -38,7 +44,6 @@ export function AddMenu({ bottom }: { bottom: number }) {
     feedback('tap');
     selecting.current = false;
     pending.current = null;
-    rotation.setValue(reduceMotion ? 1 : 0);
     setVisible(true);
   };
   const close = () => { pending.current = null; setVisible(false); };
@@ -62,10 +67,10 @@ export function AddMenu({ bottom }: { bottom: number }) {
     if (Platform.OS !== 'ios') navigate();
   };
 
-  return <>
-    <AddButton bottom={bottom} expanded={visible} onPress={open} />
-    <Modal transparent visible={visible} animationType={reduceMotion ? 'none' : 'fade'} onRequestClose={close} onDismiss={navigate}
-      onShow={() => Animated.timing(rotation, { toValue: 1, duration: reduceMotion ? 0 : 160, useNativeDriver: true }).start()}>
+  return <AddMenuContext.Provider value={{ open, expanded: visible }}>
+    {children}
+    {!nativeTrigger ? <AddButton bottom={bottom} expanded={visible} onPress={open} /> : null}
+    <Modal transparent visible={visible} animationType={reduceMotion ? 'none' : 'fade'} onRequestClose={close} onDismiss={navigate}>
       <View style={styles.overlay} accessibilityViewIsModal onAccessibilityEscape={close}>
         <Pressable accessible={false} onPress={close} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
         <View style={[styles.menu, { bottom: bottom + 68 }]}>
@@ -79,13 +84,11 @@ export function AddMenu({ bottom }: { bottom: number }) {
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="Close add menu" accessibilityState={{ expanded: true }} onPress={close}
           style={[styles.toggle, { bottom, backgroundColor: c.surface }]}>
-          <Animated.View style={{ transform: [{ rotate: rotation.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '45deg'] }) }] }}>
-            <Icon name="plus" size={24} color={c.inkPrimary} />
-          </Animated.View>
+          <Icon name="x" size={24} color={c.inkPrimary} />
         </Pressable>
       </View>
     </Modal>
-  </>;
+  </AddMenuContext.Provider>;
 }
 
 const styles = StyleSheet.create({

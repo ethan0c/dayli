@@ -25,7 +25,7 @@ Status: draft · October 2026
 Decision (Oct 19, 2026): Semli has one logo, the `semli.` wordmark, and it is used everywhere including the app icon, splash, favicon, and social image. There is no separate symbol and no cropped variant. The wordmark is stored as glyph outlines (`packages/tokens/src/wordmark.ts`, generated from Onest SemiBold with −4.5% tracking) so it renders identically in the app, on the web, and in every exported asset.
 
 ### 3.1 Wordmark
-Lowercase `semli.` in Onest SemiBold, tracked −4.5%. Two lavender (500) circles: the tittle of the i and the closing period, both 0.19 em wide. Today, and what's next.
+Lowercase `semli.` in Urbanist SemiBold, tracked −4.5%. Two lavender (500) circles: the tittle of the i and the closing period, both 0.19 em wide. Today, and what's next.
 
 - Custom pass before launch: shorten the y descender so it sits tight on the baseline, open the a slightly, and round terminals to match the icon stroke. These make the mark ownable against the word "daily".
 - Always lowercase, always with the period. In running text the product is "Semli".
@@ -58,7 +58,7 @@ On launch and after an import is confirmed, the period drops in last. Keep it un
 
 ## 7. Color & type in brand use
 - Brand color: lavender-500 `#8A74E6` with ink `#1C1B21` and white. Lavender is an accent; never a full-bleed gradient.
-- Marketing type: Onest for everything; display set at 400 weight with tight tracking (like the clock). Optional serif accent for editorial marketing only: Fraunces Soft (italic), sparingly.
+- Marketing type: Urbanist for everything; display set at 400 weight with tight tracking (like the clock). Optional serif accent for editorial marketing only: Fraunces Soft (italic), sparingly.
 
 ## 8. Imagery & illustration
 - Product screenshots on soft lavender or near-black stages (as in the reference render).

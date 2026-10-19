@@ -256,7 +256,7 @@ export const useStore = create<State>()(
         });
       },
 
-      clearAll: () => set({ items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null, taskWorkDates: {}, suggestionDismissals: { date: '', ids: [] }, captureDraft: '' }),
+      clearAll: () => set({ items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null, taskWorkDates: {}, suggestionDismissals: { date: '', ids: [] }, captureDraft: '', selectedPlanDate: null }),
     }),
     {
       name: 'semli',

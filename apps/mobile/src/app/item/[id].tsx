@@ -1,7 +1,7 @@
 import { formatRange, formatTime, monthDay, weekdayLong } from '@dayli/core';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { NativeButton } from '@/components/Native';
@@ -66,7 +66,7 @@ export default function ItemScreen() {
           />
         </>
       }>
-      <View style={styles.body}>
+      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         <View style={[styles.hero, { backgroundColor: item.kind === 'event' ? cat.fill : c.row }]}>
           <Icon name={item.icon} size={24} color={item.kind === 'event' ? cat.ink : c.inkPrimary} />
           <TextInput
@@ -81,12 +81,13 @@ export default function ItemScreen() {
         {item.isDeadline ? <Row icon="exam" label="Deadline" /> : null}
         {source ? <Row icon="file" label={`From: ${source}`} /> : null}
         {item.done && item.completedAt ? <Row icon="tick" label={`Done ${new Date(item.completedAt).toLocaleDateString()}`} /> : null}
+        {item.notes ? <View style={[styles.notes, { backgroundColor: c.row }]}><T token="subhead" color={c.inkSecondary}>Notes</T><T token="body">{item.notes}</T></View> : null}
         <Pressable onPress={() => router.back()} style={styles.link}>
           <T token="subhead" color={c.inkSecondary}>
             Tap outside the title to save your changes.
           </T>
         </Pressable>
-      </View>
+      </ScrollView>
     </Sheet>
   );
 }
@@ -104,7 +105,8 @@ function Row({ icon, label }: { icon: React.ComponentProps<typeof Icon>['name'];
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, gap: 14 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 24, gap: 14 },
+  notes: { padding: 16, borderRadius: radius.row, gap: 8 },
   hero: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: radius.card },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 4 },
   link: { paddingHorizontal: 4, paddingTop: 8 },

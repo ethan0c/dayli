@@ -1,4 +1,4 @@
-import { Onest_400Regular, Onest_500Medium, Onest_600SemiBold, useFonts } from '@expo-google-fonts/onest';
+import { Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold, useFonts } from '@expo-google-fonts/urbanist';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -12,7 +12,7 @@ import { useTheme } from '@/theme';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({ Onest_400Regular, Onest_500Medium, Onest_600SemiBold });
+  const [fontsLoaded, fontError] = useFonts({ Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold });
   const hydrated = useStore((s) => s.hydrated);
   const onboarded = useStore((s) => s.settings.onboarded);
   const appearance = useStore((s) => s.settings.appearance);

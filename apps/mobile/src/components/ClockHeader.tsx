@@ -10,7 +10,7 @@ export function ClockHeader({ time, date, onPressDate }: { time: string; date: s
   const hour = Number(h) % 12 === 0 ? 12 : Number(h) % 12;
   return (
     <View style={styles.row}>
-      <T token="displayXl" tabular maxFontSizeMultiplier={72 / 56}>
+      <T token="displayXl" tabular maxFontSizeMultiplier={72 / 48} style={{ fontSize: 48, lineHeight: 56 }}>
         {hour}:{m}
       </T>
       <Pressable onPress={onPressDate} style={styles.date} accessibilityRole={onPressDate ? 'button' : undefined} accessibilityLabel="Jump to today">
@@ -26,7 +26,7 @@ export function ClockHeader({ time, date, onPressDate }: { time: string; date: s
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: 4, paddingBottom: 14 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: 4, paddingBottom: 24 },
   date: { paddingBottom: 6 },
   right: { textAlign: 'right' },
 });

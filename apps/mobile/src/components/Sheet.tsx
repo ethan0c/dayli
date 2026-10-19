@@ -59,6 +59,8 @@ export function Button({
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) => [
         styles.btn,
         primary ? { backgroundColor: c.inkPrimary } : { backgroundColor: c.row },
