@@ -1,6 +1,6 @@
-import { Redirect } from 'expo-router';
+import { AddScreen } from '@/components/AddScreen';
 
-/** Direct-link fallback: the plus opens Add directly, so this route just goes there. */
-export default function AddScreen() {
-  return <Redirect href="/capture" />;
+/** The fifth tab: the plus in the tab bar, drawn by the system as the detached circle on iOS 26. */
+export default function AddTab() {
+  return <AddScreen />;
 }

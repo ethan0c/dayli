@@ -9,7 +9,6 @@ import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
 
 import { devCommand } from '@/lib/dev';
-import { profileFor } from '@/lib/majors';
 import { sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
 
@@ -52,7 +51,7 @@ function RootLayout() {
       if (cmd === 'sample' || cmd === 'moment' || cmd === 'item') {
         store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
         if (Object.keys(store.items).length === 0) {
-          const week = sampleWeek(today, profileFor('nursing', true), true);
+          const week = sampleWeek(today, { student: true, preview: true });
           useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });
         }
       }

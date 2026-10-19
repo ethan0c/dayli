@@ -1,0 +1,182 @@
+import { IMPORT_MESSAGES, type ExtractRequest } from '@dayli/schema';
+import { File } from 'expo-file-system';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffectEvent, useRef, useState, type ComponentRef } from 'react';
+import { Platform, ScrollView, StyleSheet, type TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Composer } from '@/components/Composer';
+import { GroupLabel, ListRow } from '@/components/Controls';
+import { Icon } from '@/components/Icon';
+import { Reading } from '@/components/Reading';
+import { RecentShots } from '@/components/RecentShots';
+import { T } from '@/components/Text';
+import { track } from '@/lib/analytics';
+import { requestExtraction } from '@/lib/api';
+import { InputError, extractionContext, pickImageInput, pickPdfInput } from '@/lib/capture-input';
+import { feedback } from '@/lib/feedback';
+import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
+import { hasSemliPro, purchaseErrorMessage } from '@/lib/revenuecat';
+import { usePurchases } from '@/providers/PurchasesProvider';
+import { useStore } from '@/store';
+import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
+
+/**
+ * Add, the fifth tab: a composer with the attachments inside it, the recent screenshots,
+ * and three "start with" rows. Reading shows a progress line and rows that fill in.
+ * Arriving with `?source=image|file` opens that picker straight away, once.
+ */
+export function AddScreen() {
+  const { c } = useTheme();
+  const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ source?: string; at?: string }>();
+  const { refreshCustomerInfo, presentPaywall } = usePurchases();
+  const [text, setText] = useState(() => useStore.getState().captureDraft);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setErrorText] = useState<string | null>(null);
+  const setError = (message: string | null) => {
+    if (message) feedback('error');
+    setErrorText(message);
+  };
+  const apiUrl = useStore((s) => s.settings.apiUrl);
+  const setPending = useStore((s) => s.setPending);
+  const recordImport = useStore((s) => s.recordImport);
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
+
+  async function run(input: ExtractRequest['input'], source: string) {
+    setError(null);
+    setBusy(source);
+    track('import_started', { kind: input.kind });
+    const usage = useStore.getState().usage;
+    const month = new Date().toISOString().slice(0, 7);
+    if (usage.month === month && usage.imports >= FREE_IMPORTS_PER_MONTH) {
+      try {
+        const info = await refreshCustomerInfo();
+        track('paywall_shown', { reason: 'quota' });
+        if (!hasSemliPro(info) && !(await presentPaywall())) {
+          setBusy(null);
+          return;
+        }
+      } catch (failure) {
+        setError(purchaseErrorMessage(failure));
+        setBusy(null);
+        return;
+      }
+    }
+    try {
+      const res = await requestExtraction(apiUrl, { input, context: extractionContext() });
+      if (!res.ok) {
+        track('import_failed', { kind: input.kind });
+        setError(res.error);
+        return;
+      }
+      if (res.extraction.items.length === 0) {
+        setError(IMPORT_MESSAGES.empty);
+        return;
+      }
+      feedback('ready');
+      useStore.getState().setCaptureDraft('');
+      recordImport();
+      track('import_succeeded', { kind: input.kind, items: res.extraction.items.length, type: res.extraction.detected_type });
+      setPending({ extraction: res.extraction, source });
+      router.push('/review');
+    } catch {
+      setError(IMPORT_MESSAGES.unavailable);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const pick = async (fn: () => Promise<{ input: ExtractRequest['input']; source: string } | null>) => {
+    setError(null);
+    try {
+      const picked = await fn();
+      if (picked) await run(picked.input, picked.source);
+    } catch (e) {
+      setError(e instanceof InputError ? e.message : IMPORT_MESSAGES.file);
+    }
+  };
+
+  const canSend = text.trim().length > 0 && !busy;
+
+  /** A tapped screenshot thumbnail; an empty uri means "open the photo picker". */
+  async function openShot(uri: string) {
+    if (!uri) return pick(() => pickImageInput(false));
+    setError(null);
+    try {
+      const data = await new File(uri).base64();
+      const lower = uri.toLowerCase();
+      const mediaType = lower.endsWith('.png') ? 'image/png' : lower.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+      await run({ kind: 'image', mediaType, data }, 'Screenshot');
+    } catch {
+      setError("We couldn't open that screenshot. Try choosing it from your photos instead.");
+    }
+  }
+
+  // A row elsewhere ("Next week's shifts", "A syllabus") lands here with a source and opens
+  // its picker once per arrival; `at` changes on every push so the same source can repeat.
+  const openedAt = useRef<string | null>(null);
+  const openSource = useEffectEvent((source: string, at: string) => {
+    if (openedAt.current === at) return;
+    openedAt.current = at;
+    if (source === 'image') void pick(() => pickImageInput(false));
+    if (source === 'file') void pick(pickPdfInput);
+  });
+  useFocusEffect(
+    useCallback(() => {
+      if (!params.source || Platform.OS === 'web') return;
+      const timer = setTimeout(() => openSource(params.source!, params.at ?? params.source!), 350);
+      return () => clearTimeout(timer);
+    }, [params.source, params.at]),
+  );
+
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={[styles.body, { paddingTop: insets.top + 24, paddingBottom: NAV_INSET }]}
+      keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="never">
+      {busy ? (
+        <Reading source={busy === 'Message' ? 'your message' : busy} />
+      ) : (
+        <View style={{ gap: 4 }}>
+          <T token="display">What’s coming up?</T>
+          <T token="callout" color={c.inkSecondary}>Type it, paste it, or drop in a screenshot. You review everything before it’s added.</T>
+        </View>
+      )}
+
+      <Composer
+        ref={inputRef}
+        id="capture-text"
+        value={text}
+        onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
+        busy={!!busy}
+        canSend={canSend}
+        onPickImage={() => void pick(() => pickImageInput(false))}
+        onCamera={() => void pick(() => pickImageInput(true))}
+        onPickPdf={() => void pick(pickPdfInput)}
+        onSend={() => void run({ kind: 'text', text: text.trim() }, 'Message')}
+      />
+
+      {error ? (
+        <View accessibilityRole="alert" style={styles.status}>
+          <Icon name="alert" size={16} color={c.conflict} />
+          <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{error}</T>
+        </View>
+      ) : null}
+
+      {!busy ? <RecentShots disabled={!!busy} onPick={(uri) => void openShot(uri)} /> : null}
+
+      {!busy ? (
+        <View>
+          <GroupLabel>Or start with</GroupLabel>
+          <ListRow leading={<Icon name="file" size={20} color={c.inkPrimary} />} title="A syllabus" sub="Classes, exams and due dates for the whole term" onPress={() => void pick(pickPdfInput)} />
+          <ListRow leading={<Icon name="work" size={20} color={c.inkPrimary} />} title="A work schedule" sub="A screenshot from the scheduling app or the group chat" onPress={() => void pick(() => pickImageInput(false))} />
+          <ListRow leading={<Icon name="pen" size={20} color={c.inkPrimary} />} title="Something by hand" sub="A to-do or event with the date you pick" last onPress={() => router.push({ pathname: '/create', params: { kind: 'task' } })} />
+        </View>
+      ) : null}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  body: { paddingHorizontal: SCREEN_GUTTER, gap: 20 },
+  status: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
+});
