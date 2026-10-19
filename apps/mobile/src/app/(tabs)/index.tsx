@@ -1,10 +1,11 @@
-import { addDays, conflictIds, diffDays, findConflicts, findOverloads, formatTime, monthDay, pendingDates, relativeDay, weekdayLong } from '@dayli/core';
+import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatTime, monthDay, nowSummary, overdueTasks, pendingDates, relativeDay, startTodaySuggestions, todayItems, tomorrowSummary, weekdayLong } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { HomeCaptureCard } from '@/components/HomeCaptureCard';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { T } from '@/components/Text';
@@ -21,203 +22,226 @@ export default function TodayScreen() {
   const items = useItemList();
   const name = useStore((s) => s.settings.name);
   const schedules = useStore((s) => s.schedules);
+  const workDates = useStore((s) => s.taskWorkDates);
+  const dismissals = useStore((s) => s.suggestionDismissals);
   const toggleDone = useStore((s) => s.toggleDone);
+  const planTasks = useStore((s) => s.planTasks);
+  const unplanTask = useStore((s) => s.unplanTask);
+  const dismissSuggestion = useStore((s) => s.dismissSuggestion);
+  const setCaptureDraft = useStore((s) => s.setCaptureDraft);
+  const [overdueExpanded, setOverdueExpanded] = useState(false);
 
-  const todays = useMemo(() => {
-    const list = items.filter((i) => i.date === now.date);
-    const timed = list.filter((i) => i.start).sort((a, b) => a.start!.localeCompare(b.start!));
-    const untimed = list.filter((i) => !i.start);
-    return [...timed, ...untimed].sort((a, b) => Number(a.done) - Number(b.done));
-  }, [items, now.date]);
-
-  const upcoming = useMemo(
-    () =>
-      items.filter((i) => !i.done && i.isDeadline && i.date > now.date && diffDays(now.date, i.date) <= 14).slice(0, 5),
-    [items, now.date],
-  );
-
-  const weekAhead = useMemo(() => items.filter((i) => i.date >= now.date && diffDays(now.date, i.date) <= 7), [items, now.date]);
-  const conflicts = useMemo(() => findConflicts(weekAhead), [weekAhead]);
+  const todays = useMemo(() => todayItems(items, now.date, workDates), [items, now.date, workDates]);
+  const overdue = useMemo(() => overdueTasks(items, now.date, workDates), [items, now.date, workDates]);
+  const suggestions = useMemo(() => startTodaySuggestions(items, now, workDates, dismissals.date === now.date ? dismissals.ids : []), [items, now, workDates, dismissals]);
+  const summary = useMemo(() => nowSummary(items, now), [items, now]);
+  const tomorrow = useMemo(() => tomorrowSummary(items, now, workDates), [items, now, workDates]);
+  const upcoming = useMemo(() => items.filter((item) => !item.done && item.isDeadline && item.date > now.date && diffDays(now.date, item.date) <= 14
+    && !suggestions.some((suggestion) => suggestion.item.id === item.id)).slice(0, 5), [items, now.date, suggestions]);
+  // Include yesterday's events so overnight shifts don't disappear at midnight.
+  const weekAhead = useMemo(() => items.filter((item) => item.date >= addDays(now.date, -1) && diffDays(now.date, item.date) <= 7), [items, now.date]);
+  const conflicts = useMemo(() => findConflicts(weekAhead).filter((conflict) => {
+    const a = items.find((item) => item.id === conflict.a);
+    const b = items.find((item) => item.id === conflict.b);
+    return (a?.date ?? '') >= now.date || (b?.date ?? '') >= now.date;
+  }), [weekAhead, items, now.date]);
   const conflictSet = useMemo(() => conflictIds(weekAhead), [weekAhead]);
-  const overloads = useMemo(() => findOverloads(weekAhead, now), [weekAhead, now]);
-  const byId = useMemo(() => Object.fromEntries(items.map((i) => [i.id, i])) as Record<string, Item>, [items]);
-
+  const byId = useMemo(() => Object.fromEntries(items.map((item) => [item.id, item])) as Record<string, Item>, [items]);
   const nextWeekPending = schedules.length > 0 && pendingDates(schedules, addDays(now.date, 1), addDays(now.date, 7)).length > 0;
-  const isSample = items.some((i) => i.sourceId === SAMPLE_SOURCE);
-  const left = todays.filter((i) => !i.done).length;
-  const hasTimed = todays.some((i) => i.start);
+  const isSample = items.some((item) => item.sourceId === SAMPLE_SOURCE);
+  const hasTimed = todays.some((item) => item.start && (item.date === now.date || item.kind === 'event'));
+  const tightDeadlines = items.filter((item) => !item.done && item.isDeadline && item.start
+    && (item.date > now.date || item.date === now.date && item.start > now.time)
+    && diffDays(now.date, item.date) <= 7 && !suggestions.some((suggestion) => suggestion.item.id === item.id))
+    .map((item) => ({ item, window: deadlineWindow(items, item, now) }))
+    .filter(({ window }) => !window.hasUnknownTimes && window.unbookedHours < 4);
+  const hasWarnings = conflicts.length > 0 || tightDeadlines.length > 0;
   const hour = Number(now.time.slice(0, 2));
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const eveningTasks = hour >= 18 && !todays.some((item) => item.kind === 'event' && !item.done && item.end && item.end > now.time);
+
+  function openCapture(text: string, source?: 'image' | 'file') {
+    setCaptureDraft(text);
+    feedback('tap');
+    router.push({ pathname: '/capture', params: source ? { source } : {} });
+  }
+
+  function workOnToday(ids: string[]) {
+    planTasks(ids, now.date);
+    feedback('select');
+  }
 
   return (
-    <ScrollView
-      style={{ backgroundColor: c.canvas }}
-      contentContainerStyle={{ paddingBottom: NAV_INSET }}>
+    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} keyboardShouldPersistTaps="handled">
       <View style={[styles.head, { backgroundColor: dayTint(c, hour), paddingTop: insets.top + 8 }]}>
         <View style={styles.headRow}>
-          <T token="display" style={{ flex: 1 }}>
-            {greeting}
-            {name ? `,\n${name}.` : '.'}
-          </T>
-          <Pressable
-            onPress={() => router.push('/settings')}
-            accessibilityLabel="You"
-            style={[styles.avatar, { backgroundColor: c.surface }]}>
+          <View style={{ flex: 1, gap: 6 }}>
+            <T token="caption" color={c.inkSecondary}>{weekdayLong(now.date)}, {monthDay(now.date)}</T>
+            <T token="display">{greeting}{name ? `,\n${name}.` : '.'}</T>
+          </View>
+          <Pressable onPress={() => router.push('/settings')} accessibilityRole="button" accessibilityLabel="You" style={[styles.avatar, { backgroundColor: c.surface }]}>
             <Icon name="user" size={18} color={c.inkPrimary} />
           </Pressable>
         </View>
-        <T token="callout" color={c.inkSecondary}>
-          {weekdayLong(now.date)}, {monthDay(now.date)} · {left === 0 ? 'nothing left today' : `${left} ${left === 1 ? 'thing' : 'things'} today`}
-        </T>
+        <T token="callout" color={c.inkSecondary} style={{ marginTop: 4 }}>{summary}</T>
       </View>
 
       {isSample ? (
-        <Pressable onPress={() => router.push('/settings')} style={[styles.note, { backgroundColor: c.accentSoft, borderColor: c.accentBorder }]}>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/settings/data')} style={[styles.note, { backgroundColor: c.accentSoft, borderColor: c.accentBorder }]}>
           <Icon name="sparkle" size={16} color={c.accentInk} />
-          <T token="subhead" color={c.accentInk} style={{ flex: 1 }}>
-            You’re exploring a sample week. Tap + to add your own plans, or open You to clear the sample.
-          </T>
+          <T token="caption" color={c.accentInk} style={{ flex: 1 }}>A sample week to explore. Add your own plans with +, or manage the sample in Your data.</T>
         </Pressable>
       ) : null}
 
-      {(conflicts.length > 0 || overloads.length > 0) && (
+      {hasWarnings ? (
         <Section title="Heads up">
-          {conflicts.slice(0, 3).map((cf) => (
-            <Card key={cf.a + cf.b} icon="alert" tone="conflict">
-              <T token="body">
-                {byId[cf.a]?.title} overlaps {byId[cf.b]?.title} on {monthDay(byId[cf.a]?.date ?? now.date)}.
-              </T>
-            </Card>
+          {conflicts.slice(0, 2).map((conflict) => (
+            <Pressable key={`${conflict.a}-${conflict.b}`} accessibilityRole="button" onPress={() => router.push(`/item/${conflict.a}`)} style={[styles.card, { backgroundColor: c.conflictBg }]}>
+              <Icon name="alert" size={18} color={c.conflict} />
+              <T token="callout" style={{ flex: 1 }}>{byId[conflict.a]?.title} overlaps {byId[conflict.b]?.title} on {monthDay(byId[conflict.a]?.date ?? now.date)}.</T>
+            </Pressable>
           ))}
-          {overloads.slice(0, 2).map((o) => (
-            <Card key={o.deadlineId} icon="sparkle" tone="accent" action={{ label: 'Open Plan', onPress: () => router.push('/plan') }}>
-              <T token="body">
-                You have about {o.freeHours} free {o.freeHours === 1 ? 'hour' : 'hours'} before {byId[o.deadlineId]?.title}. Want to look at the week?
-              </T>
-            </Card>
+          {tightDeadlines.slice(0, Math.max(0, 2 - conflicts.length)).map(({ item, window }) => (
+            <Pressable key={item.id} accessibilityRole="button" onPress={() => router.push(`/item/${item.id}`)} style={[styles.card, { backgroundColor: c.accentSoft }]}>
+              <Icon name="sparkle" size={18} color={c.accentInk} />
+              <T token="callout" style={{ flex: 1 }}>About {window.unbookedHours} unbooked hours in your calendar before {item.title}. Estimate uses 7 am–11 pm in the three days before it.</T>
+            </Pressable>
           ))}
         </Section>
-      )}
+      ) : null}
 
-      <Section title="Today">
-        {todays.length === 0 ? (
-          <Empty text="Nothing planned for today yet. Tap + to add a schedule, a syllabus, or a quick message." />
-        ) : (
-          todays.map((it) => (
-            <View key={it.id} style={styles.tl}>
-              {hasTimed ? (
-                <T token="subhead" color={c.inkSecondary} tabular style={styles.tlTime}>
-                  {it.start ? formatTime(it.start) : ''}
-                </T>
-              ) : null}
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <ItemRow
-                  item={it}
-                  conflict={conflictSet.has(it.id)}
-                  onPress={() => router.push(`/item/${it.id}`)}
-                  onToggle={() => {
-                    feedback(it.done ? 'uncomplete' : 'complete');
-                    toggleDone(it.id);
-                  }}
-                />
+      {suggestions.length ? (
+        <Section title="Start today">
+          {suggestions.map(({ item, reason }) => (
+            <View key={item.id} style={[styles.suggestion, { backgroundColor: c.accentSoft }]}>
+              <Pressable accessibilityRole="button" onPress={() => router.push(`/item/${item.id}`)} style={styles.suggestionTitle}>
+                <Icon name={item.icon} size={18} color={c.accentInk} />
+                <View style={{ flex: 1, gap: 4 }}>
+                  <T token="headline">{item.kind === 'event' ? `Prepare for ${item.title}` : item.title}</T>
+                  <T token="caption" color={c.inkSecondary}>{reason}</T>
+                </View>
+                <Icon name="chevronRight" size={16} color={c.inkSecondary} />
+              </Pressable>
+              <View style={styles.suggestionActions}>
+                {item.kind === 'task' ? <TextAction label="Work on today" onPress={() => workOnToday([item.id])} /> : null}
+                <TextAction label="Not today" muted onPress={() => { dismissSuggestion(item.id, now.date); feedback('select'); }} />
               </View>
             </View>
-          ))
-        )}
+          ))}
+          <T token="caption" color={c.inkSecondary}>Calendar gaps are estimates within 7 am–11 pm in the three days before a due date. Unscheduled work isn’t included.</T>
+        </Section>
+      ) : null}
+
+      {overdue.length ? (
+        <View style={styles.section}>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Still open, ${overdue.length} tasks`} accessibilityState={{ expanded: overdueExpanded }} onPress={() => setOverdueExpanded((open) => !open)} style={styles.disclosure}>
+            <T token="overline" color={c.inkSecondary}>Still open · {overdue.length}</T>
+            <T token="caption" color={c.inkSecondary}>{overdueExpanded ? 'Hide' : 'Show'}</T>
+          </Pressable>
+          {overdueExpanded ? (
+            <>
+              {overdue.map((item) => (
+                <View key={item.id} style={[styles.overdue, { borderBottomColor: c.line }]}>
+                  <Pressable accessibilityRole="button" onPress={() => router.push(`/item/${item.id}`)} style={{ flex: 1, gap: 3 }}>
+                    <T>{item.title}</T><T token="caption" color={c.inkSecondary}>{item.isDeadline ? 'Due' : 'Planned for'} {monthDay(item.date)}</T>
+                  </Pressable>
+                  <TextAction label="Work on today" accessibilityLabel={`Work on ${item.title} today without changing its date`} onPress={() => workOnToday([item.id])} />
+                </View>
+              ))}
+              {overdue.length > 1 ? <TextAction label="Bring all into today" onPress={() => workOnToday(overdue.map((item) => item.id))} /> : null}
+              <T token="caption" color={c.inkSecondary}>Their original dates stay the same.</T>
+            </>
+          ) : null}
+        </View>
+      ) : null}
+
+      <Section title="Today">
+        {!todays.length ? <HomeCaptureCard onCapture={openCapture} /> : todays.map((item, index) => {
+          const planned = item.date !== now.date && workDates[item.id] === now.date;
+          const timed = !!item.start && !planned;
+          const previous = todays[index - 1];
+          const showEvening = eveningTasks && !item.done && !timed && (!previous || !!previous.start && previous.date === now.date);
+          return (
+            <View key={item.id} style={{ gap: 6 }}>
+              {showEvening ? <T token="caption" color={c.inkSecondary} style={{ paddingTop: 8 }}>This evening</T> : null}
+              <View style={styles.tl}>
+                {hasTimed ? <T token="subhead" color={c.inkSecondary} tabular style={styles.tlTime}>{timed ? formatTime(item.kind === 'event' && item.date < now.date ? '00:00' : item.start!) : ''}</T> : null}
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <ItemRow item={item} conflict={conflictSet.has(item.id)} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => {
+                    feedback(item.done ? 'uncomplete' : 'complete');
+                    toggleDone(item.id);
+                  }} />
+                  {planned ? <View style={styles.plannedNote}>
+                    <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>{item.isDeadline ? 'Due' : 'Original date'} {monthDay(item.date)} · working on it today</T>
+                    <TextAction label="Undo" accessibilityLabel={`Remove ${item.title} from today’s work plan`} muted onPress={() => unplanTask(item.id)} />
+                  </View> : null}
+                </View>
+              </View>
+            </View>
+          );
+        })}
       </Section>
 
-      <Section title="Coming up">
-        {upcoming.map((it) => (
-          <Pressable key={it.id} onPress={() => router.push(`/item/${it.id}`)} style={[styles.up, { backgroundColor: c.row }]}>
-            <Icon name={it.icon} size={18} color={c.inkPrimary} />
-            <T style={{ flex: 1 }} numberOfLines={1}>
-              {it.title}
-            </T>
-            <T token="subhead" color={diffDays(now.date, it.date) <= 1 ? c.conflict : c.inkSecondary}>
-              {weekdayLong(it.date).slice(0, 3)} · {relativeDay(now.date, it.date)}
-            </T>
-          </Pressable>
-        ))}
-        {nextWeekPending ? (
-          <Pressable onPress={() => router.push('/capture')} style={[styles.up, styles.pending, { borderColor: c.line }]}>
-            <Icon name="work" size={18} color={c.inkSecondary} />
-            <T style={{ flex: 1 }} color={c.inkSecondary}>
-              {"Next week's shifts"}
-            </T>
-            <T token="subhead" color={c.inkSecondary}>
-              Not added yet
-            </T>
-          </Pressable>
-        ) : null}
-        {upcoming.length === 0 && !nextWeekPending ? <Empty text="No deadlines in the next two weeks." /> : null}
-      </Section>
+      {tomorrow ? <Pressable accessibilityRole="button" onPress={() => router.push('/plan')} style={[styles.peek, { borderColor: c.line }]}>
+        <Icon name="calendar" size={17} color={c.inkSecondary} />
+        <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>{tomorrow}</T>
+        <Icon name="chevronRight" size={16} color={c.inkSecondary} />
+      </Pressable> : null}
+
+      {upcoming.length || nextWeekPending ? (
+        <Section title="Coming up">
+          {upcoming.map((item) => (
+            <Pressable key={item.id} accessibilityRole="button" onPress={() => router.push(`/item/${item.id}`)} style={[styles.up, { backgroundColor: c.row }]}>
+              <Icon name={item.icon} size={18} color={c.inkPrimary} />
+              <View style={{ flex: 1, gap: 3 }}>
+                <T>{item.title}</T>
+                {diffDays(now.date, item.date) <= 7 ? <T token="caption" color={c.inkSecondary}>{deadlineReason(items, item, now)}</T> : null}
+              </View>
+              <T token="subhead" color={diffDays(now.date, item.date) <= 1 ? c.conflict : c.inkSecondary}>{relativeDay(now.date, item.date)}</T>
+            </Pressable>
+          ))}
+          {nextWeekPending ? (
+            <Pressable accessibilityRole="button" onPress={() => openCapture('', 'image')} style={[styles.up, styles.pending, { borderColor: c.line }]}>
+              <Icon name="work" size={18} color={c.inkSecondary} />
+              <T style={{ flex: 1 }} color={c.inkSecondary}>{"Next week's shifts"}</T>
+              <T token="caption" color={c.inkSecondary}>Not added yet</T>
+            </Pressable>
+          ) : null}
+        </Section>
+      ) : null}
     </ScrollView>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   const { c } = useTheme();
-  return (
-    <View style={styles.section}>
-      <T token="overline" color={c.inkSecondary}>
-        {title}
-      </T>
-      {children}
-    </View>
-  );
+  return <View style={styles.section}><T token="overline" color={c.inkSecondary}>{title}</T>{children}</View>;
 }
 
-function Empty({ text }: { text: string }) {
+function TextAction({ label, onPress, muted, accessibilityLabel }: { label: string; onPress: () => void; muted?: boolean; accessibilityLabel?: string }) {
   const { c } = useTheme();
-  return (
-    <T token="callout" color={c.inkSecondary} style={{ paddingVertical: 6 }}>
-      {text}
-    </T>
-  );
-}
-
-function Card({
-  icon,
-  tone,
-  action,
-  children,
-}: {
-  icon: 'alert' | 'sparkle';
-  tone: 'conflict' | 'accent';
-  action?: { label: string; onPress: () => void };
-  children: React.ReactNode;
-}) {
-  const { c } = useTheme();
-  const bg = tone === 'conflict' ? c.conflictBg : c.accentSoft;
-  const ink = tone === 'conflict' ? c.conflict : c.accentInk;
-  return (
-    <View style={[styles.card, { backgroundColor: bg }]}>
-      <View style={styles.cardRow}>
-        <Icon name={icon} size={18} color={ink} />
-        <View style={{ flex: 1, minWidth: 0 }}>{children}</View>
-      </View>
-      {action ? (
-        <Pressable onPress={action.onPress} style={[styles.cardBtn, { backgroundColor: c.inkPrimary }]}>
-          <T token="subhead" color={c.canvas}>
-            {action.label}
-          </T>
-        </Pressable>
-      ) : null}
-    </View>
-  );
+  return <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} onPress={onPress} style={styles.textAction}>
+    <T token="subhead" color={muted ? c.inkSecondary : c.accentInk}>{label}</T>
+  </Pressable>;
 }
 
 const styles = StyleSheet.create({
-  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 16, gap: 6 },
+  head: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 18, gap: 6 },
   headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  avatar: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+  avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   note: { marginHorizontal: SCREEN_GUTTER, marginTop: 12, padding: 12, borderRadius: radius.row, borderWidth: 1, flexDirection: 'row', gap: 10, alignItems: 'center' },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 20, gap: 8 },
   tl: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   tlTime: { width: 58 },
-  up: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 14, borderRadius: radius.row },
+  up: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 56, paddingHorizontal: 14, paddingVertical: 12, borderRadius: radius.row },
   pending: { borderWidth: 1, borderStyle: 'dashed' },
-  card: { borderRadius: radius.card, padding: 14, gap: 10 },
-  cardRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-  cardBtn: { alignSelf: 'flex-start', paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.pill },
+  card: { borderRadius: radius.card, padding: 14, gap: 10, flexDirection: 'row', alignItems: 'flex-start' },
+  suggestion: { borderRadius: radius.card, paddingHorizontal: 16, paddingTop: 16 },
+  suggestionTitle: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, minHeight: 44 },
+  suggestionActions: { flexDirection: 'row', gap: 24, paddingLeft: 28, flexWrap: 'wrap' },
+  textAction: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 2 },
+  disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  overdue: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth },
+  plannedNote: { flexDirection: 'row', gap: 8, alignItems: 'center', paddingHorizontal: 10 },
+  peek: { marginHorizontal: SCREEN_GUTTER, marginTop: 20, paddingVertical: 14, gap: 10, flexDirection: 'row', alignItems: 'center', borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth },
 });

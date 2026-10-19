@@ -3,8 +3,8 @@ import { IMPORT_MESSAGES, type ExtractRequest } from '@dayli/schema';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
@@ -25,8 +25,9 @@ const MAX_BYTES = 20 * 1024 * 1024;
 
 export default function CaptureScreen() {
   const { c } = useTheme();
+  const params = useLocalSearchParams<{ source?: string }>();
   const { refreshCustomerInfo, presentPaywall } = usePurchases();
-  const [text, setText] = useState('');
+  const [text, setText] = useState(() => useStore.getState().captureDraft);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setErrorText] = useState<string | null>(null);
   const setError = (message: string | null) => {
@@ -77,6 +78,7 @@ export default function CaptureScreen() {
         return;
       }
       feedback('ready');
+      useStore.getState().setCaptureDraft('');
       recordImport();
       setPending({ extraction: res.extraction, source });
       router.replace('/review');
@@ -136,15 +138,27 @@ export default function CaptureScreen() {
 
   const canSend = text.trim().length > 0 && !busy;
 
+  // A photo/file button on Today should open its picker directly, once per request.
+  const openedSource = useRef<string | null>(null);
+  const openSource = useEffectEvent((source: string) => {
+    if (source === 'image') void pickImage(false);
+    if (source === 'file') void pickPdf();
+  });
+  useEffect(() => {
+    if (!params.source || openedSource.current === params.source) return;
+    openedSource.current = params.source;
+    openSource(params.source);
+  }, [params.source]);
+
   return (
     <Sheet title="Tell Semli" subtitle="A message, a screenshot, or a syllabus. Nothing is saved until you confirm.">
       <View style={styles.body}>
         <TextInput
           id="capture-text"
           value={text}
-          onChangeText={setText}
+          onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
           multiline
-          autoFocus
+          autoFocus={!params.source}
           editable={!busy}
           placeholder="I work Friday 4–10, have an exam Monday, and need to return a library book Wednesday…"
           placeholderTextColor={c.inkTertiary}

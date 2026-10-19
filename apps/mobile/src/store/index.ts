@@ -69,6 +69,10 @@ interface State {
   pending: Pending | null;
   toast: { message: string; batchId?: string } | null;
   settings: Settings;
+  /** User-chosen work dates. Item.date remains the source's event/due date. */
+  taskWorkDates: Record<string, string>;
+  suggestionDismissals: { date: string; ids: string[] };
+  captureDraft: string;
 
   setHydrated: () => void;
   setPending: (p: Pending | null) => void;
@@ -76,6 +80,10 @@ interface State {
   hideToast: () => void;
   setSettings: (patch: Partial<Settings>) => void;
   recordImport: () => void;
+  planTasks: (ids: string[], date: string) => void;
+  unplanTask: (id: string) => void;
+  dismissSuggestion: (id: string, date: string) => void;
+  setCaptureDraft: (text: string) => void;
 
   toggleDone: (id: string) => void;
   updateItem: (id: string, patch: Partial<Item>) => void;
@@ -101,6 +109,9 @@ export const useStore = create<State>()(
       batches: [],
       pending: null,
       toast: null,
+      taskWorkDates: {},
+      suggestionDismissals: { date: '', ids: [] },
+      captureDraft: '',
       settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true, major: null },
       usage: { month: '', imports: 0 },
 
@@ -109,6 +120,24 @@ export const useStore = create<State>()(
       showToast: (message, batchId) => set({ toast: { message, batchId } }),
       hideToast: () => set({ toast: null }),
       setSettings: (patch) => set({ settings: { ...get().settings, ...patch } }),
+      setCaptureDraft: (captureDraft) => set({ captureDraft }),
+      planTasks: (ids, date) => {
+        const taskWorkDates = { ...get().taskWorkDates };
+        for (const id of ids) {
+          const item = get().items[id];
+          if (item?.kind === 'task' && !item.done) taskWorkDates[id] = date;
+        }
+        set({ taskWorkDates });
+      },
+      unplanTask: (id) => {
+        const taskWorkDates = { ...get().taskWorkDates };
+        delete taskWorkDates[id];
+        set({ taskWorkDates });
+      },
+      dismissSuggestion: (id, date) => {
+        const previous = get().suggestionDismissals;
+        set({ suggestionDismissals: { date, ids: [...new Set([...(previous.date === date ? previous.ids : []), id])] } });
+      },
       recordImport: () => {
         const month = nowIso().slice(0, 7);
         const u = get().usage;
@@ -223,12 +252,12 @@ export const useStore = create<State>()(
         });
       },
 
-      clearAll: () => set({ items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null }),
+      clearAll: () => set({ items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null, taskWorkDates: {}, suggestionDismissals: { date: '', ids: [] }, captureDraft: '' }),
     }),
     {
       name: 'semli',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (s) => ({ items: s.items, courses: s.courses, schedules: s.schedules, batches: s.batches, settings: s.settings, usage: s.usage }),
+      partialize: (s) => ({ items: s.items, courses: s.courses, schedules: s.schedules, batches: s.batches, settings: s.settings, usage: s.usage, taskWorkDates: s.taskWorkDates, suggestionDismissals: s.suggestionDismissals }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<State>;
         return { ...current, ...p, settings: { ...current.settings, ...(p.settings ?? {}) } };
