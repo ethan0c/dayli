@@ -56,6 +56,8 @@ interface Settings {
   reminders: ReminderPrefs;
   /** The in-context permission ask after the first confirmed import happened. */
   remindersAsked: boolean;
+  /** Semester breaks, for the moment header on Today. */
+  breaks?: { label: string; start: string; end: string }[];
   /** Set by the review sheet when the first import is confirmed during onboarding. */
   onboardingImportDone: boolean;
   /** Active free trial, for the day-5 reminder. */

@@ -1,11 +1,15 @@
 import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
+import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
 
+import { devCommand } from '@/lib/dev';
+import { profileFor } from '@/lib/majors';
+import { sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
 
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
@@ -35,6 +39,27 @@ function RootLayout() {
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  // Development: a command file in Documents seeds a state for screenshots (see lib/dev.ts).
+  useEffect(() => {
+    if (!ready) return;
+    void devCommand().then((cmd) => {
+      if (!cmd) return;
+      const store = useStore.getState();
+      const today = localParts(new Date()).date;
+      if (cmd === 'sample' || cmd === 'moment' || cmd === 'item') {
+        store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
+        if (Object.keys(store.items).length === 0) {
+          const week = sampleWeek(today, profileFor('nursing', true), true);
+          useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });
+        }
+      }
+      if (cmd === 'item') {
+        const first = Object.values(useStore.getState().items).find((i) => i.kind === 'event' && i.date >= today);
+        if (first) setTimeout(() => router.push(`/item/${first.id}`), 600);
+      }
+    });
   }, [ready]);
 
   // Native views (tab bar, SwiftUI pickers) follow this; our tokens follow it through useTheme.

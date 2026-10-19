@@ -15,3 +15,15 @@ export async function devStep(): Promise<string | null> {
     return null;
   }
 }
+
+/** Reads the dev file as a command: "sample", "moment", or "item". */
+export async function devCommand(): Promise<string | null> {
+  if (!__DEV__) return null;
+  try {
+    const f = new File(Paths.document, 'dev-command.txt');
+    if (!f.exists) return null;
+    return (await f.text()).trim() || null;
+  } catch {
+    return null;
+  }
+}
