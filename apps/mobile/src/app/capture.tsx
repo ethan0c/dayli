@@ -1,29 +1,27 @@
-import { localParts } from '@dayli/core';
 import { IMPORT_MESSAGES, type ExtractRequest } from '@dayli/schema';
-import * as DocumentPicker from 'expo-document-picker';
-import { File } from 'expo-file-system';
-import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams, useNavigation, type NativeStackNavigationProp } from 'expo-router';
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useEffectEvent, useRef, useState, type ComponentRef } from 'react';
+import { Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
-import { Icon, type IconKey } from '@/components/Icon';
+import { GroupLabel, IconButton, ListRow } from '@/components/Controls';
+import { Icon } from '@/components/Icon';
 import { Reading } from '@/components/Reading';
-import { Button, Sheet } from '@/components/Sheet';
+import { Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
 import { requestExtraction } from '@/lib/api';
+import { InputError, extractionContext, pickImageInput, pickPdfInput } from '@/lib/capture-input';
 import { feedback } from '@/lib/feedback';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
 import { hasSemliPro, purchaseErrorMessage } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
-import { useCourseList, useScheduleList, useStore } from '@/store';
-import { SCREEN_GUTTER, radius, textStyle, useTheme } from '@/theme';
+import { useStore } from '@/store';
+import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
 
-const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'] as const;
-type ImageType = (typeof IMAGE_TYPES)[number];
-const MAX_BYTES = 20 * 1024 * 1024;
-
+/**
+ * Add: a composer with the attachments inside it, and two "start with" rows.
+ * Reading shows a progress line and rows that fill in; no box, no spinner.
+ */
 export default function CaptureScreen() {
   const { c } = useTheme();
   const params = useLocalSearchParams<{ source?: string }>();
@@ -36,11 +34,10 @@ export default function CaptureScreen() {
     if (message) feedback('error');
     setErrorText(message);
   };
-  const settings = useStore((s) => s.settings);
-  const courses = useCourseList();
-  const schedules = useScheduleList();
+  const apiUrl = useStore((s) => s.settings.apiUrl);
   const setPending = useStore((s) => s.setPending);
   const recordImport = useStore((s) => s.recordImport);
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   async function run(input: ExtractRequest['input'], source: string) {
     setError(null);
@@ -63,16 +60,7 @@ export default function CaptureScreen() {
       }
     }
     try {
-      const res = await requestExtraction(settings.apiUrl, {
-        input,
-        context: {
-          name: settings.name,
-          today: localParts(new Date()).date,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          courses: courses.map((k) => ({ code: k.code, title: k.title })),
-          employers: [...new Set(schedules.map((s) => s.employer))],
-        },
-      });
+      const res = await requestExtraction(apiUrl, { input, context: extractionContext() });
       if (!res.ok) {
         track('import_failed', { kind: input.kind });
         setError(res.error);
@@ -95,137 +83,93 @@ export default function CaptureScreen() {
     }
   }
 
-  async function pickImage(fromCamera: boolean) {
+  const pick = async (fn: () => Promise<{ input: ExtractRequest['input']; source: string } | null>) => {
     setError(null);
     try {
-      const perm = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) {
-        setError(fromCamera
-          ? 'To take a photo, allow Semli to use your camera in your device settings. You can also type the details instead.'
-          : 'To choose a screenshot, allow Semli to access your photos in your device settings. You can also type the details instead.');
-        return;
-      }
-      const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.85 };
-      const result = fromCamera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
-      if (result.canceled) return;
-      const asset = result.assets[0];
-      if (!asset) return;
-      if (asset.fileSize && asset.fileSize > MAX_BYTES) {
-        setError(IMPORT_MESSAGES.tooLarge);
-        return;
-      }
-      const file = new File(asset.uri);
-      const data = await file.base64();
-      const guess = asset.mimeType ?? (asset.uri.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg');
-      const mediaType = (IMAGE_TYPES as readonly string[]).includes(guess) ? (guess as ImageType) : 'image/jpeg';
-      await run({ kind: 'image', mediaType, data }, fromCamera ? 'Photo' : 'Screenshot');
-    } catch {
-      setError("We couldn't open this photo. Try choosing it again, or type the details instead.");
+      const picked = await fn();
+      if (picked) await run(picked.input, picked.source);
+    } catch (e) {
+      setError(e instanceof InputError ? e.message : IMPORT_MESSAGES.file);
     }
-  }
-
-  async function pickPdf() {
-    setError(null);
-    try {
-      const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', copyToCacheDirectory: true });
-      if (result.canceled) return;
-      const asset = result.assets[0];
-      if (!asset) return;
-      if (asset.size && asset.size > MAX_BYTES) {
-        setError(IMPORT_MESSAGES.tooLarge);
-        return;
-      }
-      const data = await new File(asset.uri).base64();
-      await run({ kind: 'pdf', data }, asset.name);
-    } catch {
-      setError(IMPORT_MESSAGES.file);
-    }
-  }
+  };
 
   const canSend = text.trim().length > 0 && !busy;
 
-  // A photo/file button on Today should open its picker directly, once per request.
+  // A photo/file button elsewhere should open its picker directly, once per request.
   const openedSource = useRef<string | null>(null);
   const openSource = useEffectEvent((source: string) => {
     if (openedSource.current === source) return;
     openedSource.current = source;
-    if (source === 'image') void pickImage(false);
-    if (source === 'file') void pickPdf();
+    if (source === 'image') void pick(() => pickImageInput(false));
+    if (source === 'file') void pick(pickPdfInput);
   });
   useEffect(() => {
     if (!params.source) return;
-    if (Platform.OS === 'web') {
-      // Browser pickers require another explicit user gesture on the capture screen.
-      return;
-    }
-    // iOS cannot present its picker while the capture modal is still opening.
+    if (Platform.OS === 'web') return;
     return navigation.addListener('transitionEnd', (event) => {
       if (!event.data.closing && params.source) openSource(params.source);
     });
   }, [navigation, params.source]);
 
   return (
-    <Sheet title="Add anything." subtitle="A thought, a schedule, a whole syllabus. You review the details before anything is added.">
+    <Sheet title="Add">
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        <TextInput
-          id="capture-text"
-          accessibilityLabel="What would you like to add?"
-          value={text}
-          onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
-          multiline
-          autoFocus={!params.source}
-          editable={!busy}
-          placeholder="I work Friday 4–10, have an exam Monday, and need to return a library book Wednesday…"
-          placeholderTextColor={c.inkTertiary}
-          style={[styles.input, textStyle('body', c.inkPrimary), { backgroundColor: c.row }]}
-        />
+        {busy ? (
+          <Reading source={busy === 'Message' ? 'your message' : busy} />
+        ) : (
+          <View style={{ gap: 4 }}>
+            <T token="display">What’s coming up?</T>
+            <T token="callout" color={c.inkSecondary}>Type it, paste it, or drop in a screenshot. You review everything before it’s added.</T>
+          </View>
+        )}
 
-        <View style={styles.actions}>
-          <Action icon="image" label="Screenshot" onPress={() => pickImage(false)} disabled={!!busy} />
-          <Action icon="camera" label="Camera" onPress={() => pickImage(true)} disabled={!!busy} />
-          <Action icon="file" label="PDF" onPress={pickPdf} disabled={!!busy} />
+        <View style={[styles.composer, { backgroundColor: c.surface, borderColor: c.line }]}>
+          <TextInput
+            ref={inputRef}
+            id="capture-text"
+            accessibilityLabel="What would you like to add?"
+            value={text}
+            onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
+            multiline
+            autoFocus={!params.source}
+            editable={!busy}
+            placeholder="Clinical Tuesday 7–3, pharm exam next Friday, working Sat 4–10…"
+            placeholderTextColor={c.inkTertiary}
+            style={[styles.input, textStyle('body', c.inkPrimary)]}
+          />
+          <View style={styles.toolbar}>
+            <IconButton icon="image" label="Add a screenshot" tone="bare" size={40} disabled={!!busy} onPress={() => void pick(() => pickImageInput(false))} />
+            <IconButton icon="camera" label="Take a photo" tone="bare" size={40} disabled={!!busy} onPress={() => void pick(() => pickImageInput(true))} />
+            <IconButton icon="file" label="Add a PDF" tone="bare" size={40} disabled={!!busy} onPress={() => void pick(pickPdfInput)} />
+            <View style={{ flex: 1 }} />
+            <IconButton icon="send" label="Read it" tone="ink" size={40} disabled={!canSend} haptic="ready" onPress={() => void run({ kind: 'text', text: text.trim() }, 'Message')} />
+          </View>
         </View>
 
-        {busy ? <Reading source={busy === 'Message' ? 'your message' : busy} /> : null}
         {error ? (
-          <View accessibilityRole="alert" style={[styles.status, { backgroundColor: c.conflictBg, borderColor: 'transparent' }]}>
+          <View accessibilityRole="alert" style={styles.status}>
             <Icon name="alert" size={16} color={c.conflict} />
-            <T token="subhead" color={c.conflict} style={{ flex: 1 }}>
-              {error}
-            </T>
+            <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{error}</T>
+          </View>
+        ) : null}
+
+        {!busy ? (
+          <View>
+            <GroupLabel>Or start with</GroupLabel>
+            <ListRow leading={<Icon name="file" size={20} color={c.inkPrimary} />} title="A syllabus" sub="Classes, exams and due dates for the whole term" onPress={() => void pick(pickPdfInput)} />
+            <ListRow leading={<Icon name="work" size={20} color={c.inkPrimary} />} title="A work schedule" sub="A screenshot from the scheduling app or the group chat" onPress={() => void pick(() => pickImageInput(false))} />
+            <ListRow leading={<Icon name="pen" size={20} color={c.inkPrimary} />} title="Something your professor said" sub="A quick message is all you need" last onPress={() => inputRef.current?.focus()} />
           </View>
         ) : null}
       </ScrollView>
-      <View style={styles.footer}>
-        <Button label="Review what Semli finds" disabled={!canSend} onPress={() => run({ kind: 'text', text: text.trim() }, 'Message')} />
-      </View>
     </Sheet>
   );
 }
 
-function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: string; onPress: () => void; disabled: boolean }) {
-  const { c } = useTheme();
-  return (
-    <Pressable
-      onPress={() => {
-        feedback('tap');
-        onPress();
-      }}
-      disabled={disabled}
-      accessibilityRole="button"
-      accessibilityState={{ disabled }}
-      style={({ pressed }) => [styles.action, { backgroundColor: c.row, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 }]}>
-      <Icon name={icon} size={20} color={c.inkPrimary} />
-      <T token="subhead">{label}</T>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingBottom: 16, gap: 16 },
-  input: { minHeight: 160, maxHeight: 260, borderRadius: radius.card, padding: 18, textAlignVertical: 'top' },
-  actions: { flexDirection: 'row', gap: 8 },
-  action: { flex: 1, minHeight: 64, paddingVertical: 12, borderRadius: radius.row, alignItems: 'center', justifyContent: 'center', gap: 6 },
-  status: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.row, borderWidth: 1 },
-  footer: { paddingHorizontal: SCREEN_GUTTER, paddingVertical: 16 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 4, paddingBottom: 24, gap: 20 },
+  composer: { borderRadius: 20, borderWidth: 1 },
+  input: { minHeight: 112, maxHeight: 240, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6, textAlignVertical: 'top' },
+  toolbar: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 8, paddingBottom: 8, paddingTop: 2 },
+  status: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
 });

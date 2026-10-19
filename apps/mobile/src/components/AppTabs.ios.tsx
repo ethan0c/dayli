@@ -40,11 +40,15 @@ function TabBar() {
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="plan" disableAutomaticContentInsets>
           <NativeTabs.Trigger.Label>Plan</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon sf={{ default: 'checkmark.square', selected: 'checkmark.square.fill' }} />
+          <NativeTabs.Trigger.Icon sf={{ default: 'calendar', selected: 'calendar' }} />
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="school" disableAutomaticContentInsets>
           <NativeTabs.Trigger.Label>School</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon sf={{ default: 'graduationcap', selected: 'graduationcap.fill' }} />
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="you" disableAutomaticContentInsets>
+          <NativeTabs.Trigger.Label>You</NativeTabs.Trigger.Label>
+          <NativeTabs.Trigger.Icon sf={{ default: 'person', selected: 'person.fill' }} />
         </NativeTabs.Trigger>
         {GLASS ? (
           <NativeTabs.BottomAccessory>

@@ -19,7 +19,8 @@ export default function PlannerTabs() {
         <View style={[styles.pill, { backgroundColor: c.surface, borderColor: c.line }]}>
           <TabTrigger name="index" asChild><NavButton icon="home" label="Today" /></TabTrigger>
           <TabTrigger name="plan" asChild><NavButton icon="calendar" label="Plan" /></TabTrigger>
-          <TabTrigger name="school" asChild><NavButton icon="book" label="School" /></TabTrigger>
+          <TabTrigger name="school" asChild><NavButton icon="school" label="School" /></TabTrigger>
+          <TabTrigger name="you" asChild><NavButton icon="user" label="You" /></TabTrigger>
         </View>
       </View>
       <AddMenu bottom={bottom} />
@@ -28,6 +29,7 @@ export default function PlannerTabs() {
         <TabTrigger name="index" href="/"><Text>Today</Text></TabTrigger>
         <TabTrigger name="plan" href="/plan"><Text>Plan</Text></TabTrigger>
         <TabTrigger name="school" href="/school"><Text>School</Text></TabTrigger>
+        <TabTrigger name="you" href="/you"><Text>You</Text></TabTrigger>
       </TabList>
     </Tabs>
   );

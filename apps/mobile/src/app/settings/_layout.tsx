@@ -23,6 +23,7 @@ export default function SettingsLayout() {
         contentStyle: { backgroundColor: c.canvas },
       }}>
       <Stack.Screen name="index" options={{ title: 'You', headerLeft: () => <BackButton /> }} />
+      <Stack.Screen name="name" options={{ title: 'Name' }} />
       <Stack.Screen name="reminders" options={{ title: 'Reminders' }} />
       <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
       <Stack.Screen name="major" options={{ title: 'Field of study' }} />

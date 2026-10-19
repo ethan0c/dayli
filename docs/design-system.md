@@ -81,9 +81,12 @@ Tokens in `packages/tokens/src/motion.ts`, presets in `apps/mobile/src/lib/motio
 - You: pushed from the You tab; name as the big element, field and role, trial pill, hairline rows in five groups, footer with mark, version, legal links.
 - Onboarding: eight steps; one-tap rows, pill chips, a composer for the own import; Watch it work, Heads-up and Plus are full-bleed photo pages in dark.
 
+## Applied in code (Oct 19, 2026)
+Geist fonts and tokens; the new type scale; pill buttons and the five roles (`components/Controls.tsx`); hairline rows with status pills (`ItemRow`); the Today countdown, day timeline (`DayBar`) and sections; the composer Add screen; the item detail; the You tab and settings home without tiles; the ink toggle; the progress-line loading state; the wordmark regenerated from Geist SemiBold (`packages/tokens/src/wordmark.ts`, `design/wordmark-*.svg`); the four new glyphs; the Plan tab symbol.
+
 ## Open items
-- Regenerate the wordmark from Geist SemiBold; update icon, splash, site and store assets to the app's ink and accent.
-- Add the four new glyphs; switch the Plan tab symbol to calendar.
-- Apply the system in code (fonts and tokens, pills, Today countdown and timeline, status pills, lighter weights, composer, You tab, moment header, progress-line loading).
-- Photo sourcing for moments (Unsplash with attribution, or a commissioned set).
+- Moments: the photo header on special days needs a calendar of breaks and finals, and licensed photos (Unsplash with attribution, or a commissioned set).
+- Recent-screenshots strip on Add needs `expo-media-library`; left out until the dependency is approved.
+- Showcase onboarding steps (Watch it work, Heads-up, Plus) ship on paper until photos are sourced; the layout is ready for a full-bleed image.
+- App icon, splash and store assets regenerated from the new wordmark with the app's ink and accent.
 - Verify 12px captions on a real phone in bright light; 13 is the fallback.

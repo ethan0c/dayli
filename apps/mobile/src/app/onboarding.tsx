@@ -1,11 +1,11 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, TextInput, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { Chip, ListRow, Tile } from "@/components/Controls";
 import { Icon, type IconKey } from "@/components/Icon";
-import { Press } from "@/components/Press";
 import { PlanPicker } from "@/components/PlanPicker";
 import { Reading } from "@/components/Reading";
 import { Button } from "@/components/Sheet";
@@ -208,7 +208,7 @@ function OneTapStep({ title, subtitle, children }: { title: string; subtitle: st
       <T token="callout" color={c.inkSecondary}>
         {subtitle}
       </T>
-      <View style={{ gap: 8, marginTop: 8 }}>{children}</View>
+      <View style={{ marginTop: 4 }}>{children}</View>
     </ScrollView>
   );
 }
@@ -216,27 +216,16 @@ function OneTapStep({ title, subtitle, children }: { title: string; subtitle: st
 function Choice({ label, hint, icon, on, onPress }: { label: string; hint?: string; icon?: IconKey; on: boolean; onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <Press
-      haptic="select"
-      onPress={onPress}
-      accessibilityRole="radio"
-      accessibilityState={{ selected: on }}
-      scale={0.98}
-      style={[styles.choice, { backgroundColor: on ? c.inkPrimary : c.row }]}
-    >
-      {icon ? <Icon name={icon} size={18} color={on ? c.canvas : c.inkPrimary} /> : null}
-      <View style={{ flex: 1, gap: 1 }}>
-        <T token="headline" color={on ? c.canvas : c.inkPrimary}>
-          {label}
-        </T>
-        {hint ? (
-          <T token="caption" color={on ? c.canvas : c.inkSecondary}>
-            {hint}
-          </T>
-        ) : null}
-      </View>
-      <Icon name="chevronRight" size={16} color={on ? c.canvas : c.inkTertiary} />
-    </Press>
+    <ListRow
+      title={label}
+      sub={hint}
+      leading={icon ? <Icon name={icon} size={20} color={c.inkPrimary} /> : undefined}
+      accessibilityLabel={on ? `${label}, selected` : label}
+      onPress={() => {
+        feedback("select");
+        onPress();
+      }}
+    />
   );
 }
 
@@ -268,23 +257,9 @@ function WeekStep({
         Tap everything that applies.
       </T>
       <View style={styles.chips}>
-        {chips.map((k) => {
-          const on = kinds.includes(k.key);
-          return (
-            <Pressable
-              key={k.key}
-              onPress={() => onToggle(k.key)}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: on }}
-              style={[styles.chip, { backgroundColor: on ? c.inkPrimary : c.row }]}
-            >
-              <Icon name={k.icon} size={16} color={on ? c.canvas : c.inkPrimary} />
-              <T token="subhead" color={on ? c.canvas : c.inkPrimary}>
-                {k.label}
-              </T>
-            </Pressable>
-          );
-        })}
+        {chips.map((k) => (
+          <Chip key={k.key} label={k.label} icon={k.icon} on={kinds.includes(k.key)} onPress={() => onToggle(k.key)} />
+        ))}
       </View>
       {kinds.includes("chaos") ? (
         <T token="callout" color={c.accentInk}>
@@ -452,9 +427,9 @@ function OwnStep({ onSample }: { onSample: () => void }) {
       </View>
       {busy ? <Reading source={busy === "Message" ? "your message" : busy} /> : null}
       {error ? (
-        <View style={[styles.status, { backgroundColor: c.tint.rose.fill }]}>
-          <Icon name="alert" size={16} color={c.tint.rose.ink} />
-          <T token="subhead" color={c.tint.rose.ink} style={{ flex: 1 }}>
+        <View style={styles.status}>
+          <Icon name="alert" size={16} color={c.conflict} />
+          <T token="subhead" color={c.conflict} style={{ flex: 1 }}>
             {error}
           </T>
         </View>
@@ -472,13 +447,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
 }
 
 function Action({ icon, label, onPress, disabled }: { icon: IconKey; label: string; onPress: () => void; disabled: boolean }) {
-  const { c } = useTheme();
-  return (
-    <Press onPress={onPress} disabled={disabled} haptic="tap" accessibilityRole="button" style={[styles.action, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
-      <Icon name={icon} size={20} color={c.inkPrimary} />
-      <T token="subhead">{label}</T>
-    </Press>
-  );
+  return <Tile icon={icon} label={label} onPress={onPress} disabled={disabled} />;
 }
 
 /* ---------- Heads-up: our sheet first, the system prompt only on yes ---------- */
@@ -506,16 +475,19 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
   };
   return (
     <View style={styles.center}>
-      <View style={styles.middle}>
-        <Animated.View entering={enter.rise} style={[styles.bigIcon, { backgroundColor: c.tint.butter.fill }]}>
-          <Icon name="bell" size={30} color={c.tint.butter.ink} />
+      <View style={[styles.middle, { alignItems: "stretch", gap: 28 }]}>
+        <Animated.View entering={enter.rise} style={{ gap: 2 }}>
+          <T token="callout" color={c.inkSecondary}>Your first reminder would be</T>
+          <T token="displayXl" tabular>7:30<T token="title" color={c.inkSecondary}> am</T></T>
+          <T token="body" style={{ fontSize: 18, lineHeight: 26, paddingTop: 6 }}>Good morning. Here’s your day.</T>
+          <T token="callout" color={c.inkSecondary}>Tomorrow · one note each morning, and a nudge before shifts and deadlines</T>
         </Animated.View>
-        <T token="display" style={{ textAlign: "center" }}>
-          Want a heads-up?
-        </T>
-        <T token="callout" color={c.inkSecondary} style={{ textAlign: "center", maxWidth: 320 }}>
-          A reminder before shifts and deadlines, and a short note each morning with what’s on. Nothing else, and never at night.
-        </T>
+        <View style={{ gap: 6 }}>
+          <T token="display">Want a heads-up?</T>
+          <T token="callout" color={c.inkSecondary} style={{ maxWidth: 320 }}>
+            Nothing else, and never at night. You can change it any time in You.
+          </T>
+        </View>
       </View>
       <View style={styles.footer}>
         <Button label={asking ? "One sec…" : "Yes, remind me"} disabled={asking} onPress={() => void yes()} />
@@ -537,7 +509,7 @@ function PlusStep({ onFinish }: { onFinish: () => void }) {
     <ScrollView contentContainerStyle={styles.page}>
       <T token="display">Keep it reading.</T>
       <T token="callout" color={c.inkSecondary}>
-        Your calendar, to-dos, and reminders are free forever. Plus reads every syllabus and schedule you send it, with a free week to try it.
+        Every syllabus, schedule and screenshot read for you, all term. Calendar, to-dos and reminders stay free forever.
       </T>
       <PlanPicker />
       <View style={styles.footer}>
@@ -560,17 +532,13 @@ const styles = StyleSheet.create({
   page: { flexGrow: 1, gap: 14, paddingBottom: 8 },
   footer: { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
   ov: { paddingTop: 8 },
-  input: { height: 52, borderRadius: radius.row, paddingHorizontal: 16 },
-  textarea: { minHeight: 120, maxHeight: 200, borderRadius: radius.card, padding: 16, textAlignVertical: "top" },
+  input: { height: 52, borderRadius: 999, paddingHorizontal: 20 },
+  textarea: { minHeight: 120, maxHeight: 200, borderRadius: 20, padding: 16, textAlignVertical: "top" },
   actions: { flexDirection: "row", gap: 8 },
-  action: { flex: 1, height: 64, borderRadius: radius.row, alignItems: "center", justifyContent: "center", gap: 4 },
-  status: { flexDirection: "row", alignItems: "center", gap: 10, padding: 12, borderRadius: radius.row },
+  status: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 4 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  chip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, height: 40, borderRadius: radius.pill },
-  choice: { flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.card },
   bubble: { alignSelf: "flex-end", maxWidth: "88%", padding: 14, borderRadius: 20, borderBottomRightRadius: 6, minHeight: 48, marginTop: 8 },
   row: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: 52, paddingHorizontal: 14, borderRadius: radius.row },
   chipTime: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.chip },
   circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5 },
-  bigIcon: { width: 72, height: 72, borderRadius: 36, alignItems: "center", justifyContent: "center" },
 });

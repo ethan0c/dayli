@@ -79,7 +79,7 @@ export default function SchoolScreen() {
                         <T token="caption" color={c.inkSecondary} style={{ paddingLeft: 4 }}>
                           {monthDay(it.date)}
                         </T>
-                        <ItemRow item={it} onPress={() => router.push(`/item/${it.id}`)} onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); toggleDone(it.id); }} />
+                        <ItemRow item={it} today={now.date} onPress={() => router.push(`/item/${it.id}`)} onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); toggleDone(it.id); }} />
                       </View>
                     ))
                   )}
