@@ -1,6 +1,6 @@
 import { WORDMARK_RATIO, wordmark } from '@dayli/tokens';
 
-/** The semli. wordmark from the Urbanist outlines; colors come from CSS so it follows the theme. */
+/** The semli. wordmark from the Onest SemiBold outlines; colors come from CSS so it follows the theme. */
 export function Wordmark({ width = 120 }: { width?: number }) {
   const [x, y, w, h] = wordmark.viewBox;
   return (

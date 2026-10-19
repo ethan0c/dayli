@@ -13,7 +13,7 @@ Robinhood's 2024 identity is the reference: neutrals first, one accent used spar
 
 ## Brand
 - Mark: two dots (big = today, small accent = next), ratio 240 : 102 on a fixed diagonal. `design/icon-b-dots.svg`.
-- Wordmark: Geist SemiBold; the tittle of the i and the full stop are the two dots. Regenerate outlines from Geist (open item). Mark and wordmark use the app's ink and accent values, never their own.
+- Wordmark: lowercase `semli.` in Onest SemiBold; the tittle of the i and the full stop are the two dots. Outlines are generated with `design/generate-wordmark.py`. Mark and wordmark use the app's ink and accent values, never their own.
 - Where it appears: app icon, splash, onboarding welcome, settings footer, website, store. Never on Today, Plan, School or other in-app screens. "You" is the fourth tab; there is no account button in a header.
 
 ## Color
@@ -24,7 +24,7 @@ The accent (lavender, kept) is allowed in exactly five places in the app: the sm
 Meaning: filled red pill for due today / overdue; red text on a grey pill for a colliding time; green pill for done and newly added, green check when complete; grey pills for times and neutral states; amber only when Semli needs input.
 
 ## Type
-Geist, one face, four weights: Light 300 for the one big number, Regular 400 for section titles and text, Medium 500 for pills and the primary label, SemiBold 600 for the wordmark only. Tabular numerals wherever a number can change. Sentence case always.
+Geist carries product text: Light 300 for the one big number, Regular 400 for section titles and text, Medium 500 for pills and the primary label, and SemiBold 600 for emphasis. The separate outlined wordmark uses Onest SemiBold. Tabular numerals wherever a number can change. Sentence case always.
 
 | Token | Size / line | Weight | Use |
 |---|---|---|---|
@@ -82,7 +82,7 @@ Tokens in `packages/tokens/src/motion.ts`, presets in `apps/mobile/src/lib/motio
 - Onboarding: eight steps; one-tap rows, pill chips, a composer for the own import; Watch it work, Heads-up and Plus are full-bleed photo pages in dark.
 
 ## Applied in code (Oct 19, 2026)
-Geist fonts and tokens; the new type scale; pill buttons and the five roles (`components/Controls.tsx`); hairline rows with status pills (`ItemRow`); the Today countdown, day timeline (`DayBar`) and sections; the composer Add screen; the item detail; the You tab and settings home without tiles; the ink toggle; the progress-line loading state; the wordmark regenerated from Geist SemiBold (`packages/tokens/src/wordmark.ts`, `design/wordmark-*.svg`); the four new glyphs; the Plan tab symbol; the paywall as price-first rows with the trial timeline; the recent-screenshots strip on Add (`expo-media-library`, asks only on tap); Watch it work and Heads-up as dark showcase pages.
+Geist fonts and tokens; the new type scale; pill buttons and the five roles (`components/Controls.tsx`); hairline rows with status pills (`ItemRow`); the Today countdown, day timeline (`DayBar`) and sections; the composer Add screen; the item detail; the You tab and settings home without tiles; the ink toggle; the progress-line loading state; the wordmark regenerated from Onest SemiBold (`packages/tokens/src/wordmark.ts`, `design/wordmark-*.svg`); the four new glyphs; the Plan tab symbol; the paywall as price-first rows with the trial timeline; the recent-screenshots strip on Add (`expo-media-library`, asks only on tap); Watch it work and Heads-up as dark showcase pages.
 
 ## Open items
 - Moments: the photo header on special days needs a calendar of breaks and finals, and licensed photos (Unsplash with attribution, or a commissioned set).

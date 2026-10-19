@@ -5,6 +5,7 @@ import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases
 
 import { ListRow, StatusPill, TextButton } from '@/components/Controls';
 import { NativeToggle } from '@/components/Native';
+import { Press } from '@/components/Press';
 import { Button } from '@/components/Sheet';
 import { Skeleton } from '@/components/Skeleton';
 import { T } from '@/components/Text';
@@ -14,7 +15,7 @@ import { LINKS, openLink } from '@/lib/links';
 import { PRO_ENTITLEMENT, customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
-import { useTheme } from '@/theme';
+import { useTheme, type Palette } from '@/theme';
 
 /** The three Semli Plus terms. Packages come from RevenueCat; see docs/revenuecat-offerings-brief.md. */
 const TERMS = [
@@ -46,8 +47,9 @@ function perMonth(pack: PurchasesPackage, months: number): string {
  * are rows with a radio, the student toggle is a row, the trial timeline is three lines.
  * One primary pill, then "Continue free" as a text button when the caller offers it.
  */
-export function PlanPicker({ onContinueFree, freeImportsLeft }: { onContinueFree?: () => void; freeImportsLeft?: number }) {
-  const { c } = useTheme();
+export function PlanPicker({ onContinueFree, freeImportsLeft, palette }: { onContinueFree?: () => void; freeImportsLeft?: number; palette?: Palette }) {
+  const theme = useTheme();
+  const c = palette ?? theme.c;
   const { offering, offerings, customerInfo, isPro, loading, busy, error, unavailableReason, refresh, purchase, restore, manageSubscription } = usePurchases();
   const student = useStore((s) => s.settings.isStudent);
   const setSettings = useStore((s) => s.setSettings);
@@ -182,7 +184,10 @@ export function PlanPicker({ onContinueFree, freeImportsLeft }: { onContinueFree
       {unavailableReason || error || notice ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{unavailableReason ?? error ?? notice}</T> : null}
 
       <View style={{ gap: 8, alignItems: 'center' }}>
-        <Button label={busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'} disabled={disabled || !selected} onPress={() => void buyPlan()} />
+        <Press haptic="tap" accessibilityRole="button" accessibilityState={{ disabled: disabled || !selected }} disabled={disabled || !selected} onPress={() => void buyPlan()}
+          style={[styles.cta, { backgroundColor: c.inkPrimary, opacity: disabled || !selected ? 0.4 : 1 }]}>
+          <T token="headline" color={c.onPrimary}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
+        </Press>
         <T token="caption" color={c.inkSecondary} style={styles.center}>
           {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.period.replace('/ ', 'per ')}. Auto-renews. Cancel any time.` : 'Prices are shown before you confirm.'}
         </T>
@@ -218,6 +223,7 @@ export function closePaywall() {
 
 const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+  cta: { alignSelf: 'stretch', height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
   radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   radioDot: { width: 7, height: 7, borderRadius: 4 },

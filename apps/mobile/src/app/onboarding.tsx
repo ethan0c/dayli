@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, TextInput, View } from "react-native";
-import Animated from "react-native-reanimated";
+import { Image, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
+import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Chip, Tile } from "@/components/Controls";
@@ -16,7 +16,7 @@ import { track } from "@/lib/analytics";
 import { requestExtraction } from "@/lib/api";
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/lib/capture-input";
 import { feedback } from "@/lib/feedback";
-import { enter } from "@/lib/motion";
+import { enter, springs } from "@/lib/motion";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
 import { requestNotifications, syncReminders } from "@/lib/notifications";
 import { useStore } from "@/store";
@@ -67,10 +67,19 @@ export default function OnboardingScreen() {
   const student = role !== "working";
   const profile = profileFor(major, student);
 
+  const [history, setHistory] = useState<Step[]>([]);
   const go = (next: Step) => {
     feedback("tap");
     track("onboarding_step", { step: next });
+    setHistory((h) => [...h, step]);
     setStep(next);
+  };
+  const back = () => {
+    const previous = history[history.length - 1];
+    if (!previous) return;
+    feedback("tap");
+    setHistory((h) => h.slice(0, -1));
+    setStep(previous);
   };
 
   // The review sheet flips this when the first import is confirmed; carry on to the heads-up.
@@ -93,17 +102,29 @@ export default function OnboardingScreen() {
 
   const progress = STEPS.indexOf(step);
   // Watch it work and the heads-up are showcase pages: dark, ready for a full-bleed photo.
-  const showcase = step === "demo" || step === "heads-up";
+  const showcase = step === "demo" || step === "heads-up" || step === "plus";
   const bg = showcase ? palettes.dark.canvas : c.canvas;
   const barOn = showcase ? palettes.dark.inkPrimary : c.inkPrimary;
-  const barOff = showcase ? palettes.dark.line : c.line;
+  const barOff = showcase ? "rgba(245,244,240,0.3)" : c.line;
 
   return (
     <View style={[styles.root, { backgroundColor: bg, paddingTop: insets.top + 8, paddingBottom: Math.max(insets.bottom, 24) }]}>
-      <View style={styles.progress}>
-        {STEPS.map((s, i) => (
-          <View key={s} style={[styles.bar, { backgroundColor: i <= progress ? barOn : barOff }]} />
-        ))}
+      {step === "demo" ? <Backdrop source={PHOTOS.demo} height={560} fadeFrom={300} /> : null}
+      {step === "heads-up" ? <Backdrop source={PHOTOS.headsup} full /> : null}
+      {step === "plus" ? <Backdrop source={PHOTOS.plus} height={460} fadeFrom={200} /> : null}
+      <View style={styles.header}>
+        {history.length > 0 ? (
+          <Animated.View entering={FadeIn.duration(160)} exiting={FadeOut.duration(120)}>
+            <Press accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} scale={0.9} onPress={back} style={styles.back}>
+              <Icon name="chevronLeft" size={22} color={barOn} />
+            </Press>
+          </Animated.View>
+        ) : null}
+        <View style={styles.progress}>
+          {STEPS.map((s, i) => (
+            <Segment key={s} on={i <= progress} fill={barOn} track={barOff} />
+          ))}
+        </View>
       </View>
 
       <Animated.View key={step} entering={enter.fromRight} style={{ flex: 1 }}>
@@ -172,6 +193,54 @@ export default function OnboardingScreen() {
       {step === "heads-up" && <HeadsUpStep onDone={() => go("plus")} />}
       {step === "plus" && <PlusStep onFinish={finish} />}
       </Animated.View>
+    </View>
+  );
+}
+
+/** The same photos as the design boards. Stand-ins until the final set is sourced. */
+const PHOTOS = {
+  demo: require("../../assets/showcase/demo.jpg"),
+  headsup: require("../../assets/showcase/headsup.jpg"),
+  plus: require("../../assets/showcase/plus.jpg"),
+};
+
+const FADE_STEPS = 28;
+
+/**
+ * A full-bleed photo behind a showcase step, fading into the dark canvas the way the boards do.
+ * The fade is stacked strips, so no native gradient module is needed.
+ */
+function Backdrop({ source, height, fadeFrom = 0, full = false }: { source: number; height?: number; fadeFrom?: number; full?: boolean }) {
+  const { height: screen } = useWindowDimensions();
+  const h = full ? screen : (height ?? screen);
+  const dark = palettes.dark.canvas;
+  const fadeTop = full ? screen * 0.45 : fadeFrom;
+  const fadeH = h - fadeTop;
+  return (
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { height: h }]}>
+      <Image source={source} resizeMode="cover" style={{ width: "100%", height: h }} />
+      {full ? <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: screen * 0.3, backgroundColor: "rgba(21,21,21,0.15)" }} /> : null}
+      <View style={{ position: "absolute", left: 0, right: 0, top: fadeTop, height: fadeH }}>
+        {Array.from({ length: FADE_STEPS }, (_, i) => {
+          const t = (i + 1) / FADE_STEPS;
+          const alpha = full ? 0.2 + 0.72 * t * t : t * t;
+          return <View key={i} style={{ flex: 1, backgroundColor: dark, opacity: Math.min(1, alpha) }} />;
+        })}
+      </View>
+    </View>
+  );
+}
+
+/** One bar of the position indicator: fills from the left on a spring, drains the same way. */
+function Segment({ on, fill, track }: { on: boolean; fill: string; track: string }) {
+  const p = useSharedValue(on ? 1 : 0);
+  useEffect(() => {
+    p.value = withSpring(on ? 1 : 0, springs.gentle);
+  }, [on, p]);
+  const style = useAnimatedStyle(() => ({ transform: [{ scaleX: Math.max(0.001, p.value) }] }));
+  return (
+    <View style={[styles.bar, { backgroundColor: track, overflow: "hidden" }]}>
+      <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: fill, transformOrigin: "left" }, style]} />
     </View>
   );
 }
@@ -528,11 +597,13 @@ function PlusStep({ onFinish }: { onFinish: () => void }) {
     track("paywall_shown", { reason: "onboarding" });
   }, []);
   return (
-    <ScrollView contentContainerStyle={styles.page}>
-      <PlanPicker onContinueFree={trialStarted ? undefined : onFinish} />
+    <ScrollView contentContainerStyle={[styles.page, { paddingTop: 150 }]} showsVerticalScrollIndicator={false}>
+      <PlanPicker palette={palettes.dark} onContinueFree={trialStarted ? undefined : onFinish} />
       {trialStarted ? (
         <View style={styles.footer}>
-          <Button label="Continue" onPress={onFinish} />
+          <Press haptic="tap" accessibilityRole="button" onPress={onFinish} style={[styles.darkButton, { backgroundColor: palettes.dark.inkPrimary }]}>
+            <T token="headline" color={palettes.dark.onPrimary}>Continue</T>
+          </Press>
         </View>
       ) : null}
     </ScrollView>
@@ -541,7 +612,9 @@ function PlusStep({ onFinish }: { onFinish: () => void }) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, paddingHorizontal: SCREEN_GUTTER },
-  progress: { flexDirection: "row", gap: 5, paddingBottom: 24 },
+  header: { flexDirection: "row", alignItems: "center", gap: 10, paddingBottom: 24, minHeight: 36 },
+  back: { width: 36, height: 36, marginLeft: -8, alignItems: "center", justifyContent: "center" },
+  progress: { flex: 1, flexDirection: "row", gap: 5 },
   bar: { flex: 1, height: 3, borderRadius: 2 },
   center: { flex: 1 },
   middle: { flex: 1, alignItems: "center", justifyContent: "center", gap: 28 },
@@ -556,11 +629,11 @@ const styles = StyleSheet.create({
   actions: { flexDirection: "row", gap: 8 },
   status: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 4 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  bubble: { alignSelf: "flex-end", maxWidth: 290, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 20, borderBottomRightRadius: 6, minHeight: 45, marginTop: 126 },
+  bubble: { alignSelf: "flex-end", maxWidth: 290, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 20, borderBottomRightRadius: 6, minHeight: 45, marginTop: 150 },
   demoRow: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 52 },
   demoPill: { height: 26, paddingHorizontal: 9, borderRadius: 13, alignItems: "center", justifyContent: "center" },
   darkButton: { alignSelf: "stretch", height: 52, borderRadius: 999, alignItems: "center", justifyContent: "center" },
-  notification: { marginTop: 96, flexDirection: "row", gap: 12, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 20 },
+  notification: { marginTop: 120, flexDirection: "row", gap: 12, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 20 },
   notificationMark: { width: 36, height: 36, borderRadius: 9 },
   notificationBig: { position: "absolute", left: 7, bottom: 7, width: 16, height: 16, borderRadius: 8 },
   notificationSmall: { position: "absolute", right: 7, top: 7, width: 7, height: 7, borderRadius: 4 },

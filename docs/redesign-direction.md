@@ -62,7 +62,7 @@ Aim for roughly 85–90% neutral surfaces in a populated screen. This is an art 
 
 ### Type and geometry
 
-Use Inter Regular and Medium for readable UI text, with 17/24 pt body text and normal label tracking. Keep Urbanist for large display numerals and the existing outlined wordmark. Use a single strong screen heading, regular row titles, and medium section labels. Large dates belong on the alternative Day brief screen; the clock becomes secondary context in Quiet.
+Use Inter Regular and Medium for readable UI text, with 17/24 pt body text and normal label tracking. Keep Urbanist for large display numerals; the separate outlined wordmark uses Onest SemiBold. Use a single strong screen heading, regular row titles, and medium section labels. Large dates belong on the alternative Day brief screen; the clock becomes secondary context in Quiet.
 
 | Element | Proposed size and treatment |
 |---|---|

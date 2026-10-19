@@ -22,10 +22,10 @@ Quiet direction · Updated October 19, 2026
 
 ## 3. Logo and symbol
 
-Semli uses the existing outlined `semli.` wordmark where there is room, and the two-dot symbol for the app icon, favicon, avatar, and compact account control. Keep the master paths in `packages/tokens/src/wordmark.ts`; switching UI text to Inter does not redraw the logo.
+Semli uses the existing outlined `semli.` wordmark where there is room, and the two-dot symbol for the app icon, favicon, avatar, and compact account control. Keep the master paths in `packages/tokens/src/wordmark.ts`; product text and logo lettering have separate font roles.
 
 ### 3.1 Wordmark
-Lowercase `semli.` in Urbanist SemiBold, tracked −4.5%. Two lavender (500) circles: the tittle of the i and the closing period, both 0.19 em wide. Today, and what's next.
+Lowercase `semli.` in Onest SemiBold, tracked −4.5%. Two matching lavender circles form the i tittle and closing period, sized and positioned from Onest’s letter geometry. Today, and what's next.
 
 - Always lowercase, always with the period. In running text the product is "Semli".
 
@@ -57,7 +57,7 @@ On launch and after an import is confirmed, the period drops in last. Keep it un
 
 ## 7. Color & type in brand use
 - Product palette: warm white `#FAF9F6`, ink `#222320`, lavender accent `#7057BD`, and lavender wash `#F0ECF8`. Existing logo masters retain their lavender dot color. Use color sparingly and keep large planning surfaces neutral.
-- Type: Inter Regular/Medium for UI and marketing text. Urbanist Regular for large dates and clocks. The outlined wordmark is independent of both text roles. Body text uses normal tracking and comfortable line spacing.
+- Type: Inter Regular/Medium for UI and marketing text. Urbanist Regular for large dates and clocks. The Onest SemiBold outlined wordmark is independent of both text roles. Body text uses normal tracking and comfortable line spacing.
 
 ## 8. Imagery & illustration
 - Product screenshots on soft lavender or near-black stages (as in the reference render).
