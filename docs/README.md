@@ -20,7 +20,7 @@
 
 ## Decisions log
 - Platform: iOS + web (Expo app for both; Next.js site for landing, try-it, API, checkout). No Android. No backend until phase 2.
-- Typeface Inter 4 everywhere (decided Oct 19, 2026 as the closest open match to Robinhood's Capsule): 18pt cut for text, 24pt for titles, 28pt Display cut for headings and the clock, loaded from apps/mobile/assets/fonts. Urbanist is gone except inside the drawn wordmark. Icon: the two-dots mark. Wordmark for splash, site, social.
+- Design system decided Oct 19, 2026 (see design-system.md and https://claude.ai/artifact/Y3JnVE1gxVuvGrxjq795Z2): typeface Geist (after Onest → Outfit → Gilroy → Urbanist → Inter), lavender kept as a rare accent, fully round buttons, one big number per screen, color as meaning, native navigation, no wordmark in-app. Review canvas: https://claude.ai/artifact/QgE4ddmEytZ2PyHMCT3QoV. Icon: the two-dots mark. Wordmark for splash, site, social.
 - Pricing: Free (3 AI imports/mo, basics always free) · Plus $4.99/mo · $14.99/semester · $29.99/yr, student prices on the honor system; regular $7.99 / $24.99 / $49.99.
 - Name: Semli (decided).
 - SMS: cut from the MVP.
