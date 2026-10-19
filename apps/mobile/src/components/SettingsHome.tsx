@@ -63,6 +63,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         </Group>
 
         <Group title="Account" footer="Accounts are coming soon. Keep planning as a guest for now.">
+          <Row label="Account settings" value="Preview" onPress={() => router.push('/account?section=manage')} />
           <Row label="Save your plan" value="Preview" onPress={() => router.push('/account')} />
           <Row label="Share your schedule" value="Preview" onPress={() => router.push('/share-schedule')} last />
         </Group>
