@@ -1,0 +1,178 @@
+# Launch guide: Apple, RevenueCat keys, screenshots, SEO, marketing
+
+Status: Oct 19, 2026. Everything here is for the person running the launch; none of it is code. App record: **Semli: AI Student Planner**, Apple ID `6824600264`, bundle id `app.semli.mobile`, EAS project `629299e1-…`, RevenueCat project `a2c96d90`. Prices and plans: [pricing-and-positioning.md](pricing-and-positioning.md). Product config for Rico: [revenuecat-offerings-brief.md](revenuecat-offerings-brief.md).
+
+---
+
+## Part 1. Apple, end to end
+
+### 1.1 Accounts and agreements (one-time, 1–3 days of waiting)
+1. **Apple Developer Program**, $99/year, at developer.apple.com. Enroll as an individual unless you already have an LLC; you can transfer the app to a company later.
+2. **App Store Connect → Business (Agreements, Tax, and Banking)**: accept the *Paid Apps* agreement, fill in tax forms (W-9 for US) and a bank account. Until this is done, subscription products stay "Missing Metadata" and sandbox purchases fail. This is the step people forget; do it first.
+3. **App Store Connect → Users and Access**: add Rico as *App Manager* if he sets up products. Nobody else needs Admin.
+
+### 1.2 The identifier
+- developer.apple.com → Certificates, Identifiers & Profiles → **Identifiers** → `app.semli.mobile` must exist with capabilities **In-App Purchase** (on by default) and **Push Notifications** off (reminders are local; we don't need push). If the App Store Connect record was created with a different bundle id, change it there now (possible until the first build is uploaded) or tell me and I'll change `app.json`.
+
+### 1.3 Build with EAS (no Xcode signing by hand)
+From `apps/mobile`:
+```sh
+npx eas-cli login                                  # your Expo account (owner: ethanlma)
+npx eas-cli build --profile development --platform ios
+```
+First run: say yes to letting EAS create the distribution certificate and provisioning profile; sign in with your Apple ID when asked (app-specific password if 2FA asks). Register your iPhone's UDID when prompted (EAS gives a link to open on the phone). Install the build from the QR/link, then run `npm run dev:mobile` here and open the app: this is the build that can run reminders, purchases, and the native pickers.
+
+For TestFlight:
+```sh
+npx eas-cli build --profile production --platform ios
+npx eas-cli submit --platform ios --latest        # uses ascAppId 6824600264 from eas.json
+```
+`eas submit` will ask for an **App Store Connect API key** the first time (see 1.7); it can also use your Apple ID password, but the key is less fragile.
+
+### 1.4 App Store Connect record, field by field
+**App Information**
+- Name: `Semli: AI Student Planner` (30 max; you have 25).
+- Subtitle: `Syllabus, shifts & deadlines` (28). "AI" and "planner" are already in the name; the subtitle carries the other searchable words.
+- Primary category **Productivity**, secondary **Education**.
+- Content rights: no third-party content. Age rating: answer all "None" → 4+.
+- Privacy Policy URL `https://semli.app/privacy`. Support URL `https://semli.app/contact`.
+
+**Pricing and Availability**: Free app. All territories, or US only for the beta (simpler for tax).
+
+**App Privacy** (the "nutrition label"). Declare, all as *Data Not Linked to You*:
+- Purchases → Purchase History (RevenueCat) — App Functionality.
+- Usage Data → Product Interaction (PostHog) — Analytics.
+- Diagnostics → Crash Data, Performance Data (Sentry) — App Functionality.
+- User Content → Photos or Videos, Other User Content (screenshots and PDFs sent for extraction; not stored) — App Functionality. Say they are not used for tracking.
+- Identifiers → Device ID (RevenueCat anonymous id, PostHog) — Analytics, not tracking.
+- Do **not** check "Tracking". We don't track across apps.
+
+**Export compliance**: the app uses only HTTPS, which is exempt. I've added `ITSAppUsesNonExemptEncryption = false` to `app.json` so Apple stops asking on every build.
+
+**In-App Purchases / Subscriptions**: the six subscriptions in one group "Semli Plus" per the brief, each with a Free 1-week introductory offer, localized name and description, and a review screenshot (any screenshot of the paywall works). Add the **App Store Promotion** image later if you want them featured.
+
+**App Store Server Notifications** (App Information → App Store Server Notifications): paste the Production and Sandbox URLs that RevenueCat shows under the app's settings (version 2). This is how RevenueCat learns about renewals and cancellations.
+
+### 1.5 TestFlight
+- **Internal testers** (up to 100 App Store Connect users, no review): you, Rico, a couple of friends. Builds appear within minutes.
+- **External testers** (up to 10,000, via a public link): the 50 beta students. The first external build goes through *Beta App Review* (usually under a day). Create a group "Beta Oct 2026", enable the public link, cap at 200, and put the link on a short page or QR.
+- What to Test notes (shown in TestFlight): "Add a syllabus or a screenshot of your work schedule, then check Today. Reminders and the 7-day trial are real; sandbox purchases don't charge you."
+- TestFlight builds use the **sandbox** store: testers see a sandbox sign-in when buying. Tell them it is normal.
+
+### 1.6 App Review (for the public release, later)
+- Review notes: "No account needed. Tap 'Show me a sample week' in onboarding to see a populated app. To test import, send the text: 'I work Fri 4-10, exam Monday at 9.' Subscriptions use StoreKit via RevenueCat; the 7-day trial is configured on each product."
+- Common rejections to pre-empt: subscription terms must be visible on the paywall before purchase (they are: price, period, auto-renew, cancel, Terms and Privacy links); "Restore purchases" must exist (it does); the privacy policy must mention the AI provider (make sure `/privacy` names Anthropic as a processor of uploaded content).
+
+### 1.7 Keys: which .p8 is which
+There are two different App Store Connect keys. Both download **once** as a `.p8` file; store them in a password manager.
+
+| Key | Where to make it | Who uses it | Notes |
+|---|---|---|---|
+| **In-App Purchase key** | App Store Connect → Users and Access → **Integrations** → *In-App Purchase* → Generate | **RevenueCat** (StoreKit 2 verification) | Download `SubscriptionKey_XXXX.p8`. Note the **Key ID** and the **Issuer ID** shown on the page. In RevenueCat → Project → Apps → *Semli (App Store)* → "In-app purchase key configuration": upload the .p8, enter Issuer ID and Key ID. |
+| **App Store Connect API key** (Team key) | App Store Connect → Users and Access → Integrations → *App Store Connect API* → Team Keys → Generate, role **App Manager** | **EAS Submit** (uploading builds) and optionally RevenueCat (to import products automatically) | Download `AuthKey_XXXX.p8`. `eas submit` asks for Key ID, Issuer ID, and the file path once and stores them in your EAS account. |
+| **App-Specific Shared Secret** (not a .p8) | App Store Connect → the app → App Information → *App-Specific Shared Secret* → Generate | RevenueCat (legacy StoreKit 1 receipts; still recommended) | Paste into RevenueCat app settings. |
+
+Then in RevenueCat → Project settings → **API keys**: copy the Apple **public** SDK key (`appl_…`) into `apps/mobile/.env` as `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY`. Never commit `.env`; never use an `sk_` secret key in the app.
+
+Sanity check: a sandbox purchase in the dev build shows up in RevenueCat → Customers within a minute, with the `semli_pro` entitlement active.
+
+---
+
+## Part 2. Screenshots
+
+### 2.1 Apple's requirements (as of 2026)
+- One set at **6.9-inch** (iPhone 16/17 Pro Max): **1320 × 2868 px** portrait. Apple scales it to every other iPhone size, so you only need this one set. (6.5-inch at 1284 × 2778 is optional.)
+- No iPad set: the app is iPhone-only (`supportsTablet: false`).
+- 3 to 10 images; the **first three** show in search results, so they carry the message.
+- PNG or JPEG, no alpha, no status-bar fakery (Apple allows real status bars). Device frames and captions are allowed and expected.
+
+### 2.2 The six screenshots, in order
+| # | Screen | Caption (on the image, sentence case) | Why first-three |
+|---|---|---|---|
+| 1 | School tab after a syllabus import, course cards with "Next: …" | **Set up your semester in two minutes** | The promise; answers MyStudyLife's top complaint |
+| 2 | Review sheet after a work-schedule screenshot: New / Changed / Removed pills | **Screenshot your shifts. See what changed.** | The thing no competitor does |
+| 3 | Today with the now line, a heads-up card, Coming up | **Know what matters today** | The survey's #1 pain |
+| 4 | Plan (the reference design, a full week of tinted rows) | **Classes, shifts, and life in one calm list** | Looks like the design that converts on Dribbble |
+| 5 | Review card with the evidence line and a question | **Nothing is saved until you confirm** | Trust; Tiimo's AI complaints in reverse |
+| 6 | Paywall with the student toggle on | **Calendar, to-dos, reminders: always free** | Structured's loudest complaint, answered |
+
+### 2.3 How to produce them
+1. Load the sample week (You → Your data) in the **development build** on a real phone, or on an iPhone 16 Pro Max simulator from the dev-simulator build (`--profile development-simulator`), so there is no Expo Go gear.
+2. Light mode, 9:41 clock (Apple's convention; in the simulator: `xcrun simctl status_bar booted override --time 9:41 --batteryLevel 100 --cellularBars 4`).
+3. Capture with `xcrun simctl io booted screenshot shot1.png` (1320 × 2868 on the Pro Max simulator) or the phone's screenshot.
+4. Framing and captions: I'll generate the six finished images from the raw captures with the same script that made the social previews (wordmark, Urbanist captions, ink or tinted background, device frame). Put the raw captures in `design/screenshots/raw/` and say the word.
+5. Localize nothing for now (US English only).
+
+---
+
+## Part 3. SEO and Google
+
+### 3.1 Technical (done or one-click)
+- Done: canonicals, sitemap, robots, Organization/SoftwareApplication/FAQ/Breadcrumb structured data, per-page social previews, three intent pages, Urbanist via `next/font`.
+- To do (you): **Google Search Console** → add `semli.app` (DNS verification at your registrar) → submit `https://semli.app/sitemap.xml`. **Bing Webmaster Tools**: import from Search Console, one click. Check Core Web Vitals after deploy; the site is static and should be green.
+- Deploy the site (Vercel is the path of least resistance for Next.js; add `ANTHROPIC_API_KEY` as a server env var there).
+
+### 3.2 Queries to own (validate volumes in Search Console and Keyword Planner before investing)
+Tier 1, already have pages: *syllabus to calendar*, *assignment tracker app*, *work and school schedule planner*.
+Tier 2, next pages (same template, `components/LandingPage.tsx`):
+- `/student-planner-app` — the head term; compare honestly with MyStudyLife and Structured.
+- `/class-schedule-maker` — registration screenshot → week view.
+- `/nursing-student-planner` — clinicals, shifts, pharm exams; the beachhead.
+- `/import/7shifts`, `/import/when-i-work`, `/import/hotschedules`, `/import/deputy` — "turn your 7shifts schedule into a calendar"; low volume each, high intent, cheap to make.
+- `/canvas-syllabus-to-calendar` — captures Canvas intent before Canvas sync exists; be clear it's the PDF for now.
+- `/semli-vs-mystudylife`, `/structured-alternative-for-students` — comparison pages win for people already shopping.
+Tier 3, blog posts that earn links: "How to organize a rotating work schedule as a student", "What to do the week before a nursing exam", "The real cost of missing one assignment" (use the survey numbers).
+
+### 3.3 Links and signals
+- Campus newspapers and nursing program newsletters (a 200-word pitch + a screenshot).
+- Product Hunt launch the week TestFlight goes public (links, not customers).
+- Reddit threads (Part 4) that link to the intent pages, not the home page.
+- YouTube "study with me" and nursing creators: a link in the description is a backlink.
+
+### 3.4 App Store SEO (ASO)
+- Name + subtitle as in 1.4. **Keyword field** (100 chars, commas, no spaces, no words already in name/subtitle): `college,schedule,assignment,tracker,class,work,semester,homework,calendar,nursing,organizer,todo`.
+- Promotional text (170 chars, editable without a release): "Drop in a syllabus or a screenshot of your work schedule. Semli reads the dates and tells you what matters today. Free to start."
+- Ratings: ask with the system prompt (`expo-store-review`) after the **second** confirmed import, never on first launch. Phase 2 if not before beta.
+- Apple Search Ads (Part 4) also feeds the ranking through installs.
+
+---
+
+## Part 4. Marketing plan
+
+### 4.1 Positioning, one line everywhere
+"Semli is the daily planner for college students. Drop in a syllabus or a work schedule; it tells you what matters today." Student planner, not AI assistant. Nursing and working students first.
+
+### 4.2 Timeline
+| When | What |
+|---|---|
+| Weeks 1–3 (now) | Dev build, keys, TestFlight internal. Recruit 50 beta students by hand (nursing cohorts, your own campus). Site live with Search Console. |
+| Week 4 | Beta runs. Weekly interviews. Watch the funnel: install → first import → paywall → trial → paid. |
+| Week 5–6 | If ≥10 of 50 pay: App Review, public release, Product Hunt, Reddit founder posts, first creator videos, Apple Search Ads on. |
+| Early January 2027 | Semester-start push: the natural moment to buy a semester plan. Content and ads peak the two weeks before classes. |
+
+### 4.3 Channels, in order of expected return
+
+**1. Campus, by hand (highest conversion, zero cost).** Nursing programs first (18% of the survey, highest hours). One ambassador per program gets Plus free for a year plus $50 per 25 installs. Kit: a one-page flyer with a QR to the TestFlight link, a 60-second phone video of a syllabus becoming a semester, and three sentences for a GroupMe/Discord post. Study-group and club presidents next.
+
+**2. Reddit (credible, free, slow; the rules matter).**
+- Subreddits: r/StudentNurse, r/nursing (flair rules; many ban self-promo, read first), r/college, r/CollegeRant, r/GetStudying, r/productivity, r/ADHD (only if a user raises it; never pitch), r/sideproject and r/iosapps (builder audience, good for feedback).
+- Format that works: a founder post with the story and a screenshot, asking for beta testers, honest about what's not built. "I surveyed 66 students; 83% had missed an assignment because it got buried, so I built…" Reply to every comment. One post per subreddit, ever, unless mods invite more.
+- What gets you banned and hurts the brand: multiple accounts, friends posting "has anyone tried Semli?", fake reviews. StudyStream's reviews call this out by name. Don't.
+- Ongoing: answer "best planner for nursing school" style questions with a real answer and a one-line mention; the link goes to the intent page.
+
+**3. Short video (TikTok, Reels, Shorts): the format fits the product.**
+- The "transformation" clip: screenshot of a messy schedule → tap → the week appears. 15–30 seconds, no talking needed, caption "set up my whole semester in 2 min".
+- Creator seeding: 10–20 nursing/study micro-creators (5k–50k followers): free Plus for a year plus $50–150 per video, no script, ask only that they show a real import. Track with a per-creator link (`semli.app/?r=name` → PostHog).
+- Your own account: one clip per week; the sample week makes it easy to film.
+
+**4. Apple Search Ads (paid, measurable, small).** Start at $15/day, exact-match campaigns: brand (`semli`), competitors (`mystudylife`, `my study life`, `structured planner`, `student planner`), category (`college planner app`, `assignment tracker`, `syllabus app`). Kill any keyword whose cost per trial start is above $8 after 50 installs; keep the rest. This also lifts organic ranking.
+
+**5. Site + email.** A waitlist/"get the TestFlight link" form on the site now; one email when the public build lands; one before each semester.
+
+**6. Later, not now:** Google Ads (low volume for these queries; revisit after Search Console shows which terms pull), Instagram ads, podcasts, PR beyond campus papers.
+
+### 4.4 Budget for the first 8 weeks
+Apple Developer $99; Apple Search Ads ~$600; creator seeding ~$1,000; ambassador rewards ~$300; Vercel/PostHog/Sentry/RevenueCat free tiers. Roughly **$2,000** to find out whether 50 students pay and what an install costs.
+
+### 4.5 Numbers to watch every Monday
+Installs by source → first import rate → paywall shown → trial started → trial converted → week-4 retention. Targets from [mvp.md](mvp.md): ≥20% trial-to-paid in the beta, ≥40% W4 retention. If installs are fine but first imports are low, the problem is onboarding; if imports are high but trials are low, the paywall; if trials are high but conversion is low, the product's second week.

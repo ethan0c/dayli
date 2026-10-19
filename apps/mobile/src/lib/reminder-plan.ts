@@ -86,8 +86,13 @@ function dayLine(items: Item[], date: string): string {
  * Everything that should be scheduled right now, in delivery order, capped for iOS.
  * Pure: the same items and prefs always produce the same plan.
  */
-export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: string; time: string }): PlannedNotification[] {
-  if (!prefs.enabled && !prefs.briefing) return [];
+export interface PlanExtras {
+  /** Free trial in progress: remind two days before it converts (the Blinkist pattern). */
+  trial?: { endsAt: string; label: string } | null;
+}
+
+export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: string; time: string }, extras: PlanExtras = {}): PlannedNotification[] {
+  if (!prefs.enabled && !prefs.briefing && !extras.trial) return [];
   const nowAbs = toAbs(now.date, now.time);
   const out: (PlannedNotification & { abs: number })[] = [];
   const push = (p: Omit<PlannedNotification, 'date' | 'time'>, abs: number) => {
@@ -133,6 +138,18 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
       if (!line && !nextDeadline) continue;
       const body = [line, nextDeadline ? `${nextDeadline.title} ${weekdayLong(nextDeadline.date)}.` : ''].filter(Boolean).join(' ');
       push({ id: `brief-${date}`, title: 'Good morning', body, itemId: null, kind: 'briefing' }, toAbs(date, prefs.briefingAt));
+    }
+  }
+
+  if (extras.trial) {
+    const ends = new Date(extras.trial.endsAt);
+    if (!Number.isNaN(ends.getTime())) {
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const endDate = `${ends.getFullYear()}-${pad(ends.getMonth() + 1)}-${pad(ends.getDate())}`;
+      push(
+        { id: 'trial-reminder', title: 'Your Semli Plus trial ends in 2 days', body: `${extras.trial.label} unless you cancel. Manage it any time in You → Semli Plus.`, itemId: null, kind: 'briefing' },
+        toAbs(addDays(endDate, -2), prefs.dayBeforeAt),
+      );
     }
   }
 

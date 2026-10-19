@@ -11,7 +11,7 @@ import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
 import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
-import { customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
+import { PRO_ENTITLEMENT, customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
@@ -67,7 +67,11 @@ export function PlanPicker({ hero = false, docked = false, freeImportsLeft }: { 
       if (!info) return;
       if (hasSemliPro(info)) {
         feedback('success');
-        track('purchase_completed', { term: current?.key ?? 'unknown', student });
+        track('purchase_completed', { term: current?.key ?? 'unknown', student, trial: !!trial });
+        const ends = info.entitlements.active[PRO_ENTITLEMENT]?.expirationDate;
+        if (trial && ends && selected && current) {
+          setSettings({ trial: { endsAt: ends, label: `${selected.product.priceString} ${current.period.replace('/ ', 'per ')}` } });
+        }
       }
       else setNotice('Your purchase finished, but Plus is not active yet. Try Restore purchases or contact support.');
     } catch {
@@ -193,6 +197,7 @@ export function PlanPicker({ hero = false, docked = false, freeImportsLeft }: { 
                 : 'Your store sets the price.'}
             </T>
           </View>
+          {trial && selected && current ? <TrialTimeline trial={trial} price={`${selected.product.priceString} ${current.period.replace('/ ', 'per ')}`} /> : null}
           <View style={[styles.benefits, { borderTopColor: c.line }]}>
             {[
               { title: 'Unlimited AI imports', detail: 'Bring your whole semester.' },
@@ -338,6 +343,32 @@ export function PlanPicker({ hero = false, docked = false, freeImportsLeft }: { 
   );
 }
 
+/** Blinkist's trick: say exactly when the reminder and the charge happen. Raised trial starts 23% there. */
+function TrialTimeline({ trial, price }: { trial: string; price: string }) {
+  const { c } = useTheme();
+  const days = Number(trial.match(/\d+/)?.[0] ?? 7);
+  const rows = [
+    { when: 'Today', what: 'Everything in Plus, free.', tint: c.tint.mint },
+    { when: `Day ${Math.max(1, days - 2)}`, what: 'We remind you the trial is ending.', tint: c.tint.butter },
+    { when: `Day ${days}`, what: `${price}. Cancel before and you pay nothing.`, tint: c.tint.lavender },
+  ];
+  return (
+    <View style={[styles.timeline, { borderTopColor: c.line }]}>
+      {rows.map((r) => (
+        <View key={r.when} style={styles.timelineRow}>
+          <View style={[styles.timelineDot, { backgroundColor: r.tint.ink }]} />
+          <T token="subhead" style={{ width: 54 }}>
+            {r.when}
+          </T>
+          <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>
+            {r.what}
+          </T>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   toolbar: { paddingHorizontal: SCREEN_GUTTER, minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
@@ -353,6 +384,9 @@ const styles = StyleSheet.create({
   plan: { flex: 1, minHeight: 40, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', borderRadius: 11 },
   priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, minHeight: 64 },
   price: { fontSize: 56, lineHeight: 64, letterSpacing: -2.5, flexShrink: 1 },
+  timeline: { paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth, gap: 10 },
+  timelineRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  timelineDot: { width: 8, height: 8, borderRadius: 4 },
   benefits: { paddingTop: 4, gap: 14 },
   benefit: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   check: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },

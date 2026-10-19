@@ -55,6 +55,10 @@ interface Settings {
   reminders: ReminderPrefs;
   /** The in-context permission ask after the first confirmed import happened. */
   remindersAsked: boolean;
+  /** Set by the review sheet when the first import is confirmed during onboarding. */
+  onboardingImportDone: boolean;
+  /** Active free trial, for the day-5 reminder. */
+  trial: { endsAt: string; label: string } | null;
 }
 
 /** AI imports used this calendar month (free tier allows a few). */
@@ -119,7 +123,7 @@ export const useStore = create<State>()(
       suggestionDismissals: { date: '', ids: [] },
       captureDraft: '',
       selectedPlanDate: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null },
       usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),

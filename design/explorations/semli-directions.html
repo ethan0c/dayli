@@ -1,0 +1,237 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600&display=swap');
+#semli-direction-board { --sm-canvas:light-dark(#FAF9F6,#151515); --sm-surface:light-dark(#FFFFFF,#202020); --sm-fill:light-dark(#F0EFEB,#292929); --sm-ink:light-dark(#222320,#F5F4F0); --sm-muted:light-dark(#686963,#B4B4AC); --sm-line:light-dark(#E5E4DE,#363632); --sm-outline:light-dark(#82837B,#92938A); --sm-accent:light-dark(#7057BD,#C3AFF8); --sm-wash:light-dark(#F0ECF8,#2B253A); --sm-danger:light-dark(#A2342F,#FFACA4); --sm-danger-wash:light-dark(#FBEDEB,#3B2524); font-family:'Urbanist',-apple-system,BlinkMacSystemFont,sans-serif; }
+#semli-direction-board * { box-sizing:border-box; }
+#semli-direction-board .sm-stage { padding:24px 10px 36px; min-height:930px; display:flex; justify-content:center; align-items:flex-start; }
+#semli-direction-board .sm-app { width:390px; max-width:100%; min-height:840px; border:1px solid var(--sm-line); border-radius:38px; background:var(--sm-canvas); color:var(--sm-ink); position:relative; display:flex; flex-direction:column; overflow:hidden; font-size:16px; line-height:1.4; text-align:left; }
+#semli-direction-board button,#semli-direction-board input,#semli-direction-board textarea { font:inherit; }
+#semli-direction-board button { color:inherit; border:0; background:transparent; padding:0; }
+#semli-direction-board button:focus-visible,#semli-direction-board input:focus-visible,#semli-direction-board textarea:focus-visible { outline:2px solid var(--sm-accent); outline-offset:3px; }
+#semli-direction-board .sm-status { display:flex; align-items:center; justify-content:space-between; padding:16px 28px 6px; font-size:13px; font-weight:600; }
+#semli-direction-board .sm-status-icons { display:flex; align-items:center; gap:5px; }
+#semli-direction-board .sm-status-icons svg { width:15px; height:15px; }
+#semli-direction-board .sm-brandbar { margin:17px 24px 0; display:flex; align-items:center; justify-content:space-between; }
+#semli-direction-board .sm-wordmark { font-size:25px; font-weight:600; letter-spacing:-1.2px; }
+#semli-direction-board .sm-wordmark span { color:var(--sm-accent); }
+#semli-direction-board .sm-meta { font-size:13px; color:var(--sm-muted); }
+#semli-direction-board .sm-dots { width:30px; height:30px; position:relative; }
+#semli-direction-board .sm-dots:before { content:''; width:19px; height:19px; border-radius:100%; background:var(--sm-ink); position:absolute; left:0; bottom:1px; }
+#semli-direction-board .sm-dots:after { content:''; width:9px; height:9px; border-radius:100%; background:var(--sm-accent); position:absolute; right:0; top:1px; }
+#semli-direction-board .sm-content { padding:28px var(--sm-explore-gutter,24px) 26px; flex:1; }
+#semli-direction-board .sm-date { font-size:14px; color:var(--sm-muted); margin:0 0 6px; }
+#semli-direction-board h2 { font-size:36px; font-weight:500; letter-spacing:-1.1px; line-height:1.1; margin:0 0 10px; color:var(--sm-ink); }
+#semli-direction-board h3 { font-size:17px; line-height:1.3; font-weight:500; margin:0; color:var(--sm-ink); letter-spacing:0; }
+#semli-direction-board p { margin:0; }
+#semli-direction-board .sm-subtitle { font-size:14px; color:var(--sm-muted); }
+#semli-direction-board .sm-section { margin-top:29px; }
+#semli-direction-board .sm-section-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+#semli-direction-board .sm-small-action { color:var(--sm-accent); font-size:13px; min-height:44px; padding:0 2px; display:inline-flex; align-items:center; gap:6px; }
+#semli-direction-board .sm-small-action svg { width:16px; height:16px; }
+#semli-direction-board .sm-next { margin-top:26px; background:var(--sm-wash); border-radius:var(--sm-explore-radius,16px); padding:18px; display:block; width:100%; text-align:left; }
+#semli-direction-board .sm-next .sm-kicker { font-size:13px; color:var(--sm-accent); margin-bottom:9px; display:flex; justify-content:space-between; align-items:center; }
+#semli-direction-board .sm-next .sm-kicker svg { width:17px; height:17px; }
+#semli-direction-board .sm-next strong { font-size:22px; font-weight:500; display:block; letter-spacing:-.4px; margin-bottom:4px; }
+#semli-direction-board .sm-row { min-height:70px; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--sm-line); }
+#semli-direction-board .sm-row:last-child { border-bottom:0; }
+#semli-direction-board .sm-time { width:45px; flex-shrink:0; font-size:13px; font-variant-numeric:tabular-nums; color:var(--sm-muted); align-self:flex-start; padding-top:19px; }
+#semli-direction-board .sm-row-main { min-width:0; flex:1; padding:12px 0; text-align:left; display:block; }
+#semli-direction-board .sm-row-main strong { font-size:16px; font-weight:500; display:block; line-height:1.3; }
+#semli-direction-board .sm-row-main small { display:block; color:var(--sm-muted); font-size:13px; margin-top:4px; }
+#semli-direction-board .sm-check { flex-shrink:0; width:44px; height:44px; display:grid; place-items:center; }
+#semli-direction-board .sm-check:before { content:''; width:21px; height:21px; border:1.5px solid var(--sm-outline); border-radius:50%; }
+#semli-direction-board .sm-check[aria-checked=true]:before { content:'✓'; color:var(--sm-canvas); border-color:var(--sm-ink); background:var(--sm-ink); display:grid; place-items:center; font-size:13px; }
+#semli-direction-board .sm-row.sm-done .sm-row-main strong { text-decoration:line-through; color:var(--sm-muted); }
+#semli-direction-board .sm-upcoming { display:flex; align-items:center; gap:13px; padding:15px 0 0; width:100%; text-align:left; }
+#semli-direction-board .sm-upcoming svg { width:19px; height:19px; color:var(--sm-muted); flex-shrink:0; }
+#semli-direction-board .sm-upcoming span { flex:1; }
+#semli-direction-board .sm-upcoming strong { display:block; font-size:15px; font-weight:500; }
+#semli-direction-board .sm-upcoming small { font-size:13px; color:var(--sm-muted); }
+#semli-direction-board .sm-nav { padding:12px 17px 15px; border-top:1px solid var(--sm-line); display:flex; gap:10px; align-items:center; margin-top:auto; background:var(--sm-canvas); }
+#semli-direction-board .sm-tabs { flex:1; display:flex; border-radius:28px; background:var(--sm-surface); border:1px solid var(--sm-line); padding:4px; }
+#semli-direction-board .sm-tab { display:flex; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:49px; font-size:11px; color:var(--sm-muted); border-radius:23px; }
+#semli-direction-board .sm-tab svg { width:20px; height:20px; }
+#semli-direction-board .sm-tab[aria-current=page] { background:var(--sm-fill); color:var(--sm-ink); }
+#semli-direction-board .sm-add { width:54px; height:54px; border-radius:50%; background:var(--sm-ink); color:var(--sm-canvas); display:grid; place-items:center; }
+#semli-direction-board .sm-add svg { width:24px; height:24px; }
+#semli-direction-board .sm-homebar { width:112px; height:4px; margin:0 auto 8px; background:var(--sm-ink); border-radius:10px; }
+#semli-direction-board .sm-week { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; padding:20px 0 19px; border-bottom:1px solid var(--sm-line); }
+#semli-direction-board .sm-day { min-height:68px; display:flex; flex-direction:column; align-items:center; gap:8px; font-size:12px; color:var(--sm-muted); }
+#semli-direction-board .sm-day span { height:36px; width:36px; display:grid; place-items:center; border-radius:50%; font-size:16px; color:var(--sm-ink); }
+#semli-direction-board .sm-day[aria-pressed=true] span { background:var(--sm-ink); color:var(--sm-canvas); }
+#semli-direction-board .sm-day em { font-style:normal; }
+#semli-direction-board .sm-day[aria-current=date] em { color:var(--sm-accent); font-weight:600; }
+#semli-direction-board .sm-plan-heading { margin-top:22px; margin-bottom:3px; display:flex; align-items:center; justify-content:space-between; }
+#semli-direction-board .sm-course { width:100%; padding:19px 0; border-bottom:1px solid var(--sm-line); text-align:left; display:flex; gap:13px; align-items:flex-start; }
+#semli-direction-board .sm-course-marker { margin-top:5px; width:8px; height:8px; background:var(--sm-accent); border-radius:50%; flex-shrink:0; }
+#semli-direction-board .sm-course svg { width:16px; height:16px; color:var(--sm-muted); margin-top:24px; }
+#semli-direction-board .sm-course-main { flex:1; }
+#semli-direction-board .sm-course-main strong { display:block; font-size:18px; font-weight:500; margin:4px 0 10px; }
+#semli-direction-board .sm-course-main small { font-size:13px; color:var(--sm-muted); }
+#semli-direction-board .sm-syllabus { width:100%; display:flex; justify-content:space-between; align-items:center; background:var(--sm-fill); border-radius:var(--sm-explore-radius,14px); padding:16px; text-align:left; gap:8px; margin-top:24px; }
+#semli-direction-board .sm-syllabus svg { width:20px; height:20px; }
+#semli-direction-board .sm-syllabus small { display:block; font-size:13px; color:var(--sm-muted); margin-top:3px; }
+#semli-direction-board .sm-editorial .sm-content { padding-top:21px; }
+#semli-direction-board .sm-editorial-date { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:24px; }
+#semli-direction-board .sm-editorial-date h2 { font-size:42px; margin-bottom:0; }
+#semli-direction-board .sm-editorial-date .sm-number { font-size:70px; line-height:.9; letter-spacing:-4px; font-weight:400; }
+#semli-direction-board .sm-editorial .sm-next { margin-top:0; background:var(--sm-ink); color:var(--sm-canvas); padding:23px; border-radius:var(--sm-explore-radius,16px); }
+#semli-direction-board .sm-editorial .sm-next .sm-kicker,#semli-direction-board .sm-editorial .sm-next .sm-meta { color:var(--sm-canvas); opacity:.85; }
+#semli-direction-board .sm-editorial .sm-next strong { font-size:27px; }
+#semli-direction-board .sm-editorial .sm-time { display:none; }
+#semli-direction-board .sm-editorial .sm-row { min-height:65px; }
+#semli-direction-board .sm-overlay { position:absolute; inset:0; z-index:5; background:light-dark(rgba(34,35,32,.28),rgba(0,0,0,.55)); display:flex; align-items:flex-end; }
+#semli-direction-board .sm-sheet { background:var(--sm-surface); border-radius:28px 28px 0 0; width:100%; padding:12px 24px 27px; color:var(--sm-ink); }
+#semli-direction-board .sm-handle { width:36px; height:4px; border-radius:3px; background:var(--sm-line); margin:0 auto 19px; }
+#semli-direction-board .sm-sheet-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+#semli-direction-board .sm-sheet h2 { font-size:26px; margin:0; }
+#semli-direction-board .sm-close { width:44px; height:44px; display:grid; place-items:center; flex-shrink:0; }
+#semli-direction-board .sm-close svg { width:20px; height:20px; }
+#semli-direction-board .sm-input { width:100%; resize:vertical; min-height:130px; background:var(--sm-fill); color:var(--sm-ink); border:0; border-radius:14px; padding:16px; margin:16px 0 12px; font-size:16px; line-height:1.5; }
+#semli-direction-board .sm-input::placeholder { color:var(--sm-muted); opacity:1; }
+#semli-direction-board .sm-source-buttons { display:flex; justify-content:space-between; gap:6px; margin-bottom:18px; }
+#semli-direction-board .sm-source-buttons button { min-height:44px; display:flex; align-items:center; gap:7px; font-size:14px; }
+#semli-direction-board .sm-source-buttons svg { width:18px; height:18px; }
+#semli-direction-board .sm-primary { min-height:50px; width:100%; border-radius:14px; background:var(--sm-ink); color:var(--sm-canvas); font-weight:500; padding:12px 16px; }
+#semli-direction-board .sm-footer-note { font-size:12px; color:var(--sm-muted); text-align:center; margin-top:12px; }
+#semli-direction-board .sm-review-source { padding:14px; background:var(--sm-fill); border-radius:12px; margin:18px 0 6px; display:flex; gap:12px; align-items:center; }
+#semli-direction-board .sm-review-source svg { width:22px; height:22px; }
+#semli-direction-board .sm-source-text { width:100%; padding:15px; margin-top:14px; white-space:pre-wrap; border-radius:12px; background:var(--sm-fill); color:var(--sm-ink); font-size:14px; }
+#semli-direction-board .sm-toast { position:absolute; bottom:114px; left:16px; right:16px; background:var(--sm-ink); color:var(--sm-canvas); padding:14px 16px; border-radius:14px; z-index:6; display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:14px; }
+#semli-direction-board .sm-toast button { text-decoration:underline; min-height:44px; }
+#semli-direction-board .sm-alert { margin-top:18px; display:flex; gap:10px; padding:14px; background:var(--sm-danger-wash); color:var(--sm-danger); border-radius:12px; font-size:14px; }
+#semli-direction-board .sm-alert svg { width:19px; height:19px; flex-shrink:0; }
+#semli-direction-board .sm-demo-label { margin-top:22px; font-size:11px; color:var(--sm-muted); text-align:center; }
+@media(max-width:380px) { #semli-direction-board .sm-stage { padding:12px 0 25px; } #semli-direction-board .sm-content { padding-left:19px; padding-right:19px; } #semli-direction-board .sm-brandbar { margin-left:19px; margin-right:19px; } #semli-direction-board .sm-sheet { padding-left:19px; padding-right:19px; } #semli-direction-board .sm-day span { width:33px; height:33px; } #semli-direction-board .sm-editorial-date h2 { font-size:36px; } }
+</style>
+<div id="semli-direction-board">
+  <div class="viz-carousel viz-dotted-background" aria-label="Semli app design directions">
+    <section data-variant="Quiet" aria-label="Quiet design direction">
+      <div class="sm-stage"><div class="sm-app" data-direction="Quiet" aria-label="Semli Quiet app concept"></div></div>
+    </section>
+    <section data-variant="Day brief" aria-label="Day brief design direction" hidden>
+      <div class="sm-stage"><div class="sm-app sm-editorial" data-direction="Day brief" aria-label="Semli Day brief app concept"></div></div>
+    </section>
+  </div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('semli-direction-board');
+  const apps = Array.from(root.querySelectorAll('.sm-app'));
+  const models = new Map();
+  const saved = window.openai?.widgetState;
+  const icon = name => `<i data-lucide="${name}" aria-hidden="true"></i>`;
+  const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const sourceText = 'Olive Garden · additional shifts\nWednesday, October 21 · 5:00–10:00 PM\nSaturday, October 24 · 11:00 AM–5:00 PM\nSunday, October 25 · 11:00 AM–5:00 PM';
+  function persist() {
+    const state = {};
+    for (const [app,m] of models) state[app.dataset.direction] = {screen:m.screen, day:m.day, done:m.done, imported:m.imported};
+    window.openai?.setWidgetState?.({modelContent:{concept:'Semli minimalist redesign',directions:state},privateContent:state})?.catch(() => {});
+  }
+  function hydrate(m,value) {
+    if (!value || typeof value !== 'object') return;
+    if (['Today','Plan','School'].includes(value.screen)) m.screen=value.screen;
+    if (Number.isInteger(value.day) && value.day>=0 && value.day<=6) m.day=value.day;
+    if (Array.isArray(value.done)) m.done=value.done.filter(x=>typeof x==='string');
+    if (typeof value.imported==='boolean') m.imported=value.imported;
+  }
+  function item(m,id,title,meta,time,task=false) {
+    const done = m.done.includes(id);
+    return `<div class="sm-row${done?' sm-done':''}"><span class="sm-time">${time}</span><button type="button" class="sm-row-main" data-item="${escape(id)}" data-title="${escape(title)}" data-meta="${escape(meta)}"><strong>${escape(title)}</strong><small>${escape(meta)}</small></button>${task?`<button type="button" class="sm-check" role="checkbox" aria-checked="${done}" aria-label="${done?'Mark incomplete':'Complete'} ${escape(title)}" data-check="${escape(id)}"></button>`:''}</div>`;
+  }
+  function next(m) {
+    return `<button type="button" class="sm-next" data-item="pharm" data-title="Pharmacology" data-meta="9:00–10:15 AM · Health Sciences 204"><span class="sm-kicker">Next · 9:00–10:15 AM ${icon('arrow-up-right')}</span><strong>Pharmacology</strong><span class="sm-meta">Health Sciences 204</span></button>`;
+  }
+  function today(m,brief) {
+    const head = brief ? `<div class="sm-editorial-date"><div><p class="sm-date">October 2026</p><h2>Monday</h2></div><span class="sm-number">19<span style="color:var(--sm-accent)">.</span></span></div>` : `<p class="sm-date">Monday, October 19</p><h2>Your Monday.</h2><p class="sm-subtitle">2 events · 2 to-dos</p>`;
+    const todo = item(m,'notes','Review lecture notes','Pharmacology · due tomorrow','To do',true) + item(m,'quiz','Submit practice quiz','Fundamentals · due at 11:59 PM','To do',true);
+    const shift = item(m,'shift','Work shift','Olive Garden · until 10:00 PM','4:00');
+    return head + next(m) + `<section class="sm-section"><div class="sm-section-title"><h3>${brief?'To do':'On your list'}</h3><span class="sm-meta">${m.done.filter(x=>['notes','quiz'].includes(x)).length}/2 done</span></div>${todo}</section>` + (brief?`<section class="sm-section"><h3>Later</h3>${shift}</section>`:shift) + `<section class="sm-section"><h3>Coming up</h3><button type="button" class="sm-upcoming" data-item="exam" data-title="Pharmacology exam" data-meta="Friday, October 23 · 9:00 AM">${icon('book-open')}<span><strong>Pharmacology exam</strong><small>Friday · 4 days away</small></span>${icon('chevron-right')}</button></section>`;
+  }
+  function plan(m) {
+    let rows = '';
+    if (m.day===0) rows = item(m,'pharm','Pharmacology','Until 10:15 AM · Health Sciences 204','9:00') + item(m,'notes','Review lecture notes','Pharmacology · due tomorrow','To do',true) + item(m,'shift','Work shift','Until 10:00 PM · Olive Garden','4:00') + item(m,'quiz','Submit practice quiz','Fundamentals · due at 11:59 PM','To do',true);
+    if (m.day===1) rows = item(m,'lab','Clinical skills lab','Until 11:30 AM · Nursing lab','8:00') + item(m,'care','Draft care plan','Fundamentals · due Thursday','To do',true);
+    if (m.day===2) rows = item(m,'lecture','Pharmacology','Until 10:15 AM · Health Sciences 204','9:00') + (m.imported?item(m,'wedshift','Work shift','Until 10:00 PM · Olive Garden','5:00'):'');
+    if (m.day===3) rows = item(m,'clinical','Clinical rotation','Until 3:00 PM · Memorial Hospital','7:00') + item(m,'care','Submit care plan','Fundamentals · due at 11:59 PM','To do',true);
+    if (m.day===4) rows = item(m,'exam','Pharmacology exam','Until 10:00 AM · Health Sciences 204','9:00');
+    if ((m.day===5 || m.day===6) && m.imported) rows = item(m,'weekendshift','Work shift','Until 5:00 PM · Olive Garden','11:00');
+    return `<p class="sm-date">October 2026</p><h2>Your week.</h2><div class="sm-week" aria-label="October 19 to 25">${days.map((d,i)=>`<button type="button" class="sm-day" data-day="${i}" aria-label="${d}, October ${19+i}" aria-pressed="${m.day===i}" ${i===0?'aria-current="date"':''}><em>${d.slice(0,3)}</em><span>${19+i}</span></button>`).join('')}</div><div class="sm-plan-heading"><h3>${days[m.day]}, Oct ${19+m.day}</h3><span class="sm-meta">${m.day===0?'Today':''}</span></div>${rows || `<div class="sm-section"><h3>Nothing planned yet.</h3><p class="sm-subtitle" style="margin-top:8px">A little room in your week.</p><button type="button" class="sm-small-action" data-capture>Add something ${icon('plus')}</button></div>`}<button type="button" class="sm-syllabus" data-capture>${icon('image')}<span><strong>Next week's shifts</strong><small>Schedule not added</small></span>${icon('plus')}</button>`;
+  }
+  function school() {
+    const courses = [['NURS 302','Pharmacology','Exam · Friday, Oct 23','Mon & Wed · 9:00–10:15 AM'],['NURS 310','Fundamentals of Nursing','Practice quiz · Today','Tue · 8:00–11:30 AM'],['NURS 315','Clinical Practice','Care plan · Thursday','Thu · 7:00 AM–3:00 PM']];
+    return `<p class="sm-date">Fall semester</p><h2>School.</h2><p class="sm-subtitle">3 courses · 3 deadlines this week</p><section class="sm-section">${courses.map((c,i)=>`<button type="button" class="sm-course" data-course="${i}"><span class="sm-course-marker"></span><span class="sm-course-main"><small>${c[0]}</small><strong>${c[1]}</strong><small>${c[2]}</small></span>${icon('chevron-right')}</button>`).join('')}</section><button type="button" class="sm-syllabus" data-syllabus>${icon('file-text')}<span><strong>Add a syllabus</strong><small>Review the dates before adding.</small></span>${icon('plus')}</button>`;
+  }
+  function sheet(m) {
+    const close = `<button type="button" class="sm-close" aria-label="Close" data-close>${icon('x')}</button>`;
+    let inner = '';
+    if (m.overlay==='capture') inner = `<div class="sm-sheet-title"><h2>Add anything.</h2>${close}</div><p class="sm-subtitle">A thought, a schedule, a whole syllabus.</p><label for="sm-draft-${m.key}" class="sm-meta" style="display:block;margin-top:16px">What would you like to add?</label><textarea id="sm-draft-${m.key}" class="sm-input" placeholder="e.g. Study for pharmacology tomorrow at 2">${escape(m.draft)}</textarea><div class="sm-source-buttons"><button type="button" data-media="Photo">${icon('image')}Photo</button><button type="button" data-media="File">${icon('paperclip')}File</button><button type="button" data-media="Voice">${icon('mic')}Voice</button></div><button type="button" class="sm-primary" data-read>Preview review</button><p class="sm-footer-note">Example preview · no file is uploaded.</p>`;
+    if (m.overlay==='review') inner = `<div class="sm-sheet-title"><h2>Ready to review.</h2>${close}</div><p class="sm-subtitle">3 shifts from your example schedule.</p><button type="button" class="sm-review-source" data-source style="width:100%;text-align:left">${icon('image')}<span><strong>work-schedule.jpg</strong><span class="sm-meta" style="display:block">View source · October 19–25</span></span></button>${item(m,'r1','Wednesday, Oct 21','5:00–10:00 PM · Olive Garden','')}${item(m,'r2','Saturday, Oct 24','11:00 AM–5:00 PM · Olive Garden','')}${item(m,'r3','Sunday, Oct 25','11:00 AM–5:00 PM · Olive Garden','')}<button type="button" class="sm-primary" data-commit ${m.imported?'disabled':''} style="margin-top:20px">${m.imported?'Already added':'Add 3 shifts'}</button><p class="sm-footer-note">${m.imported?'Duplicate import prevented in this preview.':'Nothing is added until you confirm.'}</p>`;
+    if (m.overlay==='source') inner = `<div class="sm-sheet-title"><h2>Original source</h2>${close}</div><p class="sm-subtitle">Example text represented by work-schedule.jpg</p><div class="sm-source-text">${escape(sourceText)}</div><button type="button" class="sm-primary" data-back-review style="margin-top:20px">Back to review</button>`;
+    if (m.overlay==='item') inner = `<div class="sm-sheet-title"><h2>${escape(m.detail.title)}</h2>${close}</div><p class="sm-subtitle">${escape(m.detail.meta)}</p><button type="button" class="sm-review-source" style="width:100%;text-align:left" data-detail-source>${icon('file-text')}<span><strong>${m.detail.title.includes('shift')?'Work schedule':'Course syllabus'}</strong><span class="sm-meta" style="display:block">View original source</span></span></button><p class="sm-footer-note">Example detail · dates remain unchanged.</p>`;
+    if (m.overlay==='detail-source') inner = `<div class="sm-sheet-title"><h2>Source excerpt</h2>${close}</div><div class="sm-source-text">${escape(m.detail.title)}\n${escape(m.detail.meta)}\n\nExample retained source for this concept.</div><button type="button" class="sm-primary" style="margin-top:20px" data-back-item>Back to item</button>`;
+    if (m.overlay==='course') inner = `<div class="sm-sheet-title"><h2>${escape(m.course[1])}</h2>${close}</div><p class="sm-subtitle">${m.course[0]} · Fall 2026</p><section class="sm-section"><h3>Meetings</h3><p class="sm-subtitle" style="margin-top:8px">${m.course[3]}</p></section><section class="sm-section"><h3>Next deadline</h3><p style="margin-top:8px">${m.course[2]}</p></section><button type="button" class="sm-syllabus" data-course-source>${icon('file-text')}<span>View syllabus source</span>${icon('chevron-right')}</button>`;
+    if (m.overlay==='course-source') inner = `<div class="sm-sheet-title"><h2>Syllabus excerpt</h2>${close}</div><div class="sm-source-text">${escape(m.course[0]+' · '+m.course[1]+'\n'+m.course[3]+'\n'+m.course[2])}\n\nExample syllabus content.</div><button type="button" class="sm-primary" style="margin-top:20px" data-back-course>Back to course</button>`;
+    return `<div class="sm-overlay"><section class="sm-sheet" role="dialog" aria-modal="true" aria-label="${escape(m.overlay)}"><div class="sm-handle"></div>${inner}</section></div>`;
+  }
+  function render(app) {
+    const m = models.get(app);
+    const content = m.screen==='Today'?today(m,app.dataset.direction==='Day brief'):m.screen==='Plan'?plan(m):school();
+    app.innerHTML = `<div class="sm-status"><span>8:41</span><span class="sm-status-icons">${icon('signal')}${icon('wifi')}${icon('battery-full')}</span></div><div class="sm-brandbar"><span class="sm-wordmark">semli<span>.</span></span><span class="sm-dots" aria-label="Semli two dot symbol" role="img"></span></div><main class="sm-content">${content}<p class="sm-demo-label">Design concept · example student week</p></main><nav class="sm-nav" aria-label="Main navigation"><div class="sm-tabs">${[['Today','house'],['Plan','calendar-days'],['School','book-open']].map(([label,symbol])=>`<button type="button" class="sm-tab" data-screen="${label}" ${m.screen===label?'aria-current="page"':''}>${icon(symbol)}${label}</button>`).join('')}</div><button type="button" class="sm-add" aria-label="Add anything" data-capture>${icon('plus')}</button></nav><div class="sm-homebar"></div>${m.overlay?sheet(m):''}${m.toast?`<div class="sm-toast" role="status"><span>${escape(m.toast)}</span><button type="button" data-undo>Undo</button></div>`:''}`;
+    app.querySelectorAll('button').forEach(b=>b.classList.add('cursor-interaction'));
+    if (globalThis.lucide) lucide.createIcons({attrs:{width:18,height:18,'stroke-width':1.6}});
+    const modal = app.querySelector('.sm-sheet');
+    const underlying = app.querySelectorAll('.sm-brandbar, .sm-content, .sm-nav');
+    underlying.forEach(el=>{el.inert=!!modal;});
+    if (modal) modal.querySelector('button')?.focus({preventScroll:true});
+  }
+  apps.forEach((app,index)=>{
+    const m={key:index,screen:'Today',day:0,done:[],imported:false,overlay:null,toast:null,draft:'',detail:null,course:null};
+    hydrate(m,saved?.privateContent?.[app.dataset.direction]);
+    models.set(app,m);
+    render(app);
+    app.addEventListener('input',e=>{if(e.target.matches('.sm-input')) m.draft=e.target.value;});
+    app.addEventListener('click',e=>{
+      const b=e.target.closest('button');
+      if(!b || !app.contains(b)) return;
+      m.toast=null;
+      if(b.dataset.screen){m.screen=b.dataset.screen;m.overlay=null;}
+      if(b.dataset.day!==undefined) m.day=Number(b.dataset.day);
+      if(b.hasAttribute('data-check')) {const id=b.dataset.check;m.done=m.done.includes(id)?m.done.filter(x=>x!==id):[...m.done,id];}
+      if(b.hasAttribute('data-capture'))m.overlay='capture';
+      if(b.hasAttribute('data-syllabus')){m.overlay='capture';m.draft='Example: import my course syllabus.';}
+      if(b.dataset.media){m.draft='Example: '+b.dataset.media.toLowerCase()+' of my weekly work schedule.';}
+      if(b.hasAttribute('data-read'))m.overlay='review';
+      if(b.hasAttribute('data-close'))m.overlay=null;
+      if(b.hasAttribute('data-source'))m.overlay='source';
+      if(b.hasAttribute('data-back-review'))m.overlay='review';
+      if(b.hasAttribute('data-detail-source'))m.overlay='detail-source';
+      if(b.hasAttribute('data-back-item'))m.overlay='item';
+      if(b.hasAttribute('data-item')){m.detail={title:b.dataset.title,meta:b.dataset.meta};m.overlay='item';}
+      if(b.hasAttribute('data-course')){m.course=[['NURS 302','Pharmacology','Exam · Friday, Oct 23','Mon & Wed · 9:00–10:15 AM'],['NURS 310','Fundamentals of Nursing','Practice quiz · Today','Tue · 8:00–11:30 AM'],['NURS 315','Clinical Practice','Care plan · Thursday','Thu · 7:00 AM–3:00 PM']][Number(b.dataset.course)];m.overlay='course';}
+      if(b.hasAttribute('data-course-source'))m.overlay='course-source';
+      if(b.hasAttribute('data-back-course'))m.overlay='course';
+      if(b.hasAttribute('data-commit')) {m.toast=m.imported?'These shifts are already in your example week.':'Added 3 shifts to the example week.';m.imported=true;m.overlay=null;m.screen='Plan';m.day=2;}
+      if(b.hasAttribute('data-undo')){m.imported=false;m.toast=null;}
+      render(app);persist();
+      if(!m.overlay && (b.hasAttribute('data-close')||b.hasAttribute('data-commit'))) app.querySelector('.sm-add')?.focus({preventScroll:true});
+    });
+    app.addEventListener('keydown',e=>{
+      if(e.key==='Escape' && m.overlay){m.overlay=null;render(app);app.querySelector('.sm-add')?.focus({preventScroll:true});}
+      const dialog=app.querySelector('.sm-sheet');
+      if(e.key==='Tab' && dialog){const controls=Array.from(dialog.querySelectorAll('button,textarea'));const first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
+    });
+    if(globalThis.Tweak){
+      const design={radius:16,gutter:24};
+      const tweak=new Tweak({container:app,onChange:()=>{app.style.setProperty('--sm-explore-radius',design.radius+'px');app.style.setProperty('--sm-explore-gutter',design.gutter+'px');}});
+      tweak.addSlider(design,'radius',{label:'Surface corners',min:8,max:24,unit:'px'});
+      tweak.addSlider(design,'gutter',{label:'Content margin',min:18,max:30,unit:'px'});
+    }
+  });
+  window.addEventListener('openai:set_globals',e=>{
+    const state=e.detail?.globals?.widgetState?.privateContent;
+    if(!state)return;
+    for(const [app,m]of models){hydrate(m,state[app.dataset.direction]);render(app);}
+  });
+})();
+</script>

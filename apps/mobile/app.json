@@ -12,7 +12,8 @@
       "supportsTablet": false,
       "infoPlist": {
         "NSCameraUsageDescription": "Semli uses the camera to read printed schedules.",
-        "NSPhotoLibraryUsageDescription": "Semli reads screenshots of schedules and syllabi you choose."
+        "NSPhotoLibraryUsageDescription": "Semli reads screenshots of schedules and syllabi you choose.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "web": {

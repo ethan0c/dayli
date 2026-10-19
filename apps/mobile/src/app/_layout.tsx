@@ -43,6 +43,7 @@ function RootLayout() {
     <PurchasesProvider>
       <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas } }}>
+          <Stack.Screen name="review" options={{ presentation: 'modal', gestureEnabled: false }} />
           <Stack.Protected guard={!onboarded}>
             <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
           </Stack.Protected>
@@ -50,7 +51,6 @@ function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="capture" options={{ presentation: 'modal' }} />
             <Stack.Screen name="create" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="review" options={{ presentation: 'modal', gestureEnabled: false }} />
             <Stack.Screen name="item/[id]" options={{ presentation: 'modal' }} />
             <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
           </Stack.Protected>

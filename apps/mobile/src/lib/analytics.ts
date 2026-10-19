@@ -14,6 +14,7 @@ if (KEY) {
 }
 
 export type AnalyticsEvent =
+  | 'onboarding_step'
   | 'onboarding_completed'
   | 'import_started'
   | 'import_succeeded'

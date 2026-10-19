@@ -48,7 +48,7 @@ export async function syncReminders(): Promise<number> {
   if (Platform.OS === 'web') return 0;
   const { items, settings } = useStore.getState();
   const allowed = await notificationsAllowed();
-  const plan = allowed ? planReminders(Object.values(items), settings.reminders, localParts(new Date())) : [];
+  const plan = allowed ? planReminders(Object.values(items), settings.reminders, localParts(new Date()), { trial: settings.trial }) : [];
   const signature = JSON.stringify(plan.map((p) => [p.id, p.date, p.time, p.body]));
   if (signature === lastSignature) return plan.length;
   await Notifications.cancelAllScheduledNotificationsAsync();

@@ -12,6 +12,8 @@
 | [social.md](social.md) | Research on social features (Saturn, Flora, Focusmate, BeReal, the accountability studies) and the decision: no feed; a shared study session is a gated phase-2 candidate |
 | [strategy.md](strategy.md) | Reconciles the goal ($20K MRR) and the Structured study with our plan; App Store review mining of Structured, MyStudyLife, Tiimo; the purchase test |
 | [pricing-and-positioning.md](pricing-and-positioning.md) | Survey results (n=66), competitor prices, positioning as the daily planner for college students, price points, iOS + web only |
+| [onboarding-research.md](onboarding-research.md) | Benchmarks and teardowns on onboarding, and the recommended v2 flow: real import inside onboarding, priming sheet, paywall after the value moment with a trial timeline |
+| [launch-guide.md](launch-guide.md) | Apple setup end to end, the two .p8 keys for RevenueCat and EAS, App Store screenshots, SEO/Google plan, marketing plan and budget |
 | [revenuecat-offerings-brief.md](revenuecat-offerings-brief.md) | Hand-off brief for setting up App Store products and RevenueCat offerings (student + regular, monthly / semester / yearly, 7-day trial) |
 | [revenuecat.md](revenuecat.md) | Subscription implementation, Semli Pro paywall, product/offering setup, Test Store, native builds, restore and subscription management |
 

@@ -90,11 +90,17 @@ export default function ReviewScreen() {
     showToast(parts.join(' · ') + '.', id);
     track('review_committed', { created: plan.create.length, updated: plan.update.length, removed: plan.remove.length, type: ex.detected_type });
     const { settings, setSettings } = useStore.getState();
+    setPending(null);
+    if (!settings.onboarded) {
+      // First import during onboarding: hand control back to the onboarding screen, which continues to the heads-up.
+      setSettings({ onboardingImportDone: true });
+      router.back();
+      return;
+    }
     if (!settings.remindersAsked) {
       setSettings({ remindersAsked: true });
       void requestNotifications().then((ok) => { if (ok) void syncReminders(); }).catch(() => {});
     }
-    setPending(null);
     router.dismissAll();
     router.replace('/plan');
   };
