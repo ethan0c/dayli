@@ -4,7 +4,7 @@ import { Prose } from '@/components/Prose';
 import { LEGAL_EFFECTIVE, LEGAL_UPDATED, SUPPORT_EMAIL } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy',
+  title: 'Privacy policy',
   description: 'What Semli collects, what it does with your schedules and syllabi, and what it never does.',
   alternates: { canonical: '/privacy' },
 };
@@ -13,7 +13,7 @@ export default function PrivacyPage() {
   return (
     <main className="page">
       <Prose
-        title="Privacy Policy"
+        title="Privacy policy"
         lede="Your schedule is personal. Here’s what Semli processes to build your plan, where that information lives, and how to remove it."
         meta={
           <>

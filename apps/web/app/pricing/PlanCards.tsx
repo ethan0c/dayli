@@ -77,7 +77,7 @@ export function PlanCards() {
             ))}
           </ul>
           {APP_STORE_LIVE ? <a className="btn" href={APP_STORE_URL}>Get Plus on iPhone</a> : <Link className="btn" href="/#beta">Join the iPhone beta</Link>}
-          <p className="note">At launch, eligible new subscribers can try Plus free for {TRIAL_DAYS} days.</p>
+          <p className="note">Eligible new subscribers can try Plus free for {TRIAL_DAYS} days.</p>
         </div>
       </div>
     </div>

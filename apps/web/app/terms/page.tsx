@@ -4,7 +4,7 @@ import { Prose } from '@/components/Prose';
 import { LEGAL_EFFECTIVE, LEGAL_UPDATED, SUPPORT_EMAIL, TRIAL_DAYS } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service',
+  title: 'Terms of service',
   description: 'The terms that govern your use of the Semli app and website.',
   alternates: { canonical: '/terms' },
 };
@@ -13,7 +13,7 @@ export default function TermsPage() {
   return (
     <main className="page">
       <Prose
-        title="Terms of Service"
+        title="Terms of service"
         lede="Plain terms for a planner. The short version: use Semli for your own schedule, pay for Plus if you want it, and we'll do our best to read your dates right, with no promise of perfection."
         meta={
           <>
@@ -149,7 +149,7 @@ export default function TermsPage() {
           <h2>9. Third-party services</h2>
           <p>
             Semli uses third-party services to work, including an AI provider to read your content, hosting providers, Apple&apos;s App
-            Store, and a payment processor. Those services have their own terms. We are not responsible for them, and we don&apos;t control
+            Store, Supabase for accounts and backups, and RevenueCat for subscription status. Those services have their own terms. We are not responsible for them, and we don&apos;t control
             schools, employers, or scheduling systems whose documents you send us.
           </p>
         </section>

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { FREE_IMPORTS_PER_MONTH, TRIAL_DAYS, money, plan } from '@/lib/site';
+import { FREE_IMPORTS_PER_MONTH, SUPPORT_EMAIL, TRIAL_DAYS, money, plan } from '@/lib/site';
 import { PlanCards } from './PlanCards';
 
 export const metadata: Metadata = {
@@ -45,11 +45,11 @@ const FAQS = [
   },
   {
     q: 'How do I cancel?',
-    a: 'On your iPhone, open Settings, tap your name, then Subscriptions, and choose Semli. Cancelling stops the next renewal; Plus stays available until the current period ends.',
+    a: 'On your iPhone, open Settings, tap your name, then Subscriptions, and choose Semli. Cancelling stops the next renewal. For a paid subscription, Plus stays available until the period you paid for ends.',
   },
   {
     q: 'Do you offer refunds?',
-    a: 'App Store purchases follow Apple’s refund policy. You can request a refund at reportaproblem.apple.com. For help understanding a charge, email hello@semli.app.',
+    a: <>App Store purchases follow Apple’s refund policy. <a href="https://reportaproblem.apple.com/">Request a refund from Apple</a>, or <a href={`mailto:${SUPPORT_EMAIL}`}>email us</a> for help understanding a charge.</>,
   },
 ];
 
