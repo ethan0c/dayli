@@ -4,10 +4,10 @@ The five editorial photos are Unsplash photos under the [Unsplash License](https
 
 | File | Used on | Photographer | Source |
 |---|---|---|---|
-| hero-golden.jpg | Home beta card, in purple monochrome under the copy | Vadim Fomenok | https://unsplash.com/photos/JhLASVqq1Jg |
+| hero-golden.jpg | Home hero, golden light behind the headline | Vadim Fomenok | https://unsplash.com/photos/JhLASVqq1Jg |
 | library.jpg | Unused since Oct 20 (the proof section is on paper now) | Johan Mouchet | https://unsplash.com/photos/PjpRF0LhBB8 |
 | cafe-shift.jpg | Home "Your work schedule, updated" (dark band) | Long Chung | https://unsplash.com/photos/barista-working-behind-a-coffee-counter-H7PLuaYW6UQ |
-| campus.jpg | Unused since Oct 20 (the beta card uses hero-golden.jpg) | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |
+| campus.jpg | Home beta card, in purple monochrome under the copy | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |
 | table.jpg | Home pricing band | Alexis Brown | https://unsplash.com/photos/omeaHbEFlN4 |
 | plus-fireworks.jpg | Plus pricing panel, matching the app paywall | Existing app asset | `apps/mobile/assets/showcase/plus.jpg` |
 

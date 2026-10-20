@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Screen } from '@/components/Screen';
 import { Shot } from '@/components/Shot';
 import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
 import { TryIt } from './TryIt';
@@ -46,9 +47,12 @@ export default function Home() {
   return (
     <main className={`page ${styles.home}`}>
       <section className={styles.hero} aria-labelledby="home-title">
+        <div className={styles.heroPhoto} aria-hidden>
+          <Image src="/photos/hero-golden.jpg" alt="" fill priority sizes="100vw" />
+        </div>
         <div className={styles.heroCopy}>
           <p className="eyebrow">The daily planner for college students</p>
-          <h1 id="home-title">Your week, already organized.</h1>
+          <h1 id="home-title" className="serif">Your week, already organized.</h1>
           <p className={styles.heroSub}>Classes, shifts, and deadlines in one plan. Add a syllabus, work schedule, or message, then see what’s next.</p>
           <div className={styles.ctas}>
             <a className="btn accent" href="#try">Try it with your schedule</a>
@@ -56,11 +60,7 @@ export default function Home() {
           </div>
           <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
         </div>
-        <div className={styles.heroPhones}>
-          <Shot name="today-mon-hours" width={250} className={styles.side} label="Today by the hour: a shift and a study group overlapping, marked in red" />
-          <Shot name="plan" width={310} priority label="Plan: the week as seven bars, today's agenda and the rest of the week" />
-          <Shot name="school" width={250} className={styles.side} label="School: the next assignment due in 3 days, the next four weeks on one line, your courses" />
-        </div>
+        <Shot name="today" width={372} priority className={styles.heroShot} label="Today: 6 hours 19 minutes until the next shift, then the day's plan" />
       </section>
 
       <TryIt />
@@ -82,9 +82,9 @@ export default function Home() {
         <div className={styles.bandInner}>
           <h2 id="how-title" className="section-title">From a screenshot to your schedule.</h2>
           <div className={styles.how}>
-            <figure><Shot name="add" label="Add: type, paste, or drop in a screenshot; your recent screenshots are right there" /><figcaption><strong>Send what you have.</strong> Choose a screenshot, upload a PDF, or paste a message.</figcaption></figure>
-            <figure><Shot name="review" label="Review: 6 shifts found, the week as seven day bars, one shift asking for a time" /><figcaption><strong>Check the details.</strong> Review the dates and times, and fill in anything missing.</figcaption></figure>
-            <figure><Shot name="item" label="An event in your plan: the time, the day around it, reminder and flexibility switches" /><figcaption><strong>Make it your plan.</strong> Edit an event anytime, or undo the import.</figcaption></figure>
+            <figure><Screen name="add" width={340} ratio={660 / 760} label="Add: type, paste, or drop in a screenshot; your recent screenshots are right there" /><figcaption><strong>Send what you have.</strong> Choose a screenshot, upload a PDF, or paste a message.</figcaption></figure>
+            <figure><Screen name="review" width={340} ratio={660 / 760} label="Review: 6 shifts found, the week as seven day bars, one shift asking for a time" /><figcaption><strong>Check the details.</strong> Review the dates and times, and fill in anything missing.</figcaption></figure>
+            <figure><Screen name="item" width={340} ratio={660 / 760} label="An event in your plan: the time, the day around it, reminder and flexibility switches" /><figcaption><strong>Make it your plan.</strong> Edit an event anytime, or undo the import.</figcaption></figure>
           </div>
         </div>
       </section>
@@ -95,7 +95,7 @@ export default function Home() {
           <h2 id="week-title" className="section-title">See the week at a glance.</h2>
           <p className="lede">See where classes, shifts, and deadlines fit together. Plan the week, look at today by the hour, and spot overlaps in red.</p>
         </div>
-        <div className={styles.pair}><Shot name="plan" label="Plan: the week as seven bars, today's agenda and the rest of the week" /><Shot name="today-mon-hours" label="Today by the hour: a shift and a study group overlapping, marked in red" /></div>
+        <div className={styles.single}><Screen name="plan" width={400} ratio={660 / 900} label="Plan: the week as seven bars, today's agenda and the rest of the week" /></div>
       </section>
 
       <section className={`${styles.band} ${styles.dark}`} aria-labelledby="diff-title">
@@ -120,7 +120,7 @@ export default function Home() {
           <p className="lede">Bring class times, exams, and assignment dates out of the PDF and into your plan. Connect Canvas for assignments, with Plus to keep due dates in sync.</p>
           <Link className="textlink" href="/syllabus-to-calendar">How syllabus imports work</Link>
         </div>
-        <div className={styles.single}><Shot name="school" label="School: the next assignment due in 3 days, the next four weeks on one line, your courses" /></div>
+        <div className={styles.single}><Screen name="school" width={400} ratio={660 / 900} label="School: the next assignment due in 3 days, the next four weeks on one line, your courses" /></div>
       </section>
 
       <section className={styles.switch} aria-labelledby="switch-title">
@@ -169,7 +169,7 @@ export default function Home() {
       {!APP_STORE_LIVE ? (
         <section id="beta" className={`${styles.band} ${styles.purple} ${styles.beta}`} aria-labelledby="beta-title">
           <div className={styles.bandPhoto} aria-hidden>
-            <Image src="/photos/hero-golden.jpg" alt="" fill sizes={PHOTO_SIZES} />
+            <Image src="/photos/campus.jpg" alt="" fill sizes={PHOTO_SIZES} />
           </div>
           <div className={styles.bandInner}>
             <h2 id="beta-title" className="section-title">The iPhone beta opens soon.</h2>
@@ -180,7 +180,7 @@ export default function Home() {
       ) : null}
 
       <section className={styles.closing} aria-labelledby="final-title">
-        <h2 id="final-title" className="section-title">One less thing to keep in your head.</h2>
+        <h2 id="final-title" className="section-title serif">One less thing to keep in your head.</h2>
         <div className={styles.ctas}>
           <a className="btn accent" href="#try">Try it with your schedule</a>
           <GetApp ghost />

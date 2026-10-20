@@ -12,20 +12,55 @@
   --inset: 8px;
 }
 
-/* Hero: a grey card under the floating header. Centered copy, then three real phones rising
-   from the bottom edge and fading out, the way the app looks before the page says anything. */
+/* Hero: a card under the floating header. Golden light from the park photo behind centered
+   copy, fading down into grey so the real Today screen below sits on solid ground. */
 .hero {
   position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   margin-inline: calc(50% - 50vw + var(--inset));
   margin-top: calc(var(--inset) - var(--nav-clear));
-  padding: 90px calc(50vw - 50% - var(--inset)) 0;
+  padding: 104px calc(50vw - 50% - var(--inset)) 0;
   border-radius: var(--radius-sheet);
   background: var(--row);
   overflow: hidden;
+  --ink: #ffffff;
+  --ink-2: rgba(255, 255, 255, 0.86);
+  --ink-3: rgba(255, 255, 255, 0.7);
+  --accent-ink: #e9e2ff;
+  color: var(--ink);
+}
+.heroPhoto {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+.heroPhoto img {
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+/* Darken the light for white copy, then hand over to the card's grey where the screen sits. */
+.heroPhoto::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(22, 18, 12, 0.5) 0%, rgba(22, 18, 12, 0.42) 48%, var(--row) 100%);
+}
+.hero :global(.btn.ghost) {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.heroShot {
+  flex: none;
+  margin-top: 56px;
+  margin-bottom: -210px;
+  mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
 }
 .heroCopy {
   display: flex;
@@ -33,13 +68,11 @@
   align-items: center;
   width: 100%;
   min-width: 0;
-  max-width: 680px;
+  max-width: 720px;
 }
 .heroCopy h1 {
-  font-size: clamp(40px, 5vw, 68px);
-  line-height: 1.04;
-  letter-spacing: var(--type-display-xl-tracking);
-  font-weight: var(--type-display-weight);
+  font-size: clamp(46px, 6.2vw, 88px);
+  line-height: 1;
   text-wrap: balance;
   max-width: 14ch;
 }
@@ -62,28 +95,6 @@
   font-size: 13px;
   line-height: 18px;
   color: var(--ink-2);
-}
-/* The grey pill would sink into the grey card; it goes white here. */
-.hero :global(.btn.ghost) {
-  background: var(--surface);
-}
-.heroPhones {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 32px;
-  width: 100%;
-  height: 460px;
-  margin-top: 64px;
-  overflow: hidden;
-  mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
-  -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
-}
-.heroPhones :global(.phone) {
-  flex: none;
-}
-.side {
-  margin-top: 72px;
 }
 
 /* Bands: inset cards like the hero, breaking out of the page gutter and padding back to it */
@@ -468,14 +479,11 @@
     gap: 48px;
   }
   .hero {
-    padding-top: 72px;
+    padding-top: 84px;
   }
-  .heroPhones {
-    height: 340px;
-    margin-top: 44px;
-  }
-  .side {
-    display: none;
+  .heroShot {
+    margin-top: 40px;
+    margin-bottom: -180px;
   }
   .statN {
     font-size: 56px;

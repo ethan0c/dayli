@@ -137,6 +137,13 @@ textarea {
 }
 
 /* ---------- Type ---------- */
+/* The marketing serif: headlines only, never body, never the app's screens. */
+.serif {
+  font-family: var(--font-serif), Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  font-variation-settings: 'opsz' 72;
+}
 .eyebrow {
   margin: 0 0 12px;
   font-size: var(--type-overline-size);
@@ -210,6 +217,18 @@ textarea {
 .btn:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+/* ---------- A screen without the phone ---------- */
+.screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 16px 40px rgba(0, 0, 0, 0.08);
 }
 
 /* ---------- The real phone frame (hero) ---------- */
