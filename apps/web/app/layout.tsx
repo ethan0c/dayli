@@ -55,7 +55,7 @@ const JSON_LD = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={`${sans.variable} ${serif.variable}`}>
+    <html lang="en" className={`${sans.variable} ${serif.variable}`} data-scroll-behavior="smooth">
       <head>
         {/* Colors, type, motion and radius from @dayli/tokens; globals.css only consumes them. */}
         <style id="semli-tokens" dangerouslySetInnerHTML={{ __html: TOKENS_CSS }} />

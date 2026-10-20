@@ -3,7 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useReveal } from '@/components/Reveal';
 import { feedback } from '@/lib/feedback';
+import fireworks from '@/public/photos/plus-fireworks.jpg';
 import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, PLUS_PLANS, TRIAL_DAYS, money, type PlanId } from '@/lib/site';
 
 const FREE = [
@@ -23,11 +25,13 @@ export function PlanCards() {
   const priceOf = (p: (typeof PLUS_PLANS)[number]) => student ? p.student : p.regular;
   const price = priceOf(selected);
   const monthlyPrice = priceOf(PLUS_PLANS.find((p) => p.id === 'monthly')!);
+  const [freeRef, freeIn] = useReveal<HTMLElement>();
+  const [plusRef, plusIn] = useReveal<HTMLElement>();
 
   return (
     <section className="plans" aria-label="Choose between Semli Free and Plus">
       <div className="plan-grid">
-        <article className="plan" aria-labelledby="free-title" data-reveal>
+        <article className="plan" aria-labelledby="free-title" ref={freeRef} data-reveal="self" data-in={freeIn ? '' : undefined}>
           <header className="plan-heading">
             <p className="plan-label">Semli</p>
             <h2 id="free-title">Free</h2>
@@ -41,9 +45,9 @@ export function PlanCards() {
           </div>
         </article>
 
-        <article className="plan featured" data-semli-theme="dark" aria-labelledby="plus-title" data-reveal style={{ '--i': 1 } as React.CSSProperties}>
+        <article className="plan featured" data-semli-theme="dark" aria-labelledby="plus-title" ref={plusRef} data-reveal="self" data-in={plusIn ? '' : undefined} style={{ '--i': 1 } as React.CSSProperties}>
           <div className="paywall-photo" aria-hidden="true">
-            <Image src="/photos/plus-fireworks.jpg" alt="" fill sizes="(max-width: 480px) 100vw, 440px" quality={85} />
+            <Image src={fireworks} alt="" fill priority placeholder="blur" sizes="(max-width: 480px) 100vw, 440px" quality={85} />
           </div>
           <header className="plan-heading">
             <h2 id="plus-title">More life.<br />Less juggling.</h2>
