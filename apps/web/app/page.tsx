@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { PhoneFrame } from '@/components/PhoneFrame';
 import { AddPhone, AddedPhone, DiffPhone, HourPhone, PlanPhone, ReviewPhone, SchoolPhone, SyllabusPhone, TodayScreen } from '@/components/Screens';
@@ -9,7 +10,7 @@ import styles from './home.module.css';
 
 export const metadata: Metadata = { alternates: { canonical: '/' } };
 
-/** From the spring 2026 student survey (docs/pricing-and-positioning.md). No invented counts. */
+/** From the spring 2026 student survey (docs/pricing-and-positioning.md). No invented counts; public copy says "more than 50". */
 const PROOF = [
   { n: '83%', q: 'have missed an assignment because it got buried' },
   { n: '73%', q: 'get due dates from somewhere other than Canvas' },
@@ -24,6 +25,9 @@ const FAQS = [
   { q: 'What’s free?', a: `The calendar, to-dos, reminders, and ${FREE_IMPORTS_PER_MONTH} AI imports a month, for as long as you like. Plus adds unlimited imports, Canvas sync, and schedule-change comparisons.` },
   { q: 'Is there an Android app?', a: 'Not yet. Semli is on iPhone, with the web for trying it. Android comes if enough campuses ask for it.' },
 ];
+
+/** Photos are Unsplash, recorded in public/photos/SOURCES.md. They are decorative: empty alt, text carries the meaning. */
+const PHOTO_SIZES = '100vw';
 
 function GetApp({ ghost = false }: { ghost?: boolean }) {
   const cls = `btn${ghost ? ' ghost' : ''}`;
@@ -40,7 +44,7 @@ export default function Home() {
           <h1 id="home-title">Your week, already organized.</h1>
           <p className={styles.heroSub}>Drop in a syllabus, a work schedule, or a text. Semli tells you what matters today.</p>
           <div className={styles.ctas}>
-            <a className="btn" href="#try">Try it with your schedule</a>
+            <a className="btn accent" href="#try">Try it with your schedule</a>
             <GetApp ghost />
           </div>
           {APP_STORE_LIVE ? <p className={styles.note}>Free on iPhone.</p> : <>
@@ -49,6 +53,9 @@ export default function Home() {
           </>}
         </div>
         <div className={styles.heroPhone}>
+          <div className={styles.heroPhoto} aria-hidden>
+            <Image src="/photos/hero.jpg" alt="" fill priority sizes="(max-width: 820px) 100vw, 60vw" />
+          </div>
           <PhoneFrame priority width={330} label="Today in Semli: 2 hours 14 minutes until a café shift, the day as a bar, and the list with due and done pills">
             <TodayScreen />
           </PhoneFrame>
@@ -57,22 +64,32 @@ export default function Home() {
 
       <TryIt />
 
-      <section className={styles.proof} aria-label="What students told us">
-        {PROOF.map((p) => (
-          <div key={p.n} className={styles.stat}>
-            <div className={styles.statN}>{p.n}</div>
-            <p>{p.q}</p>
+      <section className={`${styles.band} ${styles.purple} ${styles.proof}`} aria-label="What students told us">
+        <div className={styles.bandPhoto} aria-hidden>
+          <Image src="/photos/library.jpg" alt="" fill sizes={PHOTO_SIZES} />
+        </div>
+        <div className={styles.bandInner}>
+          <p className={styles.bandEyebrow}>What students told us</p>
+          <div className={styles.stats}>
+            {PROOF.map((p) => (
+              <div key={p.n} className={styles.stat}>
+                <div className={styles.statN}>{p.n}</div>
+                <p>{p.q}</p>
+              </div>
+            ))}
           </div>
-        ))}
-        <p className={styles.source}>From a survey of more than 50 college students, spring 2026.</p>
+          <p className={styles.source}>From a survey of more than 50 college students, spring 2026.</p>
+        </div>
       </section>
 
-      <section aria-labelledby="how-title">
-        <h2 id="how-title" className="section-title">Three taps from a screenshot to your week.</h2>
-        <div className={styles.how}>
-          <figure><AddPhone /><figcaption><strong>Add what you have.</strong> Your recent screenshots are right there.</figcaption></figure>
-          <figure><ReviewPhone /><figcaption><strong>Check it as a chart.</strong> Anything without a time gets a question, not a guess.</figcaption></figure>
-          <figure><AddedPhone /><figcaption><strong>It’s in your plan.</strong> Changed your mind? Undo.</figcaption></figure>
+      <section className={`${styles.band} ${styles.soft}`} aria-labelledby="how-title">
+        <div className={styles.bandInner}>
+          <h2 id="how-title" className="section-title">Three taps from a screenshot to your week.</h2>
+          <div className={styles.how}>
+            <figure><AddPhone /><figcaption><strong>Add what you have.</strong> Your recent screenshots are right there.</figcaption></figure>
+            <figure><ReviewPhone /><figcaption><strong>Check it as a chart.</strong> Anything without a time gets a question, not a guess.</figcaption></figure>
+            <figure><AddedPhone /><figcaption><strong>It’s in your plan.</strong> Changed your mind? Undo.</figcaption></figure>
+          </div>
         </div>
       </section>
 
@@ -85,14 +102,19 @@ export default function Home() {
         <div className={styles.pair}><PlanPhone /><HourPhone /></div>
       </section>
 
-      <section className={`${styles.feature} ${styles.flip}`} aria-labelledby="diff-title">
-        <div className={styles.featureCopy}>
-          <p className="eyebrow">For your work week</p>
-          <h2 id="diff-title" className="section-title">New schedule, only the changes.</h2>
-          <p className="lede">Send next week’s schedule and Semli compares it with the shifts you already have: what moved, what’s new, what got dropped. Keep anything with one tap.</p>
-          <Link className="textlink" href="/work-and-school-schedule-planner">Work and school in one plan</Link>
+      <section className={`${styles.band} ${styles.dark}`} aria-labelledby="diff-title">
+        <div className={styles.bandPhoto} aria-hidden>
+          <Image src="/photos/shift.jpg" alt="" fill sizes={PHOTO_SIZES} />
         </div>
-        <div className={styles.single}><DiffPhone /></div>
+        <div className={`${styles.bandInner} ${styles.feature} ${styles.flip}`}>
+          <div className={styles.featureCopy}>
+            <p className="eyebrow">For your work week</p>
+            <h2 id="diff-title" className="section-title">New schedule, only the changes.</h2>
+            <p className="lede">Send next week’s schedule and Semli compares it with the shifts you already have: what moved, what’s new, what got dropped. Keep anything with one tap.</p>
+            <Link className="textlink" href="/work-and-school-schedule-planner">Work and school in one plan</Link>
+          </div>
+          <div className={styles.single}><DiffPhone /></div>
+        </div>
       </section>
 
       <section className={styles.feature} aria-labelledby="term-title">
@@ -105,15 +127,24 @@ export default function Home() {
         <div className={styles.pair}><SyllabusPhone /><SchoolPhone /></div>
       </section>
 
-      <section className={styles.teaser} aria-labelledby="price-title">
-        <div>
-          <h2 id="price-title" className="section-title">Free to start. Plus when you want it all.</h2>
-          <p className="lede">
-            The calendar, to-dos, reminders and {FREE_IMPORTS_PER_MONTH} imports a month are free. Plus is unlimited imports and Canvas sync,
-            from {fromMonthly} a month for students ({money(plan('semester').student)} a semester).
-          </p>
+      <section className={`${styles.band} ${styles.soft}`} aria-labelledby="price-title">
+        <div className={`${styles.bandInner} ${styles.teaser}`}>
+          <div className={styles.teaserCopy}>
+            <p className="eyebrow">Semli Plus</p>
+            <h2 id="price-title" className="section-title">Free to start. Plus when you want it all.</h2>
+            <p className="lede">
+              The calendar, to-dos, reminders and {FREE_IMPORTS_PER_MONTH} imports a month are free. Plus is unlimited imports and Canvas sync.
+            </p>
+            <div className={styles.priceLine}>
+              <span className={styles.priceBig}>{fromMonthly}</span>
+              <span className={styles.priceUnit}>a month for students, billed yearly. Or {money(plan('semester').student)} a semester.</span>
+            </div>
+            <Link className="btn accent" href="/pricing">See pricing</Link>
+          </div>
+          <div className={styles.teaserPhoto} aria-hidden>
+            <Image src="/photos/table.jpg" alt="" fill sizes="(max-width: 820px) 100vw, 45vw" />
+          </div>
         </div>
-        <Link className="btn ghost" href="/pricing">See pricing</Link>
       </section>
 
       <section className={`faq ${styles.faq}`} aria-labelledby="home-faq-title">
@@ -125,17 +156,22 @@ export default function Home() {
       </section>
 
       {!APP_STORE_LIVE ? (
-        <section id="beta" className={styles.beta} aria-labelledby="beta-title">
-          <h2 id="beta-title" className="section-title">The iPhone beta opens soon.</h2>
-          <p className="lede">200 spots on TestFlight. You get the real app with the real 7-day trial, and the people building it read every message you send.</p>
-          <Waitlist />
+        <section id="beta" className={`${styles.band} ${styles.purple} ${styles.beta}`} aria-labelledby="beta-title">
+          <div className={styles.bandPhoto} aria-hidden>
+            <Image src="/photos/campus.jpg" alt="" fill sizes={PHOTO_SIZES} />
+          </div>
+          <div className={styles.bandInner}>
+            <h2 id="beta-title" className="section-title">The iPhone beta opens soon.</h2>
+            <p className="lede">200 spots on TestFlight. You get the real app with the real 7-day trial, and the people building it read every message you send.</p>
+            <Waitlist />
+          </div>
         </section>
       ) : null}
 
       <section className={styles.closing} aria-labelledby="final-title">
         <h2 id="final-title" className="section-title">One less thing to keep in your head.</h2>
         <div className={styles.ctas}>
-          <a className="btn" href="#try">Try it with your schedule</a>
+          <a className="btn accent" href="#try">Try it with your schedule</a>
           <GetApp ghost />
         </div>
       </section>

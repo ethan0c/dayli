@@ -14,6 +14,8 @@
   --accent-border: #dcd4ef;
   --accent-ink: #7057bd;
   --lav-500: #8a74e6;
+  --band-purple: #6a51b8;
+  --band-ink: #1f1e24;
   --conflict: #a2342f;
   --conflict-bg: #fbedeb;
   --added: #246c43;
@@ -41,6 +43,8 @@
     --accent-soft: #2b253a;
     --accent-border: #453b5a;
     --accent-ink: #c3aff8;
+    --band-purple: #4b3b8a;
+    --band-ink: #0f0f12;
     --conflict: #ffaca4;
     --conflict-bg: #3b2524;
     --added: #5cc08a;
@@ -167,7 +171,7 @@ textarea {
   font-size: 13px;
   line-height: 18px;
   font-weight: 500;
-  color: var(--ink-2);
+  color: var(--accent-ink);
 }
 .section-title,
 .faq h2,
@@ -226,6 +230,10 @@ textarea {
 .btn.ghost {
   background: var(--row);
   color: var(--ink);
+}
+.btn.accent {
+  background: var(--accent);
+  color: var(--canvas);
 }
 .btn:disabled {
   opacity: 0.4;
