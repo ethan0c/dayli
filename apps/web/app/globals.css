@@ -75,7 +75,9 @@ textarea {
   margin: 0 auto;
   padding-left: max(64px, env(safe-area-inset-left, 0px));
   padding-right: max(64px, env(safe-area-inset-right, 0px));
-  padding-block: 24px 40px;
+  /* The header floats; pages start below it. The home hero pulls up under it. */
+  --nav-clear: 112px;
+  padding-block: var(--nav-clear) 40px;
   display: flex;
   flex-direction: column;
   gap: 64px;
@@ -87,16 +89,31 @@ textarea {
   flex: 1;
 }
 
+ /* Header: one small glass pill floating over the page, centered, hugging its contents. */
 .topbar {
+  position: fixed;
+  top: 14px;
+  inset-inline: 0;
+  z-index: 20;
+  width: fit-content;
+  margin-inline: auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 44px;
+  gap: 36px;
+  padding: 8px 8px 8px 24px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--canvas) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
 }
 .wm-link {
   text-decoration: none;
   display: inline-flex;
+  color: var(--ink);
 }
 .nav {
   display: flex;
@@ -106,16 +123,17 @@ textarea {
 .nav > a:not(.btn) {
   text-decoration: none;
   color: var(--ink-2);
-  font-size: var(--type-headline-size);
-  line-height: var(--type-headline-line);
+  font-size: var(--type-body-size);
+  line-height: 40px;
   font-weight: var(--type-headline-weight);
 }
 .nav > a:not(.btn):hover {
   color: var(--ink);
 }
 .nav .btn {
-  height: 44px;
-  padding: 0 20px;
+  height: 40px;
+  padding: 0 18px;
+  margin-left: 4px;
 }
 
 /* ---------- Type ---------- */
@@ -1071,8 +1089,13 @@ textarea {
   .foot-brand {
     grid-column: 1 / -1;
   }
+  .topbar {
+    top: 10px;
+    gap: 20px;
+    padding-left: 18px;
+  }
   .nav {
-    gap: 16px;
+    gap: 18px;
   }
   .section-title,
   .faq h2,
@@ -1094,8 +1117,9 @@ textarea {
   .nav > a:not(.btn):nth-child(2) {
     display: none;
   }
-  .nav .btn {
-    padding: 0 16px;
+  .topbar {
+    gap: 16px;
+    padding-left: 16px;
   }
   .try-tools .textlink {
     margin-right: 8px;

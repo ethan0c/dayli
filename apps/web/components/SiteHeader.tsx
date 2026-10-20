@@ -6,7 +6,7 @@ export function SiteHeader() {
   return (
     <header className="topbar">
       <Link href="/" className="wm-link" aria-label="Semli home">
-        <Wordmark width={104} />
+        <Wordmark width={84} />
       </Link>
       <nav className="nav" aria-label="Main">
         <Link href="/pricing">Pricing</Link>

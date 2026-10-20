@@ -57,10 +57,7 @@ export default function Home() {
             <a className="btn accent" href="#try">Try it with your schedule</a>
             <GetApp ghost />
           </div>
-          {APP_STORE_LIVE ? <p className={styles.note}>Free on iPhone.</p> : <>
-            <p className={styles.note}>The iPhone beta opens soon. Join the first 200 testers.</p>
-            <Waitlist compact />
-          </>}
+          <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
         </div>
       </section>
 
