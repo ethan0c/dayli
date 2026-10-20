@@ -66,6 +66,8 @@ LAYOUTS = {
     "ink": Layout("ink", "center", INK, PAPER, DARK_SECONDARY),
     "regular": Layout("regular", "left", PAPER, INK, SECONDARY, title_weight="Regular"),
     "bezel": Layout("bezel", "left", PAPER, INK, SECONDARY, frame=False, screen_w=1120),
+    # For the 2007 x 2853 foldable canvas: type and phone scaled up so they hold the same share of the width.
+    "wide": Layout("wide", "center", PAPER, INK, SECONDARY, title_size=176, title_lead=194, sub_size=76, sub_lead=94, margin=140, device_top=960, screen_w=1320),
 }
 
 # Order matters: the first three show in search results. Titles fit two lines at 136px.
