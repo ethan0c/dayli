@@ -79,6 +79,9 @@
 .bandPhoto img {
   object-fit: cover;
 }
+.workPhoto img {
+  object-position: 72% center;
+}
 
 /* Purple: the accent as a surface, white text, the photo in purple monochrome under it */
 .purple {

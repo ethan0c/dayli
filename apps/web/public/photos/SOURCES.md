@@ -1,13 +1,19 @@
 # Photo sources
 
-All five are Unsplash photos under the Unsplash License (free for commercial use, no attribution required; we record the source anyway). Downloaded Oct 20, 2026 through the `images.unsplash.com` CDN with `auto=format&fit=crop`.
+All five are Unsplash photos under the [Unsplash License](https://unsplash.com/license). Downloaded Oct 20, 2026. The source pages identify each photo as free under that license; no Unsplash+ assets are used.
 
 | File | Used on | Photographer | Source |
 |---|---|---|---|
 | hero.jpg | Home hero, behind the phone | Priscilla Du Preez | https://unsplash.com/photos/XkKCui44iM0 |
 | library.jpg | Home proof band (what students told us) | Johan Mouchet | https://unsplash.com/photos/PjpRF0LhBB8 |
-| shift.jpg | Home "New schedule, only the changes" (dark band) | Soundtrap | https://unsplash.com/photos/ddwbTn5HDdQ |
+| cafe-shift.jpg | Home "Your work schedule, updated" (dark band) | Long Chung | https://unsplash.com/photos/barista-working-behind-a-coffee-counter-H7PLuaYW6UQ |
 | campus.jpg | Home beta section | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |
 | table.jpg | Home pricing band | Alexis Brown | https://unsplash.com/photos/omeaHbEFlN4 |
 
-Replace any of these with a commissioned shot by swapping the file; the page reads them from `/photos/<name>.jpg`.
+## Quality review, Oct 20
+
+The café replacement is a 3,200 × 2,133 JPEG, fetched from `https://images.unsplash.com/photo-1774160719797-f1ce9886cca0?auto=format&fit=max&w=3200&q=90&fm=jpg`. The previous work-section photo was a 1,600 × 2,400 portrait of a person studying. The replacement shows an actual café worker, has twice the source width for the full-width background, and retains substantially more detail in desktop 2× crop comparisons. It uses `quality={85}` through Next Image and a 72% horizontal focal point to keep the worker in narrow crops. The new filename avoids reusing the old image-optimization cache key.
+
+Retained hero.jpg (2,000 × 1,333), campus.jpg (2,000 × 1,335), table.jpg (2,000 × 1,333), and library.jpg (1,600 × 2,400). A 3,200-pixel overhead library candidate by Jaykumar Bherwani was visibly grainy at full size, so a larger pixel count was not enough to justify replacing the current photo. Also rejected a soft café video still by Vitaly Gariev and a darker library scene by Zoshua Colah. The hero and pricing images already have enough source pixels for their smaller display slots; no clearly sharper, better-fitting alternative was found.
+
+For future replacements, inspect the native detail and the desktop/mobile cover crops. Do not enlarge a small download and call it a resolution upgrade.

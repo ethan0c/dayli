@@ -108,8 +108,8 @@ export default function Home() {
       </section>
 
       <section className={`${styles.band} ${styles.dark}`} aria-labelledby="diff-title">
-        <div className={styles.bandPhoto} aria-hidden>
-          <Image src="/photos/shift.jpg" alt="" fill sizes={PHOTO_SIZES} />
+        <div className={`${styles.bandPhoto} ${styles.workPhoto}`} aria-hidden>
+          <Image src="/photos/cafe-shift.jpg" alt="" fill sizes={PHOTO_SIZES} quality={85} />
         </div>
         <div className={`${styles.bandInner} ${styles.feature} ${styles.flip}`}>
           <div className={styles.featureCopy}>
@@ -157,7 +157,7 @@ export default function Home() {
             </p>
             <div className={styles.priceLine}>
               <span className={styles.priceBig}>{fromMonthly}</span>
-              <span className={styles.priceUnit}>a month for students, billed yearly. Or {money(plan('semester').student)} a semester.</span>
+              <span className={styles.priceUnit}>a month for students, billed yearly. Or {money(plan('semester').student)} every six months.</span>
             </div>
             <Link className="btn accent" href="/pricing">See pricing</Link>
           </div>
