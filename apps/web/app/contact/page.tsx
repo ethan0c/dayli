@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import { Prose } from '@/components/Prose';
+import { pageMetadata } from '@/lib/seo';
 import { SUPPORT_EMAIL } from '@/lib/site';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: '/contact',
   title: 'Contact',
   description: 'Get help with Semli, ask a billing question, or share feedback directly with the developer.',
-  alternates: { canonical: '/contact' },
-};
+});
 
 const REASONS = [
   { title: 'Help with Semli', body: 'Having trouble with a file, a date, or the app? Tell us what happened and what you were trying to do.', subject: 'Bug' },

@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import { LandingPage } from '@/components/LandingPage';
+import { pageMetadata } from '@/lib/seo';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/site';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: '/syllabus-to-calendar',
   title: 'Syllabus to calendar',
-  description:
-    'Turn a syllabus PDF into a semester plan with Semli. Review class times, exams, and assignment dates before adding them to your calendar.',
-  alternates: { canonical: '/syllabus-to-calendar' },
-  openGraph: { title: 'Turn your syllabus into a semester plan', url: '/syllabus-to-calendar' },
-};
+  description: 'Turn a syllabus PDF into a semester plan with Semli. Review class times, exams, and assignment dates before adding them to your calendar.',
+  shareTitle: 'Turn your syllabus into a semester plan',
+});
 
 export default function SyllabusPage() {
   return (

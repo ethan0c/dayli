@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata, type Faq } from '@/lib/seo';
 import { FREE_IMPORTS_PER_MONTH, SUPPORT_EMAIL, TRIAL_DAYS, money, plan } from '@/lib/site';
 import { PlanCards } from './PlanCards';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: '/pricing',
   title: 'Pricing',
   description: `Semli is free with ${FREE_IMPORTS_PER_MONTH} AI imports a month. Semli Plus is unlimited imports for students at ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} a semester, or ${money(plan('yearly').student)} a year.`,
-  alternates: { canonical: '/pricing' },
-};
+});
 
 const ROWS: { label: string; free: string | boolean; plus: string | boolean }[] = [
   { label: 'Calendar, tasks, and the Today screen', free: true, plus: true },
@@ -109,7 +110,10 @@ export default function PricingPage() {
         </table>
       </section>
 
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd('/pricing', 'Pricing')) }} />
       <section className="faq" aria-label="Pricing questions" data-reveal>
+        {/* Answers with links stay on the page but out of the structured data, which takes plain text. */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd(FAQS.filter((f): f is Faq => typeof f.a === 'string'))) }} />
         <h2>Questions</h2>
         <div className="faq-list">
           {FAQS.map((f) => (

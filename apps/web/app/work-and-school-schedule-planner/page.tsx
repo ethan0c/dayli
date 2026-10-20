@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { LandingPage } from '@/components/LandingPage';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: '/work-and-school-schedule-planner',
   title: 'Work and school schedule planner',
-  description:
-    'Put work shifts and classes in one plan with Semli. Import a schedule screenshot, spot overlaps, and compare schedule updates with Plus.',
-  alternates: { canonical: '/work-and-school-schedule-planner' },
-  openGraph: { title: 'Work shifts and classes, one calendar', url: '/work-and-school-schedule-planner' },
-};
+  description: 'Put work shifts and classes in one plan with Semli. Import a schedule screenshot, spot overlaps, and compare schedule updates with Plus.',
+  shareTitle: 'Work shifts and classes, one calendar',
+});
 
 export default function WorkSchoolPage() {
   return (

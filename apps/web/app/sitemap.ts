@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { absoluteUrl } from '@/lib/site';
+import { LEGAL_UPDATED, absoluteUrl } from '@/lib/site';
 
 type Entry = MetadataRoute.Sitemap[number];
 const page = (path: string, priority: number, changeFrequency: Entry['changeFrequency'] = 'monthly'): Entry => ({
@@ -7,6 +7,9 @@ const page = (path: string, priority: number, changeFrequency: Entry['changeFreq
   priority,
   changeFrequency,
 });
+
+/** Search engines read lastModified (they ignore priority); only pages with a known edit date get one. */
+const legal = (path: string): Entry => ({ ...page(path, 0.2, 'yearly'), lastModified: new Date(LEGAL_UPDATED) });
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -16,7 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page('/assignment-tracker', 0.7),
     page('/work-and-school-schedule-planner', 0.7),
     page('/contact', 0.4, 'yearly'),
-    page('/privacy', 0.2, 'yearly'),
-    page('/terms', 0.2, 'yearly'),
+    legal('/privacy'),
+    legal('/terms'),
   ];
 }

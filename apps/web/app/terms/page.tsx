@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Prose } from '@/components/Prose';
+import { pageMetadata } from '@/lib/seo';
 import { LEGAL_EFFECTIVE, LEGAL_UPDATED, SUPPORT_EMAIL, TRIAL_DAYS } from '@/lib/site';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: '/terms',
   title: 'Terms of service',
   description: 'The terms that govern your use of the Semli app and website.',
-  alternates: { canonical: '/terms' },
-};
+});
 
 export default function TermsPage() {
   return (

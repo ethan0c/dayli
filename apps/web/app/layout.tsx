@@ -3,7 +3,8 @@ import { Geist, Newsreader } from 'next/font/google';
 import { RevealObserver } from '@/components/Reveal';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
-import { DESCRIPTION, KEYWORDS, SITE_URL, SUPPORT_EMAIL, TAGLINE } from '@/lib/site';
+import { HOME_TITLE, pageMetadata } from '@/lib/seo';
+import { APP_STORE_ID, APP_STORE_LIVE, APP_STORE_URL, DESCRIPTION, KEYWORDS, PLUS_PLANS, SITE_URL, SUPPORT_EMAIL } from '@/lib/site';
 import { TOKENS_CSS } from './tokens';
 import './globals.css';
 
@@ -12,15 +13,18 @@ const sans = Geist({ subsets: ['latin'], weight: ['300', '400', '500', '600'], v
 /** The marketing face: a serif for the few headlines that speak for the brand (site hero and closing; paywall and welcome in the app). */
 const serif = Newsreader({ subsets: ['latin'], weight: 'variable', style: ['normal', 'italic'], axes: ['opsz'], variable: '--font-serif', display: 'swap' });
 
+/** Home's cards as the fallback; the canonical stays per page so the 404 never points at home. */
+const { alternates: _, ...homeCards } = pageMetadata({ path: '/' });
+
 export const metadata: Metadata = {
+  ...homeCards,
   metadataBase: new URL(SITE_URL),
-  title: { default: `Semli: ${TAGLINE}`, template: '%s · Semli' },
-  description: DESCRIPTION,
+  title: { default: HOME_TITLE, template: '%s · Semli' },
   keywords: KEYWORDS,
   applicationName: 'Semli',
-  openGraph: { siteName: 'Semli', type: 'website', locale: 'en_US', url: SITE_URL, title: `Semli: ${TAGLINE}`, description: DESCRIPTION },
-  twitter: { card: 'summary_large_image', title: `Semli: ${TAGLINE}`, description: DESCRIPTION },
   robots: { index: true, follow: true },
+  /** Safari's Smart App Banner, once there is a listing to open. */
+  ...(APP_STORE_LIVE ? { itunes: { appId: APP_STORE_ID } } : {}),
 };
 
 export const viewport: Viewport = {
@@ -44,10 +48,10 @@ const JSON_LD = {
       operatingSystem: 'iOS',
       description: DESCRIPTION,
       url: SITE_URL,
+      ...(APP_STORE_LIVE ? { downloadUrl: APP_STORE_URL } : {}),
       offers: [
         { '@type': 'Offer', price: '0', priceCurrency: 'USD', description: 'Free plan' },
-        { '@type': 'Offer', price: '4.99', priceCurrency: 'USD', description: 'Semli Plus, monthly, student price' },
-        { '@type': 'Offer', price: '29.99', priceCurrency: 'USD', description: 'Semli Plus, yearly, student price' },
+        ...PLUS_PLANS.map((p) => ({ '@type': 'Offer', price: p.student.toFixed(2), priceCurrency: 'USD', description: `Semli Plus, ${p.name.toLowerCase()}, student price` })),
       ],
     },
   ],

@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { LandingPage } from '@/components/LandingPage';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: '/assignment-tracker',
   title: 'Assignment tracker',
-  description:
-    'Bring assignment dates from syllabi, screenshots, and messages into one plan. Review the details, see what’s coming up, and set reminders with Semli.',
-  alternates: { canonical: '/assignment-tracker' },
-  openGraph: { title: 'Keep assignment dates in one place', url: '/assignment-tracker' },
-};
+  description: 'Bring assignment dates from syllabi, screenshots, and messages into one plan. Review the details, see what’s coming up, and set reminders with Semli.',
+  shareTitle: 'Keep assignment dates in one place',
+});
 
 export default function AssignmentTrackerPage() {
   return (

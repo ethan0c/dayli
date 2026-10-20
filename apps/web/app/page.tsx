@@ -8,12 +8,13 @@ import cafeShift from '@/public/photos/cafe-shift.jpg';
 import campus from '@/public/photos/campus.jpg';
 import heroAutumn from '@/public/photos/hero-autumn.jpg';
 import table from '@/public/photos/table.jpg';
+import { faqJsonLd, pageMetadata } from '@/lib/seo';
 import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
 import { TryIt } from './TryIt';
 import { Waitlist } from './Waitlist';
 import styles from './home.module.css';
 
-export const metadata: Metadata = { alternates: { canonical: '/' } };
+export const metadata: Metadata = pageMetadata({ path: '/' });
 
 /** From the spring 2026 student survey (docs/pricing-and-positioning.md). No invented counts; public copy says "more than 50". */
 const PROOF = [
@@ -167,6 +168,7 @@ export default function Home() {
       </section>
 
       <section className={`faq ${styles.faq}`} aria-labelledby="home-faq-title">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd(FAQS)) }} />
         <div data-reveal>
           <h2 id="home-faq-title">Common questions.</h2>
           <Link className="textlink" href="/privacy">Read our privacy policy</Link>

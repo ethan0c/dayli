@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Prose } from '@/components/Prose';
+import { pageMetadata } from '@/lib/seo';
 import { LEGAL_EFFECTIVE, LEGAL_UPDATED, SUPPORT_EMAIL } from '@/lib/site';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: '/privacy',
   title: 'Privacy policy',
   description: 'What Semli collects, what it does with your schedules and syllabi, and what it never does.',
-  alternates: { canonical: '/privacy' },
-};
+});
 
 export default function PrivacyPage() {
   return (

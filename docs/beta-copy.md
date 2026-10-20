@@ -12,7 +12,7 @@ Oct 20, 2026. Copy for the steps in [marketing-500.md](marketing-500.md). Rules 
 
 ## 1. Survey email (week 1, before anything else)
 
-From your own address, plain text, one recipient per email or BCC. Send only once that link stops saying "This beta isn't accepting any new testers" (Oct 20, 2026 it still did: the build needs Beta App Review approval and must be added to the Survey group). The roughly 60 survey addresses are already in the `waitlist` table. Before sending, give those rows `ref = 'survey'` so they stay apart from people who sign up on the site.
+Send through a Resend Broadcast to the Survey segment, using the branded [survey-invite.html](emails/survey-invite.html). Send only once the Survey invite accepts testers and installs the build. The link was not accepting testers at the earlier Oct 20 check; confirm it works before sending. Keep the survey rows tagged `ref = 'survey'` in the `waitlist` table so they stay apart from people who sign up on the site.
 
 These people did not sign up on the site; they were added from the survey. So don't count them in the public waitlist number in posts. Use `select count(*) from waitlist where ref is distinct from 'survey'` for that.
 
@@ -31,6 +31,31 @@ These people did not sign up on the site; they were added from the survey. So do
 > It's free to test through TestFlight. If you give it a try, let me know what works and what doesn't. You can reply right here, especially if it gets a date wrong or something feels confusing.
 >
 > Your answers helped me figure out what to build. I'd love to hear what you think of it.
+
+### Send it in Resend
+
+Status, Oct 20, 2026: sender-domain setup and the Survey contact import are complete, as confirmed by you. The email template is prepared locally; no broadcast or email has been sent from this repo.
+
+1. Create a Broadcast in Resend. Select the **Survey** segment and confirm the recipient count matches the imported list, allowing for unsubscribed or suppressed contacts. Leave public Beta contacts out of this campaign.
+2. Use **Semli** as the sender name and your already verified sending address. Set Reply-To to `hello@semli.app` after confirming replies reach an inbox you monitor. Subject: **An update on that student planner survey**.
+3. Open the editor's HTML code view and paste the complete contents of [survey-invite.html](emails/survey-invite.html). Per your preference, it contains no pictures: Semli is a text wordmark, with a cream `#FAF9F6` background, purple `#7057BD` HTML button, and email-safe font fallbacks. No image downloads or external fonts are needed. Keep the `{{{RESEND_UNSUBSCRIBE_URL}}}` token so Resend generates each recipient's unsubscribe link. Include your sender's postal address in the footer using Resend's editor; the local template does not contain one.
+4. Send previews to your own test inboxes. Check the text branding, narrow-screen layout, Survey invite, and Reply-To. The unsubscribe token resolves through Resend, not in a local browser preview. Keep open and click tracking off for this initial send; open tracking would insert a hidden image even though the template has none. Confirm the campaign's sending domain has tracking off without changing account-email settings.
+5. Once the Survey invite installs the build and the previews look right, review the recipient segment and send or schedule the Broadcast. Review delivery failures afterward. Send the gift-card winner their claim code separately using [survey-follow-up.txt](emails/survey-follow-up.txt).
+
+Resend supports [editing raw HTML in the dashboard](https://resend.com/changelog/introducing-the-new-email-editor) and [automatic Broadcast unsubscribe links](https://resend.com/blog/broadcast-api). A browser preview checks layout; inbox placement and email-client rendering still need the real preview sends.
+
+Image research, Oct 20, 2026: [SendGrid's content-rejection guidance](https://www.twilio.com/docs/sendgrid/ui/analytics-and-reporting/bounce-and-block-classifications) warns about emails made mostly of images with little readable text; it does not say a small logo automatically causes spam placement. [Gmail's sender guidelines](https://support.google.com/mail/answer/81126?hl=en) emphasize authentication, sender identity, spam complaints, and unsubscribe handling. Removing images follows your preference and avoids reliance on image loading, but does not guarantee inbox placement. [Resend's tracking explanation](https://resend.com/blog/introducing-custom-tracking-domain) confirms that open tracking embeds a 1×1 image.
+
+### Public icon URLs
+
+The site already serves the brand icons. Both URLs were checked on Oct 20, 2026: HTTP 200, `image/png`, with downloaded files matching this repo. No sign-in or temporary URL is needed.
+
+| Asset | Public URL | Source |
+| --- | --- | --- |
+| App icon | `https://www.semli.app/icon.png` | `apps/web/app/icon.png` |
+| Apple touch icon | `https://www.semli.app/apple-icon.png` | `apps/web/app/apple-icon.png` |
+
+Use these absolute HTTPS URLs if adding icons to a future email. The existing Supabase account-email templates already use the app icon URL. The current Survey invitation stays image-free; hosting an image on the site does not by itself prevent spam placement.
 
 ## 2. Reddit founder post (one per subreddit, ever; Tuesday evening)
 
