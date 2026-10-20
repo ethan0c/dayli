@@ -35,7 +35,12 @@ export async function completeAuthFromUrl(url: string): Promise<SignInResult> {
 const supabaseClient: AuthClient = {
   async signIn({ email, password }) {
     const { error } = await supabase!.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    if (error) {
+      // Signed up but never entered the code: send a fresh one and go to the code screen.
+      if (error.code !== 'email_not_confirmed') throw error;
+      await supabase!.auth.resend({ type: 'signup', email }).catch(() => {});
+      return { signedIn: false, confirmEmail: true };
+    }
     return signedIn();
   },
 
@@ -46,6 +51,9 @@ const supabaseClient: AuthClient = {
       options: { data: name ? { full_name: name } : undefined },
     });
     if (error) throw error;
+    // With confirmation on, Supabase answers an existing email with a user that has no identities
+    // and sends nothing, so the code screen would wait forever.
+    if (data.user && data.user.identities?.length === 0) throw { code: 'user_already_exists' };
     if (name && !useStore.getState().settings.name) useStore.getState().setSettings({ name });
     // With email confirmation on, the session arrives once the emailed code is entered.
     if (!data.session) return { signedIn: false, confirmEmail: true };
@@ -102,7 +110,11 @@ const supabaseClient: AuthClient = {
 
 export const authClient: AuthClient = ACCOUNTS_ENABLED && supabase ? supabaseClient : unavailableClient;
 
-/** Where to go after a successful sign-in: back to the planner, or on to onboarding for a new phone. */
+/**
+ * Leaving the auth screens, signed in or as a guest: back to the planner, or on to onboarding
+ * for a phone that hasn't finished it. The whole auth cover goes, including any screens
+ * under it, so one tap never lands back on a form.
+ */
 export function leaveAuth() {
   if (useStore.getState().settings.onboarded) router.dismissTo('/');
   else router.replace('/onboarding?step=role');

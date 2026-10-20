@@ -63,7 +63,7 @@ const MESSAGES: Record<string, string> = {
   invalid_credentials: 'That email and password don’t match. Try again or reset your password.',
   user_already_exists: 'There’s already an account with that email. Log in instead.',
   email_exists: 'There’s already an account with that email. Log in instead.',
-  email_not_confirmed: 'Confirm your email first. We sent you a link.',
+  email_not_confirmed: 'Confirm your email first. We sent you a new code.',
   weak_password: 'Choose a longer password, at least 8 characters.',
   same_password: 'Choose a password you haven’t used here before.',
   over_email_send_rate_limit: 'Too many emails in a row. Wait a minute and try again.',

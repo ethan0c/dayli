@@ -39,12 +39,12 @@ export default function VerifyScreen() {
     setError(null);
     try {
       await authClient.verifyCode(email, value, purpose);
+      // Stays busy while the screen leaves.
       if (purpose === 'recovery') router.replace('/auth/reset-password');
       else leaveAuth();
     } catch (failure) {
       setError(authErrorMessage(failure));
       setCode('');
-    } finally {
       setBusy(false);
       lock.current = false;
     }

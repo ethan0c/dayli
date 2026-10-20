@@ -9,7 +9,6 @@ import { T } from '@/components/Text';
 import { authErrorMessage, validateAuthForm, type AuthFieldErrors, type AuthMode, type SignInResult } from '@/lib/auth';
 import { authClient, leaveAuth } from '@/lib/auth-client';
 import { LINKS, openLink } from '@/lib/links';
-import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 const COPY = {
@@ -20,7 +19,6 @@ const COPY = {
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
   const { c } = useTheme();
-  const onboarded = useStore((s) => s.settings.onboarded);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +31,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const copy = COPY[mode];
   const forgot = mode === 'forgot-password';
   const signup = mode === 'signup';
-  const guest = () => { if (onboarded) router.dismissTo('/'); else router.dismissTo('/onboarding?step=role'); };
   const clear = (field: keyof AuthFieldErrors) => { setErrors((current) => ({ ...current, [field]: undefined })); setNotice(null); };
 
   async function submit(provider: 'email' | 'google' = 'email') {
@@ -49,26 +46,23 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     lock.current = true;
     setBusy(true);
     setNotice(null);
+    const address = email.trim();
     try {
       let result: SignInResult | null;
       if (provider === 'google') result = await authClient.signInWithGoogle();
-      else if (forgot) {
-        await authClient.resetPassword(email.trim());
-        router.push({ pathname: '/auth/verify', params: { email: email.trim(), purpose: 'recovery' } });
-        return;
-      }
-      else if (signup) result = await authClient.signUp({ name: name.trim(), email: email.trim(), password });
-      else result = await authClient.signIn({ email: email.trim(), password });
-      if (!result) return; // Cancelled in the Google or Apple sheet.
-      if (!result.signedIn) { router.push({ pathname: '/auth/verify', params: { email: email.trim(), purpose: 'signup' } }); return; }
-      leaveAuth();
+      else if (forgot) { await authClient.resetPassword(address); result = { signedIn: false, confirmEmail: true }; }
+      else if (signup) result = await authClient.signUp({ name: name.trim(), email: address, password });
+      else result = await authClient.signIn({ email: address, password });
+      // Stays busy: the screen is leaving, and a form that springs back for a frame looks broken.
+      if (result?.signedIn) { leaveAuth(); return; }
+      // On to the code screen; this form stays usable behind it. A null result is the Google sheet cancelled.
+      if (result) router.push({ pathname: '/auth/verify', params: { email: address, purpose: forgot ? 'recovery' : 'signup' } });
     } catch (error) {
       setNotice(authErrorMessage(error));
-    } finally {
-      setPassword('');
-      setBusy(false);
-      lock.current = false;
     }
+    setPassword('');
+    setBusy(false);
+    lock.current = false;
   }
 
   return (
@@ -100,7 +94,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           {signup ? <T token="caption" color={c.inkSecondary} style={styles.center}>By creating an account, you agree to our <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.terms)}>Terms</T> and <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.privacy)}>Privacy policy</T>.</T> : null}
           <TextButton label={forgot ? 'Back to log in' : signup ? 'Already have an account? Log in' : 'New to Semli? Sign up'} tone="muted"
             onPress={() => { setPassword(''); if (forgot && router.canGoBack()) router.back(); else router.replace(signup || forgot ? '/auth/login' : '/auth/signup'); }} style={styles.footerLink} />
-          <TextButton label="Continue as a guest" tone="muted" onPress={guest} style={styles.footerLink} />
+          <TextButton label="Continue as a guest" tone="muted" onPress={leaveAuth} style={styles.footerLink} />
         </View>
       </ScrollView>
     </Sheet>

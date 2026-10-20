@@ -10,12 +10,14 @@ The app turns accounts on by itself when `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PU
 3. Authentication → URL Configuration: Site URL `https://semli.app`; Redirect URLs `semli://**` (add `exp://**` only if you test in Expo Go).
 4. Email: keep "Confirm email" on. Set the sender to hello@semli.app with custom SMTP before the beta; the built-in sender is rate-limited to a few emails an hour.
 5. Google: create an OAuth client (Web application) in Google Cloud, add `https://<project>.supabase.co/auth/v1/callback` as its redirect URI, paste the client ID and secret into Authentication → Providers → Google.
-6. Apple: enable Sign in with Apple on the App ID `app.semli.mobile`; in Authentication → Providers → Apple, add `app.semli.mobile` under Client IDs. Native sign-in needs no secret key.
-7. Rebuild the dev client (`npx expo run:ios` or EAS): Apple sign-in and the new packages are native.
+6. Email codes, not links: in Authentication → Emails → Templates, put `{{ .Token }}` (the 6-digit code) in **Confirm signup** and **Reset password**, and take `{{ .ConfirmationURL }}` out. The app's code screen is `auth/verify`. Codes last an hour by default (Providers → Email → Email OTP expiration).
+7. Rebuild the dev client (`npx expo run:ios` or EAS) after native package changes.
+
+Sign-in is Google and email only (founder's call, Oct 19, 2026). App Store rule 4.8 can require Sign in with Apple when Google is offered; if review flags it, add Apple back.
 
 ## Device checks
-- [ ] Email sign-up → confirm link opens Semli → signed in; login; wrong password message; reset link → new password.
-- [ ] Google and Apple, including cancel. Apple with "Hide my email" shows "Apple ID" on You.
+- [ ] Email sign-up → 6-digit code → signed in; wrong or expired code; resend after 60 s; login; wrong password; forgot password → code → new password.
+- [ ] Google, including cancel and a `redirect_uri_mismatch` check.
 - [ ] Guest with a plan signs up → plan backed up; fresh install → log in → plan restored and onboarding skipped.
 - [ ] Log out keeps the plan; delete account removes the row and the auth user, keeps the plan on the phone.
 - [ ] Plus bought as a guest carries over on sign-in (RevenueCat alias); Plus restores on a new phone after login.

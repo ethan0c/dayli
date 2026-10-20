@@ -25,10 +25,26 @@ describe('cloud backup', () => {
     expect(merged.items.a!.title).toBe('new');
   });
 
-  it('a new phone takes the stored profile and skips onboarding', () => {
+  it('a new phone takes the stored profile and skips onboarding the account finished', () => {
     const remote = snapshotOf(state([item('a')], { name: 'Ama', major: 'nursing' }));
+    expect(remote.onboarded).toBe(true);
     const merged = mergeSnapshot(state([], { onboarded: false, name: '' }), remote);
-    expect(merged.settings).toMatchObject({ onboarded: true, name: 'Ama', major: 'nursing', appearance: 'dark' });
+    expect(merged.settings).toMatchObject({ onboarded: true, seeded: true, name: 'Ama', major: 'nursing', appearance: 'dark' });
+  });
+
+  it('a new phone still runs onboarding for an account that stopped at the code', () => {
+    // Every sign-in saves a row, so the row of someone who never finished onboarding is empty.
+    const remote = snapshotOf(state([], { onboarded: false, name: 'Ama' }));
+    expect(remote.onboarded).toBe(false);
+    const merged = mergeSnapshot(state([], { onboarded: false, seeded: false, name: '' }), remote);
+    expect(merged.settings).toMatchObject({ onboarded: false, seeded: false, name: 'Ama' });
+  });
+
+  it('reads rows saved before the flag by whether they hold a plan', () => {
+    const { onboarded: _legacy, ...empty } = snapshotOf(state([], { onboarded: true }));
+    expect(mergeSnapshot(state([], { onboarded: false }), empty).settings.onboarded).toBe(false);
+    const { onboarded: _legacyPlan, ...plan } = snapshotOf(state([item('a')], { onboarded: true }));
+    expect(mergeSnapshot(state([], { onboarded: false }), plan).settings.onboarded).toBe(true);
   });
 
   it('an onboarded phone keeps its own settings', () => {
