@@ -13,7 +13,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "Semli uses the camera to read printed schedules.",
         "NSPhotoLibraryUsageDescription": "Semli reads screenshots of schedules and syllabi you choose.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAlarmKitUsageDescription": "Semli rings alarms at the time of events and to-dos you mark urgent."
       }
     },
     "web": {
@@ -63,7 +64,12 @@
       "expo-sharing"
     ],
     "experiments": {
-      "typedRoutes": false
+      "typedRoutes": false,
+      "inlineModules": {
+        "watchedDirectories": [
+          "src/native"
+        ]
+      }
     },
     "extra": {
       "router": {

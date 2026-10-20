@@ -3,11 +3,12 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-rout
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Appearance } from 'react-native';
+import { AppState, Appearance } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
 
+import { syncRingingAlarms } from '@/lib/alarms';
 import { devCommand } from '@/lib/dev';
 import { sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
@@ -37,6 +38,18 @@ function RootLayout() {
   const { c, dark } = useTheme();
   const ready = (fontsLoaded || !!fontError) && hydrated;
   useReminderSync();
+  const alarmItems = useStore((s) => s.items);
+  const alarmsEnabled = useStore((s) => s.settings.reminders.urgentAlarmsEnabled);
+  useEffect(() => {
+    if (!hydrated) return;
+    void syncRingingAlarms().catch(() => {});
+  }, [hydrated, alarmItems, alarmsEnabled]);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && useStore.getState().hydrated) void syncRingingAlarms().catch(() => {});
+    });
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();

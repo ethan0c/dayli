@@ -9,6 +9,7 @@ import { DayBar } from '@/components/DayBar';
 import { ItemRow } from '@/components/ItemRow';
 import { DateField, NativeToggle, TimeField } from '@/components/Native';
 import { OverlapNotice } from '@/components/OverlapNotice';
+import { RingingAlarmInfo } from '@/components/RingingAlarmInfo';
 import { Press } from '@/components/Press';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
@@ -234,6 +235,10 @@ export default function ItemScreen() {
               <TextButton label="Done" tone="muted" onPress={() => setEditing(null)} />
             </Animated.View>
           ) : null}
+          <Row trailing={<NativeToggle label="Urgent" value={!!item.urgent} onChange={(urgent) => { feedback('select'); updateItem(item.id, { urgent }); }} />}>
+            <T token="body" style={{ flex: 1 }}>Urgent</T>
+          </Row>
+          {item.urgent && !item.done ? <RingingAlarmInfo timed={!!item.start} itemID={item.id} /> : null}
           {isEvent && !item.isDeadline && item.icon !== 'exam' ? (
             <Row trailing={<NativeToggle label="Flexible time" value={isFlexibleEvent(item)} onChange={(value) => updateItem(item.id, { timeFlexibility: value ? 'flexible' : 'fixed' })} />}>
               <T token="body" style={{ flex: 1 }}>Flexible time</T>

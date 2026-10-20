@@ -128,3 +128,13 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 **Verify on a device**
 - The `search` role tab, swipe actions under the gesture root view, the glass circles, the share sheet for export and .ics, the 15-week series default in a real syllabus.
+
+**Urgent items and ringing alarms**
+- Events and to-dos have an explicit Urgent switch in Create and item details, with an Urgent label in lists and the hour view. Imports never infer urgency. Existing saved items remain compatible.
+- Timed urgent items use the native iOS 26+ AlarmKit integration in `apps/mobile/src/native`. Enable ringing alarms from the item or Settings → Reminders; alarm authorization and the ringing preference are separate from ordinary notification permission. Untimed urgent items ask for a time. No backend is needed.
+- Alarm synchronization keeps the nearest 32 future urgent items scheduled, preserves an unchanged alarm that is currently ringing, updates changed titles/times, and cancels alarms when items are completed, deleted, unmarked, or ringing alarms are disabled. It only changes Semli's recorded alarm IDs. Synchronization runs after hydration, item/preference changes, and foregrounding; open Semli periodically to replenish the 32-alarm window.
+- Existing native binaries prompt the person to update Semli. Android and older iOS retain urgent labels and ordinary reminders; full ringing alarms are not implemented there. Do not describe a notification sound as a full ringing alarm.
+- Native build configuration includes `NSAlarmKitUsageDescription` and Expo inline modules for `src/native`. From `apps/mobile`, regenerate with `npx expo prebuild --platform ios`, then build with `npx expo run:ios --device` or `npx eas-cli@latest build --platform ios --profile development`. This cannot ship through a JavaScript-only update or Expo Go. Expo SDK 58 lists Xcode 26.4+ for local builds; use a compatible local or EAS toolchain.
+- Verified: full Debug iOS simulator build for arm64 and x86_64, Expo registration of `SemliAlarms`, weak linking of AlarmKit for older iOS, mobile lint/typecheck, and all 144 automated tests. Actual ringing has not yet been verified on a rebuilt physical device.
+- [ ] On a physical iOS 26+ device: allow/deny/revoke alarm permission; schedule an urgent event and to-do a few minutes ahead; verify ringing while locked and with Semli closed; test system Stop, silent/Focus behavior, rescheduling, completion/deletion/unmarking and Undo, global disable, restart, timezone/DST changes, and the nearest-32 boundary. Confirm UI never reports an alarm set after native failure.
+- [ ] Add Android's separate native ringing-alarm implementation before advertising full ringing alarms on Android.

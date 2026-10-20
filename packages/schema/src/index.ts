@@ -82,6 +82,8 @@ export const Item = z.object({
   seriesId: z.string().nullable().optional(),
   /** An explicit choice overrides the conservative scheduling default. */
   timeFlexibility: z.enum(['fixed', 'flexible']).optional(),
+  /** Chosen by the user, never inferred from an imported title. */
+  urgent: z.boolean().optional(),
   notes: z.string().nullable(),
   createdAt: z.string(),
 });

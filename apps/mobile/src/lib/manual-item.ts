@@ -11,6 +11,7 @@ export interface ManualDraft {
   allDay: boolean;
   hasDueTime: boolean;
   isDeadline: boolean;
+  urgent?: boolean;
   courseId: string | null;
   employer: string;
   notes: string;
@@ -33,6 +34,7 @@ export function buildManualItem(draft: ManualDraft): ManualResult {
     icon: draft.kind === 'event' ? 'calendar' : 'check',
     date: draft.date, start: hasStart ? draft.start : null, end: timedEvent ? draft.end : null,
     isDeadline: draft.kind === 'task' && draft.isDeadline,
+    ...(draft.urgent ? { urgent: true } : {}),
     done: false, completedAt: null, sourceId: null,
     courseId: draft.category === 'school' ? draft.courseId : null,
     employer: draft.category === 'work' ? draft.employer.trim() || null : null,

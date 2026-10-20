@@ -46,11 +46,11 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
         const sub = it.kind === 'event' && it.end ? formatRange(it.start!, it.end) : formatTime(it.start!);
         const column = lanes.get(it.id) ?? { lane: 0, lanes: 1 };
         return (
-          <Pressable key={it.id} onPress={() => onPress?.(it)} accessibilityRole="button" accessibilityLabel={`${it.title}, ${sub}${conflict ? ', overlaps something else' : ''}`}
+          <Pressable key={it.id} onPress={() => onPress?.(it)} accessibilityRole="button" accessibilityLabel={`${it.title}, ${sub}${it.urgent ? ', urgent' : ''}${conflict ? ', overlaps something else' : ''}`}
             style={({ pressed }) => [styles.block, { top, height: h, left: `${column.lane / column.lanes * 100}%`, width: `${100 / column.lanes}%`, borderLeftWidth: conflict ? 3 : 0, borderLeftColor: c.conflict, borderRightWidth: 2, borderRightColor: c.canvas, backgroundColor: bg, opacity: pressed ? 0.7 : 1 }]}>
             <View style={styles.blockText}>
               {past && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
-              <T token="subhead" color={ink} numberOfLines={1} style={{ fontSize: 12, lineHeight: 16 }}>{it.title}{h < 40 ? ` · ${sub}` : ''}{conflict ? ' · Overlaps' : ''}</T>
+              <T token="subhead" color={ink} numberOfLines={1} style={{ fontSize: 12, lineHeight: 16 }}>{it.urgent ? 'Urgent · ' : ''}{it.title}{h < 40 ? ` · ${sub}` : ''}{conflict ? ' · Overlaps' : ''}</T>
             </View>
             {h >= 40 ? <T token="caption" color={conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkSecondary : dark ? c.chartOnBooked : '#B4B4AC'} numberOfLines={1}>{sub}{it.employer ? ` · ${it.employer}` : ''}</T> : null}
           </Pressable>

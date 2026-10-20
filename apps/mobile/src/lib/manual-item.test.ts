@@ -33,6 +33,15 @@ describe('manual planner items', () => {
     expect(result.ok && result.item).toMatchObject({ courseId: 'course-1', isDeadline: true, start: '09:00', end: null });
   });
 
+  it('keeps urgency on timed and untimed events and to-dos', () => {
+    for (const kind of ['event', 'task'] as const) {
+      const result = buildManualItem({ ...draft, kind, urgent: true });
+      expect(result.ok && result.item.urgent).toBe(true);
+    }
+    const ordinary = buildManualItem(draft);
+    expect(ordinary.ok && ordinary.item.urgent).toBeUndefined();
+  });
+
   it('accepts overnight events with their original start date', () => {
     const result = buildManualItem({ ...draft, kind: 'event', category: 'work', start: '22:00', end: '02:00', isDeadline: true });
     expect(result.ok && result.item).toMatchObject({ date: '2026-10-21', start: '22:00', end: '02:00', employer: 'Cafe', courseId: null, isDeadline: false });

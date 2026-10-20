@@ -12,7 +12,7 @@ import { springs } from '@/lib/motion';
 import { courseTint, useStore } from '@/store';
 import { useTheme } from '@/theme';
 
-type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date'> & { courseId?: string | null; employer?: string | null };
+type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date' | 'urgent'> & { courseId?: string | null; employer?: string | null };
 type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: string; onPress?: () => void; onToggle?: () => void; onDelete?: () => void; last?: boolean };
 
 /**
@@ -42,11 +42,11 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
         <View style={styles.checkTarget}><CategoryDot color={tint} /></View>
       )}
       <Pressable onPress={onPress} accessibilityRole={onPress ? 'button' : undefined}
-        accessibilityLabel={`${item.title}, ${isEvent ? 'event' : 'to-do'}, ${status.label}${conflict ? ', overlaps another event' : ''}${item.done ? ', completed' : ''}`}
+        accessibilityLabel={`${item.title}, ${isEvent ? 'event' : 'to-do'}, ${status.label}${item.urgent ? ', urgent' : ''}${conflict ? ', overlaps another event' : ''}${item.done ? ', completed' : ''}`}
         style={({ pressed }) => [styles.main, { opacity: pressed ? 0.6 : 1 }]}>
         <View style={styles.text}>
           <T token="body" color={item.done ? c.inkSecondary : conflict ? c.conflict : c.inkPrimary} numberOfLines={2} style={item.done ? styles.done : undefined}>{item.title}</T>
-          <T token="caption" color={c.inkSecondary} numberOfLines={1}>{sub}</T>
+          <T token="caption" color={c.inkSecondary} numberOfLines={1}>{item.urgent ? <T token="caption" color={item.done ? c.inkSecondary : c.conflict}>Urgent · </T> : null}{sub}</T>
         </View>
         <StatusPill label={status.label} tone={status.tone} />
       </Pressable>

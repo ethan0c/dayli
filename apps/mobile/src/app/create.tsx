@@ -6,6 +6,7 @@ import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { CategoryDot, Chip, GroupLabel } from '@/components/Controls';
 import { DateField, NativeToggle, TimeField } from '@/components/Native';
+import { RingingAlarmInfo } from '@/components/RingingAlarmInfo';
 import { Press } from '@/components/Press';
 import { Segmented } from '@/components/Segmented';
 import { Button, Sheet } from '@/components/Sheet';
@@ -30,7 +31,7 @@ export default function CreateScreen() {
   const [draft, setDraft] = useState<ManualDraft>(() => ({
     kind: params.kind === 'event' ? 'event' : 'task', title: '', category: 'personal',
     date: params.date && isLocalDate(params.date) ? params.date : localParts(new Date()).date,
-    ...defaultManualTimes(new Date()), allDay: false, hasDueTime: false, isDeadline: false,
+    ...defaultManualTimes(new Date()), allDay: false, hasDueTime: false, isDeadline: false, urgent: false,
     courseId: null, employer: '', notes: '',
   }));
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +101,11 @@ export default function CreateScreen() {
               {draft.hasDueTime ? <FieldRow label="Time" last>{timeControl('time')}</FieldRow> : null}
             </>
           )}
+        </View>
+
+        <View>
+          <FieldRow label="Urgent" last><NativeToggle label="Urgent" value={!!draft.urgent} onChange={(urgent) => { feedback('select'); patch({ urgent }); }} /></FieldRow>
+          {draft.urgent ? <RingingAlarmInfo timed={event ? !draft.allDay : draft.hasDueTime} draft /> : <T token="caption" color={c.inkSecondary}>Make this stand out in your plan.</T>}
         </View>
 
         <View style={styles.section}>

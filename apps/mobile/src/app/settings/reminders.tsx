@@ -4,6 +4,7 @@ import { AppState, ScrollView, StyleSheet, View } from 'react-native';
 import { TimeField } from '@/components/Native';
 import { Segmented } from '@/components/Segmented';
 import { Group, Row, ToggleRow } from '@/components/Settings';
+import { RingingAlarmInfo } from '@/components/RingingAlarmInfo';
 import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
@@ -105,6 +106,10 @@ export default function RemindersScreen() {
       <Group title="Daily briefing" footer="One morning note with what's on today and the next deadline. Skipped on days with nothing on.">
         <ToggleRow label="Morning briefing" value={prefs.briefing && allowed !== false} onChange={(on) => void toggle('briefing')(on)} />
         {timeRow('At', 'briefingAt', true)}
+      </Group>
+
+      <Group title="Urgent ringing alarms">
+        <RingingAlarmInfo settings />
       </Group>
 
       <Group footer={sent ? 'Sent. It arrives in about five seconds, even with the app open.' : undefined}>

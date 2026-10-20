@@ -3,6 +3,8 @@ import type { Item } from '@dayli/schema';
 
 export interface ReminderPrefs {
   enabled: boolean;
+  /** Native AlarmKit permission is separate from notification permission. */
+  urgentAlarmsEnabled?: boolean;
   /** Minutes before a timed event. */
   eventLead: 10 | 30 | 60;
   /** HH:mm the day before a deadline. */
