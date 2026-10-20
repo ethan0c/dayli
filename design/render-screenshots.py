@@ -4,7 +4,7 @@
 Input: design/screenshots/raw/<name>.png, 1320 x 2868 captures from the iPhone 17 Pro Max
 simulator (dev build, light mode, 9:41 status bar; see docs/launch-guide.md, part 2).
 Output: design/screenshots/<nn>-<name>.png at 1320 x 2868, no alpha, ready for the
-6.9-inch slot. Caption in Geist Medium on paper, ink text, one device per image bleeding off
+6.9-inch slot. Caption in Geist Medium on paper, ink text, the site's iPhone frame bleeding off
 the bottom edge, as the best-selling planners do (Things, Structured, Opal).
 
     python3 design/render-screenshots.py                 # all, default layout
@@ -45,39 +45,39 @@ class Layout:
     bg: tuple[int, int, int]
     ink: tuple[int, int, int]
     secondary: tuple[int, int, int]
-    title_size: int = 112
-    title_lead: int = 124
+    title_size: int = 136
+    title_lead: int = 150
     title_weight: str = "Medium"
-    sub_size: int = 46
-    sub_lead: int = 58
+    sub_size: int = 60
+    sub_lead: int = 74
     margin: int = 96
     title_top: int = 168
-    device_top: int = 780  # fixed so the row lines up in the store
-    screen_w: int = 1120  # the phone bleeds off the bottom
+    device_top: int = 930  # fixed so the row lines up in the store
+    screen_w: int = 1176  # outer width of the phone; it bleeds off the bottom
     bezel: int = 28
     radius: int = 140
     shadow: int = 44
-    frame: bool = False  # True draws the site's photographic iPhone frame instead of the flat bezel
+    frame: bool = True  # the site's photographic iPhone frame; False draws a flat bezel instead
 
 
 LAYOUTS = {
     "left": Layout("left", "left", PAPER, INK, SECONDARY),
-    "center": Layout("center", "center", PAPER, INK, SECONDARY, title_size=120, title_lead=132),
-    "ink": Layout("ink", "center", INK, PAPER, DARK_SECONDARY, title_size=120, title_lead=132),
+    "center": Layout("center", "center", PAPER, INK, SECONDARY),
+    "ink": Layout("ink", "center", INK, PAPER, DARK_SECONDARY),
     "regular": Layout("regular", "left", PAPER, INK, SECONDARY, title_weight="Regular"),
-    "frame": Layout("frame", "left", PAPER, INK, SECONDARY, frame=True, screen_w=1176),
+    "bezel": Layout("bezel", "left", PAPER, INK, SECONDARY, frame=False, screen_w=1120),
 }
 
-# Order matters: the first three show in search results. Titles fit two lines at 112px.
+# Order matters: the first three show in search results. Titles fit two lines at 136px.
 SHOTS: list[tuple[str, str, str]] = [
-    ("school", "A semester set up in two minutes", "Drop in a syllabus. Semli reads every exam and due date."),
-    ("review-update", "Screenshot your shifts", "New, moved, and dropped shifts, shown before anything is saved."),
+    ("school", "A semester in two minutes", "Drop in a syllabus. Semli reads every exam and due date."),
+    ("review-update", "Screenshot your shifts", "New, moved, and dropped shifts, before anything is saved."),
     ("today-mon", "Know what matters today", "The next thing, the day as a bar, and your list under it."),
-    ("plan", "School, work, and life in one week", "Green is done, red is an overlap, a ring is an exam."),
-    ("review", "Nothing is saved until you confirm", "Missing a time? Add it or skip it. Undo is one tap away."),
-    ("paywall", "The planner stays free", "Calendar, to-dos, reminders, overlap warnings. Plus adds unlimited imports and Canvas sync."),
+    ("plan", "School and work in one week", "Green is done, red is an overlap, a ring is an exam."),
+    ("review", "Nothing saves until you say so", "Missing a time? Add it or skip it. Undo is one tap away."),
+    ("paywall", "The planner stays free", "Calendar, to-dos, and reminders stay free. Plus adds unlimited imports."),
     ("today-mon-hours", "Hour by hour", "Shifts, classes, and overlaps in red, on one timeline."),
-    ("add", "Type it or drop in a screenshot", "Semli reads work schedules, syllabi, and messages from class."),
+    ("add", "Type it or screenshot it", "Semli reads work schedules, syllabi, and messages from class."),
     ("item", "Every detail one tap away", "Time, course, reminder, and the overlap, with a way out."),
 ]
 
@@ -180,8 +180,8 @@ def fix_grey_band(capture: Image.Image) -> Image.Image:
 
 def render(name: str, title: str, sub: str, index: int, L: Layout, out_dir: Path, wordmark: bool) -> Path:
     capture = Image.open(RAW / f"{name}.png")
-    if capture.size != (W, H):
-        raise SystemExit(f"{name}.png is {capture.size}, expected {W}x{H} (iPhone 17 Pro Max simulator)")
+    if capture.size != (1320, 2868):
+        raise SystemExit(f"{name}.png is {capture.size}, expected 1320x2868 (iPhone 17 Pro Max simulator)")
     if name == "paywall":
         capture = fix_paywall_band(capture)
     if name == "today-mon":
@@ -223,8 +223,12 @@ def main() -> None:
     ap.add_argument("names", nargs="*", help="raw capture names to render (default: all)")
     ap.add_argument("--layout", choices=sorted(LAYOUTS), default="left")
     ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--canvas", help="WIDTHxHEIGHT of the output, default 1320x2868 (6.9-inch); e.g. 2007x2853 for the foldable's inner display")
     args = ap.parse_args()
     L = LAYOUTS[args.layout]
+    if args.canvas:
+        global W, H
+        W, H = (int(v) for v in args.canvas.lower().split("x"))
     for i, (name, title, sub) in enumerate(SHOTS, start=1):
         if args.names and name not in args.names:
             continue

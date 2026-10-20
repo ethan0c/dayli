@@ -87,8 +87,31 @@ Sanity check: a sandbox purchase in the dev build shows up in RevenueCat → Cus
 - 3 to 10 images; the **first three** show in search results, so they carry the message.
 - PNG or JPEG, no alpha, no status-bar fakery (Apple allows real status bars). Device frames and captions are allowed and expected.
 
-### 2.2 The six screenshots
-Superseded Oct 20, 2026 by [app-store-connect.md](app-store-connect.md), which has every App Store Connect field, the six captions, and the privacy labels as they stand with accounts and Canvas. Finished images are in `design/screenshots/out/`; `design/screenshots/compose.py` rebuilds them from raw 1320 × 2868 simulator captures (light mode, 9:41, `dev-clock.txt` set to `09:41`, `dev-command.txt` set to `sample`, `review` or `item`).
+### 2.2 The screenshots, in order
+Raw capture name, caption on the image (sentence case, Geist Medium 136px), and the 60px subline. The first three carry the message in search results.
+
+| # | Raw | Caption | Subline |
+|---|---|---|---|
+| 1 | `school` | A semester in two minutes | Drop in a syllabus. Semli reads every exam and due date. |
+| 2 | `review-update` | Screenshot your shifts | New, moved, and dropped shifts, before anything is saved. |
+| 3 | `today-mon` | Know what matters today | The next thing, the day as a bar, and your list under it. |
+| 4 | `plan` | School and work in one week | Green is done, red is an overlap, a ring is an exam. |
+| 5 | `review` | Nothing saves until you say so | Missing a time? Add it or skip it. Undo is one tap away. |
+| 6 | `paywall` | The planner stays free | Calendar, to-dos, and reminders stay free. Plus adds unlimited imports. |
+| 7 | `today-mon-hours` | Hour by hour | Shifts, classes, and overlaps in red, on one timeline. |
+| 8 | `add` | Type it or screenshot it | Semli reads work schedules, syllabi, and messages from class. |
+| 9 | `item` | Every detail one tap away | Time, course, reminder, and the overlap, with a way out. Optional; Apple allows ten. |
+
+The captions live in `design/render-screenshots.py` (`SHOTS`). Listing text: [app-store-listing.md](app-store-listing.md) and [app-store-connect.md](app-store-connect.md). An earlier six-image set in `design/screenshots/out/` (from `design/screenshots/compose.py`, 92px Light captions, whole phone visible) is superseded by this one.
+
+### 2.3 How to produce them
+1. On the booted **iPhone 17 Pro Max** simulator with the dev client and Metro running, write the dev files into the app's Documents folder (`C=$(xcrun simctl get_app_container booted app.semli.mobile data)`): `dev-clock.txt` holds `09:41`, or `2026-10-19 09:41` to also fix the day (Monday has the overlap, the due reading and the lecture); `dev-command.txt` holds `sample`, `hours`, `list`, `review`, `review-update`, `item`, `plus` or `moment`. Then relaunch: `xcrun simctl terminate booted app.semli.mobile; xcrun simctl openurl booted "semli://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"` and wait 16–20 s.
+2. Light mode, 9:41 status bar: `xcrun simctl status_bar booted override --time 9:41 --batteryLevel 100 --cellularBars 4`.
+3. Open a screen by deep link (`xcrun simctl openurl booted semli://plan`, `semli://school`, `semli://add`, `semli://paywall`) and capture with `xcrun simctl io booted screenshot design/screenshots/raw/<name>.png` (1320 × 2868). Look at every capture: the dev build often restores the previous screen on relaunch, a deep link right after launch can leave a grey overlay on the status bar, and switching the Today view on launch leaves a ghost of the old view (relaunch once more).
+4. Compose: `python3 design/render-screenshots.py` (needs Pillow) writes `design/screenshots/NN-<name>.png` at 1320 × 2868: caption on paper, the site's iPhone frame (`apps/web/public/phones/`) bleeding off the bottom edge, the layout Things, Structured and Opal use. `--layout bezel|center|ink|regular` are the alternatives that were considered; `--canvas 2007x2853 --out design/screenshots/2007x2853 --layout center` makes the foldable inner-display set. The 6.1"/6.3" slot (1206 × 2622) takes a plain downscale, kept in `design/screenshots/6.3-inch/`.
+5. Upload in order to the 6.9-inch slot; Apple scales it to every other iPhone unless a size-specific set is uploaded. Localize nothing for now (US English only).
+
+Known bug (Oct 20, 2026): the paywall cover and You → Semli Plus lay out below the status bar, leaving a paper band with invisible white status text. The script paints that band dark for the store image; the screen itself still needs the fix.
 
 ---
 
