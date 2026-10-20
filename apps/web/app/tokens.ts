@@ -6,7 +6,7 @@ import { lavender, motion, palettes, radius, space, typeScale, type Palette } fr
  * Names stay the ones globals.css and the modules already use.
  */
 
-const WEIGHT = { light: 300, regular: 400, medium: 500, semibold: 600 } as const;
+const WEIGHT = { light: 300, regular: 400, medium: 500, semibold: 600, serif: 400 } as const;
 
 const kebab = (s: string) => s.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 

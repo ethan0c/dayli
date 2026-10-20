@@ -27,10 +27,13 @@ Meaning: filled terracotta pill for due today / overdue; terracotta text on a gr
 ## Type
 Geist carries product text: normal / Regular 400 for all large headings, the one big number, section titles and text; Medium 500 for pills and the primary label; and SemiBold 600 for emphasis. All display tokens share `largeHeadingWeight` in the tokens package; large headings use these tokens rather than local font-family or bold overrides. Onboarding follows this same normal-weight rule. The separate outlined wordmark uses Onest SemiBold. Tabular numerals wherever a number can change. Sentence case always.
 
+Newsreader Regular is the marketing voice, decided Oct 20, 2026. It appears only through `displaySerif` (34 / 40) on lines that speak to the student: the paywall tagline, the Plus welcome, the auth welcome and the two dark onboarding showcases. On the site it is the `.serif` class on the hero, pricing and closing headlines. It never carries a number, a row, a form heading, a question step or a section title; if every heading were serif, none would be special.
+
 | Token | Size / line | Weight | Use |
 |---|---|---|---|
 | displayXl | 56 / 60 | 400 | The one big number (countdown, price, moment) |
 | display | 34 / 40 | 400 | Screen heading on covers |
+| displaySerif | 34 / 40 | Newsreader 400 | Paywall tagline, Plus welcome, auth welcome, onboarding showcases |
 | displaySm | 30 / 36 | 400 | Onboarding questions and editable item titles |
 | title | 24 / 30 | 400 | Section titles with a chevron |
 | headline | 16 / 22 | 500 | Button labels |

@@ -427,7 +427,7 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
       </View>
       <View style={{ marginTop: "auto", gap: 20 }}>
         <View style={{ gap: 6 }}>
-          <T token="display" color={d.inkPrimary}>Just tell it.</T>
+          <T token="displaySerif" color={d.inkPrimary}>Just tell it.</T>
           <T token="callout" color={d.inkSecondary}>
             One message became things on your calendar and a plan. Nothing to format, nothing to tap through.
           </T>
@@ -715,7 +715,7 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
       </Animated.View>
       <View style={{ marginTop: "auto", gap: 20 }}>
         <View style={{ gap: 6 }}>
-          <T token="display" color={d.inkPrimary}>Want a heads-up?</T>
+          <T token="displaySerif" color={d.inkPrimary}>Want a heads-up?</T>
           <T token="callout" color="#D8D7D0" style={{ maxWidth: 320 }}>
             One note each morning with what’s on, and a nudge before shifts and deadlines. Nothing else, and never at night.
           </T>

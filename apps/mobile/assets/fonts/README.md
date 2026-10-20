@@ -1,6 +1,8 @@
 # Fonts
 
-Geist Light, Regular, Medium and SemiBold (OFL), fetched from Google Fonts on Oct 19, 2026. These are the app's only text fonts; names match `packages/tokens` fontFamily.
+Geist Light, Regular, Medium and SemiBold (OFL), fetched from Google Fonts on Oct 19, 2026. Names match `packages/tokens` fontFamily.
+
+Newsreader Regular (`Newsreader-Regular.ttf`, the 16pt optical-size static cut, OFL; license in `Newsreader-OFL.txt`), fetched from https://github.com/productiontype/Newsreader on Oct 20, 2026. It is the marketing voice, used only through the `displaySerif` token on the paywall tagline, the Plus welcome, the auth welcome and the two onboarding showcases. The website loads the same family from Google Fonts. The 16pt cut was chosen over the 72pt cut because its hairlines hold up at 34px on a phone.
 
 # Gilroy preview
 

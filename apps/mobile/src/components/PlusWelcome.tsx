@@ -43,7 +43,7 @@ export function PlusWelcome({ stage, onTour, onDone, c }: {
           <Burst c={c} />
           <View style={[styles.badge, { backgroundColor: c.selectionFill }]}><Icon name="sparkle" size={38} color={c.accentInk} /></View>
         </View> : null}
-        <T token="display" color={c.inkPrimary} accessibilityRole="header">{celebration ? 'You’re in.\nWelcome to Plus.' : 'A little less\njuggling.'}</T>
+        <T token="displaySerif" color={c.inkPrimary} accessibilityRole="header">{celebration ? 'You’re in.\nWelcome to Plus.' : 'A little less\njuggling.'}</T>
         <T token="body" color={c.inkSecondary}>{celebration ? 'More room for your week. Thanks for making Semli part of it.' : 'Here’s what you’ve unlocked, and where to find it.'}</T>
       </View>
       {celebration ? (

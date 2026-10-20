@@ -44,7 +44,7 @@ export default function AuthWelcomeScreen() {
         <View style={styles.hero}>
           <Animated.View entering={enter.rise}><Wordmark width={192} ink={c.inkPrimary} dot={c.accent} /></Animated.View>
           <Animated.View entering={enter.fade} style={styles.copy}>
-            <T token="display" style={styles.center} accessibilityRole="header">The daily planner for college students.</T>
+            <T token="displaySerif" style={styles.center} accessibilityRole="header">The daily planner for college students.</T>
             <T token="callout" color={c.inkSecondary} style={styles.center}>Drop in a syllabus, a work schedule, or a text. Semli tells you what matters today.</T>
           </Animated.View>
         </View>

@@ -46,6 +46,7 @@ function RootLayout() {
     'Geist-Regular': require('../../assets/fonts/Geist-Regular.ttf'),
     'Geist-Medium': require('../../assets/fonts/Geist-Medium.ttf'),
     'Geist-SemiBold': require('../../assets/fonts/Geist-SemiBold.ttf'),
+    'Newsreader-Regular': require('../../assets/fonts/Newsreader-Regular.ttf'),
   });
   const hydrated = useStore((s) => s.hydrated);
   const loadFailed = useStorageStatus((s) => s.loadFailed);

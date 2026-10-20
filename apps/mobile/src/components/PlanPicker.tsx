@@ -143,7 +143,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
     <View style={{ gap: 28 }}>
       {previewPlans ? <Press accessibilityRole="button" onPress={() => setPreviewPlans(false)} style={styles.textBtn}><T token="caption" color={c.accentInk}>End preview · purchases disabled</T></Press> : null}
       <View style={{ gap: 12 }}>
-        <T token="display" color={c.inkPrimary}>More life. Less juggling.</T>
+        <T token="displaySerif" color={c.inkPrimary}>More life. Less juggling.</T>
         <T token="callout" color={c.inkSecondary}>
           Semli <T token="callout" color={c.accentInk}>Plus</T>{days ? ` · ${days} days free, then` : ''}
         </T>
