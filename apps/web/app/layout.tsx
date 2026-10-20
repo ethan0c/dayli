@@ -13,11 +13,10 @@ const sans = Geist({ subsets: ['latin'], weight: ['300', '400', '500', '600'], v
 /** The marketing face: a serif for the few headlines that speak for the brand (site hero and closing; paywall and welcome in the app). */
 const serif = Newsreader({ subsets: ['latin'], weight: 'variable', style: ['normal', 'italic'], axes: ['opsz'], variable: '--font-serif', display: 'swap' });
 
-/** Home's cards as the fallback; the canonical stays per page so the 404 never points at home. */
-const { alternates: _, ...homeCards } = pageMetadata({ path: '/' });
-
 export const metadata: Metadata = {
-  ...homeCards,
+  ...pageMetadata({ path: '/' }),
+  /** Home's cards are the fallback, but the canonical stays per page so the 404 never points at home. */
+  alternates: undefined,
   metadataBase: new URL(SITE_URL),
   title: { default: HOME_TITLE, template: '%s · Semli' },
   keywords: KEYWORDS,

@@ -7,6 +7,7 @@ export const metadata: Metadata = pageMetadata({
   title: 'Work and school schedule planner',
   description: 'Put work shifts and classes in one plan with Semli. Import a schedule screenshot, spot overlaps, and compare schedule updates with Plus.',
   shareTitle: 'Work shifts and classes, one calendar',
+  ownCard: true,
 });
 
 export default function WorkSchoolPage() {

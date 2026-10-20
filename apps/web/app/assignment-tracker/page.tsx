@@ -7,6 +7,7 @@ export const metadata: Metadata = pageMetadata({
   title: 'Assignment tracker',
   description: 'Bring assignment dates from syllabi, screenshots, and messages into one plan. Review the details, see what’s coming up, and set reminders with Semli.',
   shareTitle: 'Keep assignment dates in one place',
+  ownCard: true,
 });
 
 export default function AssignmentTrackerPage() {

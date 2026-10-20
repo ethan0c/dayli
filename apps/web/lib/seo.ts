@@ -19,6 +19,7 @@ export function pageMetadata({
   title,
   description = DESCRIPTION,
   shareTitle,
+  ownCard = false,
 }: {
   path: string;
   /** The <title> before the " · Semli" template; omit for the home page. */
@@ -26,14 +27,18 @@ export function pageMetadata({
   description?: string;
   /** The headline on share cards; defaults to the page title. */
   shareTitle?: string;
+  /** True when the page folder has its own opengraph-image.png, which an explicit image would override. */
+  ownCard?: boolean;
 }): Metadata {
   const card = shareTitle ?? (title ? `${title} · ${SITE_NAME}` : HOME_TITLE);
+  // Pages without their own card fall back to the site-wide one (a page's openGraph drops the layout's).
+  const images = ownCard ? undefined : [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: HOME_TITLE }];
   return {
     ...(title ? { title } : {}),
     description,
     alternates: { canonical: path },
-    openGraph: { siteName: SITE_NAME, type: 'website', locale: 'en_US', url: absoluteUrl(path), title: card, description },
-    twitter: { card: 'summary_large_image', title: card, description },
+    openGraph: { siteName: SITE_NAME, type: 'website', locale: 'en_US', url: absoluteUrl(path), title: card, description, images },
+    twitter: { card: 'summary_large_image', title: card, description, images },
   };
 }
 

@@ -7,6 +7,7 @@ export const metadata: Metadata = pageMetadata({
   path: '/pricing',
   title: 'Pricing',
   description: `Semli is free with ${FREE_IMPORTS_PER_MONTH} AI imports a month. Semli Plus is unlimited imports for students at ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} a semester, or ${money(plan('yearly').student)} a year.`,
+  ownCard: true,
 });
 
 const ROWS: { label: string; free: string | boolean; plus: string | boolean }[] = [

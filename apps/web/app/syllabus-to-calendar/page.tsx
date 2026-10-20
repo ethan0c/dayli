@@ -8,6 +8,7 @@ export const metadata: Metadata = pageMetadata({
   title: 'Syllabus to calendar',
   description: 'Turn a syllabus PDF into a semester plan with Semli. Review class times, exams, and assignment dates before adding them to your calendar.',
   shareTitle: 'Turn your syllabus into a semester plan',
+  ownCard: true,
 });
 
 export default function SyllabusPage() {
