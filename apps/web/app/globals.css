@@ -35,6 +35,10 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
+/* A themed scope (the dark Plus card, the dark band) swaps the variables; text must re-resolve inside it. */
+[data-semli-theme] {
+  color: var(--ink);
+}
 
 a {
   color: inherit;
@@ -667,7 +671,6 @@ textarea {
 .plan-grid {
   width: 100%;
   max-width: 960px;
-  margin-inline: auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
   gap: var(--space-xxxl);
