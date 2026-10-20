@@ -46,9 +46,6 @@ export default function Home() {
   return (
     <main className={`page ${styles.home}`}>
       <section className={styles.hero} aria-labelledby="home-title">
-        <div className={styles.heroPhoto} aria-hidden>
-          <Image src="/photos/hero-golden.jpg" alt="" fill priority sizes="100vw" />
-        </div>
         <div className={styles.heroCopy}>
           <p className="eyebrow">The daily planner for college students</p>
           <h1 id="home-title">Your week, already organized.</h1>
@@ -59,26 +56,26 @@ export default function Home() {
           </div>
           <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
         </div>
+        <div className={styles.heroPhones}>
+          <Shot name="today-mon-hours" width={250} className={styles.side} label="Today by the hour: a shift and a study group overlapping, marked in red" />
+          <Shot name="plan" width={310} priority label="Plan: the week as seven bars, today's agenda and the rest of the week" />
+          <Shot name="school" width={250} className={styles.side} label="School: the next assignment due in 3 days, the next four weeks on one line, your courses" />
+        </div>
       </section>
 
       <TryIt />
 
-      <section className={`${styles.band} ${styles.purple} ${styles.proof}`} aria-label="What students told us">
-        <div className={styles.bandPhoto} aria-hidden>
-          <Image src="/photos/library.jpg" alt="" fill sizes={PHOTO_SIZES} />
+      <section className={styles.proof} aria-label="What students told us">
+        <p className={styles.bandEyebrow}>What students told us</p>
+        <div className={styles.stats}>
+          {PROOF.map((p) => (
+            <div key={p.n} className={styles.stat}>
+              <div className={styles.statN}>{p.n}</div>
+              <p>{p.q}</p>
+            </div>
+          ))}
         </div>
-        <div className={styles.bandInner}>
-          <p className={styles.bandEyebrow}>What students told us</p>
-          <div className={styles.stats}>
-            {PROOF.map((p) => (
-              <div key={p.n} className={styles.stat}>
-                <div className={styles.statN}>{p.n}</div>
-                <p>{p.q}</p>
-              </div>
-            ))}
-          </div>
-          <p className={styles.source}>From a survey of more than 50 college students, spring 2026.</p>
-        </div>
+        <p className={styles.source}>From a survey of more than 50 college students, spring 2026.</p>
       </section>
 
       <section className={`${styles.band} ${styles.soft}`} aria-labelledby="how-title">
@@ -172,7 +169,7 @@ export default function Home() {
       {!APP_STORE_LIVE ? (
         <section id="beta" className={`${styles.band} ${styles.purple} ${styles.beta}`} aria-labelledby="beta-title">
           <div className={styles.bandPhoto} aria-hidden>
-            <Image src="/photos/campus.jpg" alt="" fill sizes={PHOTO_SIZES} />
+            <Image src="/photos/hero-golden.jpg" alt="" fill sizes={PHOTO_SIZES} />
           </div>
           <div className={styles.bandInner}>
             <h2 id="beta-title" className="section-title">The iPhone beta opens soon.</h2>
