@@ -17,7 +17,7 @@ import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
 import { devClock, devCommand } from '@/lib/dev';
 import { setDevTime } from '@/lib/now';
-import { sampleScheduleExtraction, sampleWeek } from '@/store/sample';
+import { sampleScheduleExtraction, sampleScheduleUpdate, sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
 
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
@@ -75,15 +75,15 @@ function RootLayout() {
       if (!cmd) return;
       const store = useStore.getState();
       const today = localParts(new Date()).date;
-      if (cmd === 'sample' || cmd === 'moment' || cmd === 'item' || cmd === 'review') {
-        store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
+      if (cmd === 'sample' || cmd === 'moment' || cmd === 'item' || cmd === 'review' || cmd === 'review-update' || cmd === 'hours') {
+        store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', todayView: cmd === 'hours' ? 'hours' : 'list', breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
         if (Object.keys(store.items).length === 0) {
           const week = sampleWeek(today, { student: true, preview: true });
           useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });
         }
       }
-      if (cmd === 'review') {
-        store.setPending({ extraction: sampleScheduleExtraction(today), source: 'Screenshot' });
+      if (cmd === 'review' || cmd === 'review-update') {
+        store.setPending({ extraction: (cmd === 'review' ? sampleScheduleExtraction : sampleScheduleUpdate)(today), source: 'Screenshot' });
         setTimeout(() => router.push('/review'), 600);
       }
       if (cmd === 'item') {

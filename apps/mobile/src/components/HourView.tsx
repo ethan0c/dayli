@@ -10,7 +10,7 @@ const PX_PER_HOUR = 28;
 
 /**
  * The day by the hour: the Today bar opened up. Events are blocks, done ones green,
- * overlaps narrower in red, a now line across. Shows 8 am to midnight, or earlier if
+ * overlaps side by side in terracotta, a now line across. Shows 8 am to midnight, or earlier if
  * something starts before 8.
  */
 export function HourView({ items, now, conflicts, onPress }: { items: Item[]; now: { date: string; time: string }; conflicts: Set<string>; onPress?: (item: Item) => void }) {
@@ -41,19 +41,24 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
         const h = Math.max(22, end - top);
         const conflict = conflicts.has(it.id);
         const past = it.done || (it.end ? toMinutes(it.end) <= nowMin : toMinutes(it.start!) + 60 <= nowMin);
-        const bg = conflict ? c.conflictBg : past ? c.addedBg : it.kind === 'task' ? c.row : c.chartBooked;
-        const ink = conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkPrimary : c.chartOnBooked;
+        const bg = conflict ? c.conflict : past ? c.addedBg : it.kind === 'task' ? c.row : c.chartBooked;
+        const ink = conflict ? c.onPrimary : past ? c.added : it.kind === 'task' ? c.inkPrimary : c.chartOnBooked;
         const sub = it.kind === 'event' && it.end ? formatRange(it.start!, it.end) : formatTime(it.start!);
         const column = lanes.get(it.id) ?? { lane: 0, lanes: 1 };
+        const details = h >= 44;
+        const overlapLine = conflict && h >= 64;
         return (
-          <Pressable key={it.id} onPress={() => onPress?.(it)} accessibilityRole="button" accessibilityLabel={`${it.title}, ${sub}${it.urgent ? ', urgent' : ''}${conflict ? ', overlaps something else' : ''}`}
-            style={({ pressed }) => [styles.block, { top, height: h, left: `${column.lane / column.lanes * 100}%`, width: `${100 / column.lanes}%`, borderLeftWidth: conflict ? 3 : 0, borderLeftColor: c.conflict, borderRightWidth: 2, borderRightColor: c.canvas, backgroundColor: bg, opacity: pressed ? 0.7 : 1 }]}>
-            <View style={styles.blockText}>
-              {past && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
-              <T token="subhead" color={ink} numberOfLines={1} style={{ fontSize: 12, lineHeight: 16 }}>{it.urgent ? 'Urgent · ' : ''}{it.title}{h < 40 ? ` · ${sub}` : ''}{conflict ? ' · Overlaps' : ''}</T>
-            </View>
-            {h >= 40 ? <T token="caption" color={conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkSecondary : c.chartOnBooked} numberOfLines={1}>{sub}{it.employer ? ` · ${it.employer}` : ''}</T> : null}
-          </Pressable>
+          <View key={it.id} pointerEvents="box-none" style={[styles.lane, { top, height: h, left: `${column.lane / column.lanes * 100}%`, width: `${100 / column.lanes}%`, paddingRight: column.lane < column.lanes - 1 ? 4 : 0 }]}>
+            <Pressable onPress={() => onPress?.(it)} accessibilityRole="button" accessibilityLabel={`${it.title}, ${sub}${it.urgent ? ', urgent' : ''}${conflict ? ', overlaps something else' : ''}`}
+              style={({ pressed }) => [styles.block, { backgroundColor: bg, opacity: pressed ? 0.7 : 1 }]}>
+              <View style={styles.blockText}>
+                {past && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
+                <T token="subhead" color={ink} numberOfLines={1} style={{ fontSize: 12, lineHeight: 16 }}>{it.urgent ? 'Urgent · ' : ''}{it.title}{!details ? ` · ${sub}` : ''}</T>
+              </View>
+              {details ? <T token="caption" color={conflict ? c.onPrimary : past ? c.added : it.kind === 'task' ? c.inkSecondary : c.chartOnBooked} numberOfLines={1}>{sub}{conflict && !overlapLine ? ' · Overlaps' : it.employer ? ` · ${it.employer}` : ''}</T> : null}
+              {overlapLine ? <T token="caption" color={c.onPrimary}>Overlaps</T> : null}
+            </Pressable>
+          </View>
         );
       })}
       </View>
@@ -72,7 +77,8 @@ const styles = StyleSheet.create({
   hour: { position: 'absolute', left: 0, right: 0, flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   hourLabel: { width: 40, fontSize: 11, lineHeight: 14, marginTop: -7 },
   rule: { flex: 1, height: StyleSheet.hairlineWidth },
-  block: { position: 'absolute', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', gap: 2, overflow: 'hidden' },
+  lane: { position: 'absolute' },
+  block: { flex: 1, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', gap: 2, overflow: 'hidden' },
   blockText: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   nowLine: { position: 'absolute', left: 40, right: 0, height: 1.5 },
   nowDot: { position: 'absolute', left: 37, width: 7, height: 7, borderRadius: 4 },

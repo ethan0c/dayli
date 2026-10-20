@@ -100,3 +100,20 @@ export function sampleScheduleExtraction(today: string): Extraction {
     items: [shift(next[0], '16:00', '22:00'), shift(next[1], '16:00', '22:00'), shift(next[3], '16:00', '22:00'), shift(next[4], null, null), shift(next[5], '09:00', '15:00'), shift(next[6], '11:00', '17:00')],
   };
 }
+
+/**
+ * Development only: this week's Campus Café schedule read again after the manager changed
+ * it: Thursday moved later, Saturday dropped, Wednesday added. Shows the New / Changed /
+ * Removed review without calling the API.
+ */
+export function sampleScheduleUpdate(today: string): Extraction {
+  const [mon, tue, wed, thu, , , sun] = weekOf(today) as [string, string, string, string, string, string, string];
+  const shift = (date: string, start: string, end: string) => ({
+    kind: 'event' as const, title: 'Café shift', category: 'work' as const, date, start, end, is_deadline: false,
+    repeat_weekdays: [], repeat_until: null, course_code: null, evidence: `${date} ${start}–${end}`, confidence: 0.97, question: null,
+  });
+  return {
+    detected_type: 'work_schedule', employer: EMPLOYER, course: null, covers_from: mon, covers_to: sun,
+    items: [shift(mon, '16:00', '22:00'), shift(tue, '16:00', '22:00'), shift(wed, '17:00', '21:00'), shift(thu, '17:00', '23:00'), shift(sun, '11:00', '17:00')],
+  };
+}

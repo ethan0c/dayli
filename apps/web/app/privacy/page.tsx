@@ -41,17 +41,25 @@ export default function PrivacyPage() {
           </p>
           <h3>2.2 Your plan</h3>
           <p>
-            The events, tasks, courses, and work schedules Semli creates, plus your name if you enter one. In the current version this is
-            stored on your device only. It is not sent to us.
+            The events, tasks, courses, and work schedules Semli creates, plus your name if you enter one. This is stored on your device.
+            If you create an account, a copy of your plan is saved to your account so a new phone can restore it; it is deleted when you
+            delete the account. If you connect Canvas, the feed link you paste stays on your phone, and your phone reads the feed from
+            your school&apos;s Canvas directly.
           </p>
-          <h3>2.3 Things we don&apos;t collect</h3>
+          <h3>2.3 Your account, if you make one</h3>
+          <p>
+            An account is optional. If you sign up, we store your email address and, if you choose Google sign-in, the name and email
+            Google provides. Passwords are stored hashed by our authentication provider; we never see them. Guests get an anonymous
+            identifier so the free monthly imports can be counted.
+          </p>
+          <h3>2.4 Things we don&apos;t collect</h3>
           <ul>
-            <li>No account, email, or password is required today.</li>
+            <li>No account is required. Without one, we hold no email address for you.</li>
             <li>No location, contacts, or health data.</li>
             <li>No advertising identifiers, and no third-party ad or analytics trackers on this website.</li>
             <li>No payment card details. If you buy Plus, Apple or our payment processor handles the card, and we receive only a confirmation.</li>
           </ul>
-          <h3>2.4 Permissions on iPhone</h3>
+          <h3>2.5 Permissions on iPhone</h3>
           <p>
             Semli asks for the photo library only when you choose a screenshot, and for the camera only when you choose to photograph a
             printed schedule. It reads the image you pick and nothing else.
@@ -100,6 +108,12 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong>Our hosting provider</strong> runs the website and the server that forwards your content.
+            </li>
+            <li>
+              <strong>Supabase</strong> hosts accounts and plan backups, and counts free imports.
+            </li>
+            <li>
+              <strong>RevenueCat</strong> keeps track of Plus subscriptions so they work across your devices.
             </li>
             <li>
               <strong>Apple</strong> handles App Store purchases and tells us that a purchase happened.
