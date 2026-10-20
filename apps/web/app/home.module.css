@@ -258,6 +258,11 @@
 .flip .featureCopy {
   order: 2;
 }
+.featureCopy :global(.lede) {
+  font-size: 18px;
+  line-height: 28px;
+  max-width: 40ch;
+}
 .featureCopy .textlink {
   display: inline-block;
   margin-top: 20px;
