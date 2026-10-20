@@ -55,9 +55,9 @@ export function LeadMark({ kind }: { kind: Lead }) {
 }
 
 /** A hairline row: a mark, a title with an optional second line, and whatever acts on the right. */
-export function Row({ lead, title, sub, trailing, last, muted, strike, style }: { lead: Lead; title: ReactNode; sub?: ReactNode; trailing?: ReactNode; last?: boolean; muted?: boolean; strike?: boolean; style?: CSSProperties }) {
+export function Row({ lead, title, sub, trailing, last, muted, strike, style, index = 0 }: { lead: Lead; title: ReactNode; sub?: ReactNode; trailing?: ReactNode; last?: boolean; muted?: boolean; strike?: boolean; style?: CSSProperties; /** Position among siblings, for the staggered entrance. */ index?: number }) {
   return (
-    <div className={`${m.row} ${last ? m.rowLast : ''}`.trim()} style={style}>
+    <div className={`${m.row} ${last ? m.rowLast : ''}`.trim()} style={{ '--i': index, ...style } as CSSProperties}>
       <LeadMark kind={lead} />
       <span className={`${m.rowText} ${muted ? m.muted : ''} ${strike ? m.strike : ''}`.trim()}>
         {title}
@@ -108,7 +108,7 @@ export function WeekChart({ days, height = 88, style, label }: { days: Day[]; he
   return (
     <div className={m.week} style={{ '--h': `${height}px`, ...style } as CSSProperties} role={label ? 'img' : undefined} aria-label={label}>
       {days.map((d, i) => (
-        <div key={i} className={m.day}>
+        <div key={i} className={m.day} style={{ '--i': i } as CSSProperties}>
           {d.label}
           <span className={`${m.track} ${d.unknown ? m.trackUnknown : ''}`.trim()}>
             {(d.blocks ?? []).map((b, j) => (
@@ -145,7 +145,7 @@ export function TermLine({ months, marks, style, label }: { months?: { label: st
       ) : null}
       <div className={m.term}>
         {marks.map((k, i) => (
-          <span key={i} className={k.kind === 'ring' ? m.termRing : k.kind === 'tick' ? m.termTick : `${m.termDot} ${k.tone === 'red' ? m.termDotRed : ''}`.trim()} style={{ left: `${k.left}%` }} />
+          <span key={i} className={k.kind === 'ring' ? m.termRing : k.kind === 'tick' ? m.termTick : `${m.termDot} ${k.tone === 'red' ? m.termDotRed : ''}`.trim()} style={{ left: `${k.left}%`, '--i': i } as CSSProperties} />
         ))}
       </div>
     </div>
@@ -204,6 +204,19 @@ export function Toast({ text, action = 'Undo', style }: { text: string; action?:
       <span>{text}</span>
       <span>{action}</span>
     </div>
+  );
+}
+
+/** A number that rolls in one character at a time, the site's version of the app's Ticker. */
+export function Roll({ text, className = '' }: { text: string; className?: string }) {
+  return (
+    <span className={`${m.roll} ${className}`.trim()} role="text" aria-label={text}>
+      {Array.from(text).map((ch, i) => (
+        <span key={i} className={m.rollChar} style={{ '--i': i } as CSSProperties} aria-hidden="true">
+          {ch === ' ' ? '\u00a0' : ch}
+        </span>
+      ))}
+    </span>
   );
 }
 

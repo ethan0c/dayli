@@ -30,7 +30,7 @@
 .big,
 .bigMd,
 .bigSm {
-  font-weight: 300;
+  font-weight: var(--type-display-xl-weight);
   font-variant-numeric: tabular-nums;
 }
 .big {
@@ -591,4 +591,72 @@
   color: var(--conflict);
   border: 1px solid var(--canvas);
   padding: 5px 8px;
+}
+
+/* Motion, from the tokens: blocks grow into the chart, marks pop onto the line, rows and digits
+   rise in, siblings staggered. Only the try-it result mounts these live. */
+.block {
+  transform-origin: top;
+  animation: grow var(--dur-slow) var(--ease) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+.termDot,
+.termRing,
+.termTick {
+  animation: pop var(--dur-base) var(--ease) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+.row {
+  animation: rowIn var(--dur-base) var(--ease) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+.roll {
+  display: inline-flex;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.rollChar {
+  display: inline-block;
+  animation: rollUp var(--dur-slow) var(--ease) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes pop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes rollUp {
+  from {
+    opacity: 0;
+    transform: translateY(0.55em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

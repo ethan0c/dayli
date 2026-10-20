@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { PhoneFrame } from '@/components/PhoneFrame';
-import { AddPhone, AddedPhone, DiffPhone, HourPhone, PlanPhone, ReviewPhone, SchoolPhone, SyllabusPhone, TodayScreen } from '@/components/Screens';
+import { Shot } from '@/components/Shot';
 import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
 import { TryIt } from './TryIt';
 import { Waitlist } from './Waitlist';
@@ -15,6 +14,14 @@ const PROOF = [
   { n: '83%', q: 'have missed an assignment because it got buried' },
   { n: '73%', q: 'get due dates from somewhere other than Canvas' },
   { n: '65%', q: 'want reminders on their phone' },
+];
+
+/** Honest lines for people who already have a system. Competitor facts are from docs/strategy.md §3 (Oct 2026 reviews). */
+const SWITCH = [
+  { from: 'Apple Reminders and Notes', adds: 'Good for a list. They can’t read a syllabus, don’t know your shifts, and never show the week as a chart. Semli does all three, and your reminders still buzz on your phone.' },
+  { from: 'Structured', adds: 'A nice timeline for the day. Repeating classes cost extra there. Here the calendar, to-dos, reminders and repeating classes are always free, and Semli reads the schedule so you don’t type it.' },
+  { from: 'MyStudyLife', adds: 'Its own users say setup takes hours. Semli sets up a semester from a syllabus in about two minutes, and shows you every date before anything is saved.' },
+  { from: 'Google Calendar', adds: 'Keep it. Semli can send what it reads to your calendar, and tells you what matters today instead of showing everything at once.' },
 ];
 
 const FAQS = [
@@ -56,9 +63,7 @@ export default function Home() {
           <div className={styles.heroPhoto} aria-hidden>
             <Image src="/photos/hero.jpg" alt="" fill priority sizes="(max-width: 820px) 100vw, 60vw" />
           </div>
-          <PhoneFrame priority width={330} label="Today in Semli: 2 hours 14 minutes until a café shift, the day as a bar, and the list with due and done pills">
-            <TodayScreen />
-          </PhoneFrame>
+          <Shot name="today" priority width={330} label="Today in Semli: 6 hours 19 minutes until a café shift, the day as a bar, and the list with what is due" />
         </div>
       </section>
 
@@ -86,9 +91,9 @@ export default function Home() {
         <div className={styles.bandInner}>
           <h2 id="how-title" className="section-title">Three taps from a screenshot to your week.</h2>
           <div className={styles.how}>
-            <figure><AddPhone /><figcaption><strong>Add what you have.</strong> Your recent screenshots are right there.</figcaption></figure>
-            <figure><ReviewPhone /><figcaption><strong>Check it as a chart.</strong> Anything without a time gets a question, not a guess.</figcaption></figure>
-            <figure><AddedPhone /><figcaption><strong>It’s in your plan.</strong> Changed your mind? Undo.</figcaption></figure>
+            <figure><Shot name="add" label="Add: type, paste, or drop in a screenshot; your recent screenshots are right there" /><figcaption><strong>Add what you have.</strong> Your recent screenshots are right there.</figcaption></figure>
+            <figure><Shot name="review" label="Review: 6 shifts found, the week as seven day bars, one shift asking for a time" /><figcaption><strong>Check it as a chart.</strong> Anything without a time gets a question, not a guess.</figcaption></figure>
+            <figure><Shot name="item" label="An event in your plan: the time, the day around it, reminder and flexibility switches" /><figcaption><strong>It’s in your plan.</strong> Tap anything to change it, or undo.</figcaption></figure>
           </div>
         </div>
       </section>
@@ -99,7 +104,7 @@ export default function Home() {
           <h2 id="week-title" className="section-title">See the week at a glance.</h2>
           <p className="lede">Classes, shifts and deadlines on one timeline. The week as seven bars, today by the hour, and a countdown to whatever’s next. Overlaps show in red before they become a problem.</p>
         </div>
-        <div className={styles.pair}><PlanPhone /><HourPhone /></div>
+        <div className={styles.pair}><Shot name="plan" label="Plan: the week as seven bars, today's agenda and the rest of the week" /><Shot name="today-mon-hours" label="Today by the hour: a shift and a study group overlapping, marked in red" /></div>
       </section>
 
       <section className={`${styles.band} ${styles.dark}`} aria-labelledby="diff-title">
@@ -113,7 +118,7 @@ export default function Home() {
             <p className="lede">Send next week’s schedule and Semli compares it with the shifts you already have: what moved, what’s new, what got dropped. Keep anything with one tap.</p>
             <Link className="textlink" href="/work-and-school-schedule-planner">Work and school in one plan</Link>
           </div>
-          <div className={styles.single}><DiffPhone /></div>
+          <div className={styles.single}><Shot name="review-update" label="Compared with what you have: 3 changes, one new shift, one moved, one dropped" /></div>
         </div>
       </section>
 
@@ -124,7 +129,22 @@ export default function Home() {
           <p className="lede">Every exam, reading and due date from a syllabus PDF, laid out on one line. On Canvas? Connect it once and due dates stay in sync when professors move them.</p>
           <Link className="textlink" href="/syllabus-to-calendar">How syllabus imports work</Link>
         </div>
-        <div className={styles.pair}><SyllabusPhone /><SchoolPhone /></div>
+        <div className={styles.single}><Shot name="school" label="School: the next assignment due in 3 days, the next four weeks on one line, your courses" /></div>
+      </section>
+
+      <section className={styles.switch} aria-labelledby="switch-title">
+        <div>
+          <h2 id="switch-title" className="section-title">Already using Structured, Reminders, or Notes?</h2>
+          <p className="lede">Keep what you like. Here is what Semli adds.</p>
+        </div>
+        <dl className={styles.switchList}>
+          {SWITCH.map((s) => (
+            <div key={s.from} className={styles.switchRow}>
+              <dt>{s.from}</dt>
+              <dd>{s.adds}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       <section className={`${styles.band} ${styles.soft}`} aria-labelledby="price-title">

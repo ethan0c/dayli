@@ -3,6 +3,7 @@ import { Geist } from 'next/font/google';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { DESCRIPTION, KEYWORDS, SITE_URL, SUPPORT_EMAIL, TAGLINE } from '@/lib/site';
+import { TOKENS_CSS } from './tokens';
 import './globals.css';
 
 /** Geist everywhere, the same as the app (CLAUDE.md). */
@@ -52,6 +53,10 @@ const JSON_LD = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={sans.variable}>
+      <head>
+        {/* Colors, type, motion and radius from @dayli/tokens; globals.css only consumes them. */}
+        <style id="semli-tokens" dangerouslySetInnerHTML={{ __html: TOKENS_CSS }} />
+      </head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
         <div className="wrap">

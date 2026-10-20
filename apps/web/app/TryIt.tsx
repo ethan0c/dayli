@@ -3,7 +3,7 @@
 import { errorDiagnostic, localParts, toDrafts } from '@dayli/core';
 import { ExtractResponse, IMPORT_MESSAGES, friendlyImportError, importErrorForStatus, type ExtractRequest } from '@dayli/schema';
 import { useEffect, useRef, useState } from 'react';
-import { Pill, Row, TermLine, WeekChart } from '@/components/Mock';
+import { Pill, Roll, Row, TermLine, WeekChart } from '@/components/Mock';
 import { feedback } from '@/lib/feedback';
 import { summarize, type Summary } from './review';
 
@@ -230,9 +230,9 @@ export function TryIt() {
             <p className="try-empty">Your week shows up here as a chart, the way the app shows it. Anything without a time gets a question instead of a guess.</p>
           </>
         ) : (
-          <div className="rise">
+          <div className="rise" key={`${result.found} ${result.big}`}>
             <div className="try-found">{result.found}</div>
-            <div className="try-big">{result.big}</div>
+            <div className="try-big"><Roll text={String(result.big)} /></div>
             {result.line ? <div className="try-line">{result.line}</div> : null}
             {result.view?.kind === 'week'
               ? result.view.weeks.map((days, i) => <div key={i} className="try-chart"><WeekChart days={days} label="Your week as seven day bars" /></div>)
@@ -242,7 +242,7 @@ export function TryIt() {
             {result.needs.length > 0 ? (
               <div className="try-rows">
                 {result.needs.map((n, i) => (
-                  <Row key={n.draft.key} lead="dot" title={n.draft.title} sub={n.sub} trailing={<Pill tone="amber">{n.pill}</Pill>} last={i === result.needs.length - 1} />
+                  <Row key={n.draft.key} index={i} lead="dot" title={n.draft.title} sub={n.sub} trailing={<Pill tone="amber">{n.pill}</Pill>} last={i === result.needs.length - 1} />
                 ))}
               </div>
             ) : null}

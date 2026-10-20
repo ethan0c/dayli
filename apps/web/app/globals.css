@@ -1,59 +1,8 @@
 /* Semli web tokens. Mirrors packages/tokens; keep both in step. */
+/* Colors, type, motion and radius come from @dayli/tokens through app/tokens.ts (a <style> in layout.tsx).
+   This file only consumes those variables; the one thing declared here is the font stack. */
 :root {
-  --canvas: #faf9f6;
-  --header: #faf9f6;
-  --row: #f0efeb;
-  --surface: #ffffff;
-  --ink: #222320;
-  --ink-2: #686963;
-  --ink-3: #686963;
-  --line: #e5e4de;
-  --nav: #222320;
-  --accent: #7057bd;
-  --accent-soft: #f0ecf8;
-  --accent-border: #dcd4ef;
-  --accent-ink: #7057bd;
-  --lav-500: #8a74e6;
-  --band-purple: #6a51b8;
-  --band-ink: #1f1e24;
-  --conflict: #a2342f;
-  --conflict-bg: #fbedeb;
-  --added: #246c43;
-  --added-bg: #ddf2e6;
-  --changed: #80510a;
-  --changed-bg: #fbefd5;
-  --chip: rgba(255, 255, 255, 0.72);
   --font: var(--font-sans), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --ease: cubic-bezier(0.2, 0, 0, 1);
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --canvas: #151515;
-    --header: #151515;
-    --row: #292929;
-    --surface: #202020;
-    --ink: #f5f4f0;
-    --ink-2: #b4b4ac;
-    --ink-3: #b4b4ac;
-    --line: #363632;
-    --nav: #2a2931;
-    --accent: #c3aff8;
-    --accent-soft: #2b253a;
-    --accent-border: #453b5a;
-    --accent-ink: #c3aff8;
-    --band-purple: #4b3b8a;
-    --band-ink: #0f0f12;
-    --conflict: #ffaca4;
-    --conflict-bg: #3b2524;
-    --added: #5cc08a;
-    --added-bg: #16301f;
-    --changed: #e2a84b;
-    --changed-bg: #3a2d14;
-    --chip: rgba(255, 255, 255, 0.12);
-    color-scheme: dark;
-  }
 }
 
 * {
@@ -153,8 +102,9 @@ textarea {
 .nav > a:not(.btn) {
   text-decoration: none;
   color: var(--ink-2);
-  font-size: 15px;
-  font-weight: 500;
+  font-size: var(--type-headline-size);
+  line-height: var(--type-headline-line);
+  font-weight: var(--type-headline-weight);
 }
 .nav > a:not(.btn):hover {
   color: var(--ink);
@@ -162,15 +112,14 @@ textarea {
 .nav .btn {
   height: 44px;
   padding: 0 20px;
-  font-size: 15px;
 }
 
 /* ---------- Type ---------- */
 .eyebrow {
   margin: 0 0 12px;
-  font-size: 13px;
-  line-height: 18px;
-  font-weight: 500;
+  font-size: var(--type-overline-size);
+  line-height: var(--type-overline-line);
+  font-weight: var(--type-overline-weight);
   color: var(--accent-ink);
 }
 .section-title,
@@ -178,8 +127,8 @@ textarea {
 .cmp h2 {
   font-size: 40px;
   line-height: 46px;
-  letter-spacing: -0.8px;
-  font-weight: 300;
+  letter-spacing: var(--type-display-tracking);
+  font-weight: var(--type-display-weight);
   text-wrap: balance;
 }
 .faq h2,
@@ -194,8 +143,8 @@ textarea {
   max-width: 46ch;
 }
 .textlink {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--type-subhead-size);
+  font-weight: var(--type-subhead-weight);
   color: var(--accent-ink);
   text-decoration: underline;
   text-underline-offset: 5px;
@@ -213,12 +162,13 @@ textarea {
 .btn {
   height: 52px;
   padding: 0 24px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 0;
-  background: var(--ink);
-  color: var(--canvas);
-  font-size: 16px;
-  font-weight: 500;
+  background: var(--control-fill);
+  color: var(--control-ink);
+  font-size: var(--type-headline-size);
+  line-height: var(--type-headline-line);
+  font-weight: var(--type-headline-weight);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -233,7 +183,7 @@ textarea {
 }
 .btn.accent {
   background: var(--accent);
-  color: var(--canvas);
+  color: var(--on-accent);
 }
 .btn:disabled {
   opacity: 0.4;
@@ -272,8 +222,8 @@ textarea {
   background: var(--surface);
   border: 1px solid var(--line);
   transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+    border-color var(--dur-base),
+    box-shadow var(--dur-base);
 }
 .try-box:focus-within {
   border-color: var(--ink);
@@ -319,7 +269,7 @@ textarea {
   font-size: 13px;
   font-weight: 500;
   max-width: calc(100% - 32px);
-  animation: rise 0.3s var(--ease) both;
+  animation: rise var(--dur-slow) var(--ease) both;
 }
 .try-file span {
   min-width: 0;
@@ -376,7 +326,7 @@ textarea {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.18s;
+  transition: background var(--dur-fast);
 }
 .try-icon:hover {
   background: var(--row);
@@ -399,8 +349,8 @@ textarea {
   font-size: 14px;
   color: var(--conflict);
   animation:
-    rise 0.3s var(--ease) both,
-    shake 0.4s ease 0.1s;
+    rise var(--dur-slow) var(--ease) both,
+    shake var(--dur-slow) var(--ease) var(--dur-fast);
 }
 .try-result {
   min-width: 0;
@@ -412,10 +362,10 @@ textarea {
   color: var(--ink-2);
 }
 .try-big {
-  font-size: 56px;
-  line-height: 60px;
-  letter-spacing: -2px;
-  font-weight: 300;
+  font-size: var(--type-display-xl-size);
+  line-height: var(--type-display-xl-line);
+  letter-spacing: var(--type-display-xl-tracking);
+  font-weight: var(--type-display-xl-weight);
   font-variant-numeric: tabular-nums;
 }
 .try-line {
@@ -470,7 +420,7 @@ textarea {
   font-size: 13px;
   line-height: 18px;
   color: var(--ink-2);
-  animation: fade 0.3s ease both;
+  animation: fade var(--dur-slow) var(--ease) both;
 }
 .skel-rows {
   display: flex;
@@ -485,8 +435,8 @@ textarea {
   background: linear-gradient(90deg, var(--row) 0%, var(--header) 40%, var(--row) 80%);
   background-size: 200% 100%;
   animation:
-    shimmer 1.6s ease-in-out infinite,
-    rise 0.4s var(--ease) both;
+    shimmer 1.6s var(--ease) infinite,
+    rise var(--dur-slow) var(--ease) both;
 }
 .skel:nth-child(2) {
   width: 92%;
@@ -527,8 +477,8 @@ textarea {
   max-width: 34ch;
 }
 .foot-col h4 {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--type-overline-size);
+  font-weight: var(--type-overline-weight);
   color: var(--ink);
   margin-bottom: 10px;
 }
@@ -573,7 +523,7 @@ textarea {
 .page-head h1,
 .prose h1 {
   font-size: clamp(36px, 5vw, 56px);
-  font-weight: 300;
+  font-weight: var(--type-display-weight);
   letter-spacing: -0.03em;
   line-height: 1.08;
   text-wrap: balance;
@@ -635,7 +585,7 @@ textarea {
   text-underline-offset: 3px;
 }
 .prose a.btn {
-  color: var(--canvas);
+  color: var(--control-ink);
   text-decoration: none;
 }
 .contact-mail {
@@ -711,7 +661,7 @@ textarea {
   background: var(--line);
   position: relative;
   margin-top: 1px;
-  transition: background 0.15s;
+  transition: background var(--dur-fast);
 }
 .student .sw::after {
   content: '';
@@ -723,7 +673,7 @@ textarea {
   border-radius: 50%;
   background: var(--surface);
   box-shadow: 0 1px 2px rgba(24, 23, 28, 0.2);
-  transition: transform 0.15s;
+  transition: transform var(--dur-fast);
 }
 .student input:checked + .sw {
   background: var(--ink);
@@ -766,7 +716,7 @@ textarea {
   background: var(--surface);
   box-shadow: 0 1px 2px rgba(24, 23, 28, 0.08);
   transform: translateX(calc(var(--i, 0) * 100%));
-  transition: transform 0.3s var(--ease);
+  transition: transform var(--dur-slow) var(--ease);
 }
 .seg button {
   position: relative;
@@ -777,7 +727,7 @@ textarea {
   font-weight: 500;
   color: var(--ink-2);
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color var(--dur-base);
 }
 .seg button.on {
   color: var(--ink);
@@ -829,7 +779,7 @@ textarea {
 }
 .plan .amt {
   font-size: 44px;
-  font-weight: 300;
+  font-weight: var(--type-display-xl-weight);
   letter-spacing: -0.03em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -919,7 +869,7 @@ textarea {
   cursor: pointer;
   font-size: 17px;
   line-height: 24px;
-  font-weight: 500;
+  font-weight: var(--type-headline-weight);
   list-style: none;
   display: flex;
   justify-content: space-between;
@@ -935,7 +885,7 @@ textarea {
   font-size: 20px;
   font-weight: 300;
   line-height: 1;
-  transition: transform 0.3s var(--ease);
+  transition: transform var(--dur-slow) var(--ease);
 }
 .faq details[open] summary::after {
   transform: rotate(45deg);
@@ -944,8 +894,8 @@ textarea {
   block-size: 0;
   overflow: hidden;
   transition:
-    block-size 0.3s var(--ease),
-    content-visibility 0.3s allow-discrete;
+    block-size var(--dur-slow) var(--ease),
+    content-visibility var(--dur-slow) allow-discrete;
 }
 .faq details[open]::details-content {
   block-size: auto;
@@ -969,14 +919,14 @@ textarea {
 .notfound .big {
   font-size: clamp(80px, 20vw, 160px);
   line-height: 1;
-  font-weight: 300;
+  font-weight: var(--type-display-xl-weight);
   letter-spacing: -0.04em;
   color: var(--line);
   font-variant-numeric: tabular-nums;
 }
 .notfound h1 {
   font-size: 32px;
-  font-weight: 300;
+  font-weight: var(--type-display-weight);
   letter-spacing: -0.02em;
 }
 .notfound .lede {
@@ -1127,34 +1077,34 @@ textarea {
 }
 
 .rise {
-  animation: rise 0.45s var(--ease) both;
+  animation: rise var(--dur-slow) var(--ease) both;
 }
 .page {
-  animation: fade 0.3s ease both;
+  animation: fade var(--dur-slow) var(--ease) both;
 }
 
-/* Press: shrink 3%, dim to 88%, like the app */
+/* Press: the app's press token, shrink and dim */
 .btn {
   transition:
-    transform 0.12s var(--ease),
-    opacity 0.12s,
-    background 0.18s,
-    color 0.18s;
+    transform var(--dur-fast) var(--ease),
+    opacity var(--dur-fast),
+    background var(--dur-fast),
+    color var(--dur-fast);
 }
 .btn:not([aria-disabled='true']):not(:disabled):hover {
   opacity: 0.92;
 }
 .btn:not([aria-disabled='true']):not(:disabled):active {
-  transform: scale(0.97);
-  opacity: 0.88;
+  transform: scale(var(--press-scale));
+  opacity: var(--press-opacity);
 }
 .nav > a,
 .foot-col a,
 .prose a,
 .textlink {
   transition:
-    color 0.18s,
-    text-decoration-color 0.18s;
+    color var(--dur-fast),
+    text-decoration-color var(--dur-fast);
 }
 .prose a:not(.btn):not(.reason):hover {
   text-decoration-color: currentColor;
@@ -1163,8 +1113,8 @@ textarea {
 .reason,
 .plan {
   transition:
-    background 0.25s,
-    border-color 0.25s;
+    background var(--dur-base),
+    border-color var(--dur-base);
 }
 .plan:hover {
   border-color: var(--ink-3);
@@ -1177,8 +1127,8 @@ textarea {
 .student .sw,
 .student .sw::after {
   transition:
-    background 0.2s,
-    transform 0.25s var(--ease);
+    background var(--dur-base),
+    transform var(--dur-base) var(--ease);
 }
 
 @media (prefers-reduced-motion: reduce) {
