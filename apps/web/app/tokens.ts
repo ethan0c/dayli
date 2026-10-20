@@ -30,6 +30,7 @@ function colorVars(p: Palette): Record<string, string> {
     '--accent-ink': p.accentInk,
     '--control-fill': p.controlFill,
     '--control-ink': p.controlInk,
+    '--control-outline': p.controlOutline,
     '--chart-booked': p.chartBooked,
     '--chart-on-booked': p.chartOnBooked,
     '--conflict': p.conflict,
@@ -79,4 +80,5 @@ const block = (vars: Record<string, string>) =>
 export const TOKENS_CSS = [
   `:root{${block({ ...colorVars(palettes.light), ...bandVars.light, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
   `@media (prefers-color-scheme: dark){:root{${block({ ...colorVars(palettes.dark), ...bandVars.dark })};color-scheme:dark}}`,
+  `[data-semli-theme="dark"]{${block(colorVars(palettes.dark))};color-scheme:dark}`,
 ].join('\n');
