@@ -4,9 +4,9 @@ import { LandingPage } from '@/components/LandingPage';
 export const metadata: Metadata = {
   title: 'Assignment tracker',
   description:
-    'Every due date from every class in one list, with reminders the day before and the morning of. Semli builds it from your syllabi and messages so you never type an assignment in by hand.',
+    'Bring assignment dates from syllabi, screenshots, and messages into one plan. Review the details, see what’s coming up, and set reminders with Semli.',
   alternates: { canonical: '/assignment-tracker' },
-  openGraph: { title: 'Never miss an assignment again', url: '/assignment-tracker' },
+  openGraph: { title: 'Keep assignment dates in one place', url: '/assignment-tracker' },
 };
 
 export default function AssignmentTrackerPage() {
@@ -14,31 +14,29 @@ export default function AssignmentTrackerPage() {
     <LandingPage
       path="/assignment-tracker"
       name="Assignment tracker"
-      title="Never miss an assignment again."
-      lede="Eighty-three percent of the students we surveyed had missed or nearly missed an assignment because it got buried. Semli keeps every due date from every class in one list, ranked by what matters today, with reminders that arrive before it is too late."
+      title="Keep assignment dates in one place."
+      lede="Due dates arrive in syllabi, Canvas, emails, and group chats. Bring them into Semli, check the details, and see what’s due alongside the rest of your week."
       steps={[
-        { title: 'Fill it without typing', body: 'Syllabi, a screenshot of the Canvas to-do list, a professor’s email, or a text like “paper due Friday.”' },
-        { title: 'See what matters today', body: 'Today shows what is due and what is coming in the next two weeks. Done items sink out of the way.' },
-        { title: 'Get reminded in time', body: 'The day before and the morning of, by default. Change it per item or turn on quiet hours.' },
+        { title: 'Send what you have', body: 'Upload a syllabus or screenshot, or paste a message such as “paper due Friday.” Review the dates before adding them.' },
+        { title: 'See what’s coming up', body: 'Check today’s priorities and upcoming deadlines. Completed tasks stay out of the way.' },
+        { title: 'Choose your reminders', body: 'Get a heads-up the day before or the morning an assignment is due. Adjust reminder times and quiet hours in settings.' },
       ]}
       detail={
         <>
           <h2>One list, every class</h2>
           <p>
             Each assignment keeps its course, so you can look at one class on the School tab or everything at once on Today.
-            Exams and quizzes are marked as deadlines and get a heads-up card when the days before them are already full of
-            shifts, labs, or clinicals.
+            See how exams and quizzes fit around shifts, labs, and the time you have to prepare.
           </p>
           <h2>Assignments posted outside Canvas</h2>
           <p>
-            Three in four students told us assignments show up outside the LMS: in a PDF syllabus, a Google Doc, a textbook
-            site, or an email. Those are exactly the ones that slip. Semli reads any of them from a screenshot or a pasted
-            message, which is why the list stays complete.
+            An assignment in an email matters just as much as one in Canvas. Send a screenshot or paste the message so you can
+            keep those dates together, even when your classes use different systems.
           </p>
-          <h2>Nothing is saved until you confirm</h2>
+          <h2>Check the details before you add them</h2>
           <p>
-            Every item Semli reads comes with the exact text it came from. You check the list, fix a date if needed, and confirm.
-            That review takes a few seconds and means the tracker is one you can trust.
+            Review the assignments Semli finds, correct a date or time if needed, and choose what to add.
+            You can edit an assignment later or undo the import.
           </p>
         </>
       }
@@ -46,7 +44,7 @@ export default function AssignmentTrackerPage() {
         { q: 'Is the assignment tracker free?', a: 'Yes. The calendar, to-dos, reminders, and repeating classes are free with no time limit. Reading syllabi and screenshots uses AI imports; the free plan includes three a month.' },
         { q: 'Does it sync with Canvas?', a: 'Yes. Paste your Canvas calendar feed link once and your assignments come in. With Plus they stay in sync, so a moved due date moves in Semli too. Screenshots of the Canvas to-do list and syllabus PDFs work as well.' },
         { q: 'Can I add an assignment by hand?', a: 'Yes, and it never counts as an import. Tap the plus button and type it.' },
-        { q: 'What happens when a due date changes?', a: 'Import the update (a new screenshot or the professor’s message). Semli matches it to the existing assignment and shows you the change instead of creating a duplicate.' },
+        { q: 'What happens when a due date changes?', a: 'You can edit the assignment directly. If it came from a connected Canvas feed, Plus keeps its due date in sync with Canvas.' },
       ]}
       related={[
         { href: '/syllabus-to-calendar', label: 'Syllabus to calendar' },

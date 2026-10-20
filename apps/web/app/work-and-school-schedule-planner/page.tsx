@@ -4,7 +4,7 @@ import { LandingPage } from '@/components/LandingPage';
 export const metadata: Metadata = {
   title: 'Work and school schedule planner',
   description:
-    'Screenshot your work schedule when it is posted. Semli adds the shifts to your class calendar, shows what changed from last week, and flags clashes with class, clinicals, and exams.',
+    'Put work shifts and classes in one plan with Semli. Import a schedule screenshot, spot overlaps, and compare schedule updates with Plus.',
   alternates: { canonical: '/work-and-school-schedule-planner' },
   openGraph: { title: 'Work shifts and classes, one calendar', url: '/work-and-school-schedule-planner' },
 };
@@ -15,38 +15,36 @@ export default function WorkSchoolPage() {
       path="/work-and-school-schedule-planner"
       name="Work and school schedule planner"
       title="Work shifts and classes, one calendar."
-      lede="Your schedule drops on Thursday for a week that starts Monday. Screenshot it, and Semli puts the shifts next to your classes, tells you what changed since last week, and warns you when a shift lands on a lab, a clinical, or the night before an exam."
+      lede="Your work schedule changes. Your classes and deadlines keep coming. Put them in one plan so you can see where your shifts fit and catch overlaps early."
       steps={[
-        { title: 'Screenshot the schedule', body: 'HotSchedules, 7shifts, a group chat, or a photo of the printed sheet on the wall. Any of them.' },
-        { title: 'See what changed', body: 'New, changed, and removed shifts, each one named. Confirm them together or one at a time. Nothing is doubled up.' },
-        { title: 'Catch the clashes', body: 'A shift over a lab, or two closing shifts before a Monday exam, shows up as a heads-up on Today.' },
+        { title: 'Send your schedule', body: 'Use a screenshot from your scheduling app, a group chat message, or a photo of the printed sheet.' },
+        { title: 'Review the changes', body: 'With Plus, compare an updated schedule with your existing shifts. Choose which new, moved, or removed shifts to apply.' },
+        { title: 'Spot the overlaps', body: 'See work and classes on the same timeline. Open an overlapping event to check what it conflicts with.' },
       ]}
       detail={
         <>
           <h2>Built for schedules that change every week</h2>
           <p>
-            Most planners assume you know your week in advance. Semli assumes you don&rsquo;t. Weeks that have no schedule yet
-            show as &ldquo;not posted&rdquo; rather than free, so you never plan study time into hours you will end up working.
-            When the new schedule arrives, Semli compares it to what it already has and shows the difference.
+            See which work weeks you have added and which schedules are still missing. When an updated schedule arrives,
+            Plus can compare it with the shifts in your plan, so you can review the changes together.
           </p>
           <h2>Overnight shifts, double shifts, split shifts</h2>
           <p>
-            A shift that ends after midnight stays on the day it started. Two shifts on the same day are matched separately, so
-            moving the evening one does not touch the morning one. Times are read the way they are written on the sheet, 4&ndash;10
-            becomes 4:00 to 10:00 pm.
+            Check each shift’s start and end time before adding it, including overnight shifts and days with more than one shift.
+            If the source leaves out a time or am and pm, fill in the missing details during review.
           </p>
-          <h2>What the heads-up looks like</h2>
+          <h2>See what needs to move</h2>
           <p>
-            &ldquo;Café shift overlaps Chem lab on Oct 22.&rdquo; Or: &ldquo;Only 2.5 free hours before Stats exam
-            2. Want to look at the week?&rdquo; Semli points at the problem early and leaves the decision to you.
+            Overlapping events appear in red. Open the details to see which plans clash, then change a flexible event yourself.
+            Plus can suggest another time while respecting events marked as fixed, such as a work shift.
           </p>
         </>
       }
       faqs={[
         { q: 'Which scheduling apps does it read?', a: 'Any of them, because it reads the screenshot, not the app. HotSchedules, 7shifts, When I Work, Deputy, Sling, Homebase, a spreadsheet, a text message, or a photo of a printed sheet.' },
         { q: 'What if the schedule lists everyone on staff?', a: 'Tell Semli your name once. It picks out your rows and ignores the rest. If it cannot tell, it asks before saving anything.' },
-        { q: 'Do changed shifts create duplicates?', a: 'No. A new import of the same week is compared with the existing one. Changed shifts are updated in place, removed shifts are removed, and you see the list before anything happens.' },
-        { q: 'Can it connect to my employer’s scheduling system directly?', a: 'Not yet. Screenshots cover every system today, and direct connections are planned for the ones that offer access.' },
+        { q: 'How do I update shifts I’ve already added?', a: 'With Plus, import the updated schedule and review the comparison. Semli proposes new, changed, or removed shifts for you to confirm. You can also edit any shift by hand on the free plan.' },
+        { q: 'Can it connect to my employer’s scheduling system directly?', a: 'Not currently. Send a screenshot, photo, or message instead; you don’t need to connect your employer’s account.' },
       ]}
       related={[
         { href: '/syllabus-to-calendar', label: 'Syllabus to calendar' },
