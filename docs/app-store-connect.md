@@ -254,7 +254,7 @@ Agreements: the **Paid Applications** agreement must be signed (Business → Agr
 - [ ] `expo.version` bumped to `1.0.0`; build number set by EAS (`autoIncrement` in `eas.json`).
 - [ ] Production keys in EAS env: `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY` (`appl_…`), `EXPO_PUBLIC_POSTHOG_KEY`, `EXPO_PUBLIC_SENTRY_DSN`, `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY`, `EXPO_PUBLIC_API_URL=https://semli.app`.
 - [ ] Web host env: `SUPABASE_URL`, `SUPABASE_KEY`, `REVENUECAT_SECRET_KEY`, `ANTHROPIC_API_KEY`.
-- [ ] Supabase: anonymous sign-ins on, both migrations run, Resend SMTP on, email templates pasted, Site URL `https://semli.app`.
+- [ ] Supabase: anonymous sign-ins on (off as of Oct 20), all three migrations run, Resend SMTP on, email templates pushed, Site URL `https://semli.app` (set). Templates and SMTP live in `supabase/config.toml`; see `supabase/templates/README.md`. The free tier refuses custom templates until SMTP is configured, and its own provider sends 2 emails an hour, so SMTP comes first.
 - [ ] One sandbox purchase per term works, Restore works, the trial shows as a trial in RevenueCat.
 - [ ] A reminder fired on a real phone; a Canvas feed synced on a real phone.
 - [ ] `APP_STORE_LIVE = true` in `apps/web/lib/site.ts` once approved, so the site's "Get the app" links to the store.

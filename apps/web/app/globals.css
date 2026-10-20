@@ -220,18 +220,30 @@ textarea {
 }
 
 /* ---------- A screen without the phone ---------- */
+.stage {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 24px 0;
+  background: var(--row);
+  border-radius: var(--radius-sheet);
+  overflow: hidden;
+}
 .screen {
   position: relative;
   overflow: hidden;
-  border-radius: 20px;
+  flex: none;
+  /* The app's canvas, with room above the first row so the header isn't against the edge. */
+  padding-top: 18px;
+  border-radius: 24px 24px 0 0;
   background: var(--canvas);
   border: 1px solid var(--line);
+  border-bottom: 0;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
-    0 16px 40px rgba(0, 0, 0, 0.08);
-  /* The crop fades out instead of slicing through a row. */
-  mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
-  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
+    0 20px 48px rgba(0, 0, 0, 0.08);
 }
 
 /* ---------- The real phone frame (hero) ---------- */
@@ -396,55 +408,71 @@ textarea {
     rise var(--dur-slow) var(--ease) both,
     shake var(--dur-slow) var(--ease) var(--dur-fast);
 }
-.try-result {
+.try-stage {
   min-width: 0;
-  padding-top: 58px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px 24px;
+  background: var(--row);
+  border-radius: var(--radius-sheet);
+}
+.try-result {
+  width: 340px;
+  max-width: 100%;
+  min-height: 300px;
+  padding: 22px 18px 24px;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 20px 48px rgba(0, 0, 0, 0.08);
 }
 .try-found {
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--ink-2);
 }
 .try-big {
-  font-size: var(--type-display-xl-size);
-  line-height: var(--type-display-xl-line);
-  letter-spacing: var(--type-display-xl-tracking);
+  font-size: 44px;
+  line-height: 48px;
+  letter-spacing: -1.6px;
   font-weight: var(--type-display-xl-weight);
   font-variant-numeric: tabular-nums;
+  padding-top: 2px;
 }
 .try-line {
-  font-size: 17px;
-  line-height: 24px;
+  font-size: 15px;
+  line-height: 20px;
   padding-top: 4px;
 }
 .try-chart {
-  margin-top: 24px;
-  max-width: 440px;
+  margin-top: 20px;
 }
 .try-chart + .try-chart {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 .try-rows {
-  margin-top: 16px;
-  max-width: 440px;
+  margin-top: 12px;
 }
 .try-more {
   margin: 10px 0 0;
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--ink-2);
 }
 .try-caption {
   margin: 16px 0 0;
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--ink-2);
-  max-width: 44ch;
 }
 .try-empty {
-  font-size: 17px;
-  line-height: 26px;
+  font-size: 15px;
+  line-height: 22px;
   color: var(--ink-2);
+  margin: 8px 0 0;
 }
 .try-progress {
   position: relative;
@@ -1130,8 +1158,8 @@ textarea {
   .try {
     gap: 32px;
   }
-  .try-result {
-    padding-top: 0;
+  .try-stage {
+    padding: 24px 16px;
   }
   .foot-grid {
     grid-template-columns: 1fr 1fr;
@@ -1280,20 +1308,6 @@ textarea {
 }
 
 /* A frameless screen lifts a little under the pointer, the way a row highlights. */
-.screen {
-  transition:
-    transform var(--dur-base) var(--ease),
-    box-shadow var(--dur-base) var(--ease);
-}
-@media (hover: hover) {
-  .screen:hover {
-    transform: translateY(-4px);
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.04),
-      0 24px 48px rgba(0, 0, 0, 0.12);
-  }
-}
-
 /* Press: the app's press token, shrink and dim */
 .btn {
   transition:

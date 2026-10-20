@@ -248,6 +248,7 @@ export function TryIt() {
         ) : null}
       </div>
 
+      <div className="try-stage">
       <div className="try-result" aria-live="polite" aria-busy={busy}>
         {busy ? (
           <>
@@ -286,6 +287,7 @@ export function TryIt() {
             <p className="try-caption">{isExample ? 'Paste your own message, or drop in a screenshot or syllabus, to see yours.' : 'This is a preview, not a saved plan. In the app, you review the details before adding them.'}</p>
           </div>
         )}
+      </div>
       </div>
     </section>
   );

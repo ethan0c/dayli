@@ -281,11 +281,18 @@
   gap: 32px;
   margin-top: 40px;
 }
+/* Captions first; the screens stand on the band's bottom edge and run off it. */
+.how {
+  align-items: end;
+}
 .how figure {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 28px;
+}
+.bleed {
+  padding-bottom: 0;
 }
 .how figcaption {
   font-size: 16px;
@@ -531,8 +538,26 @@
   .flip .featureCopy {
     order: 0;
   }
+  /* The three steps as a row you swipe, every screen on the band's edge. */
   .how {
-    gap: 48px;
+    display: flex;
+    align-items: end;
+    gap: 16px;
+    margin-inline: -20px;
+    padding-inline: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .how::-webkit-scrollbar {
+    display: none;
+  }
+  .how figure {
+    flex: 0 0 min(320px, 82vw);
+    scroll-snap-align: center;
+  }
+  .bleed {
+    padding-bottom: 0;
   }
   .hero {
     padding-top: 84px;

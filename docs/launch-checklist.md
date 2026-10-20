@@ -44,7 +44,7 @@ One person runs this. The toolkit is the rating prompt in the app, App Store Con
 
 - [ ] App Store Connect: every field in [app-store-connect.md](app-store-connect.md) §1 to §6 pasted; the keyword field ends in `canvas`.
 - [ ] Screenshots, header and search card uploaded.
-- [ ] Production keys in EAS env; web host env; Supabase anonymous sign-ins, migrations, Resend SMTP, email templates, Site URL.
+- [ ] Production keys in EAS env; web host env; Supabase anonymous sign-ins, migrations, Resend SMTP, email templates (`supabase/templates/README.md`), Site URL.
 - [ ] Sign in with Apple: App ID capability, Supabase provider, new binary, real-device check with Hide My Email.
 - [ ] Internal TestFlight build to you and Rico. One sandbox purchase per term, Restore, the trial shows as a trial in RevenueCat.
 - [ ] A reminder fired on a real phone. A Canvas feed synced on a real phone.

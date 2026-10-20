@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CountUp } from '@/components/CountUp';
-import { Screen } from '@/components/Screen';
+import { Screen, Stage } from '@/components/Screen';
 import { Shot } from '@/components/Shot';
 import cafeShift from '@/public/photos/cafe-shift.jpg';
 import campus from '@/public/photos/campus.jpg';
@@ -86,13 +86,13 @@ export default function Home() {
         <p className={styles.source} data-reveal>From a survey of more than 50 college students, spring 2026.</p>
       </section>
 
-      <section className={`${styles.band} ${styles.soft}`} aria-labelledby="how-title">
+      <section className={`${styles.band} ${styles.soft} ${styles.bleed}`} aria-labelledby="how-title">
         <div className={styles.bandInner}>
           <h2 id="how-title" className="section-title" data-reveal>From a screenshot to your schedule.</h2>
           <div className={styles.how}>
-            <figure data-reveal style={stagger(0)}><Screen name="add" width={340} ratio={660 / 760} label="Add: type, paste, or drop in a screenshot; your recent screenshots are right there" /><figcaption><strong>Send what you have.</strong> Choose a screenshot, upload a PDF, or paste a message.</figcaption></figure>
-            <figure data-reveal style={stagger(1)}><Screen name="review" width={340} ratio={660 / 760} label="Review: 6 shifts found, the week as seven day bars, one shift asking for a time" /><figcaption><strong>Check the details.</strong> Review the dates and times, and fill in anything missing.</figcaption></figure>
-            <figure data-reveal style={stagger(2)}><Screen name="item" width={340} ratio={660 / 760} label="An event in your plan: the time, the day around it, reminder and flexibility switches" /><figcaption><strong>Make it your plan.</strong> Edit an event anytime, or undo the import.</figcaption></figure>
+            <figure data-reveal style={stagger(0)}><figcaption><strong>Send what you have.</strong> Choose a screenshot, upload a PDF, or paste a message.</figcaption><Screen name="add" width={320} height={420} label="Add: type, paste, or drop in a screenshot; your recent screenshots are right there" /></figure>
+            <figure data-reveal style={stagger(1)}><figcaption><strong>Check the details.</strong> Review the dates and times, and fill in anything missing.</figcaption><Screen name="review" width={320} height={420} label="Review: 6 shifts found, the week as seven day bars, one shift asking for a time" /></figure>
+            <figure data-reveal style={stagger(2)}><figcaption><strong>Make it your plan.</strong> Edit an event anytime, or undo the import.</figcaption><Screen name="item" width={320} height={420} label="An event in your plan: the time, the day around it, reminder and flexibility switches" /></figure>
           </div>
         </div>
       </section>
@@ -103,7 +103,7 @@ export default function Home() {
           <h2 id="week-title" className="section-title">See the week at a glance.</h2>
           <p className="lede">See where classes, shifts, and deadlines fit together. Plan the week, look at today by the hour, and spot overlaps in red.</p>
         </div>
-        <div className={styles.single} data-reveal style={stagger(1)}><Screen name="plan" width={400} ratio={660 / 900} label="Plan: the week as seven bars, today's agenda and the rest of the week" /></div>
+        <div className={styles.single} data-reveal style={stagger(1)}><Stage><Screen name="plan" width={340} height={500} label="Plan: the week as seven bars, today's agenda and the rest of the week" /></Stage></div>
       </section>
 
       <section className={`${styles.band} ${styles.dark}`} aria-labelledby="diff-title">
@@ -128,7 +128,7 @@ export default function Home() {
           <p className="lede">Bring class times, exams, and assignment dates out of the PDF and into your plan. Connect Canvas for assignments, with Plus to keep due dates in sync.</p>
           <Link className="textlink" href="/syllabus-to-calendar">How syllabus imports work</Link>
         </div>
-        <div className={styles.single} data-reveal style={stagger(1)}><Screen name="school" width={400} ratio={660 / 900} label="School: the next assignment due in 3 days, the next four weeks on one line, your courses" /></div>
+        <div className={styles.single} data-reveal style={stagger(1)}><Stage><Screen name="school" width={340} height={500} label="School: the next assignment due in 3 days, the next four weeks on one line, your courses" /></Stage></div>
       </section>
 
       <section className={styles.switch} aria-labelledby="switch-title">
