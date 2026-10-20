@@ -22,7 +22,7 @@
   text-align: center;
   margin-inline: calc(50% - 50vw + var(--inset));
   margin-top: calc(var(--inset) - var(--nav-clear));
-  padding: 140px calc(50vw - 50% - var(--inset)) 0;
+  padding: 90px calc(50vw - 50% - var(--inset)) 0;
   border-radius: var(--radius-sheet);
   background: var(--row);
   overflow: hidden;
@@ -62,6 +62,10 @@
   font-size: 13px;
   line-height: 18px;
   color: var(--ink-2);
+}
+/* The grey pill would sink into the grey card; it goes white here. */
+.hero :global(.btn.ghost) {
+  background: var(--surface);
 }
 .heroPhones {
   display: flex;
@@ -464,7 +468,7 @@
     gap: 48px;
   }
   .hero {
-    padding-top: 112px;
+    padding-top: 72px;
   }
   .heroPhones {
     height: 340px;
