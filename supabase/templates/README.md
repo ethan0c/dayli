@@ -6,14 +6,11 @@ The app verifies emailed codes (`verifyOtp` with the `signup` and `recovery` typ
 
 ## Pushing
 
-Supabase's own mail provider sends 2 emails an hour and, on the free tier, refuses custom templates, so SMTP has to exist before the templates can land. One-time setup:
+Supabase's own mail provider sends 2 emails an hour and, on the free tier, refuses custom templates, so custom SMTP has to be on first. It is: Resend (`smtp.resend.com`, port 465, user `resend`, password = the Resend API key, sender `hello@semli.app`), set in the dashboard under Authentication → Emails → SMTP Settings on Oct 20, 2026. That raised the limit to 30 emails an hour (adjustable under Rate Limits).
 
-1. In Resend, add and verify `semli.app` (the DNS records it lists), then create an API key with sending access.
-2. From the repo, with the CLI logged in (`npx supabase login`) and the project linked (`npx supabase link --project-ref vhzuefbxrzlhnvyrldad`):
+With the CLI logged in (`npx supabase login`) and the project linked (`npx supabase link --project-ref vhzuefbxrzlhnvyrldad`):
 
-       RESEND_API_KEY=re_... npx supabase config diff
-       RESEND_API_KEY=re_... npx supabase config push
+    npx supabase config diff
+    npx supabase config push
 
-3. Send yourself a sign-up from the app and check the email shows a code, subject "Your Semli code".
-
-Attempted Oct 20, 2026 without SMTP: the push was rejected with "Email template modification is not available for free tier projects using the default email provider".
+Then sign up from the app and check the email shows a code with the subject "Your Semli code".

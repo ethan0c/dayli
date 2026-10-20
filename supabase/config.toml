@@ -14,14 +14,6 @@ content_path = "./supabase/templates/confirm-signup.html"
 subject = "Your Semli reset code"
 content_path = "./supabase/templates/reset-password.html"
 
-# Supabase's own mail provider allows 2 emails an hour and, on the free tier, no custom templates.
-# Resend SMTP lifts both. The API key stays out of the repo: export RESEND_API_KEY before pushing.
-# The sender must be on a domain verified in Resend (semli.app).
-[auth.email.smtp]
-enabled = true
-host = "smtp.resend.com"
-port = 465
-user = "resend"
-pass = "env(RESEND_API_KEY)"
-admin_email = "hello@semli.app"
-sender_name = "Semli"
+# SMTP (Resend, smtp.resend.com:465, user "resend", password = the API key, sender hello@semli.app)
+# is set in the dashboard under Authentication → Emails → SMTP Settings, not here, so the API key
+# never has to be present to push this file.
