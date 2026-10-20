@@ -141,8 +141,9 @@ export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, x
 export const radius = { chip: 999, row: 14, card: 16, sheet: 28, pill: 999 } as const;
 
 /**
- * Geist, one face, four weights (apps/mobile/assets/fonts, OFL). Light carries the one big
- * number per screen, Regular titles and text, Medium pills and primary labels, SemiBold the wordmark.
+ * Geist, one face, four weights (apps/mobile/assets/fonts, OFL). Regular carries
+ * large headings, numbers, section titles and text, Medium pills and primary labels,
+ * and SemiBold emphasis. The outlined wordmark uses Onest separately.
  */
 export const fontFamily = {
   light: 'Geist-Light',
@@ -151,11 +152,16 @@ export const fontFamily = {
   semibold: 'Geist-SemiBold',
 } as const;
 
+/** Every large heading uses normal (Geist Regular, 400), regardless of its size. */
+const largeHeadingWeight = 'regular' as const;
+
 export const typeScale = {
   /** The one big number on a screen: countdown, price, moment. */
-  displayXl: { size: 56, line: 60, weight: 'light', tracking: -0.035 },
-  /** Screen heading on covers; the item title. */
-  display: { size: 34, line: 40, weight: 'light', tracking: -0.02 },
+  displayXl: { size: 56, line: 60, weight: largeHeadingWeight, tracking: -0.035 },
+  /** Screen heading on covers. */
+  display: { size: 34, line: 40, weight: largeHeadingWeight, tracking: -0.02 },
+  /** Onboarding questions and editable item titles. */
+  displaySm: { size: 30, line: 36, weight: largeHeadingWeight, tracking: -0.02 },
   /** Section titles, with a chevron. */
   title: { size: 24, line: 30, weight: 'regular', tracking: -0.015 },
   /** Button labels. */

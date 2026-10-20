@@ -6,7 +6,7 @@ Decided October 19, 2026. The live, readable version is the design-system page: 
 Robinhood's 2024 identity is the reference: neutrals first, one accent used sparingly, a simplified mark next to a wordmark, one typeface, "less is more". Smoothness is discipline, not the language the app is written in.
 
 - Ink on paper. About 72% of any screen is paper and surfaces, 18% ink, 7% grey rows, 3% accent.
-- One big number per screen (Light, 56px). Everything under it is one step smaller than iOS defaults. Contrast reads as premium, size does not.
+- One big number per screen (Regular, 56px). Everything under it is one step smaller than iOS defaults. Contrast reads as premium, size does not.
 - Color only when it means something: terracotta is behind or in conflict, green is ahead, amber is "Semli needs something from you".
 - Pills act, rectangles hold. Every action is fully round; rows, cards, fields and composers keep corners.
 - Planner screens use plain rows, with no decorative cards or icon tiles. Photography belongs on moment days and showcase pages; the Plus welcome and guide can use small accent icon badges.
@@ -25,12 +25,13 @@ Light mode keeps the original paper-and-ink treatment: primary actions, send, se
 Meaning: filled terracotta pill for due today / overdue; terracotta text on a grey pill for a colliding time; green pill for done and newly added, green check when complete; grey pills for times and neutral states; amber only when Semli needs input. Filled status colors use `onPrimary` for legible text and icons in either theme.
 
 ## Type
-Geist carries product text: Light 300 for the one big number, Regular 400 for section titles and text, Medium 500 for pills and the primary label, and SemiBold 600 for emphasis. The separate outlined wordmark uses Onest SemiBold. Tabular numerals wherever a number can change. Sentence case always.
+Geist carries product text: normal / Regular 400 for all large headings, the one big number, section titles and text; Medium 500 for pills and the primary label; and SemiBold 600 for emphasis. All display tokens share `largeHeadingWeight` in the tokens package; large headings use these tokens rather than local font-family or bold overrides. Onboarding follows this same normal-weight rule. The separate outlined wordmark uses Onest SemiBold. Tabular numerals wherever a number can change. Sentence case always.
 
 | Token | Size / line | Weight | Use |
 |---|---|---|---|
-| displayXl | 56 / 60 | 300 | The one big number (countdown, price, moment) |
-| display | 34 / 40 | 300 | Screen heading on covers, the item title |
+| displayXl | 56 / 60 | 400 | The one big number (countdown, price, moment) |
+| display | 34 / 40 | 400 | Screen heading on covers |
+| displaySm | 30 / 36 | 400 | Onboarding questions and editable item titles |
 | title | 24 / 30 | 400 | Section titles with a chevron |
 | headline | 16 / 22 | 500 | Button labels |
 | body | 16 / 22 | 400 | Rows and text |
@@ -108,7 +109,7 @@ One tap deletes, the toast carries Undo, and Your data keeps it undoable after. 
 - Plus: onboarding, settings and feature gates share the fireworks photo fading into a dark canvas, readable price-first rows, a green student switch and one primary action. Feature gates open a full-screen cover with a glass X; settings keeps its back chevron. A confirmed new purchase celebrates with one brief confetti burst, then offers a skippable feature guide. Restore and ordinary launches do not celebrate again. Guide copy covers only the three implemented Plus features; account and live sharing previews are not paid benefits. Reduce Motion suppresses the burst, and the guide stays available in You → Semli Plus.
 
 ## Applied in code (Oct 19, 2026, second pass)
-Display and title tokens at Light and Regular; the Today list/graph toggle and `HourView`; Plan with `WeekChart` as the header; School with the four-week `TermLine` map and flat course rows; Review rewritten around the week chart and the term line, no toggles, never blocking; Create with the pill field, hairline rows, `Segmented` and course chips; the item screen with tappable time and date, plain rows, the series row, the day-around-it bar and the delete scope chooser; swipe actions on every `ItemRow`; Add as the fifth tab; glass chrome buttons; Appearance without card style; the add menu, starter cards, clock header, week strip and card surface removed. `seriesId` on items ties the occurrences of a repeating class together.
+Display and title tokens at Regular; the Today list/graph toggle and `HourView`; Plan with `WeekChart` as the header; School with the four-week `TermLine` map and flat course rows; Review rewritten around the week chart and the term line, no toggles, never blocking; Create with the pill field, hairline rows, `Segmented` and course chips; the item screen with tappable time and date, plain rows, the series row, the day-around-it bar and the delete scope chooser; swipe actions on every `ItemRow`; Add as the fifth tab; glass chrome buttons; Appearance without card style; the add menu, starter cards, clock header, week strip and card surface removed. `seriesId` on items ties the occurrences of a repeating class together.
 
 ## Applied in code (Oct 19, 2026, first pass)
 Geist fonts and tokens; the new type scale; pill buttons and the five roles (`components/Controls.tsx`); hairline rows with status pills (`ItemRow`); the Today countdown, day timeline (`DayBar`) and sections; the composer Add screen; the item detail; the You tab and settings home without tiles; the ink toggle; the progress-line loading state; the wordmark regenerated from Onest SemiBold (`packages/tokens/src/wordmark.ts`, `design/wordmark-*.svg`); the four new glyphs; the Plan tab symbol; the paywall as price-first rows with the trial timeline; the recent-screenshots strip on Add (`expo-media-library`, asks only on tap); Watch it work and Heads-up as dark showcase pages.

@@ -46,7 +46,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 ## Done
 
 **System**
-- Geist at the right weights: display Light, title Regular, pills Medium. Onboarding headings Light.
+- Geist at the right weights: all display and title headings Regular (400), including onboarding; pills Medium.
 - Category tints stay small in the planner; ordinary screens use plain rows. The photographic Plus showcase and welcome use accent icon badges.
 - Five button roles, pills act and rectangles hold; the sliding segmented control; ink toggles.
 - Glass chrome: the Today toggle, close and back, the onboarding chevron sit in Liquid Glass circles on iOS 26 (`components/Glass.tsx`).

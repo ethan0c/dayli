@@ -46,7 +46,7 @@ export default function SyllabusPage() {
       faqs={[
         { q: 'Which file types work?', a: 'PDF syllabi, and screenshots or photos (PNG, JPEG) of a course schedule or a registration page. Word documents can be exported to PDF first.' },
         { q: 'What if my syllabus only lists week numbers?', a: 'Semli asks for the first day of term and expands weeks into dates. If it is unsure, it marks the date and asks you to confirm before anything is saved.' },
-        { q: 'Does it work with Canvas?', a: 'Syllabus PDFs downloaded from Canvas work today. Direct Canvas sync, which keeps assignment dates updated when professors change them, is coming to Semli Plus.' },
+        { q: 'Does it work with Canvas?', a: 'Yes, two ways. Upload the syllabus PDF from Canvas, or connect your Canvas calendar feed so assignments come in on their own. With Plus, Canvas stays in sync when professors change dates.' },
         { q: 'Can I undo an import?', a: 'Yes. Every import is one undoable change. Open You, then Your data, and tap Undo next to it.' },
         { q: 'Is my syllabus stored?', a: 'The file is used to read the dates and is not kept on our servers. The dates and course details live on your phone.' },
       ]}

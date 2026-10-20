@@ -19,6 +19,8 @@ Sign-in is Google and email only (founder's call, Oct 19, 2026). App Store rule 
 - [ ] Email sign-up → 6-digit code → signed in; wrong or expired code; resend after 60 s; login; wrong password; forgot password → code → new password.
 - [ ] Google, including cancel and a `redirect_uri_mismatch` check.
 - [ ] Guest with a plan signs up → plan backed up; fresh install → log in → plan restored and onboarding skipped.
+- [ ] Sign up on a fresh install, enter the code, quit before onboarding; fresh install → log in → onboarding runs (name filled in), not an empty planner. The row carries `onboarded`; rows saved before Oct 20, 2026 count as finished only when they hold a plan.
+- [ ] Sign up, never enter the code, then log in → a fresh code is sent and the code screen opens. Sign up with an email that already has an account → "Log in instead", no code screen.
 - [ ] Log out keeps the plan; delete account removes the row and the auth user, keeps the plan on the phone.
 - [ ] Plus bought as a guest carries over on sign-in (RevenueCat alias); Plus restores on a new phone after login.
 

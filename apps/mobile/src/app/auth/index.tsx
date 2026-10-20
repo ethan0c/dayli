@@ -14,7 +14,7 @@ import { ACCOUNTS_ENABLED, authErrorMessage } from '@/lib/auth';
 import { authClient, leaveAuth } from '@/lib/auth-client';
 import { enter } from '@/lib/motion';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 /** Semli's first screen; choosing guest continues to the first onboarding question. */
 export default function AuthWelcomeScreen() {
@@ -36,7 +36,7 @@ export default function AuthWelcomeScreen() {
         <View style={styles.hero}>
           <Animated.View entering={enter.rise}><Wordmark width={192} ink={c.inkPrimary} dot={c.accent} /></Animated.View>
           <Animated.View entering={enter.fade} style={styles.copy}>
-            <T style={[textStyle('display', c.inkPrimary), styles.center]} accessibilityRole="header">The daily planner for college students.</T>
+            <T token="display" style={styles.center} accessibilityRole="header">The daily planner for college students.</T>
             <T token="callout" color={c.inkSecondary} style={styles.center}>Drop in a syllabus, a work schedule, or a text. Semli tells you what matters today.</T>
           </Animated.View>
         </View>

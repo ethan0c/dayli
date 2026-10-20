@@ -6,7 +6,7 @@ import { feedback } from '@/lib/feedback';
 import { FREE_IMPORTS_PER_MONTH, PLUS_PLANS, TRIAL_DAYS, money, type PlanId } from '@/lib/site';
 
 const FREE = ['Calendar, tasks, and Today', 'Reminders on your phone', `${FREE_IMPORTS_PER_MONTH} AI imports a month: text, screenshot, or PDF`, 'Add events and to-dos by hand anytime'];
-const PLUS = ['Unlimited AI imports', 'Syllabus import: a whole course in one go', 'See what changed when you add a new work schedule', 'Suggested times for overlapping plans', 'Canvas sync is coming soon'];
+const PLUS = ['Unlimited AI imports', 'Syllabus import: a whole course in one go', 'See what changed when you add a new work schedule', 'Suggested times for overlapping plans', 'Canvas sync: due dates move when your professor changes them'];
 
 export function PlanCards() {
   const [billing, setBilling] = useState<PlanId>('semester');

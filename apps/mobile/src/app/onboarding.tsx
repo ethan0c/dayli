@@ -305,7 +305,7 @@ function OneTapStep({ title, subtitle, children, gap = 24 }: { title: string; su
   return (
     <ScrollView contentContainerStyle={[styles.page, { gap }]}>
       <View style={styles.titleBlock}>
-        <T style={styles.h1}>{title}</T>
+        <T token="displaySm" accessibilityRole="header">{title}</T>
         <T token="callout" color={c.inkSecondary}>{subtitle}</T>
       </View>
       <View>{children}</View>
@@ -358,7 +358,7 @@ function WeekStep({
   return (
     <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
       <View style={styles.titleBlock}>
-        <T style={styles.h1}>{"What's in a typical week?"}</T>
+        <T token="displaySm" accessibilityRole="header">{"What's in a typical week?"}</T>
         <T token="callout" color={c.inkSecondary}>Tap everything that applies.</T>
       </View>
       <View style={styles.chips}>
@@ -533,7 +533,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
   return (
     <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={styles.titleBlock}>
-        <T style={styles.h1}>Now, your week.</T>
+        <T token="displaySm" accessibilityRole="header">Now, your week.</T>
         <T token="callout" color={c.inkSecondary}>
           Type it, paste it, or drop in a screenshot of your schedule. You check what Semli finds before anything is saved.
         </T>
@@ -627,7 +627,7 @@ function CanvasStep({ onConnected, onInstead }: { onConnected: () => void; onIns
   return (
     <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={styles.titleBlock}>
-        <T style={styles.h1}>Connect Canvas.</T>
+        <T token="displaySm" accessibilityRole="header">Connect Canvas.</T>
         <T token="callout" color={c.inkSecondary}>Paste your calendar feed link once. Semli only reads it, and nothing you do here changes Canvas.</T>
       </View>
       <View>
@@ -748,8 +748,6 @@ const styles = StyleSheet.create({
   center: { flex: 1 },
   page: { flexGrow: 1, gap: 24 },
   titleBlock: { gap: 6 },
-  /** Light 30/36, the question size on every onboarding board. */
-  h1: { fontFamily: "Geist-Light", fontSize: 30, lineHeight: 36, letterSpacing: -0.6 },
   footer: { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
   choice: { flexDirection: "row", alignItems: "center", gap: 14, borderBottomWidth: StyleSheet.hairlineWidth },
   input: { height: 52, borderRadius: 999, paddingHorizontal: 20 },

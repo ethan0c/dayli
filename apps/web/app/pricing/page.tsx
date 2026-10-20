@@ -17,7 +17,8 @@ const ROWS: { label: string; free: string | boolean; plus: string | boolean }[] 
   { label: 'See changes to your work schedule', free: false, plus: true },
   { label: 'Overlap warnings and manual time edits', free: true, plus: true },
   { label: 'Suggested times for overlapping plans', free: false, plus: true },
-  { label: 'Canvas sync', free: false, plus: 'Coming soon' },
+  { label: 'Canvas assignments', free: 'One-time import', plus: 'Kept in sync' },
+  { label: 'Optional account with backup', free: true, plus: true },
   { label: 'Export your data', free: true, plus: true },
 ];
 

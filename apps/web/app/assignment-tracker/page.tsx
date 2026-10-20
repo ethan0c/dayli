@@ -44,7 +44,7 @@ export default function AssignmentTrackerPage() {
       }
       faqs={[
         { q: 'Is the assignment tracker free?', a: 'Yes. The calendar, to-dos, reminders, and repeating classes are free with no time limit. Reading syllabi and screenshots uses AI imports; the free plan includes three a month.' },
-        { q: 'Does it sync with Canvas?', a: 'Not yet. Today you import a screenshot or the syllabus PDF. Direct Canvas sync is on the Plus roadmap.' },
+        { q: 'Does it sync with Canvas?', a: 'Yes. Paste your Canvas calendar feed link once and your assignments come in. With Plus they stay in sync, so a moved due date moves in Semli too. Screenshots of the Canvas to-do list and syllabus PDFs work as well.' },
         { q: 'Can I add an assignment by hand?', a: 'Yes, and it never counts as an import. Tap the plus button and type it.' },
         { q: 'What happens when a due date changes?', a: 'Import the update (a new screenshot or the professor’s message). Semli matches it to the existing assignment and shows you the change instead of creating a duplicate.' },
       ]}

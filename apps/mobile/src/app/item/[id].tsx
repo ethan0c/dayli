@@ -180,7 +180,7 @@ export default function ItemScreen() {
             onChangeText={setTitle}
             onBlur={() => title.trim() && title !== item.title && updateItem(item.id, { title: title.trim() })}
             multiline
-            style={[textStyle('display', c.inkPrimary), { fontSize: 30, lineHeight: 36, padding: 0, minWidth: 0 }]}
+            style={[textStyle('displaySm', c.inkPrimary), { padding: 0, minWidth: 0 }]}
           />
           {item.start ? (
             <Pressable accessibilityRole="button" accessibilityLabel={`Time, ${timeLabel}, tap to change`} accessibilityState={{ expanded: editing === 'time' }}
