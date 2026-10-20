@@ -4,7 +4,7 @@
 Input: design/screenshots/raw/<name>.png, 1320 x 2868 captures from the iPhone 17 Pro Max
 simulator (dev build, light mode, 9:41 status bar; see docs/launch-guide.md, part 2).
 Output: design/screenshots/<nn>-<name>.png at 1320 x 2868, no alpha, ready for the
-6.9-inch slot. Geist SemiBold caption with one ~accent~ word in lavender, Geist Medium subline,
+6.9-inch slot. Geist Bold caption (variable font in design/fonts, tracked -2.5%, line height 1.06) with one ~accent~ word in lavender, Geist Medium subline,
 the site's iPhone frame bleeding off the bottom edge. Each shot names its background: paper, soft
 lavender, or one of the site's photos darkened under a scrim (the autumn campus, the café, the
 Plus fireworks, the golden park), the way Opal, Bevel and Flighty open with a photo poster and
@@ -33,6 +33,8 @@ WORDMARK = ROOT / "apps" / "mobile" / "assets" / "images" / "splash-icon-light.p
 FRAME = ROOT / "apps" / "web" / "public" / "phones" / "iphone-frame.png"  # 944 x 1902, the site's device render
 FRAME_MASK = ROOT / "apps" / "web" / "public" / "phones" / "iphone-screen-mask.png"  # 850 x 1814, screen box at (47, 44)
 PHOTOS = ROOT / "apps" / "web" / "public" / "photos"
+GEIST_VAR = ROOT / "design" / "fonts" / "Geist[wght].ttf"  # variable, for the Bold the app does not ship
+TRACKING = -0.025  # headline letter spacing, as a share of the size; display type reads better tight
 SERIF = ROOT / "design" / "fonts" / "Newsreader[opsz,wght].ttf"  # variable; the app ships only the Regular cut
 MIN_CONTRAST = 3.5  # above WCAG AA for large text (3:1); the captions are 156px semibold
 
@@ -70,8 +72,8 @@ class Layout:
     ink: tuple[int, int, int]
     secondary: tuple[int, int, int]
     title_size: int = 140
-    title_lead: int = 152
-    title_weight: str = "SemiBold"  # captions are always bold and large, in Geist (founder, Oct 20, 2026)
+    title_lead: int = 148  # 1.06 x size, so two lines read as one block
+    title_weight: str = "Bold"  # captions are always bold and large, in Geist (founder, Oct 20, 2026)
     serif: bool = False  # Newsreader was tried Oct 20, 2026 and rejected; kept as an option only
     sub_size: int = 64
     sub_lead: int = 78
@@ -93,7 +95,7 @@ LAYOUTS = {
     "medium": Layout("medium", "left", PAPER, INK, SECONDARY, title_weight="Medium"),
     "bezel": Layout("bezel", "left", PAPER, INK, SECONDARY, frame=False, screen_w=1120),
     # For the 2007 x 2853 foldable canvas: type and phone scaled up so they hold the same share of the width.
-    "wide": Layout("wide", "center", PAPER, INK, SECONDARY, title_size=172, title_lead=188, sub_size=80, sub_lead=98, margin=140, device_top=960, screen_w=1320),
+    "wide": Layout("wide", "center", PAPER, INK, SECONDARY, title_size=172, title_lead=182, sub_size=80, sub_lead=98, margin=140, device_top=960, screen_w=1320),
 }
 
 # Order matters: the first three show in search results. Titles fit two lines at 136px.
@@ -112,7 +114,24 @@ SHOTS: list[tuple[str, str, str, str]] = [
 
 
 def font(size: int, weight: str = "Regular") -> ImageFont.FreeTypeFont:
+    if weight == "Bold":
+        f = ImageFont.truetype(str(GEIST_VAR), size)
+        f.set_variation_by_axes([700])
+        return f
     return ImageFont.truetype(str(FONTS / f"Geist-{weight}.ttf"), size)
+
+
+def tracked_len(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont, tracking: float) -> float:
+    return draw.textlength(text, font=f) + tracking * f.size * max(0, len(text) - 1)
+
+
+def draw_tracked(draw: ImageDraw.ImageDraw, x: float, y: float, text: str, f: ImageFont.FreeTypeFont, fill, tracking: float) -> float:
+    """Draws with letter spacing, keeping the font's kerning: each glyph sits where the kerned
+    prefix ends, plus the tracking so far. Returns the drawn width."""
+    step = tracking * f.size
+    for i, ch in enumerate(text):
+        draw.text((x + draw.textlength(text[:i], font=f) + i * step, y), ch, font=f, fill=fill)
+    return tracked_len(draw, text, f, tracking)
 
 
 def serif(size: int, weight: int = 600) -> ImageFont.FreeTypeFont:
@@ -212,27 +231,26 @@ def plain(text: str) -> str:
     return text.replace("~", "")
 
 
-def rich_block(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont, x0: int, y: int, width: int, lead: int, color, accent, align: str = "left", canvas_w: int | None = None) -> int:
-    """Wraps like `wrap`, then draws word by word so the accent words take the accent color."""
+def rich_block(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont, x0: int, y: int, width: int, lead: int, color, accent, align: str = "left", canvas_w: int | None = None, tracking: float = TRACKING) -> int:
+    """Wraps like `wrap`, then draws word by word, tracked, so the accent words take the accent color."""
     words = rich(text)
     lines: list[list[tuple[str, bool]]] = []
     line: list[tuple[str, bool]] = []
     for w in words:
         trial = " ".join(t for t, _ in line + [w])
-        if draw.textlength(trial, font=f) <= width or not line:
+        if tracked_len(draw, trial, f, tracking) <= width or not line:
             line.append(w)
         else:
             lines.append(line)
             line = [w]
     if line:
         lines.append(line)
-    space = draw.textlength(" ", font=f)
+    space = draw.textlength(" ", font=f) + tracking * f.size
     for ln in lines:
         full = " ".join(t for t, _ in ln)
-        x = x0 if align == "left" else ((canvas_w or W) - draw.textlength(full, font=f)) / 2
+        x = x0 if align == "left" else ((canvas_w or W) - tracked_len(draw, full, f, tracking)) / 2
         for i, (t, acc) in enumerate(ln):
-            draw.text((x, y), t, font=f, fill=accent if acc else color)
-            x += draw.textlength(t, font=f) + (space if i < len(ln) - 1 else 0)
+            x += draw_tracked(draw, x, y, t, f, accent if acc else color, tracking) + (space if i < len(ln) - 1 else 0)
         y += lead
     return y
 
@@ -345,6 +363,11 @@ def render(name: str, title: str, sub: str, bg: str, index: int, L: Layout, out_
     ink_color = ON_PHOTO if photo else L.ink
     secondary = ON_PHOTO_SECONDARY if photo else L.secondary
 
+    accent = DARK_ACCENT if dark else ACCENT
+    if photo:  # before anything is drawn, so the scrim never dims the wordmark or the type
+        img = ensure_contrast(img, (L.margin, L.title_top, W - L.margin, L.device_top), [ink_color, accent, secondary], name)
+        draw = ImageDraw.Draw(img)
+
     y = L.title_top
     if wordmark and WORDMARK.exists():
         mark = Image.open(WORDMARK).convert("RGBA")
@@ -358,9 +381,6 @@ def render(name: str, title: str, sub: str, bg: str, index: int, L: Layout, out_
 
     tf = serif(L.title_size) if L.serif else font(L.title_size, L.title_weight)
     accent = DARK_ACCENT if dark else ACCENT
-    if photo:
-        img = ensure_contrast(img, (L.margin, L.title_top, W - L.margin, L.device_top), [ink_color, accent, secondary], name)
-        draw = ImageDraw.Draw(img)
     y = rich_block(draw, title, tf, L.margin, y, width, L.title_lead, ink_color, accent, L.align)
     y += 30
     sf = font(L.sub_size, L.sub_weight)
@@ -396,7 +416,7 @@ def header_banner(out_dir: Path = HEADER_OUT) -> Path:
     mark = mark.resize((mw, round(mark.height * mw / mark.width)), Image.LANCZOS)
     r, g, b, a = mark.split()
     mark = Image.merge("RGBA", (Image.new("L", mark.size, 255), Image.new("L", mark.size, 255), Image.new("L", mark.size, 255), a))
-    tf = font(120, "SemiBold")
+    tf = font(120, "Bold")
     block = mark.height + 36 + 138
     y = (h - block) // 2
     img = ensure_contrast(img, ((w - 1646) // 2, (h - 661) // 2, (w + 1646) // 2, (h + 661) // 2), [ON_PHOTO, DARK_ACCENT], "header")
@@ -417,15 +437,15 @@ def search_card(out_dir: Path = HEADER_OUT) -> Path:
     img = background("autumn", w, h)
     draw = ImageDraw.Draw(img)
     left, text_w = 300, 1680
-    tf = font(208, "SemiBold")
+    tf = font(208, "Bold")
     lines = wrap(draw, plain(TAGLINE), tf, text_w)
     sf = font(84, "Medium")
     img = ensure_contrast(img, (left, 300, left + text_w, h - 300), [ON_PHOTO, DARK_ACCENT, ON_PHOTO_SECONDARY], "search")
     draw = ImageDraw.Draw(img)
     sub_lines = wrap(draw, SEARCH_SUB, sf, text_w)
-    block = len(lines) * 236 + 48 + len(sub_lines) * 100
+    block = len(lines) * 220 + 48 + len(sub_lines) * 100
     y = (h - block) // 2 - 80
-    y = rich_block(draw, TAGLINE, tf, left, y, text_w, 236, ON_PHOTO, DARK_ACCENT)
+    y = rich_block(draw, TAGLINE, tf, left, y, text_w, 220, ON_PHOTO, DARK_ACCENT)
     y += 48
     for line in sub_lines:
         draw.text((left, y), line, font=sf, fill=ON_PHOTO_SECONDARY)
