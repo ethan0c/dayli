@@ -32,13 +32,14 @@ export function pageMetadata({
 }): Metadata {
   const card = shareTitle ?? (title ? `${title} · ${SITE_NAME}` : HOME_TITLE);
   // Pages without their own card fall back to the site-wide one (a page's openGraph drops the layout's).
-  const images = ownCard ? undefined : [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: HOME_TITLE }];
+  // Leave the key out entirely for ownCard: even `images: undefined` hides the page's file.
+  const image = ownCard ? {} : { images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: HOME_TITLE }] };
   return {
     ...(title ? { title } : {}),
     description,
     alternates: { canonical: path },
-    openGraph: { siteName: SITE_NAME, type: 'website', locale: 'en_US', url: absoluteUrl(path), title: card, description, images },
-    twitter: { card: 'summary_large_image', title: card, description, images },
+    openGraph: { siteName: SITE_NAME, type: 'website', locale: 'en_US', url: absoluteUrl(path), title: card, description, ...image },
+    twitter: { card: 'summary_large_image', title: card, description, ...image },
   };
 }
 
