@@ -604,21 +604,28 @@ textarea {
 }
 .reason {
   display: block;
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   background: var(--row);
-  padding: 18px;
+  padding: var(--space-xl);
   text-decoration: none;
   color: var(--ink-2);
 }
 .reason:hover {
-  background: var(--header);
+  background: var(--surface);
 }
 .reason h3 {
   margin: 0 0 4px;
+  font-size: var(--type-headline-size);
+  line-height: var(--type-headline-line);
+  font-weight: var(--type-headline-weight);
 }
 .prose a.reason {
   color: var(--ink-2);
   text-decoration: none;
+}
+.reason p {
+  font-size: var(--type-callout-size);
+  line-height: var(--type-callout-line);
 }
 
 /* ---------- Landing pages: the three steps ---------- */
@@ -628,30 +635,210 @@ textarea {
   gap: 16px;
 }
 .step {
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   background: var(--row);
-  padding: 20px;
+  padding: var(--space-xl);
   min-width: 0;
 }
 .step h3 {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: var(--type-headline-size);
+  line-height: var(--type-headline-line);
+  font-weight: var(--type-headline-weight);
   margin-bottom: 6px;
 }
 .step p {
   color: var(--ink-2);
-  font-size: 15px;
+  font-size: var(--type-callout-size);
+  line-height: var(--type-callout-line);
 }
 
-/* ---------- Pricing ---------- */
-.student {
+/* ---------- Pricing: the app's photographic Plus paywall ---------- */
+.pricing-page .page-head h1,
+.pricing-page .cmp h2,
+.pricing-page .faq h2 {
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  letter-spacing: var(--type-display-tracking);
+  font-weight: var(--type-display-weight);
+}
+.plans {
+  width: 100%;
+}
+.plan-grid {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+  gap: var(--space-xxxl);
+  align-items: start;
+}
+.plan {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: var(--row);
+  padding: var(--space-xl);
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  max-width: 52ch;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+.plan.featured {
+  padding-top: 160px;
+  background: var(--canvas);
+}
+.plan.featured > :not(.paywall-photo) {
+  position: relative;
+}
+.paywall-photo {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 360px;
+  z-index: -1;
+  pointer-events: none;
+}
+.paywall-photo img {
+  object-fit: cover;
+  object-position: center 28%;
+}
+.paywall-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--canvas) 30%, transparent), var(--canvas));
+}
+.plan-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.plan h2 {
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  font-weight: var(--type-display-weight);
+  letter-spacing: var(--type-display-tracking);
+}
+.plan-label,
+.plan-description {
+  font-size: var(--type-callout-size);
+  line-height: var(--type-callout-line);
+  color: var(--ink-2);
+}
+.plan-plus {
+  color: var(--accent-ink);
+}
+.plan .price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+.plan .amt {
+  font-size: clamp(40px, 12vw, var(--type-display-xl-size));
+  line-height: var(--type-display-xl-line);
+  font-weight: var(--type-display-xl-weight);
+  letter-spacing: var(--type-display-xl-tracking);
+  font-variant-numeric: tabular-nums;
+}
+.plan .per {
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  color: var(--ink-2);
+}
+.plan-caption {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-2);
+}
+.plan ul {
+  list-style: none;
+}
+.plan li {
+  padding-block: 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+.plan li:last-child {
+  border-bottom: 0;
+}
+.plan-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-sm);
+  text-align: center;
+}
+.plan:not(.featured) .btn.ghost {
+  background: var(--canvas);
+}
+.plan-options {
+  min-width: 0;
+  border: 0;
+}
+.plan-option {
+  min-height: 60px;
+  padding-block: var(--space-sm);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--line);
   cursor: pointer;
-  color: var(--ink);
-  font-weight: 500;
+}
+.plan-option input {
+  appearance: none;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--control-outline);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--dur-base), border-color var(--dur-base);
+}
+.plan-option input:checked {
+  border-color: var(--control-fill);
+  background: radial-gradient(circle, var(--control-ink) 0 3.5px, var(--control-fill) 4px);
+}
+.plan-term {
+  flex: 1;
+  min-width: 68px;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+.plan-saving {
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--added-bg);
+  color: var(--added);
+  font-size: var(--type-subhead-size);
+  line-height: var(--type-subhead-line);
+  font-weight: var(--type-subhead-weight);
+}
+.plan-monthly {
+  margin-left: auto;
+  font-size: var(--type-callout-size);
+  line-height: var(--type-callout-line);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+.student {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 64px;
+  padding-block: var(--space-md);
+  cursor: pointer;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-body-weight);
+}
+.student > span:first-child {
+  flex: 1;
+  min-width: 0;
 }
 .student input {
   position: absolute;
@@ -661,169 +848,52 @@ textarea {
 }
 .student .sw {
   flex: none;
-  width: 40px;
-  height: 24px;
-  border-radius: 999px;
+  width: 51px;
+  height: 31px;
+  border-radius: var(--radius-pill);
   background: var(--line);
   position: relative;
-  margin-top: 1px;
-  transition: background var(--dur-fast);
 }
 .student .sw::after {
   content: '';
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
   border-radius: 50%;
-  background: var(--surface);
-  box-shadow: 0 1px 2px rgba(24, 23, 28, 0.2);
-  transition: transform var(--dur-fast);
+  background: #ffffff;
 }
 .student input:checked + .sw {
-  background: var(--ink);
+  background: var(--added);
 }
 .student input:checked + .sw::after {
-  transform: translateX(16px);
+  transform: translateX(20px);
 }
 .student input:focus-visible + .sw {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 .student small {
   display: block;
-  font-size: 13px;
-  font-weight: 400;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
   color: var(--ink-2);
   margin-top: 2px;
 }
-.plans {
+.plan-links {
   display: flex;
-  flex-direction: column;
-  gap: 24px;
+  justify-content: center;
   align-items: center;
-}
-.seg {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(var(--n, 3), 1fr);
-  padding: 4px;
-  border-radius: 999px;
-  background: var(--row);
-}
-.seg-pill {
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: calc((100% - 8px) / var(--n, 3));
-  border-radius: 999px;
-  background: var(--surface);
-  box-shadow: 0 1px 2px rgba(24, 23, 28, 0.08);
-  transform: translateX(calc(var(--i, 0) * 100%));
-  transition: transform var(--dur-slow) var(--ease);
-}
-.seg button {
-  position: relative;
-  border: 0;
-  background: transparent;
-  border-radius: 999px;
-  padding: 8px 18px;
-  font-weight: 500;
-  color: var(--ink-2);
-  cursor: pointer;
-  transition: color var(--dur-base);
-}
-.seg button.on {
-  color: var(--ink);
-}
-.plan .tag {
-  align-self: flex-start;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--accent-ink);
-  background: var(--canvas);
-  border: 1px solid var(--accent-border);
-  border-radius: 999px;
-  padding: 3px 10px;
-  margin-bottom: 4px;
-}
-.plan-grid {
-  width: 100%;
-  max-width: 880px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.plan {
-  border-radius: 24px;
-  border: 1px solid var(--line);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
-}
-.plan.featured {
-  background: var(--accent-soft);
-  border-color: var(--accent-border);
-}
-.plan h3 {
-  font-size: 20px;
-  font-weight: 500;
-}
-.plan .blurb {
-  color: var(--ink-2);
-  margin-top: -8px;
-}
-.plan .price {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-top: 8px;
-}
-.plan .amt {
-  font-size: 44px;
-  font-weight: var(--type-display-xl-weight);
-  letter-spacing: -0.03em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.plan .per {
+  gap: var(--space-sm);
+  font-size: var(--type-caption-size);
   color: var(--ink-2);
 }
-.plan .note {
-  font-size: 14px;
-  color: var(--ink-3);
-  margin-top: -6px;
-}
-.plan ul {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: var(--ink-2);
-  flex: 1;
-  margin: 8px 0;
-}
-.plan li {
-  padding-left: 22px;
-  position: relative;
-}
-.plan li::before {
-  content: '';
-  position: absolute;
-  left: 2px;
-  top: 0.55em;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--lav-500);
-}
-.plan .btn[aria-disabled='true'] {
-  opacity: 0.6;
-  cursor: default;
+.plan-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  text-underline-offset: 4px;
 }
 
 .cmp table {
@@ -852,7 +922,7 @@ textarea {
   color: var(--ink-2);
 }
 .cmp .yes {
-  color: var(--accent-ink);
+  color: var(--added);
   font-weight: 500;
 }
 .cmp .no {
@@ -981,6 +1051,9 @@ textarea {
   .reasons,
   .steps {
     grid-template-columns: 1fr;
+  }
+  .plan-grid {
+    max-width: 440px;
   }
   .try {
     gap: 32px;
@@ -1121,12 +1194,6 @@ textarea {
   transition:
     background var(--dur-base),
     border-color var(--dur-base);
-}
-.plan:hover {
-  border-color: var(--ink-3);
-}
-.plan.featured:hover {
-  border-color: var(--accent);
 }
 
 /* Student toggle */

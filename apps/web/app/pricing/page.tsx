@@ -71,9 +71,9 @@ function Cell({ v }: { v: string | boolean }) {
 
 export default function PricingPage() {
   return (
-    <main className="page">
+    <main className="page pricing-page">
       <header className="page-head">
-        <h1>Start free. Get more room with Plus.</h1>
+        <h1>Start free. Add more with Plus.</h1>
         <p className="lede">
           Keep your week organized for free. Plus adds unlimited imports, Canvas sync, work-schedule comparisons,
           and suggested times for overlapping plans.
