@@ -9,7 +9,15 @@ export const IMPORT_MESSAGES = {
   unsupported: 'Choose a PDF or an image in PNG, JPEG, WebP, or GIF format.',
   file: "We couldn't open this file. Choose it again, or try another PDF or image.",
   empty: "We couldn't find anything to add. Include an event or to-do and when it happens, then try again.",
+  unreadable: "We couldn't read this. Try a clearer image, a different PDF, or type the details instead.",
+  tooMuch: 'There is too much to read at once. Try a shorter message or send a few pages at a time.',
+  incomplete: "We couldn't read this. Try sending it again, or type the details instead.",
 } as const;
+
+/** Even a schema-valid server error must be known product copy before it reaches a screen. */
+export function friendlyImportError(message: string, status: number): string {
+  return (Object.values(IMPORT_MESSAGES) as string[]).includes(message) ? message : importErrorForStatus(status);
+}
 
 export function importErrorForStatus(status: number): string {
   if (status === 400 || status === 422) return IMPORT_MESSAGES.request;

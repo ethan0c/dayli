@@ -5,6 +5,7 @@ import Purchases from 'react-native-purchases';
 
 import { ACCOUNTS_ENABLED, unavailableClient, type AuthClient, type SignInResult } from './auth';
 import { restoreFromCloud } from './cloud';
+import { reportError } from './errors';
 import { supabase } from './supabase';
 import { useStore } from '../store';
 
@@ -15,7 +16,12 @@ const callbackUrl = () => Linking.createURL('auth/callback');
 
 /** Every sign-in ends here: pull the backed-up plan into this phone. */
 async function signedIn(): Promise<SignInResult> {
-  const { restored } = await restoreFromCloud().catch(() => ({ restored: false }));
+  const { restored } = await restoreFromCloud().catch((error: unknown) => {
+    reportError('cloud.restore_after_sign_in', error);
+    const { settings, setSettings } = useStore.getState();
+    setSettings({ cloud: { ...settings.cloud, error: 'You’re signed in, but we couldn’t restore your backup. Check your connection and try again. Your plan on this phone is still here.' } });
+    return { restored: false };
+  });
   return { signedIn: true, restored };
 }
 
@@ -26,7 +32,7 @@ export async function completeAuthFromUrl(url: string): Promise<SignInResult> {
   const errorCode = params.get('error_code');
   if (errorCode) throw { code: errorCode };
   const code = params.get('code');
-  if (!code) throw new Error('No code in the redirect.');
+  if (!code) throw { code: 'oauth_callback_missing' };
   const { error } = await supabase!.auth.exchangeCodeForSession(code);
   if (error) throw error;
   return signedIn();
@@ -38,7 +44,8 @@ const supabaseClient: AuthClient = {
     if (error) {
       // Signed up but never entered the code: send a fresh one and go to the code screen.
       if (error.code !== 'email_not_confirmed') throw error;
-      await supabase!.auth.resend({ type: 'signup', email }).catch(() => {});
+      const { error: resendError } = await supabase!.auth.resend({ type: 'signup', email });
+      if (resendError) throw resendError;
       return { signedIn: false, confirmEmail: true };
     }
     return signedIn();
@@ -96,7 +103,7 @@ const supabaseClient: AuthClient = {
   async signOut() {
     const { error } = await supabase!.auth.signOut({ scope: 'local' });
     if (error) throw error;
-    await Purchases.logOut().catch(() => {});
+    await Purchases.logOut().catch((error: unknown) => reportError('purchases.log_out', error));
     const { settings, setSettings } = useStore.getState();
     setSettings({ cloud: { ...settings.cloud, backedUpAt: null, error: null } });
   },

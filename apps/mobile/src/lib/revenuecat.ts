@@ -1,6 +1,7 @@
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
 import Purchases, { LOG_LEVEL, PURCHASES_ERROR_CODE, type CustomerInfo, type PurchasesOffering, type PurchasesOfferings } from 'react-native-purchases';
+import { reportError } from './errors';
 
 export const PRO_ENTITLEMENT = 'semli_pro';
 
@@ -55,7 +56,10 @@ export function hasSemliPro(info: CustomerInfo | null): boolean {
 }
 
 /** Cancellation is expected; only actionable failures need a message. */
-export function purchaseErrorMessage(error: unknown): string | null {
+export function purchaseErrorMessage(error: unknown, operation = 'purchases'): string | null {
+  const cancelled = error as { code?: unknown; userCancelled?: unknown } | null;
+  if (cancelled?.userCancelled === true || cancelled?.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) return null;
+  reportError(operation, error);
   if (typeof error === 'object' && error !== null) {
     const failure = error as { code?: string; userCancelled?: boolean };
     if (failure.userCancelled || failure.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) return null;

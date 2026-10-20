@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
-import { Extraction, type ExtractContext, type ExtractRequest } from '@dayli/schema';
+import { Extraction, IMPORT_MESSAGES, type ExtractContext, type ExtractRequest } from '@dayli/schema';
 import { prepareImage } from './image';
 
 export const MODEL = 'claude-opus-5-5';
@@ -71,13 +71,13 @@ export async function extract(req: ExtractRequest, client = new Anthropic()): Pr
   });
 
   if (response.stop_reason === 'refusal') {
-    return { ok: false, error: "We couldn't read this. Try a clearer image, a different PDF, or type the details instead." };
+    return { ok: false, error: IMPORT_MESSAGES.unreadable };
   }
   if (response.stop_reason === 'max_tokens') {
-    return { ok: false, error: 'There is too much to read at once. Try a shorter message or send a few pages at a time.' };
+    return { ok: false, error: IMPORT_MESSAGES.tooMuch };
   }
   if (!response.parsed_output) {
-    return { ok: false, error: "We couldn't read this. Try sending it again, or type the details instead." };
+    return { ok: false, error: IMPORT_MESSAGES.incomplete };
   }
   return { ok: true, extraction: response.parsed_output, usage: response.usage };
 }

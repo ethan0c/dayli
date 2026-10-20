@@ -3,6 +3,7 @@ import { useSyncExternalStore } from 'react';
 import { Platform } from 'react-native';
 
 import { planRingingAlarms } from './alarm-plan';
+import { reportError } from './errors';
 import { useStore } from '../store';
 
 type Authorization = 'checking' | 'authorized' | 'denied' | 'notDetermined' | 'unsupported' | 'needs-build';
@@ -37,6 +38,7 @@ export function syncRingingAlarms(): Promise<void> {
       publish({ scheduledIDs, error: null });
     } finally { publish({ syncing: false }); }
   }).catch((error: unknown) => {
+    reportError('alarms.synchronize', error);
     // Never claim a new alarm is armed after a partial native failure.
     publish({ scheduledIDs: [], error: 'We couldn’t update ringing alarms. Try again before relying on this alarm.' });
     throw error;

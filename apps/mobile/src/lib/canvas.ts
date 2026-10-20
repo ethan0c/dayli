@@ -192,6 +192,7 @@ export function syncSummary(p: Pick<CanvasPlan, 'added' | 'moved' | 'dropped' | 
 export const CANVAS_MESSAGES = {
   link: 'That isn’t a Canvas calendar feed link. In Canvas, open Calendar, choose Calendar feed, and copy the link.',
   connection: 'We couldn’t reach Canvas. Your Canvas items are still here; we’ll try again next time you open Semli.',
+  timeout: 'Canvas took too long to respond. Your items are still here. Please try Sync now again in a moment.',
   rejected: 'Canvas didn’t accept that link. It may have been reset; copy a fresh one from Calendar feed.',
   format: 'Canvas sent something we couldn’t read. Your Canvas items are still here.',
   web: 'Canvas sync works in the iPhone app.',
@@ -203,13 +204,19 @@ export async function fetchCanvasFeed(url: string, timeoutMs = 20_000): Promise<
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url, { signal: controller.signal, headers: { accept: 'text/calendar' } });
-    if (res.status === 401 || res.status === 403 || res.status === 404) return { ok: false, error: CANVAS_MESSAGES.rejected };
-    if (!res.ok) return { ok: false, error: CANVAS_MESSAGES.connection };
+    if (!res.ok) {
+      reportError('canvas.fetch', { code: 'http_error', status: res.status });
+      return { ok: false, error: [401, 403, 404].includes(res.status) ? CANVAS_MESSAGES.rejected : CANVAS_MESSAGES.connection };
+    }
     const text = await res.text();
-    if (!text.includes('BEGIN:VCALENDAR')) return { ok: false, error: CANVAS_MESSAGES.format };
+    if (!text.includes('BEGIN:VCALENDAR')) {
+      reportError('canvas.parse', { code: 'invalid_calendar', message: 'Feed response did not contain VCALENDAR' });
+      return { ok: false, error: CANVAS_MESSAGES.format };
+    }
     return { ok: true, entries: canvasEntries(parseIcs(text)) };
-  } catch {
-    return { ok: false, error: CANVAS_MESSAGES.connection };
+  } catch (error) {
+    reportError('canvas.fetch_or_parse', error);
+    return { ok: false, error: controller.signal.aborted ? CANVAS_MESSAGES.timeout : CANVAS_MESSAGES.connection };
   } finally {
     clearTimeout(timer);
   }

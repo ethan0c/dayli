@@ -1,4 +1,5 @@
 import { Linking } from 'react-native';
+import { reportError } from './errors';
 
 /** Outbound links from the app. Keep these in step with apps/web/lib/site.ts. */
 export const SITE_URL = 'https://semli.app';
@@ -16,7 +17,8 @@ export async function openLink(url: string): Promise<boolean> {
   try {
     await Linking.openURL(url);
     return true;
-  } catch {
+  } catch (error) {
+    reportError('links.open', error);
     return false;
   }
 }
@@ -26,7 +28,8 @@ export async function openSystemSettings(): Promise<boolean> {
   try {
     await Linking.openSettings();
     return true;
-  } catch {
+  } catch (error) {
+    reportError('settings.open', error);
     return false;
   }
 }

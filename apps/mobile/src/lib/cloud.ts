@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { mergeSnapshot, snapshotOf, type Snapshot } from './cloud-snapshot';
+import { reportError } from './errors';
 import { supabase, useSession } from './supabase';
 import { useStore } from '../store';
 
@@ -55,7 +56,8 @@ export function CloudBackup() {
       if (!s.hydrated || (s.items === prev.items && s.courses === prev.courses && s.schedules === prev.schedules && s.taskWorkDates === prev.taskWorkDates && s.settings === prev.settings)) return;
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => {
-        void saveToCloud().catch(() => {
+        void saveToCloud().catch((error: unknown) => {
+          reportError('cloud.backup', error);
           const { settings, setSettings } = useStore.getState();
           // Setting the same message twice would schedule another save; set it once.
           if (settings.cloud.error !== BACKUP_FAILED) setSettings({ cloud: { ...settings.cloud, error: BACKUP_FAILED } });

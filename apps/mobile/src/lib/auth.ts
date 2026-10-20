@@ -1,3 +1,5 @@
+import { reportError } from './errors';
+
 export type AuthMode = 'login' | 'signup' | 'forgot-password';
 export type AuthFields = { name?: string; email: string; password: string };
 export type AuthFieldErrors = Partial<Record<keyof AuthFields, string>>;
@@ -63,16 +65,27 @@ const MESSAGES: Record<string, string> = {
   invalid_credentials: 'That email and password don’t match. Try again or reset your password.',
   user_already_exists: 'There’s already an account with that email. Log in instead.',
   email_exists: 'There’s already an account with that email. Log in instead.',
-  email_not_confirmed: 'Confirm your email first. We sent you a new code.',
+  email_not_confirmed: 'Confirm your email first. Open the code screen to request a new code.',
   weak_password: 'Choose a longer password, at least 8 characters.',
   same_password: 'Choose a password you haven’t used here before.',
   over_email_send_rate_limit: 'Too many emails in a row. Wait a minute and try again.',
   over_request_rate_limit: 'Too many tries in a row. Wait a minute and try again.',
   otp_expired: 'That code is wrong or has expired. Check the latest email, or send a new code.',
   flow_state_expired: 'That sign-in took too long. Please try again.',
+  otp_disabled: 'Email codes aren’t available right now. Please try again later.',
+  session_not_found: 'Your session has ended. Please log in again.',
+  refresh_token_not_found: 'Your session has ended. Please log in again.',
+  refresh_token_already_used: 'Your session has ended. Please log in again.',
+  user_banned: 'This account can’t sign in. Contact hello@semli.app for help.',
+  signup_disabled: 'New accounts aren’t available right now. You can keep using Semli as a guest.',
+  email_provider_disabled: 'Email sign-in isn’t available right now. Try Google, or continue as a guest.',
+  provider_disabled: 'Google sign-in isn’t available right now. Try email, or continue as a guest.',
+  access_denied: 'Sign-in wasn’t allowed. Please try again or choose another sign-in method.',
+  oauth_callback_missing: 'Sign-in didn’t finish. Please start again.',
 };
 
-export function authErrorMessage(error: unknown): string {
+export function authErrorMessage(error: unknown, operation = 'auth'): string {
+  reportError(operation, error);
   if (error instanceof AuthUnavailableError) return error.message;
   const code = typeof error === 'object' && error !== null ? (error as { code?: unknown }).code : undefined;
   return (typeof code === 'string' && MESSAGES[code]) || 'We couldn’t connect. Please try again.';

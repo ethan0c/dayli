@@ -6,3 +6,4 @@ export * from './plan';
 export * from './today';
 export * from './rescheduling';
 export * from './sharing';
+export * from './errors';
