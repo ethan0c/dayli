@@ -48,7 +48,7 @@ export default function Home() {
     <main className={`page ${styles.home}`}>
       <section className={styles.hero} aria-labelledby="home-title">
         <div className={styles.heroPhoto} aria-hidden>
-          <Image src="/photos/hero-golden.jpg" alt="" fill priority sizes="100vw" />
+          <Image src="/photos/hero-autumn.jpg" alt="" fill priority sizes="100vw" />
         </div>
         <div className={styles.heroCopy}>
           <p className="eyebrow">The daily planner for college students</p>

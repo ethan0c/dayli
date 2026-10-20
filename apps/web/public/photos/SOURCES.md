@@ -4,7 +4,8 @@ The five editorial photos are Unsplash photos under the [Unsplash License](https
 
 | File | Used on | Photographer | Source |
 |---|---|---|---|
-| hero-golden.jpg | Home hero, golden light behind the headline | Vadim Fomenok | https://unsplash.com/photos/JhLASVqq1Jg |
+| hero-autumn.jpg | Home hero, the autumn campus behind the headline and the phone (2,721 × 2,133, downloaded Oct 20, 2026) | Austin | https://unsplash.com/photos/8wL0dsEsf_g |
+| hero-golden.jpg | Unused since Oct 20 (replaced in the hero by hero-autumn.jpg) | Vadim Fomenok | https://unsplash.com/photos/JhLASVqq1Jg |
 | library.jpg | Unused since Oct 20 (the proof section is on paper now) | Johan Mouchet | https://unsplash.com/photos/PjpRF0LhBB8 |
 | cafe-shift.jpg | Home "Your work schedule, updated" (dark band) | Long Chung | https://unsplash.com/photos/barista-working-behind-a-coffee-counter-H7PLuaYW6UQ |
 | campus.jpg | Home beta card, in purple monochrome under the copy | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |

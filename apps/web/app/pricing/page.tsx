@@ -74,7 +74,7 @@ export default function PricingPage() {
   return (
     <main className="page pricing-page">
       <header className="page-head">
-        <h1>Start free. Add more with Plus.</h1>
+        <h1 className="serif">Start free. Add more with Plus.</h1>
         <p className="lede">
           Keep your week organized for free. Plus adds unlimited imports, Canvas sync, work-schedule comparisons,
           suggested times for overlapping plans, and urgent items that ring like an alarm.

@@ -696,14 +696,28 @@ textarea {
   line-height: var(--type-callout-line);
 }
 
-/* ---------- Pricing: the app's photographic Plus paywall ---------- */
-.pricing-page .page-head h1,
+/* ---------- Pricing: the app's photographic Plus paywall, centered like the home page ---------- */
+.pricing-page .page-head {
+  max-width: 680px;
+  margin-inline: auto;
+  text-align: center;
+}
+.pricing-page .page-head h1 {
+  font-size: clamp(42px, 5.6vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+}
+.pricing-page .page-head .lede {
+  margin-inline: auto;
+  max-width: 52ch;
+}
 .pricing-page .cmp h2,
 .pricing-page .faq h2 {
   font-size: var(--type-display-size);
   line-height: var(--type-display-line);
   letter-spacing: var(--type-display-tracking);
   font-weight: var(--type-display-weight);
+  text-align: center;
 }
 .plans {
   width: 100%;
@@ -711,9 +725,10 @@ textarea {
 .plan-grid {
   width: 100%;
   max-width: 960px;
+  margin-inline: auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
-  gap: var(--space-xxxl);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
   align-items: start;
 }
 .plan {
@@ -721,13 +736,26 @@ textarea {
   isolation: isolate;
   overflow: hidden;
   color: var(--ink);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-sheet);
   background: var(--row);
-  padding: var(--space-xl);
+  padding: 32px;
   display: flex;
   flex-direction: column;
   gap: 28px;
   min-width: 0;
+}
+.pricing-page .cmp {
+  width: 100%;
+  max-width: 880px;
+  margin-inline: auto;
+}
+.pricing-page .faq {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+}
+.pricing-page .faq-list {
+  max-width: none;
 }
 .plan.featured {
   padding-top: 160px;
