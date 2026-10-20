@@ -1,0 +1,22 @@
+Subject: An update on that student planner survey
+
+Hi {{{FIRST_NAME|there}}},
+
+Earlier this year, you answered my survey about classes and work. I built Semli with your feedback, and it's ready to try.
+
+Add a syllabus or screenshot of your shifts, check the dates Semli finds, and save them to one calendar.
+
+Try Semli on iPhone: https://testflight.apple.com/join/vG3RD6EJ
+
+Install Apple's free TestFlight app if prompted, then reopen this invite.
+
+If a date's wrong or something's confusing, just reply here. I'd like to hear about it.
+
+Thanks again,
+Semli
+
+--
+You shared your email in the student planning survey.
+441 Country Club Road, York, PA 17403-3651, USA
+Contact Semli: hello@semli.app
+Unsubscribe: {{{RESEND_UNSUBSCRIBE_URL}}}

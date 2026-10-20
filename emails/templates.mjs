@@ -1,0 +1,141 @@
+/**
+ * Every marketing email, as data. `npm run email build` renders them through layout.mjs into
+ * docs/emails; `npm run email send <name>` turns one into a Resend broadcast to its segment.
+ *
+ * Rules: under 80 words between the greeting and the sign-off, one action at most, no
+ * re-explaining the product in every email, sentence case, the founder's voice signed Semli.
+ * One ~accent word~ per heading, the only purple besides the wordmark dot and links.
+ */
+
+export const SURVEY_TESTFLIGHT = 'https://testflight.apple.com/join/vG3RD6EJ';
+/** Logs the click in Supabase and forwards to the public Beta TestFlight link. */
+export const BETA_LINK = 'https://semli.app/beta?r=email-waitlist';
+export const APP_STORE_URL = 'https://apps.apple.com/us/app/semli-ai-student-planner/id6824600264';
+
+/**
+ * Groups in Resend. Contacts are account-level; a segment is a group a contact belongs to,
+ * and one contact can sit in several, so nobody gets two copies of a broadcast to one segment.
+ *
+ *   Survey    the spring 2026 survey respondents (waitlist rows with ref = 'survey')
+ *   Waitlist  people who signed up on semli.app (every other ref)
+ *   Testers   people confirmed to have installed the beta; added by hand with `email add testers`
+ *   Updates   everyone above who has not unsubscribed; the launch and semester emails go here
+ */
+export const segments = {
+  survey: 'Survey',
+  waitlist: 'Waitlist',
+  testers: 'Testers',
+  updates: 'Updates',
+};
+
+const HI = 'Hi {{{FIRST_NAME|there}}},';
+
+export const emails = {
+  'survey-invite': {
+    segment: 'survey',
+    plan: 'Nov 3, 2026, once the Survey TestFlight link accepts testers',
+    subject: 'An update on that student planner survey',
+    preheader: 'The app you helped shape is ready to try on iPhone.',
+    heading: 'Your Semli ~invite~.',
+    greeting: HI,
+    before: [
+      "Earlier this year, you answered my survey about classes and work. I built Semli with your feedback, and it's ready to try.",
+      'Add a syllabus or screenshot of your shifts, check the dates Semli finds, and save them to one calendar.',
+    ],
+    action: { label: 'Try Semli on iPhone', url: SURVEY_TESTFLIGHT, note: "Install Apple's free TestFlight app if prompted, then reopen this invite." },
+    after: ["If a date's wrong or something's confusing, just reply here. I'd like to hear about it."],
+    signoff: 'Thanks again,',
+    reason: 'You shared your email in the student planning survey.',
+    unsubscribe: true,
+  },
+
+  'public-beta-invite': {
+    segment: 'waitlist',
+    plan: 'When the public Beta group has room and TESTFLIGHT_URL is set on Vercel',
+    subject: 'Your Semli beta invite is here',
+    preheader: 'Try it with your own classes and work schedule.',
+    heading: 'Your ~invite~ is here.',
+    greeting: HI,
+    before: [
+      'You joined the waitlist, and the iPhone beta is ready. Thanks for waiting.',
+      'Add a syllabus, screenshot of your shifts, or class message. Check the dates Semli finds before saving them to your calendar.',
+    ],
+    action: { label: 'Try Semli on iPhone', url: BETA_LINK, note: "Install Apple's free TestFlight app if prompted, then reopen this invite. Beta capped at 200 testers." },
+    after: ["If something's wrong or confusing, just reply here. I read every reply."],
+    signoff: 'Thanks for giving it a try,',
+    reason: 'You joined the Semli beta waitlist.',
+    unsubscribe: true,
+  },
+
+  'tester-check-in': {
+    segment: 'testers',
+    plan: 'Three to five days after someone installs; add them to Testers first',
+    subject: 'Had a chance to try Semli?',
+    preheader: 'Were the dates right? Was anything confusing?',
+    heading: "How's Semli ~working~ for you?",
+    greeting: HI,
+    before: [
+      "Thanks for trying the beta. If you've had a chance to add a schedule, I've got two questions:",
+      'Did the dates come out right?',
+      'Was anything confusing or hard to find?',
+    ],
+    after: ['Just reply here. A sentence is plenty, even if you only opened it once.'],
+    signoff: 'Thanks for your help,',
+    reason: "You're receiving this because you're testing the Semli beta.",
+    unsubscribe: true,
+  },
+
+  'app-store-launch': {
+    segment: 'updates',
+    plan: 'Jan 5, 2027, after the listing is public',
+    subject: 'Semli is on the App Store',
+    preheader: 'Your classes, shifts, and deadlines in one plan.',
+    heading: 'Semli is on the ~App Store~.',
+    greeting: HI,
+    before: [
+      'Thanks for following along. Semli is now available for iPhone.',
+      'Bring your syllabi, work schedule and class messages into one plan. Calendar, to-dos, reminders and three imports a month are free.',
+    ],
+    action: { label: 'Get Semli on iPhone', url: APP_STORE_URL },
+    after: ["If you tried the beta, thank you for helping me get here. I'd love to hear how Semli fits into your week. Just reply here."],
+    signoff: 'Thanks,',
+    reason: 'You asked to hear when Semli launched.',
+    unsubscribe: true,
+  },
+
+  'semester-reminder': {
+    segment: 'updates',
+    plan: 'Around the recipient’s semester start, after public release; Jan 11, 2027 for the campus campaign',
+    subject: 'Got your new syllabus yet?',
+    preheader: 'Start with one syllabus or a week of shifts.',
+    heading: 'New semester, ~one plan~.',
+    greeting: HI,
+    before: [
+      "If you're getting ready for a new semester, put your class dates and work shifts in one place.",
+      'Add one syllabus or a week of shifts. Check the dates, save them, and add the rest as you get them.',
+    ],
+    action: { label: 'Get Semli on iPhone', url: APP_STORE_URL, note: 'Already have Semli? Open the app and tap Add.' },
+    after: ["If an import doesn't look right, reply and tell me what happened."],
+    signoff: 'Hope the semester starts well,',
+    reason: 'You signed up for Semli updates.',
+    unsubscribe: true,
+  },
+};
+
+/**
+ * The one-to-one reply. Not a broadcast: `email send feedback --to a@b.edu --name Ana
+ * --about "the overlap warning" --reply "..."` fills it and sends it through the Emails API.
+ */
+export function feedbackThankYou({ name, about, reply }) {
+  return {
+    subject: 'Thanks for the Semli feedback',
+    preheader: 'Thanks for taking the time to write.',
+    heading: 'Thanks for ~letting me know~.',
+    greeting: `Hi ${name || 'there'},`,
+    before: [`Thanks for telling me about ${about}.`, reply],
+    after: ["If there's anything else you'd like me to know, just reply here."],
+    signoff: 'Thanks again,',
+    reason: "You're receiving this reply because you sent feedback about Semli.",
+    unsubscribe: false,
+  };
+}

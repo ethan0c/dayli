@@ -12,7 +12,8 @@
     "eval:typecheck": "tsc --noEmit -p evals/tsconfig.json",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "dev:web": "npm run dev --workspace web",
-    "dev:mobile": "npm run start --workspace mobile"
+    "dev:mobile": "npm run start --workspace mobile",
+    "email": "node emails/cli.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.0",

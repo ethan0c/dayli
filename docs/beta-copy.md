@@ -18,19 +18,7 @@ These people did not sign up on the site; they were added from the survey. So do
 
 **Subject:** An update on that student planner survey
 
-> Hi,
->
-> Earlier this year, you filled out my survey about keeping track of classes and work. Thanks again for doing that.
->
-> I've been working on an app called Semli since then, and it's ready for you to try. You can add a syllabus PDF or a screenshot of your work schedule, check the dates it picks up, and save them to one calendar.
->
-> I set up a separate testing group for everyone who answered the survey. Here's your iPhone invite:
->
-> https://testflight.apple.com/join/vG3RD6EJ
->
-> It's free to test through TestFlight. If you give it a try, let me know what works and what doesn't. You can reply right here, especially if it gets a date wrong or something feels confusing.
->
-> Your answers helped me figure out what to build. I'd love to hear what you think of it.
+Use the current [HTML](emails/survey-invite.html) or [plain-text draft](emails/survey-invite.txt). Copy lives in `emails/templates.mjs` and the shared layout in `emails/layout.mjs`; run `npm run email build` after editing them so both versions stay aligned.
 
 ### Send it in Resend
 
@@ -38,7 +26,7 @@ Status, Oct 20, 2026: sender-domain setup and the Survey contact import are comp
 
 1. Create a Broadcast in Resend. Select the **Survey** segment and confirm the recipient count matches the imported list, allowing for unsubscribed or suppressed contacts. Leave public Beta contacts out of this campaign.
 2. Use **Semli** as the sender name and your already verified sending address. Set Reply-To to `hello@semli.app` after confirming replies reach an inbox you monitor. Subject: **An update on that student planner survey**.
-3. Open the editor's HTML code view and paste the complete contents of [survey-invite.html](emails/survey-invite.html). Per your preference, it contains no pictures: Semli is a text wordmark, with a cream `#FAF9F6` background, purple `#7057BD` HTML button, and email-safe font fallbacks. No image downloads or external fonts are needed. Keep the `{{{RESEND_UNSUBSCRIBE_URL}}}` token so Resend generates each recipient's unsubscribe link. Include your sender's postal address in the footer using Resend's editor; the local template does not contain one.
+3. Open the editor's HTML code view and paste the complete contents of [survey-invite.html](emails/survey-invite.html). Per your preference, it contains no pictures: `semli.` is a text wordmark, with a cream `#FAF9F6` background, ink `#222320` HTML button, and purple `#7057BD` wordmark dot and links. Fonts fall back to the email client's system fonts; there are no external font downloads. Keep `{{{FIRST_NAME|there}}}` for the greeting and `{{{RESEND_UNSUBSCRIBE_URL}}}` for each recipient's unsubscribe link. Replace `[SENDER_POSTAL_ADDRESS]` with the sender address, or set `EMAIL_POSTAL_ADDRESS` when building the templates.
 4. Send previews to your own test inboxes. Check the text branding, narrow-screen layout, Survey invite, and Reply-To. The unsubscribe token resolves through Resend, not in a local browser preview. Keep open and click tracking off for this initial send; open tracking would insert a hidden image even though the template has none. Confirm the campaign's sending domain has tracking off without changing account-email settings.
 5. Once the Survey invite installs the build and the previews look right, review the recipient segment and send or schedule the Broadcast. Review delivery failures afterward. Send the gift-card winner their claim code separately using [survey-follow-up.txt](emails/survey-follow-up.txt).
 
@@ -59,23 +47,22 @@ Use these absolute HTTPS URLs if adding icons to a future email. The existing Su
 
 ### Other email templates
 
-All five drafts use the same image-free Semli layout as the Survey invitation. Each has a standalone HTML version for Resend's code editor and a plain-text version. The first line of each `.txt` file is the subject; paste the remaining text into the message body if using that version. These are prepared files, not scheduled emails or automated flows.
+All marketing emails live as data in `emails/templates.mjs` and render through the one layout in `emails/layout.mjs` (ink pill button, lowercase `semli.` wordmark with the accent dot, Geist if installed and system fonts otherwise, under 80 words each). `npm run email build` writes the HTML and text versions locally without sending; `npm run email preview` opens all of them side by side. Edit the `.mjs`, never the generated files. The greeting uses [Resend's documented first-name fallback](https://resend.com/blog/broadcast-api), `{{{FIRST_NAME|there}}}`.
 
-| Template | Files | Subject | Audience and timing |
+| Email | To | Subject | When |
 | --- | --- | --- | --- |
-| Public beta invitation | [HTML](emails/public-beta-invite.html) · [Text](emails/public-beta-invite.txt) | Your Semli beta invite is here | Website waitlist only, excluding Survey recipients. Send once the public Beta invite installs the approved build and that group has room. Uses the separate 200-person Beta link. |
-| Tester check-in | [HTML](emails/tester-check-in.html) · [Text](emails/tester-check-in.txt) | How did your first Semli import go? | People confirmed to have started testing, from either group, about 3–5 days after they start. Send once; don't treat the full waitlist as installed testers. |
-| Feedback thank-you | [HTML](emails/feedback-thank-you.html) · [Text](emails/feedback-thank-you.txt) | Thanks for the Semli feedback | A personal reply to the person who sent feedback. Send after reading their message, using your monitored inbox or a one-to-one email send. |
-| App Store launch | [HTML](emails/app-store-launch.html) · [Text](emails/app-store-launch.txt) | Semli is now on the App Store | People subscribed to launch updates. Hold until the App Store listing is public and the download works in the intended regions. |
-| Semester reminder | [HTML](emails/semester-reminder.html) · [Text](emails/semester-reminder.txt) | Got your new syllabus yet? | People subscribed to ongoing updates, near their semester start. This version uses the public App Store link, so send only after release. |
+| `survey-invite` | Survey | An update on that student planner survey | Nov 3, once the Survey TestFlight link accepts testers |
+| `public-beta-invite` | Waitlist | Your Semli beta invite is here | When the Beta group has room; link is `semli.app/beta?r=email-waitlist` so clicks are logged |
+| `tester-check-in` | Testers | Had a chance to try Semli? | 3 to 5 days after someone installs; `npm run email add testers a@b.edu` first |
+| `app-store-launch` | Updates | Semli is on the App Store | Jan 5, 2027, after the listing is public |
+| `semester-reminder` | Updates | Got your new syllabus yet? | Around the recipient's semester start, after release; Jan 11, 2027 for the campus campaign |
+| `feedback-thank-you` | one person | Thanks for the Semli feedback | `npm run email send feedback --to … --name … --about "…" --reply "…"` |
 
-Use Resend Broadcasts for the public invite, tester check-in, launch, and semester reminder. Select the relevant segment each time and preserve unsubscribe and suppression status. Survey participation alone does not mean someone asked for ongoing updates. Deduplicate overlapping segments rather than sending two copies to the same person. Keep the same verified sender, monitored Reply-To, and tracking-off settings described above.
+Groups are Resend segments. Contacts are account-level, so one person sits in several groups and still gets one copy per broadcast. Survey = waitlist rows with `ref = 'survey'`; Waitlist = every other row; Testers = confirmed installs, by hand; Updates = everyone, which is what the launch and semester emails go to. `npm run email sync` reads the Supabase `waitlist` table through the CLI (`npx supabase login` first) and creates or refreshes the contacts and their groups. It never re-subscribes anyone.
 
-Before sending a Broadcast, replace `[SENDER_POSTAL_ADDRESS]` with the real sender address in its footer. Keep `{{{RESEND_UNSUBSCRIBE_URL}}}` intact for Resend to resolve. If copying the plain-text version into another mail tool, replace that token with the actual recipient-specific unsubscribe link; it is a Resend Broadcast token, not a working URL by itself.
+Before sending launch or semester emails, check the Updates recipients against the updates they actually requested. The current sync adds every imported row to Updates, including Survey respondents; it does not check a separate ongoing-updates opt-in. The footer wording assumes that the recipients asked for those messages, so that audience still needs review before either campaign is sent.
 
-For the feedback thank-you, replace `[FEEDBACK_SUMMARY]` with a short description of their feedback and `[PERSONAL_REPLY]` with your actual response. For example: "I can see how that would be confusing. Could you tell me which screen you were on when it happened?" If something is fixed, explain the real change and build number; otherwise, don't promise a fix or a deadline. Reply in the original thread when possible. This one-to-one reply has no Broadcast unsubscribe token and should not be sent as a campaign.
-
-The launch and semester drafts use the App Store URL already configured in `apps/web/lib/site.ts`; they do not claim the listing is live today. Check the free-plan wording again before the launch send. For each draft, preview the HTML in your own inboxes and verify its links and any edited fields before sending.
+Sending: `npm run email status` shows every group's count and every email's last broadcast. `npm run email send <name>` creates a draft broadcast in Resend to proof; `--yes` sends and `--yes --at 2027-01-05T13:00:00Z` schedules. `npm run email send all` drafts all five at once. Needs a full-access Resend key in the repo-root `.env` and `EMAIL_POSTAL_ADDRESS` set for the footer. Keep open and click tracking off on the sending domain.
 
 ## 2. Reddit founder post (one per subreddit, ever; Tuesday evening)
 

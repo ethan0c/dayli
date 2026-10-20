@@ -1,24 +1,20 @@
-Subject: Semli is now on the App Store
+Subject: Semli is on the App Store
 
-Hi,
+Hi {{{FIRST_NAME|there}}},
 
-Semli is now on the App Store. Thanks for following along while I've been building it.
+Thanks for following along. Semli is now available for iPhone.
 
-You can bring dates from your syllabi, work schedules, and messages into one plan. Check what Semli finds before saving, then see your classes, shifts, and deadlines together.
+Bring your syllabi, work schedule and class messages into one plan. Calendar, to-dos, reminders and three imports a month are free.
 
-You can get started for free, with a calendar, to-dos, reminders, and three imports a month. Plus is there if you need more.
+Get Semli on iPhone: https://apps.apple.com/us/app/semli-ai-student-planner/id6824600264
 
-Get Semli on iPhone
-https://apps.apple.com/us/app/semli-ai-student-planner/id6824600264
-
-If you try it, I'd like to hear how it fits into your week. You can reply to this email with questions or feedback.
-
-And if you helped test the beta, thank you. Your feedback helped me get it this far.
+If you tried the beta, thank you for helping me get here. I'd love to hear how Semli fits into your week. Just reply here.
 
 Thanks,
 Semli
 
-You're receiving this because you asked to hear about Semli's launch.
-[SENDER_POSTAL_ADDRESS]
+--
+You asked to hear when Semli launched.
+441 Country Club Road, York, PA 17403-3651, USA
 Contact Semli: hello@semli.app
 Unsubscribe: {{{RESEND_UNSUBSCRIBE_URL}}}

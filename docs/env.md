@@ -38,7 +38,8 @@ Sentry token is.
 | Variable | What it does |
 | --- | --- |
 | `DATABASE_PASSWORD` | `supabase db push` |
-| `RESEND_API_KEY` | SMTP password under Authentication, Emails in the Supabase dashboard |
+| `RESEND_API_KEY` | `npm run email` (status, sync, broadcasts). Needs a full-access key; the send-only key pasted into Supabase SMTP cannot list segments or create broadcasts |
+| `EMAIL_POSTAL_ADDRESS` | Sender's postal address in every marketing email footer |
 | `REVIEW_EMAIL`, `REVIEW_PASSWORD` | App Store review account, pasted into App Store Connect Sign-in Information |
 
 Last reorganized Oct 20, 2026.
