@@ -38,6 +38,7 @@ export interface AuthClient {
   signIn: (fields: AuthFields) => Promise<SignInResult>;
   signUp: (fields: AuthFields) => Promise<SignInResult>;
   signInWithGoogle: () => Promise<SignInResult | null>;
+  signInWithApple: () => Promise<SignInResult | null>;
   /** Sends a code by email; verifyCode with 'recovery' signs in so updatePassword can run. */
   resetPassword: (email: string) => Promise<void>;
   verifyCode: (email: string, code: string, purpose: CodePurpose) => Promise<SignInResult>;
@@ -52,6 +53,7 @@ export const unavailableClient: AuthClient = {
   signIn: () => unavailable('Email login'),
   signUp: () => unavailable('Account creation'),
   signInWithGoogle: () => unavailable('Google sign-in'),
+  signInWithApple: () => unavailable('Apple sign-in'),
   resetPassword: () => unavailable('Password reset'),
   verifyCode: () => unavailable('Email codes'),
   resendCode: () => unavailable('Email codes'),
@@ -79,7 +81,8 @@ const MESSAGES: Record<string, string> = {
   user_banned: 'This account can’t sign in. Contact hello@semli.app for help.',
   signup_disabled: 'New accounts aren’t available right now. You can keep using Semli as a guest.',
   email_provider_disabled: 'Email sign-in isn’t available right now. Try Google, or continue as a guest.',
-  provider_disabled: 'Google sign-in isn’t available right now. Try email, or continue as a guest.',
+  provider_disabled: 'This sign-in method isn’t available right now. Try email, or continue as a guest.',
+  apple_identity_token_missing: 'Apple sign-in didn’t finish. Please try again, or use email.',
   access_denied: 'Sign-in wasn’t allowed. Please try again or choose another sign-in method.',
   oauth_callback_missing: 'Sign-in didn’t finish. Please start again.',
 };
@@ -93,8 +96,9 @@ export function authErrorMessage(error: unknown, operation = 'auth'): string {
     : operation === 'auth.reset_password' ? 'We couldn’t save your new password. Please try again.'
     : operation === 'auth.verify_code' ? 'We couldn’t check that code. Check your connection and try again.'
     : operation === 'auth.resend_code' || operation.startsWith('auth.forgot-password') ? 'We couldn’t send a code. Check your connection and try again.'
-    : operation.startsWith('auth.signup') ? 'We couldn’t create your account. Check your connection and try again.'
+    : operation.includes('apple') ? 'Apple sign-in didn’t finish. Try again, or log in with email.'
     : operation.includes('google') ? 'Google sign-in didn’t finish. Try again, or log in with email.'
+    : operation.startsWith('auth.signup') ? 'We couldn’t create your account. Check your connection and try again.'
     : operation.startsWith('auth.login') ? 'We couldn’t log you in. Check your connection and try again.'
     : 'We couldn’t connect. Please try again.';
   return (typeof code === 'string' && MESSAGES[code]) || fallback;

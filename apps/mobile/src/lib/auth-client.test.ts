@@ -25,6 +25,7 @@ function fakeStore<S extends Record<string, unknown>>(initial: () => S) {
 const mocks = vi.hoisted(() => {
   const auth = {
     signInWithPassword: vi.fn(), signUp: vi.fn(), signInWithOAuth: vi.fn(), exchangeCodeForSession: vi.fn(),
+    signInWithIdToken: vi.fn(),
     resetPasswordForEmail: vi.fn(), verifyOtp: vi.fn(), resend: vi.fn(), updateUser: vi.fn(), signOut: vi.fn(), getSession: vi.fn(),
   };
   const table = { maybeSingle: vi.fn(), upsert: vi.fn() };
@@ -34,6 +35,9 @@ const mocks = vi.hoisted(() => {
     router: { dismissTo: vi.fn(), replace: vi.fn(), push: vi.fn() },
     browser: { maybeCompleteAuthSession: vi.fn(), openAuthSessionAsync: vi.fn() },
     purchases: { logOut: vi.fn() },
+    apple: { signInAsync: vi.fn(), AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 } },
+    crypto: { randomUUID: vi.fn(), digestStringAsync: vi.fn(), CryptoDigestAlgorithm: { SHA256: 'SHA-256' } },
+    platform: { OS: 'ios' },
     store: null as unknown as ReturnType<typeof fakeStore>,
     session: null as unknown as ReturnType<typeof fakeStore>,
   };
@@ -42,6 +46,9 @@ const mocks = vi.hoisted(() => {
 vi.mock('expo-linking', () => ({ createURL: (path: string) => `semli://${path}` }));
 vi.mock('expo-router', () => ({ router: mocks.router }));
 vi.mock('expo-web-browser', () => mocks.browser);
+vi.mock('expo-apple-authentication', () => mocks.apple);
+vi.mock('expo-crypto', () => mocks.crypto);
+vi.mock('react-native', () => ({ Platform: mocks.platform }));
 vi.mock('react-native-purchases', () => ({ default: mocks.purchases }));
 vi.mock('./supabase', () => ({
   supabase: mocks.supabase,
@@ -85,6 +92,12 @@ beforeEach(async () => {
   mocks.table.maybeSingle.mockResolvedValue({ data: null, error: null });
   mocks.table.upsert.mockResolvedValue({ error: null });
   mocks.purchases.logOut.mockResolvedValue(undefined);
+  mocks.platform.OS = 'ios';
+  mocks.crypto.randomUUID.mockReturnValue('one-time-nonce');
+  mocks.crypto.digestStringAsync.mockResolvedValue('sha256-nonce');
+  mocks.apple.signInAsync.mockResolvedValue({ identityToken: 'apple-token', fullName: null });
+  mocks.auth.signInWithIdToken.mockResolvedValue({ data: { session, user }, error: null });
+  mocks.auth.updateUser.mockResolvedValue({ data: { user }, error: null });
   ({ authClient, leaveAuth, completeAuthFromUrl } = await import('./auth-client'));
 });
 afterEach(() => vi.unstubAllEnvs());
@@ -276,6 +289,60 @@ describe('Google', () => {
     await expect(completeAuthFromUrl('semli://auth/callback?error_code=flow_state_expired&error=access_denied')).rejects.toMatchObject({ code: 'flow_state_expired' });
     expect(authErrorMessage({ code: 'flow_state_expired' })).toMatch(/took too long/);
     await expect(completeAuthFromUrl('semli://auth/callback')).rejects.toThrow(/No code/);
+  });
+});
+
+describe('Apple', () => {
+  it('gives Apple the hashed nonce and Supabase the original, then backs up the plan', async () => {
+    expect(await authClient.signInWithApple()).toEqual({ signedIn: true, restored: false });
+    expect(mocks.crypto.digestStringAsync).toHaveBeenCalledWith('SHA-256', 'one-time-nonce');
+    expect(mocks.apple.signInAsync).toHaveBeenCalledWith({ requestedScopes: [0, 1], nonce: 'sha256-nonce' });
+    expect(mocks.auth.signInWithIdToken).toHaveBeenCalledWith({ provider: 'apple', token: 'apple-token', nonce: 'one-time-nonce' });
+    expect(mocks.table.upsert).toHaveBeenCalled();
+  });
+
+  it('cancels quietly without signing in or backing anything up', async () => {
+    mocks.apple.signInAsync.mockRejectedValueOnce({ code: 'ERR_REQUEST_CANCELED' });
+    expect(await authClient.signInWithApple()).toBeNull();
+    expect(mocks.auth.signInWithIdToken).not.toHaveBeenCalled();
+    expect(mocks.table.upsert).not.toHaveBeenCalled();
+  });
+
+  it('never claims success without a token or after the backend rejects it', async () => {
+    mocks.apple.signInAsync.mockResolvedValueOnce({ identityToken: null, fullName: null });
+    await expect(authClient.signInWithApple()).rejects.toMatchObject({ code: 'apple_identity_token_missing' });
+    expect(mocks.auth.signInWithIdToken).not.toHaveBeenCalled();
+    mocks.auth.signInWithIdToken.mockResolvedValueOnce({ error: { code: 'provider_disabled' } });
+    await expect(authClient.signInWithApple()).rejects.toMatchObject({ code: 'provider_disabled' });
+    expect(mocks.table.upsert).not.toHaveBeenCalled();
+  });
+
+  it('captures the first-authorization name and preserves it on subsequent sign-ins', async () => {
+    mocks.apple.signInAsync.mockResolvedValueOnce({ identityToken: 'apple-token', fullName: { givenName: 'Ama', familyName: 'Jones' } });
+    await authClient.signInWithApple();
+    expect(settings().name).toBe('Ama');
+    expect(mocks.auth.updateUser).toHaveBeenCalledWith({ data: { full_name: 'Ama Jones' } });
+    await authClient.signInWithApple();
+    expect(settings().name).toBe('Ama');
+    expect(mocks.auth.updateUser).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps an existing local name and completes login if metadata saving fails', async () => {
+    mocks.store.setState({ settings: { ...DEFAULTS(), name: 'My name' } });
+    mocks.apple.signInAsync.mockResolvedValueOnce({ identityToken: 'apple-token', fullName: { givenName: 'Ama' } });
+    mocks.auth.updateUser.mockResolvedValueOnce({ error: new Error('metadata write failed') });
+    const log = vi.spyOn(console, 'info').mockImplementation(() => {});
+    try {
+      expect(await authClient.signInWithApple()).toMatchObject({ signedIn: true });
+      expect(settings().name).toBe('My name');
+      expect(log).toHaveBeenCalledWith('[Semli error]', expect.objectContaining({ operation: 'auth.apple.save_name' }));
+    } finally { log.mockRestore(); }
+  });
+
+  it('does not open an Apple sheet on Android', async () => {
+    mocks.platform.OS = 'android';
+    await expect(authClient.signInWithApple()).rejects.toThrow(/available on iPhone/);
+    expect(mocks.apple.signInAsync).not.toHaveBeenCalled();
   });
 });
 

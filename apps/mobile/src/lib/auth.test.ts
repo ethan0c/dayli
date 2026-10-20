@@ -28,6 +28,7 @@ describe('unconfigured auth boundary', () => {
     for (const operation of [
       () => authClient.signIn(fields), () => authClient.signUp(fields),
       () => authClient.signInWithGoogle(), () => authClient.resetPassword(fields.email),
+      () => authClient.signInWithApple(),
       () => authClient.verifyCode(fields.email, '123456', 'signup'), () => authClient.resendCode(fields.email, 'recovery'),
       () => authClient.updatePassword('new-password'),
       () => authClient.signOut(), () => authClient.deleteAccount(),
@@ -46,5 +47,11 @@ describe('unconfigured auth boundary', () => {
     expect(authErrorMessage(error, 'account.delete')).toMatch(/couldn’t delete your account/);
     expect(authErrorMessage(error, 'account.delete')).not.toContain('delete_account');
     expect(authErrorMessage(error, 'auth.verify_code')).toMatch(/couldn’t check that code/);
+  });
+  it('names Apple sign-in failures in both login and signup without raw diagnostics', () => {
+    for (const operation of ['auth.apple', 'auth.login.apple', 'auth.signup.apple']) {
+      expect(authErrorMessage(new Error('private provider diagnostic'), operation)).toMatch(/Apple sign-in didn’t finish/);
+    }
+    expect(authErrorMessage({ code: 'provider_disabled' }, 'auth.apple')).not.toContain('Google');
   });
 });

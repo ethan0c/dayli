@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { AuthField, GoogleButton } from '@/components/AuthControls';
+import { AppleButton } from '@/components/AppleButton';
 import { TextButton } from '@/components/Controls';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
@@ -33,7 +34,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const signup = mode === 'signup';
   const clear = (field: keyof AuthFieldErrors) => { setErrors((current) => ({ ...current, [field]: undefined })); setNotice(null); };
 
-  async function submit(provider: 'email' | 'google' = 'email') {
+  async function submit(provider: 'email' | 'google' | 'apple' = 'email') {
     if (lock.current) return;
     if (provider === 'email') {
       const invalid = validateAuthForm(mode, { name, email, password });
@@ -50,12 +51,13 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     try {
       let result: SignInResult | null;
       if (provider === 'google') result = await authClient.signInWithGoogle();
+      else if (provider === 'apple') result = await authClient.signInWithApple();
       else if (forgot) { await authClient.resetPassword(address); result = { signedIn: false, confirmEmail: true }; }
       else if (signup) result = await authClient.signUp({ name: name.trim(), email: address, password });
       else result = await authClient.signIn({ email: address, password });
       // Stays busy: the screen is leaving, and a form that springs back for a frame looks broken.
       if (result?.signedIn) { leaveAuth(); return; }
-      // On to the code screen; this form stays usable behind it. A null result is the Google sheet cancelled.
+      // On to the code screen; a null result means a provider sheet was cancelled.
       if (result) router.push({ pathname: '/auth/verify', params: { email: address, purpose: forgot ? 'recovery' : 'signup', resendFailed: !result.signedIn && result.resendFailed ? '1' : undefined } });
     } catch (error) {
       setNotice(authErrorMessage(error, `auth.${mode}.${provider}`));
@@ -73,6 +75,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           <T token="body" color={c.inkSecondary}>{copy.body}</T>
         </View>
         {!forgot ? <>
+          <AppleButton onPress={() => void submit('apple')} disabled={busy} />
           <GoogleButton onPress={() => void submit('google')} disabled={busy} />
           <View style={styles.divider}><View style={[styles.line, { backgroundColor: c.line }]} /><T token="caption" color={c.inkTertiary}>or with email</T><View style={[styles.line, { backgroundColor: c.line }]} /></View>
         </> : null}
@@ -86,15 +89,16 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           {!forgot ? <AuthField label="Password" inputRef={passwordRef} password value={password} onChangeText={(value) => { setPassword(value); clear('password'); }}
             error={errors.password} placeholder={signup ? 'At least 8 characters' : 'Your password'} autoComplete={signup ? 'new-password' : 'current-password'}
             autoCapitalize="none" autoCorrect={false} maxLength={256} editable={!busy} returnKeyType="go" onSubmitEditing={() => void submit()} /> : null}
-          {mode === 'login' ? <TextButton label="Forgot password?" tone="muted" onPress={() => { setPassword(''); router.push('/auth/forgot-password'); }} style={styles.start} /> : null}
+          {mode === 'login' ? <TextButton label="Forgot password?" tone="muted" disabled={busy} onPress={() => { setPassword(''); router.push('/auth/forgot-password'); }} style={styles.start} /> : null}
         </View>
         {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert">{notice}</T> : null}
         <View style={{ gap: 12 }}>
           <Button label={busy ? 'One moment…' : copy.action} disabled={busy} onPress={() => void submit()} />
           {signup ? <T token="caption" color={c.inkSecondary} style={styles.center}>By creating an account, you agree to our <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.terms)}>Terms</T> and <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.privacy)}>Privacy policy</T>.</T> : null}
           <TextButton label={forgot ? 'Back to log in' : signup ? 'Already have an account? Log in' : 'New to Semli? Sign up'} tone="muted"
+            disabled={busy}
             onPress={() => { setPassword(''); if (forgot && router.canGoBack()) router.back(); else router.replace(signup || forgot ? '/auth/login' : '/auth/signup'); }} style={styles.footerLink} />
-          <TextButton label="Continue as a guest" tone="muted" onPress={leaveAuth} style={styles.footerLink} />
+          <TextButton label="Continue as a guest" tone="muted" disabled={busy} onPress={leaveAuth} style={styles.footerLink} />
         </View>
       </ScrollView>
     </Sheet>

@@ -17,13 +17,13 @@ import { useTheme } from '@/theme';
  */
 
 /** Text button: accent, underlined. `muted` is the quiet alternative (accent, no underline), `danger` for destructive. */
-export function TextButton({ label, onPress, tone = 'accent', haptic = 'select', accessibilityLabel, style }: {
-  label: string; onPress: () => void; tone?: 'accent' | 'muted' | 'danger'; haptic?: Cue; accessibilityLabel?: string; style?: StyleProp<ViewStyle>;
+export function TextButton({ label, onPress, tone = 'accent', haptic = 'select', accessibilityLabel, disabled = false, style }: {
+  label: string; onPress: () => void; tone?: 'accent' | 'muted' | 'danger'; haptic?: Cue; accessibilityLabel?: string; disabled?: boolean; style?: StyleProp<ViewStyle>;
 }) {
   const { c } = useTheme();
   const color = tone === 'danger' ? c.conflict : c.accentInk;
   return (
-    <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} haptic={haptic} onPress={onPress} scale={0.97} style={[styles.textBtn, style]}>
+    <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ disabled }} disabled={disabled} haptic={haptic} onPress={onPress} scale={0.97} style={[styles.textBtn, style, disabled && { opacity: 0.5 }]}>
       <T token="subhead" color={color} style={tone === 'muted' ? undefined : styles.underline}>
         {label}
       </T>

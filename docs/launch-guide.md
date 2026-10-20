@@ -111,7 +111,13 @@ The captions live in `design/render-screenshots.py` (`SHOTS`). Listing text: [ap
 4. Compose: `python3 design/render-screenshots.py` (needs Pillow) writes `design/screenshots/NN-<name>.png` at 1320 × 2868: caption on paper, the site's iPhone frame (`apps/web/public/phones/`) bleeding off the bottom edge, the layout Things, Structured and Opal use. `--layout bezel|center|ink|regular` are the alternatives that were considered; `--canvas 2007x2853 --out design/screenshots/2007x2853 --layout wide` makes the foldable inner-display set. The 6.1"/6.3" slot (1206 × 2622) takes a plain downscale, kept in `design/screenshots/6.3-inch/`.
 5. Upload in order to the 6.9-inch slot; Apple scales it to every other iPhone unless a size-specific set is uploaded. Localize nothing for now (US English only).
 
-Known bug (Oct 20, 2026): the paywall cover and You → Semli Plus lay out below the status bar, leaving a paper band with invisible white status text. The script paints that band dark for the store image; the screen itself still needs the fix.
+### 2.4 Creative assets (iOS 27 product page)
+Two optional images, uploaded under App Store Connect → Header and Search Results. `python3 design/render-screenshots.py --header` writes both to `design/screenshots/header/`:
+- **Header**, 3840 × 1646 (21:9): the wordmark and tagline centered on paper, matching the splash. It sits above the icon on the product page and is cropped to a centered 1646 × 661 safe area on small devices, so nothing else goes in it. Apple's own examples are brand banners with the name centered and no UI.
+- **Search results**, 3840 × 2560 (3:2): "Your week, already organized." with the subline on the left, the Today phone on the right, inside the centered 2168 × 1030 safe area. It replaces the three screenshots in search results, so it carries the same promise as screenshot 1. Apple's rules: a short phrase, no prices, discounts, URLs, awards or other platforms.
+Check both in App Store Connect's preview tool before saving; the crop differs per device.
+
+Paywall fix (Oct 20, 2026): the cover and You → Semli Plus now explicitly use transparent native headers, a dark scene background and route-aware light status-bar icons. Verify both entry points on device in light and dark appearance, then capture fresh screenshots; a painted status-bar band should no longer be necessary.
 
 ---
 

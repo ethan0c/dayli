@@ -1,7 +1,13 @@
 # Brief: set up Semli's RevenueCat offerings and App Store products
 
-For: Rico. From: Ethan. Date: Oct 19, 2026.
+For: Rico. From: Ethan. Date: Oct 19, 2026; status added Oct 20.
 Project: RevenueCat project **Semli** (`a2c96d90`). App bundle id `app.semli.mobile`. The app code reads these identifiers exactly, so please copy them character for character.
+
+## Status, Oct 20, 2026
+
+Done by Ethan: RevenueCat App Store app **Semli (App Store)** created with bundle id `app.semli.mobile` and the In-App Purchase .p8 key; App Store Connect subscription group created (named **plus**; rename it to **Semli Plus** when you're in there); App Store Server Notifications and the shared secret are being wired by Ethan. The app record is `6824600264`.
+
+Still yours: the six products in App Store Connect (section 1, steps 2 to 4 and 6), the entitlement and offerings in RevenueCat (section 2), and the Test Store mirror. Skip section 2 step 6; Ethan has the public SDK key. Ethan's paste-ready message to you is at the bottom.
 
 ## What we sell
 
@@ -55,3 +61,14 @@ From a development build on a phone with the sandbox account:
 - Buying `semli_plus_semester_student` activates the `semli_pro` entitlement; restore on a second install recovers it.
 
 Questions: the only decision worth a call is the 6-month semester term. If we prefer 3 months, change the duration on the two semester products and nothing else.
+
+
+## Message sent Oct 20
+
+> Rico, RevenueCat and the App Store app record are set up. Three things left, all in docs/revenuecat-offerings-brief.md in the repo:
+>
+> 1. App Store Connect → Subscriptions: the group is there (called "plus", rename to "Semli Plus"). Create the six products with the exact IDs in the brief, 1-week free intro offer on each, ranking as listed. Reference name, product ID and duration are the only fields the first screen asks for.
+> 2. RevenueCat → Entitlements: `semli_pro`, attach all six. Offerings: `student` (current) and `regular`, standard package types monthly / six_month / annual.
+> 3. Test Store: mirror both offerings so dev builds show real prices.
+>
+> IDs are read by the app character for character. Don't make a lifetime product or a default offering. Ping me when the products show "Ready to Submit" and I'll do a sandbox purchase.

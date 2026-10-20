@@ -1,9 +1,11 @@
+import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import Purchases from 'react-native-purchases';
+import { Platform } from 'react-native';
 
-import { ACCOUNTS_ENABLED, unavailableClient, type AuthClient, type SignInResult } from './auth';
+import { ACCOUNTS_ENABLED, AuthUnavailableError, unavailableClient, type AuthClient, type SignInResult } from './auth';
 import { restoreFromCloud } from './cloud';
 import { reportError } from './errors';
 import { supabase } from './supabase';
@@ -79,6 +81,41 @@ const supabaseClient: AuthClient = {
     const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
     if (result.type !== 'success') return null;
     return completeAuthFromUrl(result.url);
+  },
+
+  async signInWithApple() {
+    if (Platform.OS !== 'ios') throw new AuthUnavailableError('Apple sign-in is available on iPhone. Try Google or email on this device.');
+    const Crypto = await import('expo-crypto');
+    // Apple receives the hash; Supabase verifies it against the original, single-use nonce.
+    const nonce = Crypto.randomUUID();
+    const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, nonce);
+    let credential: AppleAuthentication.AppleAuthenticationCredential;
+    try {
+      credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
+        nonce: hashedNonce,
+      });
+    } catch (error) {
+      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'ERR_REQUEST_CANCELED') return null;
+      throw error;
+    }
+    if (!credential.identityToken) throw Object.assign(new Error('Apple returned no identity token.'), { code: 'apple_identity_token_missing' });
+    const { error } = await supabase!.auth.signInWithIdToken({ provider: 'apple', token: credential.identityToken, nonce });
+    if (error) throw error;
+
+    // Apple sends the name only on the first authorization. Never erase it on later logins.
+    const name = [credential.fullName?.givenName, credential.fullName?.middleName, credential.fullName?.familyName].filter(Boolean).join(' ').trim();
+    if (name) {
+      if (!useStore.getState().settings.name) useStore.getState().setSettings({ name: credential.fullName?.givenName || name });
+      try {
+        const { error: nameError } = await supabase!.auth.updateUser({ data: { full_name: name } });
+        if (nameError) throw nameError;
+      } catch (nameError) {
+        // Authentication succeeded: a metadata failure must not send someone back to login.
+        reportError('auth.apple.save_name', nameError);
+      }
+    }
+    return signedIn();
   },
 
   async resetPassword(email) {

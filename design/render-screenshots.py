@@ -220,14 +220,77 @@ def render(name: str, title: str, sub: str, index: int, L: Layout, out_dir: Path
     return out
 
 
+# Creative assets (iOS 27 product page). Apple's examples: the header is a brand banner above the
+# icon with the name centered and no UI; the search card carries a short headline and a phone.
+# Safe areas measured from Apple's templates: header 1646 x 661 centered; search 2168 x 1030 centered.
+HEADER_OUT = OUT / "header"
+TAGLINE = "Your week, already organized."
+SEARCH_SUB = "Drop in a syllabus or a work schedule. Semli tells you what matters today."
+
+
+def header_banner(out_dir: Path = HEADER_OUT) -> Path:
+    """3840 x 1646 product page header: the wordmark and tagline centered on paper, like the splash."""
+    w, h = 3840, 1646
+    img = Image.new("RGB", (w, h), PAPER)
+    draw = ImageDraw.Draw(img)
+    mark = Image.open(WORDMARK).convert("RGBA")
+    mw = 920
+    mark = mark.resize((mw, round(mark.height * mw / mark.width)), Image.LANCZOS)
+    sf = font(72)
+    block = mark.height + 48 + 88
+    y = (h - block) // 2
+    img.paste(mark, ((w - mw) // 2, y), mark)
+    y += mark.height + 48
+    draw.text(((w - draw.textlength(TAGLINE, font=sf)) / 2, y), TAGLINE, font=sf, fill=SECONDARY)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / f"header-{w}x{h}.png"
+    img.save(out, "PNG", optimize=True)
+    return out
+
+
+def search_card(out_dir: Path = HEADER_OUT) -> Path:
+    """3840 x 2560 search results asset: headline and subline on the left, the Today phone on the right."""
+    w, h = 3840, 2560
+    img = Image.new("RGB", (w, h), PAPER)
+    draw = ImageDraw.Draw(img)
+    left, text_w = 300, 1680
+    tf = font(200, "Medium")
+    lines = wrap(draw, TAGLINE, tf, text_w)
+    sf = font(80)
+    sub_lines = wrap(draw, SEARCH_SUB, sf, text_w)
+    block = len(lines) * 222 + 48 + len(sub_lines) * 100
+    y = (h - block) // 2 - 80
+    for line in lines:
+        draw.text((left, y), line, font=tf, fill=INK)
+        y += 222
+    y += 48
+    for line in sub_lines:
+        draw.text((left, y), line, font=sf, fill=SECONDARY)
+        y += 100
+    L = Layout("search", "left", PAPER, INK, SECONDARY, screen_w=1180)
+    phone = device(Image.open(RAW / "today.png"), L)
+    pad = L.shadow * 3
+    img.paste(phone, (w - 300 - 1180 - pad, 420 - pad), phone)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / f"search-{w}x{h}.png"
+    img.save(out, "PNG", optimize=True)
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("names", nargs="*", help="raw capture names to render (default: all)")
     ap.add_argument("--layout", choices=sorted(LAYOUTS), default="left")
     ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--header", action="store_true", help="render the product page header (3840x1646) and the search results card (3840x2560) instead of screenshots")
     ap.add_argument("--canvas", help="WIDTHxHEIGHT of the output, default 1320x2868 (6.9-inch); e.g. 2007x2853 for the foldable's inner display")
     args = ap.parse_args()
     L = LAYOUTS[args.layout]
+    if args.header:
+        out_dir = args.out if args.out != OUT else HEADER_OUT
+        print(header_banner(out_dir))
+        print(search_card(out_dir))
+        return
     if args.canvas:
         global W, H
         W, H = (int(v) for v in args.canvas.lower().split("x"))

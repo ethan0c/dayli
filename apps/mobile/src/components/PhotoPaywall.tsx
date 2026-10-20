@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { StatusBar } from 'expo-status-bar';
 import { PlanPicker } from '@/components/PlanPicker';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,7 +27,6 @@ export function PhotoPaywall(props: { onContinueFree?: () => void; onComplete?: 
   const insets = useSafeAreaInsets();
   return (
     <View style={styles.root}>
-      <StatusBar style="light" />
       <PaywallBackdrop />
       <ScrollView ref={scroll} contentInsetAdjustmentBehavior="never" showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.body, { paddingTop: insets.top + 150, paddingBottom: Math.max(insets.bottom, 24) + 24 }]}>

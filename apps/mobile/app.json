@@ -10,6 +10,7 @@
     "ios": {
       "bundleIdentifier": "app.semli.mobile",
       "supportsTablet": false,
+      "usesAppleSignIn": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Semli uses the camera to read printed schedules.",
         "NSPhotoLibraryUsageDescription": "Semli reads screenshots of schedules and syllabi you choose.",
@@ -23,6 +24,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-apple-authentication",
       [
         "expo-splash-screen",
         {

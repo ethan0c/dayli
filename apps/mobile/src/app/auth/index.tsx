@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Stack, router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GoogleButton } from '@/components/AuthControls';
+import { AppleButton } from '@/components/AppleButton';
 import { TextButton } from '@/components/Controls';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { Button } from '@/components/Sheet';
@@ -22,12 +23,19 @@ export default function AuthWelcomeScreen() {
   const insets = useSafeAreaInsets();
   const onboarded = useStore((s) => s.settings.onboarded);
   const [notice, setNotice] = useState<string | null>(null);
-  const google = async () => {
+  const [busy, setBusy] = useState(false);
+  const lock = useRef(false);
+  const signIn = async (provider: 'google' | 'apple') => {
+    if (lock.current) return;
+    lock.current = true;
+    setBusy(true);
     setNotice(null);
     try {
-      const result = await authClient.signInWithGoogle();
-      if (result?.signedIn) leaveAuth();
-    } catch (error) { setNotice(authErrorMessage(error, 'auth.google')); }
+      const result = await (provider === 'apple' ? authClient.signInWithApple() : authClient.signInWithGoogle());
+      if (result?.signedIn) { leaveAuth(); return; }
+    } catch (error) { setNotice(authErrorMessage(error, `auth.${provider}`)); }
+    setBusy(false);
+    lock.current = false;
   };
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
@@ -43,11 +51,12 @@ export default function AuthWelcomeScreen() {
         <Animated.View entering={enter.rise} style={styles.actions}>
           {!ACCOUNTS_ENABLED ? <Button label="Get started" onPress={leaveAuth} /> : <>
           {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert" style={styles.center}>{notice}</T> : null}
-          <GoogleButton onPress={() => void google()} />
-          <Button label="Sign up with email" onPress={() => router.push('/auth/signup')} />
-          <TextButton label="Already have an account? Log in" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} />
+          <AppleButton onPress={() => void signIn('apple')} disabled={busy} />
+          <GoogleButton onPress={() => void signIn('google')} disabled={busy} />
+          <Button label="Sign up with email" disabled={busy} onPress={() => router.push('/auth/signup')} />
+          <TextButton label="Already have an account? Log in" tone="muted" disabled={busy} onPress={() => router.push('/auth/login')} style={styles.textAction} />
           <View style={[styles.guest, { borderTopColor: c.line }]}>
-            <TextButton label="Continue as a guest" tone="muted" onPress={leaveAuth} style={styles.textAction} />
+            <TextButton label="Continue as a guest" tone="muted" disabled={busy} onPress={leaveAuth} style={styles.textAction} />
             <T token="caption" color={c.inkSecondary} style={styles.center}>Start planning. An account is optional.</T>
           </View>
           </>}

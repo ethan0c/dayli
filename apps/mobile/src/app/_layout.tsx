@@ -1,5 +1,5 @@
 import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -7,6 +7,7 @@ import { AppState, Appearance } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
+import { palettes } from '@dayli/tokens';
 
 import { syncRingingAlarms } from '@/lib/alarms';
 import { AppErrorBoundary, RecoveryScreen } from '@/components/AppErrorBoundary';
@@ -47,6 +48,8 @@ function RootLayout() {
   const onboarded = useStore((s) => s.settings.onboarded);
   const appearance = useStore((s) => s.settings.appearance);
   const { c, dark } = useTheme();
+  const pathname = usePathname();
+  const photoPaywall = pathname === '/paywall' || pathname === '/settings/plan';
   const ready = (fontsLoaded || !!fontError) && hydrated;
   useEffect(() => { if (fontError) reportError('fonts.load', fontError); }, [fontError]);
   useReminderSync();
@@ -134,7 +137,7 @@ function RootLayout() {
           <Stack.Screen name="auth" options={{ presentation: 'fullScreenModal' }} />
           {/* Review is a full-screen cover: it can be reached from onboarding too, so it sits outside the guards. */}
           <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false, headerShown: true, ...navigationButtonOptions('close') }} />
-          <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', headerShown: true, headerTransparent: true, title: '', headerTintColor: '#F5F4F0', ...navigationButtonOptions('close') }} />
+          <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', headerShown: true, headerTransparent: true, headerStyle: { backgroundColor: 'transparent' }, contentStyle: { backgroundColor: palettes.dark.canvas }, title: '', headerTintColor: palettes.dark.inkPrimary, ...navigationButtonOptions('close') }} />
           <Stack.Screen name="account" options={{ presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
           <Stack.Protected guard={!onboarded}>
             <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
@@ -153,7 +156,8 @@ function RootLayout() {
             <Stack.Screen name="settings" />
           </Stack.Protected>
         </Stack>
-        <StatusBar style={dark ? 'light' : 'dark'} />
+        {/* One owner restores the theme's icons when leaving either always-dark paywall. */}
+        <StatusBar style={photoPaywall || dark ? 'light' : 'dark'} hidden={false} />
       </ThemeProvider>
     </PurchasesProvider>
     </GestureHandlerRootView>
