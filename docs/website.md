@@ -53,3 +53,7 @@ Copy rules: second person, present tense, no exclamation marks, no "AI" in headi
 - Port `WeekChart` and `TermLine` to CSS for the try-it result and the feature blocks.
 - Remove the category tint variables from `globals.css`; keep the status colors.
 - Keep `LandingPage.tsx` for the SEO pages; swap their previews for the same phone components.
+
+## Visual pass, Oct 20, 2026
+
+The founder asked for more purple and less plain white. The page now alternates paper with full-bleed bands: the proof band and the beta section are the accent as a surface (`--band-purple`) with an Unsplash photo in purple monochrome under the text; "How it works" and the pricing teaser sit on the lavender `--accent-soft`; "New schedule, only the changes" is the app's dark appearance as a band with a photo fading in from the left, so the phone inside turns dark. The hero has a photo fading into the paper behind the phone. Eyebrows and the primary call to action are the accent. Photos and their sources are in `apps/web/public/photos/SOURCES.md`; the only site that still needs photos is the showcase on mobile (`docs/design-system.md`, open items). This is a deliberate exception to "one accent in five places" for the marketing site; the app keeps the rule.

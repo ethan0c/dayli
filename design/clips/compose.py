@@ -39,20 +39,25 @@ class Clip:
     name: str
     title: str          # the caption, two lines at most
     sub: str            # one quieter line under it
-    trim: tuple[float, float] | None = None   # seconds kept from the raw recording
-    speed: float = 1.0  # >1 plays the screen faster; waits in the demo are real time
+    raw: str            # which recording in raw/ (several clips can share one)
+    start: float = 0    # seconds into the raw recording where the clip begins (skips the launch)
+    end: float | None = None   # where it stops; None is the end of the recording
+    hold: float = 3     # seconds the last frame stays before the end card (the simulator stops
+                        # writing frames when the screen stops changing, so recordings end early)
+    speed: float = 1.0  # >1 plays the screen faster; the demo's waits are real time
 
 
-# The eight clips in docs/marketing-500.md. One raw recording can serve two captions.
+# The eight clips in docs/marketing-500.md, from six recordings: demo, demo-syllabus,
+# review-update, list (then semli://plan), sample (then semli://plan), sample (then semli://paywall).
 CLIPS = [
-    Clip('shifts', 'Screenshot your work schedule. Done.', 'Semli reads every shift and asks only about the one with no time.'),
-    Clip('syllabus', 'A syllabus becomes the whole semester.', 'Every exam, quiz and due date, in two minutes.'),
-    Clip('update', 'New schedule? See only what changed.', 'Moved, new and dropped shifts, before anything is saved.'),
-    Clip('today', 'Know what matters today.', 'Classes, shifts and due dates ranked, with a countdown to what’s next.'),
-    Clip('plan', 'Your whole week as a chart.', 'Lectures, shifts and study time on one timeline. Overlaps show in red.'),
-    Clip('evidence', 'It shows its work.', 'Every date comes with the line it was read from. Nothing is saved until you confirm.'),
-    Clip('switch', 'Set up a semester in two minutes.', 'Not two hours. Calendar, to-dos and reminders stay free.'),
-    Clip('free', 'Calendar, to-dos, reminders: always free.', 'Plus is unlimited imports and Canvas sync. Student pricing, no proof needed.'),
+    Clip('shifts', 'Screenshot your work schedule. Done.', 'Semli reads every shift and asks only about the one with no time.', raw='shifts', start=25.5),
+    Clip('syllabus', 'A syllabus becomes the whole semester.', 'Every exam, quiz and due date, read from the PDF and added in one tap.', raw='syllabus', start=7),
+    Clip('update', 'New schedule? See only what changed.', 'Moved, new and dropped shifts, before anything is saved.', raw='update', start=7, hold=4),
+    Clip('today', 'Know what matters today.', 'Classes, shifts and due dates ranked, with a countdown to what’s next.', raw='today', start=6),
+    Clip('plan', 'Your whole week as a chart.', 'Lectures, shifts and study time on one timeline. Overlaps show in red.', raw='plan', start=11.5, hold=5),
+    Clip('ask', 'Anything unclear gets a question, not a guess.', 'Friday’s shift had no time, so Semli asks. Nothing is saved until you confirm.', raw='shifts', start=31.5, end=38.5, hold=3),
+    Clip('switch', 'Set up a semester in two minutes.', 'Not two hours. Calendar, to-dos and reminders stay free, for everyone.', raw='syllabus', start=7, speed=1.25),
+    Clip('free', 'Calendar, to-dos, reminders: always free.', 'Plus is unlimited imports and Canvas sync. Student pricing, no proof needed.', raw='free', start=27, hold=5),
 ]
 END_CARD = ('semli.app/beta', '200 beta spots on iPhone. Link in bio.')
 
@@ -93,7 +98,7 @@ def caption_card(clip: Clip) -> Image.Image:
     frame = frame.resize((PHONE_W, round(frame.height * scale)), Image.LANCZOS)
     x = (W - PHONE_W) // 2
     # Punch the screen out of the paper too, so the video is the only thing in that box.
-    mask = Image.open(MASK).convert('L').resize((round(850 * scale), round(1814 * scale)), Image.LANCZOS)
+    mask = Image.open(MASK).getchannel('A').resize((round(850 * scale), round(1814 * scale)), Image.LANCZOS)
     hole = Image.new('L', (W, H), 255)
     hole.paste(Image.eval(mask, lambda v: 255 - v), (x + round(47 * scale), PHONE_TOP + round(44 * scale)))
     img.putalpha(hole)
@@ -122,29 +127,25 @@ def render(clip: Clip, raw: Path, out: Path) -> None:
         end = Path(tmp) / 'end.png'
         caption_card(clip).save(card)
         end_card().save(end)
-        trim = ['-ss', str(clip.trim[0]), '-to', str(clip.trim[1])] if clip.trim else []
+        probe = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', str(raw)], capture_output=True, text=True, check=True)
+        raw_end = clip.end if clip.end is not None else float(probe.stdout.strip())
+        screen = (raw_end - clip.start) / clip.speed + clip.hold
         tempo = f'setpts={1 / clip.speed:.4f}*PTS,' if clip.speed != 1 else ''
         # The raw capture is 1320x2868 (the full status bar included); the mask box is 850x1814
-        # of a 944x1902 frame, the same proportions, so a plain scale fits.
+        # of a 944x1902 frame, the same proportions, so a plain scale fits. tpad holds the last
+        # frame; shortest=1 on the overlay then ends the screen part with it.
         filt = (
             f'color=c=0x{PAPER[0]:02x}{PAPER[1]:02x}{PAPER[2]:02x}:s={W}x{H}:r={FPS}[bg];'
-            f'[0:v]{tempo}scale={sw}:{sh}:flags=lanczos,fps={FPS}[scr];'
+            f'[0:v]{tempo}scale={sw}:{sh}:flags=lanczos,fps={FPS},tpad=stop_mode=clone:stop_duration={clip.hold}[scr];'
             f'[bg][scr]overlay={sx}:{sy}:shortest=1[v1];'
-            f'[v1][1:v]overlay=0:0[v2];'
+            f'[v1][1:v]overlay=0:0:shortest=1[v2];'
             f'[2:v]fps={FPS}[endv];'
-            f'[v2][endv]xfade=transition=fade:duration=0.5:offset=PLACEHOLDER[v]'
+            f'[v2][endv]xfade=transition=fade:duration=0.5:offset={max(screen - 0.5, 0.1):.2f}[v]'
         )
-        # Duration of the screen part decides where the end card fades in.
-        probe = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', str(raw)], capture_output=True, text=True, check=True)
-        total = float(probe.stdout.strip())
-        if clip.trim:
-            total = clip.trim[1] - clip.trim[0]
-        total /= clip.speed
-        filt = filt.replace('PLACEHOLDER', f'{max(total - 0.5, 0.1):.2f}')
         subprocess.run([
             'ffmpeg', '-y', '-v', 'error',
-            *trim, '-i', str(raw),
-            '-loop', '1', '-t', str(total + 3), '-i', str(card),
+            '-ss', str(clip.start), '-to', str(raw_end), '-i', str(raw),
+            '-loop', '1', '-t', str(screen + 1), '-i', str(card),
             '-loop', '1', '-t', '3', '-i', str(end),
             '-filter_complex', filt, '-map', '[v]',
             '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '20', '-movflags', '+faststart', '-an',
@@ -159,7 +160,7 @@ def main() -> None:
     for clip in CLIPS:
         if only and clip.name not in only:
             continue
-        raw = raw_dir / f'{clip.name}.mp4'
+        raw = raw_dir / f'{clip.raw}.mp4'
         if not raw.exists():
             print(f'skip {clip.name}: no {raw}')
             continue
