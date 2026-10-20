@@ -50,10 +50,10 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
         return (
           <View key={it.id} pointerEvents="box-none" style={[styles.lane, { top, height: h, left: `${column.lane / column.lanes * 100}%`, width: `${100 / column.lanes}%`, paddingRight: column.lane < column.lanes - 1 ? 4 : 0 }]}>
             <Pressable onPress={() => onPress?.(it)} accessibilityRole="button" accessibilityLabel={`${it.title}, ${sub}${it.urgent ? ', urgent' : ''}${conflict ? ', overlaps something else' : ''}`}
-              style={({ pressed }) => [styles.block, { backgroundColor: bg, opacity: pressed ? 0.7 : 1 }]}>
+              style={({ pressed }) => [styles.block, { backgroundColor: bg, paddingVertical: h < 28 ? 3 : 4, opacity: pressed ? 0.7 : 1 }]}>
               <View style={styles.blockText}>
                 {past && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
-                <T token="subhead" color={ink} numberOfLines={1} style={{ fontSize: 12, lineHeight: 16 }}>{it.urgent ? 'Urgent · ' : ''}{it.title}{!details ? ` · ${sub}` : ''}</T>
+                <T token="subhead" color={ink} numberOfLines={1} style={styles.blockTitle}>{it.urgent ? 'Urgent · ' : ''}{it.title}{!details ? ` · ${sub}` : ''}</T>
               </View>
               {details ? <T token="caption" color={conflict ? c.onPrimary : past ? c.added : it.kind === 'task' ? c.inkSecondary : c.chartOnBooked} numberOfLines={1}>{sub}{conflict && !overlapLine ? ' · Overlaps' : it.employer ? ` · ${it.employer}` : ''}</T> : null}
               {overlapLine ? <T token="caption" color={c.onPrimary}>Overlaps</T> : null}
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
   lane: { position: 'absolute' },
   block: { flex: 1, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', gap: 2, overflow: 'hidden' },
   blockText: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  blockTitle: { flexShrink: 1, fontSize: 12, lineHeight: 16 },
   nowLine: { position: 'absolute', left: 40, right: 0, height: 1.5 },
   nowDot: { position: 'absolute', left: 37, width: 7, height: 7, borderRadius: 4 },
   nowLabel: { position: 'absolute', left: 0, width: 34, textAlign: 'right', fontSize: 11, lineHeight: 14, fontFamily: undefined },

@@ -49,7 +49,7 @@ def wrap(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont, width:
 
 def phone(screen: Image.Image) -> Image.Image:
     frame = Image.open(FRAME).convert('RGBA')
-    mask = Image.open(MASK).convert('L')
+    mask = Image.open(MASK).convert('RGBA').split()[-1]  # the shape is the alpha channel
     s = PHONE_W / frame.width
     out = Image.new('RGBA', (PHONE_W, round(frame.height * s)), (0, 0, 0, 0))
     box = (round(47 * s), round(44 * s), round(850 * s), round(1814 * s))

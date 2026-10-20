@@ -75,8 +75,8 @@ function RootLayout() {
       if (!cmd) return;
       const store = useStore.getState();
       const today = localParts(new Date()).date;
-      if (cmd === 'sample' || cmd === 'moment' || cmd === 'item' || cmd === 'review' || cmd === 'review-update' || cmd === 'hours') {
-        store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', todayView: cmd === 'hours' ? 'hours' : 'list', breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
+      if (cmd === 'sample' || cmd === 'moment' || cmd === 'item' || cmd === 'review' || cmd === 'review-update' || cmd === 'hours' || cmd === 'list') {
+        store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', ...(cmd === 'hours' || cmd === 'list' ? { todayView: cmd } : {}), breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
         if (Object.keys(store.items).length === 0) {
           const week = sampleWeek(today, { student: true, preview: true });
           useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });
@@ -84,11 +84,11 @@ function RootLayout() {
       }
       if (cmd === 'review' || cmd === 'review-update') {
         store.setPending({ extraction: (cmd === 'review' ? sampleScheduleExtraction : sampleScheduleUpdate)(today), source: 'Screenshot' });
-        setTimeout(() => router.push('/review'), 600);
+        setTimeout(() => router.push('/review'), 2500);
       }
       if (cmd === 'item') {
         const first = Object.values(useStore.getState().items).find((i) => i.kind === 'event' && i.date >= today);
-        if (first) setTimeout(() => router.push(`/item/${first.id}`), 600);
+        if (first) setTimeout(() => router.push(`/item/${first.id}`), 2500);
       }
     });
   }, [ready]);

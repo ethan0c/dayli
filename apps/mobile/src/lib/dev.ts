@@ -16,7 +16,7 @@ export async function devStep(): Promise<string | null> {
   }
 }
 
-/** Reads the dev file as a command: "sample", "moment", "item", "hours", "review", or "review-update". */
+/** Reads the dev file as a command: "sample", "moment", "item", "hours", "list", "review", or "review-update". */
 export async function devCommand(): Promise<string | null> {
   if (!__DEV__) return null;
   try {

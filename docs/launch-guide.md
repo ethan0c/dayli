@@ -30,6 +30,7 @@ npx eas-cli submit --platform ios --latest        # uses ascAppId 6824600264 fro
 `eas submit` will ask for an **App Store Connect API key** the first time (see 1.7); it can also use your Apple ID password, but the key is less fragile.
 
 ### 1.4 App Store Connect record, field by field
+The current, complete version is [app-store-connect.md](app-store-connect.md); this section is kept for history.
 **App Information**
 - Name: `Semli: AI Student Planner` (30 max; you have 25).
 - Subtitle: `Syllabus, shifts & deadlines` (28). "AI" and "planner" are already in the name; the subtitle carries the other searchable words.
@@ -86,22 +87,8 @@ Sanity check: a sandbox purchase in the dev build shows up in RevenueCat → Cus
 - 3 to 10 images; the **first three** show in search results, so they carry the message.
 - PNG or JPEG, no alpha, no status-bar fakery (Apple allows real status bars). Device frames and captions are allowed and expected.
 
-### 2.2 The six screenshots, in order
-| # | Screen | Caption (on the image, sentence case) | Why first-three |
-|---|---|---|---|
-| 1 | School tab after a syllabus import, course cards with "Next: …" | **Set up your semester in two minutes** | The promise; answers MyStudyLife's top complaint |
-| 2 | Review sheet after a work-schedule screenshot: New / Changed / Removed pills | **Screenshot your shifts. See what changed.** | The thing no competitor does |
-| 3 | Today with the now line, a heads-up card, Coming up | **Know what matters today** | The survey's #1 pain |
-| 4 | Plan (the reference design, a full week of tinted rows) | **Classes, shifts, and life in one calm list** | Looks like the design that converts on Dribbble |
-| 5 | Review card with the evidence line and a question | **Nothing is saved until you confirm** | Trust; Tiimo's AI complaints in reverse |
-| 6 | Paywall with the student toggle on | **Calendar, to-dos, reminders: always free** | Structured's loudest complaint, answered |
-
-### 2.3 How to produce them
-1. Load the sample week (You → Your data) in the **development build** on a real phone, or on an iPhone 16 Pro Max simulator from the dev-simulator build (`--profile development-simulator`), so there is no Expo Go gear.
-2. Light mode, 9:41 clock (Apple's convention; in the simulator: `xcrun simctl status_bar booted override --time 9:41 --batteryLevel 100 --cellularBars 4`).
-3. Capture with `xcrun simctl io booted screenshot shot1.png` (1320 × 2868 on the Pro Max simulator) or the phone's screenshot.
-4. Framing and captions: I'll generate the six finished images from the raw captures with the same script that made the social previews (wordmark, Urbanist captions, ink or tinted background, device frame). Put the raw captures in `design/screenshots/raw/` and say the word.
-5. Localize nothing for now (US English only).
+### 2.2 The six screenshots
+Superseded Oct 20, 2026 by [app-store-connect.md](app-store-connect.md), which has every App Store Connect field, the six captions, and the privacy labels as they stand with accounts and Canvas. Finished images are in `design/screenshots/out/`; `design/screenshots/compose.py` rebuilds them from raw 1320 × 2868 simulator captures (light mode, 9:41, `dev-clock.txt` set to `09:41`, `dev-command.txt` set to `sample`, `review` or `item`).
 
 ---
 
