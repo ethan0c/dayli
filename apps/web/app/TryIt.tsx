@@ -272,11 +272,15 @@ export function TryIt() {
               : shown.view?.kind === 'term'
                 ? <div className="try-chart"><TermLine months={shown.view.months} marks={shown.view.marks} label="Your dates on one line" /></div>
                 : null}
-            {shown.needs.length > 0 ? (
+            {shown.needs.length > 0 || shown.rows.length > 0 ? (
               <div className="try-rows">
                 {shown.needs.map((n, i) => (
-                  <Row key={n.draft.key} index={i} lead="dot" title={n.draft.title} sub={n.sub} trailing={<Pill tone="amber">{n.pill}</Pill>} last={i === shown.needs.length - 1} />
+                  <Row key={n.draft.key} index={i} lead="dot" title={n.draft.title} sub={n.sub} trailing={<Pill tone="amber">{n.pill}</Pill>} last={shown.rows.length === 0 && i === shown.needs.length - 1} />
                 ))}
+                {shown.rows.map((r, i) => (
+                  <Row key={r.key} index={shown.needs.length + i} lead={r.lead} title={r.title} sub={r.sub} trailing={<Pill>{r.when}</Pill>} last={i === shown.rows.length - 1} />
+                ))}
+                {shown.more > 0 ? <p className="try-more">And {shown.more} more in the app.</p> : null}
               </div>
             ) : null}
             <p className="try-caption">{isExample ? 'Paste your own message, or drop in a screenshot or syllabus, to see yours.' : 'This is a preview, not a saved plan. In the app, you review the details before adding them.'}</p>

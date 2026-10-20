@@ -384,6 +384,12 @@ textarea {
   margin-top: 16px;
   max-width: 440px;
 }
+.try-more {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ink-2);
+}
 .try-caption {
   margin: 16px 0 0;
   font-size: 13px;

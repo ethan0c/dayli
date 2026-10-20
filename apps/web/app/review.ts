@@ -13,14 +13,23 @@ const SPAN = 24 * 60 - START;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export type Need = { draft: Draft; pill: string; sub: string };
+/** One found item as the result lists it: what, where it belongs, and when. */
+export type FoundRow = { key: string; title: string; sub: string; when: string; lead: 'ring' | 'dot' };
 export type View = { kind: 'week'; weeks: Day[][] } | { kind: 'term'; months: { label: string; left: number }[]; marks: TermMark[] } | null;
 export interface Summary {
   found: string;
   big: string;
   line: string | null;
   view: View;
+  /** The first few dated items, so the result is concrete even when nothing needs input. */
+  rows: FoundRow[];
+  /** How many dated items the rows leave out. */
+  more: number;
   needs: Need[];
 }
+
+const CATEGORY = { work: 'Work', school: 'School', personal: 'Personal' } as const;
+const ROWS = 5;
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
@@ -160,5 +169,25 @@ export function summarize(ex: Extraction, drafts: Draft[]): Summary {
     needs.push({ draft: d, pill, sub });
   }
 
-  return { found, big, line, view, needs };
+  const needKeys = new Set(needs.map((n) => n.draft.key));
+  const seriesRow = new Set<string>();
+  const listed = [...dated]
+    .sort((a, b) => (a.date + (a.start ?? '')).localeCompare(b.date + (b.start ?? '')))
+    .filter((d) => {
+      if (needKeys.has(d.key)) return false;
+      if (d.seriesId) {
+        if (seriesRow.has(d.seriesId)) return false;
+        seriesRow.add(d.seriesId);
+      }
+      return true;
+    });
+  const rows: FoundRow[] = listed.slice(0, ROWS).map((d) => ({
+    key: d.key,
+    title: d.title,
+    sub: [d.courseCode ?? (d.category === 'work' ? ex.employer : null), d.seriesId ? 'Repeats' : CATEGORY[d.category]].filter(Boolean).join(' · '),
+    when: d.start ? `${dayLabel(d.date)} · ${shortRange(d.start, d.kind === 'event' ? d.end : null)}` : dayLabel(d.date),
+    lead: d.kind === 'task' || d.isDeadline ? 'ring' : 'dot',
+  }));
+
+  return { found, big, line, view, rows, more: Math.max(0, listed.length - ROWS), needs };
 }
