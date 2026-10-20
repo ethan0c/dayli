@@ -188,6 +188,8 @@ Tier 3, blog posts that earn links: "How to organize a rotating work schedule as
 **6. Later, not now:** Google Ads (low volume for these queries; revisit after Search Console shows which terms pull), Instagram ads, podcasts, PR beyond campus papers.
 
 ### 4.4 Budget for the first 8 weeks
+Beta on $500 instead: [marketing-500.md](marketing-500.md).
+
 Apple Developer $99; Apple Search Ads ~$600; creator seeding ~$1,000; ambassador rewards ~$300; Vercel/PostHog/Sentry/RevenueCat free tiers. Roughly **$2,000** to find out whether 50 students pay and what an install costs.
 
 ### 4.5 Numbers to watch every Monday
