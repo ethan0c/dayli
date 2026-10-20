@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
+import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { feedback } from '@/lib/feedback';
 import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
 import { profileFor } from '@/lib/majors';
@@ -63,11 +64,11 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
           <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
         </Group>
 
-        <Group title="Account" footer="Planning as a guest. Your schedule is stored on this phone.">
+        {ACCOUNTS_ENABLED ? <Group title="Account" footer="Planning as a guest. Your schedule is stored on this phone.">
           <Row label="Account settings" value="Guest" onPress={() => router.push('/account?section=manage')} />
           <Row label="Log in or sign up" onPress={() => router.push('/auth')} />
           <Row label="Share your schedule" value="Preview" onPress={() => router.push('/share-schedule')} last />
-        </Group>
+        </Group> : null}
 
         <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
           <Row label="Your plan" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />

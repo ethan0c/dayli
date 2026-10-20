@@ -14,6 +14,7 @@ import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
 import { WeekChart, type WeekDay } from '@/components/WeekChart';
+import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
@@ -122,7 +123,7 @@ export default function PlanScreen() {
   const openCapture = () => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } });
   const header = (
     <TabHeader date={selected} label="" title="Plan"
-      trailing={<IconButton icon="share" label="Preview schedule sharing" tone="glass" onPress={() => router.push({ pathname: '/share-schedule', params: { date: selected } })} />}
+      trailing={ACCOUNTS_ENABLED ? <IconButton icon="share" label="Preview schedule sharing" tone="glass" onPress={() => router.push({ pathname: '/share-schedule', params: { date: selected } })} /> : undefined}
       context={<PlanCalendarControl selected={selected} expanded={calendarOpen} onToggle={() => setCalendarOpen((open) => !open)}
         onPreviousWeek={() => setSelected(addDays(selected, -7))} onNextWeek={() => setSelected(addDays(selected, 7))} />}
       details={<>

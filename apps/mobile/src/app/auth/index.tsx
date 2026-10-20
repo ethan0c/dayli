@@ -10,7 +10,7 @@ import { navigationButtonOptions } from '@/components/NavButtons';
 import { Button } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
-import { authClient, authErrorMessage } from '@/lib/auth';
+import { ACCOUNTS_ENABLED, authClient, authErrorMessage } from '@/lib/auth';
 import { enter } from '@/lib/motion';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
@@ -21,6 +21,7 @@ export default function AuthWelcomeScreen() {
   const insets = useSafeAreaInsets();
   const onboarded = useStore((s) => s.settings.onboarded);
   const [notice, setNotice] = useState<string | null>(null);
+  const start = () => { if (onboarded) router.dismissTo('/'); else router.replace('/onboarding?step=role'); };
   const google = async () => {
     try { await authClient.signInWithGoogle(); }
     catch (error) { setNotice(authErrorMessage(error)); }
@@ -37,14 +38,16 @@ export default function AuthWelcomeScreen() {
           </Animated.View>
         </View>
         <Animated.View entering={enter.rise} style={styles.actions}>
+          {!ACCOUNTS_ENABLED ? <Button label="Get started" onPress={start} /> : <>
           {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert" style={styles.center}>{notice}</T> : null}
           <GoogleButton onPress={() => void google()} />
           <Button label="Sign up with email" onPress={() => router.push('/auth/signup')} />
           <TextButton label="Already have an account? Log in" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} />
           <View style={[styles.guest, { borderTopColor: c.line }]}>
-            <TextButton label="Continue as a guest" tone="muted" onPress={() => { if (onboarded) router.dismissTo('/'); else router.replace('/onboarding?step=role'); }} style={styles.textAction} />
+            <TextButton label="Continue as a guest" tone="muted" onPress={start} style={styles.textAction} />
             <T token="caption" color={c.inkSecondary} style={styles.center}>Start planning. An account is optional.</T>
           </View>
+          </>}
         </Animated.View>
       </ScrollView>
     </View>

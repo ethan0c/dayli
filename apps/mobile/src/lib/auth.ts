@@ -12,6 +12,12 @@ export function validateAuthForm(mode: AuthMode, fields: AuthFields): AuthFieldE
   return errors;
 }
 
+/**
+ * Off until a backend exists. The welcome is one "Get started", and You and Plan hide the account
+ * and sharing previews. The screens and this adapter stay in the repo for when accounts ship.
+ */
+export const ACCOUNTS_ENABLED = false;
+
 /** No backend has been configured. Never manufacture sessions, reset emails or account deletion. */
 export class AuthUnavailableError extends Error {}
 

@@ -38,7 +38,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 - [ ] Verify clean install → onboarding → real import → review → Today, and existing install → update with local data preserved. Test free users and Plus users, Undo, export and .ics import on a real device.
 - [ ] Make local-only storage clear: no account, cloud backup or cross-device recovery exists. Test export before destructive actions and document what deleting the app loses.
-- [ ] Keep account and schedule-link UI labeled Preview until a backend exists. Do not list cloud backup, live sharing or Canvas sync as shipped Plus benefits.
+- Account and schedule-link previews are hidden behind `ACCOUNTS_ENABLED = false` in `lib/auth.ts` (Oct 19, 2026): the welcome is one "Get started", and You and Plan show no account or share entry. Flip it when the backend ships. Do not list cloud backup or live sharing as shipped Plus benefits.
 - [ ] Before a public paid launch, resolve server-side import abuse/quota enforcement. Current frontend gating and local counters cannot protect the extraction endpoint; backend work is explicitly deferred for now.
 - [ ] Review App Store screenshots/copy, accessibility, photo permissions, privacy disclosures for extraction/analytics/crash services, version/build numbers, release environment, production API URL and white native splash in an actual build.
 - [ ] Keep a short support playbook: purchase not active → Restore; notifications missing → permission + test reminder; schedule wrong → review/edit/Undo; data recovery → available export. Write down the release rollback/update steps while they are fresh.
