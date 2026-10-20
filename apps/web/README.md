@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Semli website and API
 
-## Getting Started
+The Next.js App Router site at [semli.app](https://semli.app): product pages, app-styled pricing, a schedule-import preview, and the iPhone beta waitlist. It also hosts the extraction API used by the mobile app. The website is not a full browser planner or a web subscription checkout.
 
-First, run the development server:
+## Run locally
+
+From the repository root, using Node.js 22.x (22.13+) or 24.x (24.3+):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp apps/web/.env.example apps/web/.env
+npm run dev:web
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [localhost:3000](http://localhost:3000). The marketing pages render without connected services; imports require `ANTHROPIC_API_KEY`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Server environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All variables in [.env.example](.env.example) belong on the server. See the [environment guide](../../docs/env.md) for local and production files.
 
-## Learn More
+| Variable | Purpose |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Reads text, images, and PDFs through `/api/extract` |
+| `SUPABASE_URL`, `SUPABASE_KEY` | Import quotas, demo limits, beta waitlist, and referral tracking; use the publishable key |
+| `REVENUECAT_SECRET_KEY` | Verifies `semli_pro` entitlement for unlimited Plus imports |
+| `TESTFLIGHT_URL` | Optional destination for `/beta`; leave unset until the invite is available |
 
-To learn more about Next.js, take a look at the following resources:
+Use the same Supabase project as the mobile app and apply [the migrations](../../supabase/migrations) in filename order. Without Supabase, local imports bypass server quotas; the waitlist needs Supabase. Configure Supabase, anonymous sign-ins, and RevenueCat verification before serving production app imports.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Main entry points
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Path | Purpose |
+| --- | --- |
+| `app/page.tsx` | Homepage and import demo |
+| `app/pricing/` | Free / Plus comparison and plan selection |
+| `app/api/extract/` | Validated extraction requests and import access checks |
+| `app/api/waitlist/` | Beta email signup |
+| `app/beta/` | Referral tracking and beta redirect |
+| `lib/site.ts` | Shared copy, prices, links, and `APP_STORE_LIVE` |
+| `app/tokens.ts` | CSS variables generated from `@dayli/tokens` |
+| `components/Shot.tsx` | Real app screenshot presentation |
+| `public/screens/` | App captures used on the site |
+| `public/photos/` | Photography and [source notes](public/photos/SOURCES.md) |
 
-## Deploy on Vercel
+Keep `APP_STORE_LIVE` false until the App Store listing is available. Before launch, acquisition buttons lead to beta signup. The mobile paywall gets purchasable prices from RevenueCat; website prices in `lib/site.ts` must stay aligned with the store offerings and [pricing document](../../docs/pricing-and-positioning.md).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Checks
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+From the repository root:
+
+```bash
+npm run lint --workspace web
+npm run build --workspace web
+npm run typecheck --workspace web
+npm test
+```
+
+Run build and standalone typecheck sequentially: Next.js regenerates `.next` route types during builds. The [website notes](../../docs/website.md) record copy and design decisions; the [launch checklist](../../docs/launch-checklist.md) tracks production readiness.

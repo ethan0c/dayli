@@ -45,3 +45,4 @@ example
 
 # Sentry source map upload token for local release builds (never commit)
 .env.sentry-build-plugin
+.env.production

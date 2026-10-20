@@ -1,0 +1,43 @@
+# Environment variables
+
+Three places, one file each for local and for production. Local files stay on the Mac. Production
+values live in the host, and the `.env.production` file is the copy you push from.
+
+| File | Read by | Production copy goes to |
+| --- | --- | --- |
+| `apps/mobile/.env` | `expo start`, simulator builds | `apps/mobile/.env.production`, pushed with `npx eas-cli env:push --environment production --environment preview --path .env.production --force` |
+| `apps/web/.env` | `next dev` | `apps/web/.env.production`, pasted into Vercel project settings (Production) |
+| `.env` (repo root) | Supabase CLI and dashboard only | nowhere; nothing deployed reads it |
+
+## Mobile
+
+| Variable | What it does | Local vs production |
+| --- | --- | --- |
+| `EXPO_PUBLIC_API_URL` | Site that runs imports | `http://localhost:3000` vs `https://semli.app` |
+| `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` | Accounts and backup | same |
+| `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY` | Subscriptions | same |
+| `EXPO_PUBLIC_REVENUECAT_CUSTOMER_CENTER_ENABLED` | Shows the RevenueCat customer center | same |
+| `EXPO_PUBLIC_POSTHOG_KEY`, `EXPO_PUBLIC_POSTHOG_HOST` | Analytics | same |
+| `EXPO_PUBLIC_SENTRY_DSN` | Crash reporting, project `semli-mobile` | same |
+| `SENTRY_AUTH_TOKEN` | Build step uploads source maps and dSYMs. Secret. | same |
+
+Every `EXPO_PUBLIC_*` value is compiled into the app binary, so none of them is secret. Only the
+Sentry token is.
+
+## Web
+
+| Variable | What it does |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | `/api/extract` reads schedules and syllabi. Secret. |
+| `SUPABASE_URL`, `SUPABASE_KEY` | Import limits and the beta waitlist. Same project as the app. |
+| `REVENUECAT_SECRET_KEY` | Confirms a Plus subscriber before a paid import. Secret. Production only. |
+| `TESTFLIGHT_URL` | Set once the public TestFlight link exists; `semli.app/beta` then redirects there. |
+
+## Tooling
+
+| Variable | What it does |
+| --- | --- |
+| `DATABASE_PASSWORD` | `supabase db push` |
+| `RESEND_API_KEY` | SMTP password under Authentication, Emails in the Supabase dashboard |
+
+Last reorganized Oct 20, 2026.

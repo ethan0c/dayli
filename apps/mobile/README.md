@@ -1,56 +1,66 @@
-# Welcome to your Expo app 👋
+# Semli for iPhone
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+The Expo SDK 58 / React Native app for Semli. Today, Plan, School, Add, and You share the same planner data and design tokens. See the [root README](../../README.md) for product scope and connected services.
 
-## Get started
+## Run locally
 
-1. Install dependencies
+Install dependencies from the repository root using npm. Use Node.js 22.x (22.13+) or 24.x (24.3+), macOS, and the [SDK 58 toolchain](https://docs.expo.dev/versions/v58.0.0/) for local iOS builds.
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+From the repository root:
 
 ```bash
-npm run reset-project
+npm install
+cp apps/mobile/.env.example apps/mobile/.env
+npm run ios --workspace mobile
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Start the website/API in a separate terminal with `npm run dev:web`, after configuring its environment. Set `EXPO_PUBLIC_API_URL` in the mobile environment to that server. The simulator can use `http://localhost:3000`; a physical iPhone needs your computer's LAN address. Debug builds also expose **You → Semli server** to change it.
 
-### Other setup steps
+For subsequent sessions, `npm run dev:mobile` starts Metro for the installed development client. Rebuild after changes to native dependencies, plugins, splash configuration, or Swift modules. Expo Go cannot run the complete app.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## EAS development builds
 
-## Learn more
+Run these commands from `apps/mobile`. EAS requires an Expo account and access to this app's EAS project. Physical-device builds also need Apple signing and device provisioning.
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+# Physical iPhone
+npx eas-cli@latest build --platform ios --profile development
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# iOS simulator
+npx eas-cli@latest build --platform ios --profile development-simulator
+```
 
-## Join the community
+Install the resulting build, then start Metro from this directory:
 
-Join our community of developers creating universal apps.
+```bash
+npx expo start --dev-client
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Cloud builds need their own EAS environment variables; follow the [environment guide](../../docs/env.md). The [App Store Connect guide](../../docs/app-store-connect.md#8-before-you-press-submit) covers signing and submission.
+
+## Configuration and source
+
+The [.env.example](.env.example) lists the API URL, Supabase publishable keys, RevenueCat public SDK key, and optional PostHog/Sentry configuration. Accounts activate when Supabase is configured. Store offerings and the `semli_pro` entitlement must match RevenueCat; see the [offerings brief](../../docs/revenuecat-offerings-brief.md).
+
+| Path | Purpose |
+| --- | --- |
+| `src/app/` | Expo Router screens and layouts |
+| `src/components/` | Shared interface components |
+| `src/store/` | Planner state and local persistence |
+| `src/lib/` | Imports, accounts, cloud backup, subscriptions, reminders, and other services |
+| `src/native/` | Swift inline modules for AlarmKit ringing alarms |
+| `app.json` / `eas.json` | Native configuration and cloud build profiles |
+
+Full ringing alarms are a Plus feature requiring iOS 26+ and AlarmKit permission. Verify alarms, Apple sign-in, notifications, and purchases on a physical device before release. Android and a full browser app are not current release targets.
+
+## Checks
+
+From the repository root:
+
+```bash
+npm run lint --workspace mobile
+npm run typecheck --workspace mobile
+npm test
+```
+
+Open release work is tracked in the [launch checklist](../../docs/launch-checklist.md) and [developer checklist](../../docs/todo.md).
