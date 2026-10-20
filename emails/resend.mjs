@@ -42,6 +42,7 @@ export function client(apiKey) {
   return {
     segments: () => all('/segments'),
     createSegment: (name) => call('POST', '/segments', { name }),
+    renameSegment: (id, name) => call('PATCH', `/segments/${id}`, { name }),
     contacts: (segmentId) => all(segmentId ? `/contacts?segment_id=${segmentId}` : '/contacts'),
     createContact: (c) => call('POST', '/contacts', c),
     updateContact: (email, c) => call('PATCH', `/contacts/${encodeURIComponent(email)}`, c),

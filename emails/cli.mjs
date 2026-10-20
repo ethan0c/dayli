@@ -6,7 +6,11 @@
  *   npm run email build           render docs/emails/*.html and *.txt from templates.mjs
  *   npm run email preview         build, then open a gallery of all five in the browser
  *   npm run email status          segments with counts, every broadcast, and the plan at a glance
- *   npm run email sync            Supabase waitlist -> Resend contacts in Survey / Waitlist / Updates
+ *   npm run email sync [--dry-run] [--survey-ref <tag,…>]
+ *                                 Supabase waitlist -> Resend contacts in Survey / Waitlist.
+ *                                 --dry-run shows the rows by ref tag and day, writes nothing.
+ *                                 --survey-ref says which ref tags are survey rows (default survey;
+ *                                 'none' means rows with no tag).
  *   npm run email add testers a@b.edu [more…]   put installed testers in the Testers segment
  *   npm run email send <name> [--at "2027-01-05T13:00:00Z"] [--yes]
  *                                 draft a broadcast in Resend; --yes sends (or schedules with --at)
@@ -22,6 +26,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderHtml, renderText, wordCount } from './layout.mjs';
 import { emails, segments, feedbackThankYou, SURVEY_TESTFLIGHT, BETA_LINK } from './templates.mjs';
+
+const targets = (e) => (Array.isArray(e.segment) ? e.segment : [e.segment]);
+const groupNames = (e) => targets(e).map((k) => segments[k] ?? k).join(' + ');
 import { client, ResendError } from './resend.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -77,7 +84,7 @@ function preview() {
   const all = [...Object.entries(emails), ['feedback-thank-you', { ...fb, segment: 'one-to-one', plan: 'Reply after reading their message' }]];
   const cards = all.map(([name, e]) => `
     <section>
-      <header><strong>${name}</strong><span>${segments[e.segment] ?? e.segment} · ${wordCount(e)} words</span><em>${e.subject}</em><small>${e.preheader}</small></header>
+      <header><strong>${name}</strong><span>${groupNames(e)} · ${wordCount(e)} words</span><em>${e.subject}</em><small>${e.preheader}</small></header>
       <iframe title="${name}" srcdoc="${renderHtml(e, POSTAL).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"></iframe>
       <p>${e.plan}</p>
     </section>`).join('');
@@ -109,13 +116,24 @@ function resend() {
   return client(E.RESEND_API_KEY);
 }
 
-async function ensureSegments(api) {
+/** Finds or creates the named groups. Only the ones a command needs, to stay inside the plan's cap. */
+async function ensureSegments(api, keys = Object.keys(segments)) {
   const existing = await api.segments();
   const byName = Object.fromEntries(existing.map((s) => [s.name.toLowerCase(), s]));
   const ids = {};
-  for (const [key, name] of Object.entries(segments)) {
+  for (const key of keys) {
+    const name = segments[key];
     let s = byName[name.toLowerCase()];
-    if (!s) { s = await api.createSegment(name); console.log(`  created segment ${name}`); }
+    if (!s) {
+      try {
+        s = await api.createSegment(name);
+      } catch (err) {
+        const extra = existing.filter((x) => !Object.values(segments).some((n) => n.toLowerCase() === x.name.toLowerCase()));
+        if (err.status === 400 && extra.length) throw new Error(`Resend's plan cap is full. Rename or delete ${extra.map((x) => x.name).join(', ')} in Resend, then retry.`);
+        throw err;
+      }
+      console.log(`  created segment ${name}`);
+    }
     ids[key] = s.id;
   }
   return ids;
@@ -147,22 +165,40 @@ function waitlistRows() {
   } catch (err) {
     throw new Error(`supabase db query failed; run \`npx supabase login\` and \`npx supabase link\` first.\n${err.stderr ?? err.message}`);
   }
-  const json = JSON.parse(text.slice(text.indexOf('[') >= 0 && text.indexOf('[') < (text.indexOf('{') + 1 || Infinity) ? text.indexOf('[') : text.indexOf('{')));
+  const start = text.search(/[\[{]/);
+  if (start < 0) throw new Error(`no JSON in supabase output: ${text.slice(0, 200)}`);
+  const json = JSON.parse(text.slice(start));
   const rows = Array.isArray(json) ? json : json.rows ?? json.result ?? json.data ?? [];
-  if (!Array.isArray(rows)) throw new Error(`unexpected query output: ${text.slice(0, 200)}`);
+  if (!Array.isArray(rows) || (rows.length && !rows[0].email)) throw new Error(`unexpected query output: ${text.slice(0, 200)}`);
   return rows;
 }
 
 async function sync() {
-  const api = resend();
-  const ids = await ensureSegments(api);
-  await ensureProperties(api);
   const rows = waitlistRows();
-  console.log(`  ${rows.length} waitlist rows`);
+  const surveyTags = (flag('survey-ref') ?? 'survey').split(',').map((t) => t.trim().toLowerCase());
+  const isSurvey = (r) => surveyTags.includes((r.ref ?? 'none').toLowerCase());
+  const survey = rows.filter(isSurvey).length;
+  console.log(`  ${rows.length} waitlist rows: ${survey} survey (ref ${surveyTags.join(' or ')}), ${rows.length - survey} site`);
+  if (has('dry-run')) {
+    const by = {};
+    for (const r of rows) {
+      const k = `${r.ref ?? 'none'}|${String(r.created_at).slice(0, 10)}`;
+      by[k] = (by[k] ?? 0) + 1;
+    }
+    console.log('');
+    table([['ref', 'joined', 'rows', 'goes to'], ...Object.entries(by).map(([k, n]) => {
+      const [ref, day] = k.split('|');
+      return [ref, day, n, surveyTags.includes(ref.toLowerCase()) ? 'Survey' : 'Waitlist'];
+    })]);
+    return console.log('\n  Dry run; nothing written to Resend.');
+  }
+  const api = resend();
+  const ids = await ensureSegments(api, ['survey', 'waitlist']);
+  await ensureProperties(api);
   const counts = { added: 0, updated: 0 };
   for (const r of rows) {
-    const source = r.ref === 'survey' ? 'survey' : 'waitlist';
-    const result = await upsert(api, { email: r.email, properties: { ref: r.ref ?? '', source } }, [ids[source], ids.updates]);
+    const source = isSurvey(r) ? 'survey' : 'waitlist';
+    const result = await upsert(api, { email: r.email, properties: { ref: r.ref ?? '', source } }, [ids[source]]);
     counts[result]++;
   }
   console.log(`  ${counts.added} added, ${counts.updated} already there (segments and properties refreshed)`);
@@ -173,9 +209,9 @@ async function add(group, addresses) {
   if (!segments[group]) throw new Error(`unknown group ${group}; one of ${Object.keys(segments).join(', ')}`);
   if (!addresses.length) throw new Error('give at least one email address');
   const api = resend();
-  const ids = await ensureSegments(api);
+  const ids = await ensureSegments(api, [group]);
   for (const email of addresses) {
-    const result = await upsert(api, { email: email.toLowerCase(), properties: {} }, [ids[group], ids.updates]);
+    const result = await upsert(api, { email: email.toLowerCase(), properties: {} }, [ids[group]]);
     console.log(`  ${result} ${email} -> ${segments[group]}`);
   }
 }
@@ -210,15 +246,15 @@ async function status() {
   console.log('\nEmails');
   const rows = [['email', 'to', 'words', 'last broadcast', 'plan']];
   for (const [name, e] of Object.entries(emails)) {
-    const mine = broadcasts.filter((b) => b.name === name).sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
+    const mine = broadcasts.filter((b) => b.name === name || b.name.startsWith(`${name} to `)).sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
     const b = mine[0];
     const state = b ? `${b.status}${b.sent_at ? ' ' + b.sent_at.slice(0, 10) : b.scheduled_at ? ' for ' + b.scheduled_at.slice(0, 10) : ''}` : 'not drafted';
-    rows.push([name, segments[e.segment], wordCount(e), state, e.plan]);
+    rows.push([name, groupNames(e), wordCount(e), state, e.plan]);
   }
   rows.push(['feedback-thank-you', 'one person', wordCount(feedbackThankYou({ name: 'x', about: 'x', reply: 'x' })), 'sent as needed', 'Reply after reading their message']);
   table(rows);
 
-  const other = broadcasts.filter((b) => !emails[b.name]);
+  const other = broadcasts.filter((b) => !emails[b.name.split(' to ')[0]]);
   if (other.length) {
     console.log('\nOther broadcasts in Resend');
     table([['name', 'status', 'created'], ...other.map((b) => [b.name, b.status, b.created_at.slice(0, 10)])]);
@@ -235,26 +271,28 @@ async function send(name) {
   if (!names.every((n) => emails[n])) throw new Error(`unknown email ${name}; one of ${Object.keys(emails).join(', ')}, all, feedback`);
   if (POSTAL.startsWith('[')) throw new Error('Set EMAIL_POSTAL_ADDRESS in .env before drafting a broadcast; the footer needs a real address.');
   const api = resend();
-  const ids = await ensureSegments(api);
+  const ids = await ensureSegments(api, [...new Set(names.flatMap((n) => targets(emails[n])))]);
   const at = flag('at');
   const yes = has('yes');
   if (name === 'all' && yes && !at) throw new Error('`send all --yes` needs --at; it schedules every email for the same time. Send them one by one for different dates.');
   for (const n of names) {
     const e = emails[n];
-    const body = {
-      name: n,
-      from: FROM,
-      reply_to: REPLY_TO,
-      subject: e.subject,
-      segment_id: ids[e.segment],
-      html: renderHtml(e, POSTAL),
-      text: renderText(e, POSTAL).replace(/^Subject: .*\n\n/, ''),
-      send: yes,
-      ...(yes && at ? { scheduled_at: at } : {}),
-    };
-    const b = await api.createBroadcast(body);
-    const what = yes ? (at ? `scheduled for ${at}` : 'sending now') : 'drafted';
-    console.log(`  ${pad(n, 20)} -> ${pad(segments[e.segment], 9)} ${what}   https://resend.com/broadcasts/${b.id}`);
+    for (const key of targets(e)) {
+      const body = {
+        name: targets(e).length > 1 ? `${n} to ${segments[key]}` : n,
+        from: FROM,
+        reply_to: REPLY_TO,
+        subject: e.subject,
+        segment_id: ids[key],
+        html: renderHtml(e, POSTAL),
+        text: renderText(e, POSTAL).replace(/^Subject: .*\n\n/, ''),
+        send: yes,
+        ...(yes && at ? { scheduled_at: at } : {}),
+      };
+      const b = await api.createBroadcast(body);
+      const what = yes ? (at ? `scheduled for ${at}` : 'sending now') : 'drafted';
+      console.log(`  ${pad(n, 20)} -> ${pad(segments[key], 9)} ${what}   https://resend.com/broadcasts/${b.id}`);
+    }
   }
   if (!yes) console.log('  Drafts only. Open each in Resend to proof it, then rerun with --yes (and --at to schedule).');
 }

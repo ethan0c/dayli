@@ -12,9 +12,9 @@ Oct 20, 2026. Copy for the steps in [marketing-500.md](marketing-500.md). Rules 
 
 ## 1. Survey email (week 1, before anything else)
 
-Send through a Resend Broadcast to the Survey segment, using the branded [survey-invite.html](emails/survey-invite.html). Send only once the Survey invite accepts testers and installs the build. The link was not accepting testers at the earlier Oct 20 check; confirm it works before sending. Keep the survey rows tagged `ref = 'survey'` in the `waitlist` table so they stay apart from people who sign up on the site.
+Send through a Resend Broadcast to the Survey segment, using the branded [survey-invite.html](emails/survey-invite.html). Send only once the Survey invite accepts testers and installs the build. The link was not accepting testers at the earlier Oct 20 check; confirm it works before sending. Keep the survey rows tagged `Survey` in the `waitlist` table's `ref` column (matched without regard to case) so they stay apart from people who sign up on the site.
 
-These people did not sign up on the site; they were added from the survey. So don't count them in the public waitlist number in posts. Use `select count(*) from waitlist where ref is distinct from 'survey'` for that.
+These people did not sign up on the site; they were added from the survey. So don't count them in the public waitlist number in posts. Use `select count(*) from waitlist where lower(ref) is distinct from 'survey'` for that.
 
 **Subject:** An update on that student planner survey
 
@@ -22,7 +22,7 @@ Use the current [HTML](emails/survey-invite.html) or [plain-text draft](emails/s
 
 ### Send it in Resend
 
-Status, Oct 20, 2026: sender-domain setup and the Survey contact import are complete, as confirmed by you. The email template is prepared locally; no broadcast or email has been sent from this repo.
+Status, Oct 20, 2026: sender domain verified. Resend had no contacts at the Oct 20 check; `npm run email sync` creates them from the Supabase `waitlist` table. The email template is prepared locally; no broadcast or email has been sent from this repo.
 
 1. Create a Broadcast in Resend. Select the **Survey** segment and confirm the recipient count matches the imported list, allowing for unsubscribed or suppressed contacts. Leave public Beta contacts out of this campaign.
 2. Use **Semli** as the sender name and your already verified sending address. Set Reply-To to `hello@semli.app` after confirming replies reach an inbox you monitor. Subject: **An update on that student planner survey**.
@@ -54,13 +54,13 @@ All marketing emails live as data in `emails/templates.mjs` and render through t
 | `survey-invite` | Survey | An update on that student planner survey | Nov 3, once the Survey TestFlight link accepts testers |
 | `public-beta-invite` | Waitlist | Your Semli beta invite is here | When the Beta group has room; link is `semli.app/beta?r=email-waitlist` so clicks are logged |
 | `tester-check-in` | Testers | Had a chance to try Semli? | 3 to 5 days after someone installs; `npm run email add testers a@b.edu` first |
-| `app-store-launch` | Updates | Semli is on the App Store | Jan 5, 2027, after the listing is public |
-| `semester-reminder` | Updates | Got your new syllabus yet? | Around the recipient's semester start, after release; Jan 11, 2027 for the campus campaign |
+| `app-store-launch` | Survey + Waitlist | Semli is on the App Store | Jan 5, 2027, after the listing is public |
+| `semester-reminder` | Survey + Waitlist | Got your new syllabus yet? | Around the recipient's semester start, after release; Jan 11, 2027 for the campus campaign |
 | `feedback-thank-you` | one person | Thanks for the Semli feedback | `npm run email send feedback --to … --name … --about "…" --reply "…"` |
 
-Groups are Resend segments. Contacts are account-level, so one person sits in several groups and still gets one copy per broadcast. Survey = waitlist rows with `ref = 'survey'`; Waitlist = every other row; Testers = confirmed installs, by hand; Updates = everyone, which is what the launch and semester emails go to. `npm run email sync` reads the Supabase `waitlist` table through the CLI (`npx supabase login` first) and creates or refreshes the contacts and their groups. It never re-subscribes anyone.
+Groups are Resend segments, and the free plan allows three. Survey = waitlist rows tagged `Survey`, any case; Waitlist = every other row; Testers = confirmed installs, added by hand. The launch and semester emails go to everyone as two broadcasts, one to Survey and one to Waitlist. The two never overlap, so nobody gets two copies. `npm run email sync` reads the Supabase `waitlist` table through the CLI (`npx supabase login` first) and creates or refreshes the contacts and their groups. It never re-subscribes anyone.
 
-Before sending launch or semester emails, check the Updates recipients against the updates they actually requested. The current sync adds every imported row to Updates, including Survey respondents; it does not check a separate ongoing-updates opt-in. The footer wording assumes that the recipients asked for those messages, so that audience still needs review before either campaign is sent.
+Before sending launch or semester emails, check both recipient groups against the updates they actually requested. These emails go to Survey and Waitlist, which means every imported row, Survey respondents included. Sync does not check a separate ongoing-updates opt-in. The footer wording assumes that the recipients asked for those messages, so that audience still needs review before either campaign is sent.
 
 Sending: `npm run email status` shows every group's count and every email's last broadcast. `npm run email send <name>` creates a draft broadcast in Resend to proof; `--yes` sends and `--yes --at 2027-01-05T13:00:00Z` schedules. `npm run email send all` drafts all five at once. Needs a full-access Resend key in the repo-root `.env` and `EMAIL_POSTAL_ADDRESS` set for the footer. Keep open and click tracking off on the sending domain.
 

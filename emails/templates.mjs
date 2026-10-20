@@ -13,20 +13,23 @@ export const BETA_LINK = 'https://semli.app/beta?r=email-waitlist';
 export const APP_STORE_URL = 'https://apps.apple.com/us/app/semli-ai-student-planner/id6824600264';
 
 /**
- * Groups in Resend. Contacts are account-level; a segment is a group a contact belongs to,
- * and one contact can sit in several, so nobody gets two copies of a broadcast to one segment.
+ * Groups in Resend. The free plan allows three segments, so there are exactly three:
  *
- *   Survey    the spring 2026 survey respondents (waitlist rows with ref = 'survey')
- *   Waitlist  people who signed up on semli.app (every other ref)
+ *   Survey    the spring 2026 survey respondents
+ *   Waitlist  people who signed up on semli.app
  *   Testers   people confirmed to have installed the beta; added by hand with `email add testers`
- *   Updates   everyone above who has not unsubscribed; the launch and semester emails go here
+ *
+ * Survey and Waitlist never overlap (each address has one source), so "everyone" is one
+ * broadcast to each. Testers are also in one of the two, so the check-in is its own send.
  */
 export const segments = {
   survey: 'Survey',
   waitlist: 'Waitlist',
   testers: 'Testers',
-  updates: 'Updates',
 };
+
+/** Everyone who signed up for anything: one broadcast per segment, no duplicates. */
+export const EVERYONE = ['survey', 'waitlist'];
 
 const HI = 'Hi {{{FIRST_NAME|there}}},';
 
@@ -86,7 +89,7 @@ export const emails = {
   },
 
   'app-store-launch': {
-    segment: 'updates',
+    segment: EVERYONE,
     plan: 'Jan 5, 2027, after the listing is public',
     subject: 'Semli is on the App Store',
     preheader: 'Your classes, shifts, and deadlines in one plan.',
@@ -104,7 +107,7 @@ export const emails = {
   },
 
   'semester-reminder': {
-    segment: 'updates',
+    segment: EVERYONE,
     plan: 'Around the recipient’s semester start, after public release; Jan 11, 2027 for the campus campaign',
     subject: 'Got your new syllabus yet?',
     preheader: 'Start with one syllabus or a week of shifts.',
