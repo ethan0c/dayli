@@ -46,6 +46,9 @@ export default function Home() {
   return (
     <main className={`page ${styles.home}`}>
       <section className={styles.hero} aria-labelledby="home-title">
+        <div className={styles.heroPhoto} aria-hidden>
+          <Image src="/photos/hero-golden.jpg" alt="" fill priority sizes="100vw" />
+        </div>
         <div className={styles.heroCopy}>
           <p className="eyebrow">The daily planner for college students</p>
           <h1 id="home-title">Your week, already organized.</h1>
@@ -58,12 +61,6 @@ export default function Home() {
             <p className={styles.note}>The iPhone beta opens soon. Join the first 200 testers.</p>
             <Waitlist compact />
           </>}
-        </div>
-        <div className={styles.heroPhone}>
-          <div className={styles.heroPhoto} aria-hidden>
-            <Image src="/photos/hero.jpg" alt="" fill priority sizes="(max-width: 820px) 100vw, 60vw" />
-          </div>
-          <Shot name="today" priority width={330} label="Today in Semli: 6 hours 19 minutes until a café shift, the day as a bar, and the list with what is due" />
         </div>
       </section>
 

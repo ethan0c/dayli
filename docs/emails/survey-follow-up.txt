@@ -1,0 +1,42 @@
+WINNER EMAIL
+
+Subject: You won our $40 Amazon gift card giveaway
+
+Hi [First name],
+
+You took our student planning survey back in the spring, and I have some good news—you won the $40 Amazon gift card!
+
+Thanks for taking the time to share your experience. Your feedback helped shape Semli, the planner I’ve been building for college students.
+
+Here’s your gift card:
+
+Claim code: XXXX-XXXXXX-XXXX
+Redeem it on Amazon: https://amazon.com/redeem
+
+Semli turns syllabi, work schedules, and messages into a plan for your week. If you’re curious, the iPhone beta opens soon with 200 spots. You can join the waitlist here:
+https://semli.app/beta?r=survey
+
+Thanks again, and enjoy the gift card!
+
+[Your name]
+Semli · hello@semli.app
+
+------------------------------------------------------------
+
+EMAIL TO OTHER SURVEY RESPONDENTS
+
+Subject: Thanks for helping shape Semli
+
+Hi [First name],
+
+A quick update since you took our student planning survey in the spring: the $40 Amazon gift card winner has been drawn, and their gift card is on its way.
+
+I also wanted to share what I’ve been building with your feedback. It’s called Semli—a planner that turns syllabi, work schedules, and messages into one place to see what’s coming up.
+
+The iPhone beta opens soon with 200 spots. If you’d like to try it, you can join the waitlist here:
+https://semli.app/beta?r=survey
+
+Thanks for helping me get it this far.
+
+[Your name]
+Semli · hello@semli.app
