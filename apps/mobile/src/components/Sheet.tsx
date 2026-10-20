@@ -38,16 +38,17 @@ export function Sheet({ title, subtitle, children, footer, onClose, nav = 'cover
   );
 }
 
-/** Primary (ink in light, purple in dark) or secondary pill button. One primary per screen. */
+/** Primary, secondary, or explicitly purple accent pill. One primary action per screen. */
 export function Button({ label, onPress, disabled, variant = 'primary' }: {
-  label: string; onPress: () => void; disabled?: boolean; variant?: 'primary' | 'secondary' | 'ghost';
+  label: string; onPress: () => void; disabled?: boolean; variant?: 'primary' | 'secondary' | 'ghost' | 'accent';
 }) {
   const { c } = useTheme();
   const primary = variant === 'primary';
+  const accent = variant === 'accent';
   return (
     <Press onPress={onPress} disabled={disabled} haptic="tap" accessibilityRole="button" accessibilityState={{ disabled: !!disabled }}
-      style={[styles.btn, { backgroundColor: primary ? c.controlFill : c.row, opacity: disabled ? 0.4 : 1 }]}>
-      <T token="headline" color={primary ? c.controlInk : c.inkPrimary}>
+      style={[styles.btn, { backgroundColor: accent ? c.accent : primary ? c.controlFill : c.row, opacity: disabled ? 0.4 : 1 }]}>
+      <T token="headline" color={accent ? c.onAccent : primary ? c.controlInk : c.inkPrimary}>
         {label}
       </T>
     </Press>

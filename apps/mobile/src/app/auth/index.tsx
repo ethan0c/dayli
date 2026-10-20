@@ -53,7 +53,7 @@ export default function AuthWelcomeScreen() {
           {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert" style={styles.center}>{notice}</T> : null}
           <AppleButton onPress={() => void signIn('apple')} disabled={busy} />
           <GoogleButton onPress={() => void signIn('google')} disabled={busy} />
-          <Button label="Sign up with email" disabled={busy} onPress={() => router.push('/auth/signup')} />
+          <Button label="Sign up with email" variant="accent" disabled={busy} onPress={() => router.push('/auth/signup')} />
           <TextButton label="Already have an account? Log in" tone="muted" disabled={busy} onPress={() => router.push('/auth/login')} style={styles.textAction} />
           <View style={[styles.guest, { borderTopColor: c.line }]}>
             <TextButton label="Continue as a guest" tone="muted" disabled={busy} onPress={leaveAuth} style={styles.textAction} />
