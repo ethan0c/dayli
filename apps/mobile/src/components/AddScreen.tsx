@@ -15,6 +15,7 @@ import { track } from '@/lib/analytics';
 import { requestExtraction } from '@/lib/api';
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from '@/lib/capture-input';
 import { feedback } from '@/lib/feedback';
+import { reportError } from '@/lib/errors';
 import { usePlusAccess } from '@/lib/plus-access';
 import { useNow } from '@/lib/now';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
@@ -73,7 +74,8 @@ export function AddScreen() {
       track('import_succeeded', { kind: input.kind, items: res.extraction.items.length, type: res.extraction.detected_type });
       setPending({ extraction: res.extraction, source });
       router.push('/review');
-    } catch {
+    } catch (failure) {
+      reportError('import.prepare_or_review', failure);
       setError(IMPORT_MESSAGES.unavailable);
     } finally {
       importing.current = false;
@@ -87,6 +89,7 @@ export function AddScreen() {
       const picked = await fn();
       if (picked) await run(picked.input, picked.source);
     } catch (e) {
+      reportError('import.pick_file', e);
       setError(e instanceof InputError ? e.message : IMPORT_MESSAGES.file);
     }
   };
@@ -102,7 +105,8 @@ export function AddScreen() {
       const lower = uri.toLowerCase();
       const mediaType = lower.endsWith('.png') ? 'image/png' : lower.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
       await run({ kind: 'image', mediaType, data }, 'Screenshot');
-    } catch {
+    } catch (failure) {
+      reportError('import.open_screenshot', failure);
       setError("We couldn't open that screenshot. Try choosing it from your photos instead.");
     }
   }

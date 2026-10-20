@@ -26,7 +26,7 @@ export default function AccountScreen() {
   const [error, setError] = useState<string | null>(null);
   const user = session?.user;
 
-  const run = async (action: () => Promise<void>, done: string) => {
+  const run = async (action: () => Promise<void>, done: string, operation: string) => {
     setBusy(true);
     setError(null);
     try {
@@ -35,7 +35,7 @@ export default function AccountScreen() {
       useStore.getState().showToast(done);
       router.dismissTo('/');
     } catch (failure) {
-      setError(authErrorMessage(failure));
+      setError(authErrorMessage(failure, operation));
     } finally {
       setBusy(false);
     }
@@ -68,7 +68,7 @@ export default function AccountScreen() {
 
   return (
     <Sheet title={deleting ? 'Delete account' : 'Account settings'} footer={deleting ? <>
-      <Button label={busy ? 'Deleting…' : 'Delete my account'} disabled={busy} onPress={() => void run(authClient.deleteAccount, 'Account deleted. Your plan is still on this phone.')} />
+      <Button label={busy ? 'Deleting…' : 'Delete my account'} disabled={busy} onPress={() => void run(authClient.deleteAccount, 'Account deleted. Your plan is still on this phone.', 'account.delete')} />
       <TextButton label="Keep my account" tone="muted" onPress={() => setDeleting(false)} />
     </> : undefined}>
       <ScrollView contentContainerStyle={styles.body}>
@@ -84,7 +84,7 @@ export default function AccountScreen() {
             <Row label="Status" value={backedUp} />
           </Group>
           <Group title="Account controls" footer="Logging out keeps everything on this phone.">
-            <Row label={busy ? 'Logging out…' : 'Log out'} onPress={busy ? undefined : () => void run(authClient.signOut, 'Logged out. Your plan is still on this phone.')} />
+            <Row label={busy ? 'Logging out…' : 'Log out'} onPress={busy ? undefined : () => void run(authClient.signOut, 'Logged out. Your plan is still on this phone.', 'account.log_out')} />
             <Row label="Delete account" destructive onPress={() => setDeleting(true)} last />
           </Group>
         </> : null}

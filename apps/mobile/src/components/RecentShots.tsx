@@ -5,6 +5,7 @@ import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { GroupLabel, TextButton } from '@/components/Controls';
 import { Press } from '@/components/Press';
 import { SkeletonShots } from '@/components/Skeleton';
+import { reportError } from '@/lib/errors';
 import { useTheme } from '@/theme';
 
 type Shot = { id: string; uri: string; sample?: number };
@@ -38,7 +39,8 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
         .exe();
       const uris = await Promise.all(assets.map(async (a) => ({ id: a.id, uri: await a.getUri() })));
       setShots(uris);
-    } catch {
+    } catch (error) {
+      reportError('photos.recent_screenshots', error);
       setShots([]);
     }
   }
@@ -49,7 +51,7 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
       const ok = usable(p);
       setAllowed(ok);
       if (ok) void load();
-    }).catch(() => setAllowed(false));
+    }).catch((error: unknown) => { reportError('photos.check_permission', error); setAllowed(false); });
   }, []);
 
   if (Platform.OS === 'web') return null;

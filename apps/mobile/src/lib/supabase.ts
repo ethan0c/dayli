@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, type Session } from '@supabase/supabase-js';
 import { AppState, Platform } from 'react-native';
 import { create } from 'zustand';
+import { reportError } from './errors';
 
 const URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const KEY = process.env.EXPO_PUBLIC_SUPABASE_KEY;
@@ -24,13 +25,19 @@ export const supabase = URL && KEY
 export const useSession = create<{ session: Session | null; ready: boolean }>(() => ({ session: null, ready: !supabase }));
 
 if (supabase) {
-  void supabase.auth.getSession().then(({ data }) => useSession.setState({ session: data.session, ready: true }));
+  void supabase.auth.getSession().then(({ data, error }) => {
+    if (error) reportError('auth.restore_session', error);
+    useSession.setState({ session: data.session, ready: true });
+  }).catch((error: unknown) => {
+    reportError('auth.restore_session', error);
+    useSession.setState({ ready: true });
+  });
   supabase.auth.onAuthStateChange((_event, session) => useSession.setState({ session, ready: true }));
   // Refresh tokens only while the app is in the foreground (Supabase's React Native guidance).
   if (Platform.OS !== 'web') {
     AppState.addEventListener('change', (state) => {
-      if (state === 'active') void supabase.auth.startAutoRefresh();
-      else void supabase.auth.stopAutoRefresh();
+      if (state === 'active') void supabase.auth.startAutoRefresh().catch((error: unknown) => reportError('auth.start_refresh', error));
+      else void supabase.auth.stopAutoRefresh().catch((error: unknown) => reportError('auth.stop_refresh', error));
     });
   }
 }

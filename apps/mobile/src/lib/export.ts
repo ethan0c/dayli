@@ -1,5 +1,6 @@
 import type { Course, Item, ScheduleVersion } from '@dayli/schema';
 import { File, Paths } from 'expo-file-system';
+import { reportError } from './errors';
 
 /** Everything that is yours, as one JSON file you can AirDrop, save, or bring to a new phone. */
 export function buildBackup(data: { items: Item[]; courses: Course[]; schedules: ScheduleVersion[]; exportedAt: string }): string {
@@ -52,7 +53,8 @@ export async function shareText(name: string, text: string, mimeType: string): P
   let sharing: typeof import('expo-sharing');
   try {
     sharing = await import('expo-sharing');
-  } catch {
+  } catch (error) {
+    reportError('export.load_sharing', error);
     return false;
   }
   if (!(await sharing.isAvailableAsync())) return false;

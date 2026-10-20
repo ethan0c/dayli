@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
 
 import { track } from '@/lib/analytics';
+import { withErrorLogging } from './errors';
 import { planReminders, type PlannedNotification } from '@/lib/reminder-plan';
 import { useStore } from '@/store';
 
@@ -16,20 +17,24 @@ export function configureNotifications() {
 }
 
 export async function notificationsAllowed(): Promise<boolean> {
-  if (Platform.OS === 'web') return false;
-  const current = await Notifications.getPermissionsAsync();
-  return current.granted;
+  return withErrorLogging('reminders.check_permission', async () => {
+    if (Platform.OS === 'web') return false;
+    const current = await Notifications.getPermissionsAsync();
+    return current.granted;
+  });
 }
 
 /** Ask once, in context (after the first confirmed import). Returns whether reminders can fire. */
 export async function requestNotifications(): Promise<boolean> {
-  if (Platform.OS === 'web') return false;
-  const current = await Notifications.getPermissionsAsync();
-  if (current.granted) return true;
-  if (!current.canAskAgain) return false;
-  const next = await Notifications.requestPermissionsAsync({ ios: { allowAlert: true, allowBadge: false, allowSound: true } });
-  track('reminders_permission', { granted: next.granted });
-  return next.granted;
+  return withErrorLogging('reminders.request_permission', async () => {
+    if (Platform.OS === 'web') return false;
+    const current = await Notifications.getPermissionsAsync();
+    if (current.granted) return true;
+    if (!current.canAskAgain) return false;
+    const next = await Notifications.requestPermissionsAsync({ ios: { allowAlert: true, allowBadge: false, allowSound: true } });
+    track('reminders_permission', { granted: next.granted });
+    return next.granted;
+  });
 }
 
 function triggerFor(p: PlannedNotification): Notifications.DateTriggerInput {
@@ -45,29 +50,33 @@ let lastSignature = '';
  * plan is not rescheduled, so this can run on every store change.
  */
 export async function syncReminders(): Promise<number> {
-  if (Platform.OS === 'web') return 0;
-  const { items, settings } = useStore.getState();
-  const allowed = await notificationsAllowed();
-  const plan = allowed ? planReminders(Object.values(items), settings.reminders, localParts(new Date()), { trial: settings.trial }) : [];
-  const signature = JSON.stringify(plan.map((p) => [p.id, p.date, p.time, p.body]));
-  if (signature === lastSignature) return plan.length;
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  for (const p of plan) {
-    await Notifications.scheduleNotificationAsync({
-      identifier: p.id,
-      content: { title: p.title, body: p.body, sound: 'default', data: { itemId: p.itemId, kind: p.kind } },
-      trigger: triggerFor(p),
-    });
-  }
-  lastSignature = signature;
-  return plan.length;
+  return withErrorLogging('reminders.synchronize', async () => {
+    if (Platform.OS === 'web') return 0;
+    const { items, settings } = useStore.getState();
+    const allowed = await notificationsAllowed();
+    const plan = allowed ? planReminders(Object.values(items), settings.reminders, localParts(new Date()), { trial: settings.trial }) : [];
+    const signature = JSON.stringify(plan.map((p) => [p.id, p.date, p.time, p.body]));
+    if (signature === lastSignature) return plan.length;
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    for (const p of plan) {
+      await Notifications.scheduleNotificationAsync({
+        identifier: p.id,
+        content: { title: p.title, body: p.body, sound: 'default', data: { itemId: p.itemId, kind: p.kind } },
+        trigger: triggerFor(p),
+      });
+    }
+    lastSignature = signature;
+    return plan.length;
+  });
 }
 
 /** Fire a sample reminder in a few seconds, so the settings page can prove it works. */
 export async function sendTestNotification(): Promise<void> {
-  await Notifications.scheduleNotificationAsync({
-    content: { title: 'Stats exam 2 is tomorrow', body: 'Due Friday at 9:00 am. A good evening to get ahead.', sound: 'default' },
-    trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 5 },
+  return withErrorLogging('reminders.send_test', async () => {
+    await Notifications.scheduleNotificationAsync({
+      content: { title: 'Stats exam 2 is tomorrow', body: 'Due Friday at 9:00 am. A good evening to get ahead.', sound: 'default' },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 5 },
+    });
   });
 }
 

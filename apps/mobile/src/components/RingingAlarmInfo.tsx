@@ -5,6 +5,7 @@ import { TextButton } from '@/components/Controls';
 import { T } from '@/components/Text';
 import { disableRingingAlarms, enableRingingAlarms, syncRingingAlarms, useAlarmState } from '@/lib/alarms';
 import { openSystemSettings } from '@/lib/links';
+import { friendlyError } from '@/lib/errors';
 import { useStore } from '@/store';
 import { useTheme } from '@/theme';
 
@@ -40,7 +41,7 @@ export function RingingAlarmInfo({ timed = true, itemID, draft = false, settings
       else if (enabled && settings) await disableRingingAlarms();
       else if (enabled && state.authorization === 'authorized') await syncRingingAlarms();
       else await enableRingingAlarms();
-    } catch { setError('We couldn’t update ringing alarms. Please try again.'); }
+    } catch (failure) { setError(friendlyError(failure, 'We couldn’t update ringing alarms. Please try again.', 'alarms.update')); }
     finally { setBusy(false); }
   }
   return <View style={{ gap: 6, paddingVertical: 10 }}>

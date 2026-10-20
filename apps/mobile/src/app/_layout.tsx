@@ -9,6 +9,8 @@ import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
 
 import { syncRingingAlarms } from '@/lib/alarms';
+import { AppErrorBoundary } from '@/components/AppErrorBoundary';
+import { reportError } from '@/lib/errors';
 import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
 import { devCommand } from '@/lib/dev';
@@ -22,6 +24,9 @@ import { mobileFonts, useTheme } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
 configureNotifications();
+
+export { AppErrorBoundary as ErrorBoundary };
+export const unstable_settings = { screenErrorBoundary: AppErrorBoundary };
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 Sentry.init({ dsn: SENTRY_DSN, enabled: !!SENTRY_DSN, tracesSampleRate: 0.2, sendDefaultPii: false });
@@ -39,6 +44,7 @@ function RootLayout() {
   const appearance = useStore((s) => s.settings.appearance);
   const { c, dark } = useTheme();
   const ready = (fontsLoaded || !!fontError) && hydrated;
+  useEffect(() => { if (fontError) reportError('fonts.load', fontError); }, [fontError]);
   useReminderSync();
   const alarmItems = useStore((s) => s.items);
   const alarmsEnabled = useStore((s) => s.settings.reminders.urgentAlarmsEnabled);

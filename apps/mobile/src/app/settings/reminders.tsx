@@ -8,6 +8,7 @@ import { RingingAlarmInfo } from '@/components/RingingAlarmInfo';
 import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
+import { friendlyError } from '@/lib/errors';
 import { openSystemSettings } from '@/lib/links';
 import { notificationsAllowed, requestNotifications, sendTestNotification, syncReminders } from '@/lib/notifications';
 import type { ReminderPrefs } from '@/lib/reminder-plan';
@@ -27,11 +28,15 @@ export default function RemindersScreen() {
   const setSettings = useStore((s) => s.setSettings);
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const failed = (failure: unknown) => setError(friendlyError(failure, 'We couldn’t update your reminders. Please try again.', 'reminders.settings'));
 
   // Re-check when the app comes back, since the user may have changed it in iOS Settings.
   useEffect(() => {
-    void notificationsAllowed().then(setAllowed);
-    const sub = AppState.addEventListener('change', (st) => st === 'active' && void notificationsAllowed().then(setAllowed));
+    const check = () => void notificationsAllowed().then(setAllowed).catch((failure: unknown) => setError(friendlyError(failure, 'We couldn’t check reminder permission. Please try again.', 'reminders.check_permission')));
+    check();
+    const sub = AppState.addEventListener('change', (st) => { if (st === 'active') check(); });
     return () => sub.remove();
   }, []);
 
@@ -42,17 +47,19 @@ export default function RemindersScreen() {
 
   /** Ask the system if we still can; otherwise send them to iOS Settings, which is the only place left to allow it. */
   const ensureAllowed = async (): Promise<boolean> => {
-    const ok = await requestNotifications();
-    setAllowed(ok);
-    if (!ok) void openSystemSettings();
-    return ok;
+    try {
+      const ok = await requestNotifications();
+      setAllowed(ok);
+      if (!ok && !(await openSystemSettings())) setError('Open your device Settings, choose Semli, then allow Notifications.');
+      return ok;
+    } catch (failure) { failed(failure); return false; }
   };
 
   const enable = async () => {
-    if (await ensureAllowed()) {
-      update({ enabled: true });
-      await syncReminders();
-    }
+    setError(null);
+    try {
+      if (await ensureAllowed()) { update({ enabled: true }); await syncReminders(); }
+    } catch (failure) { failed(failure); }
   };
 
   const toggle = (key: 'enabled' | 'briefing') => async (on: boolean) => {
@@ -60,7 +67,8 @@ export default function RemindersScreen() {
     if (on && !(await ensureAllowed())) return;
     update({ [key]: on });
     if (key === 'briefing') track('briefing_changed', { briefing: on });
-    void syncReminders().catch(() => {});
+    setError(null);
+    try { await syncReminders(); } catch (failure) { failed(failure); }
   };
 
   const hairline = { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line };
@@ -74,6 +82,7 @@ export default function RemindersScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
+      {error ? <Group footer={error}><Row label="Retry reminder setup" onPress={() => { void syncReminders().then(() => setError(null)).catch(failed); }} last /></Group> : null}
       {allowed === false ? (
         <Group footer="Semli needs permission to show reminders. Nothing is sent anywhere; they are scheduled on this phone. If iOS no longer asks, this opens Settings so you can allow it there.">
           <Row label="Turn on reminders" onPress={() => void enable()} last />
@@ -114,15 +123,15 @@ export default function RemindersScreen() {
 
       <Group footer={sent ? 'Sent. It arrives in about five seconds, even with the app open.' : undefined}>
         <Row
-          label="Send a test reminder"
-          onPress={() => {
+          label={sending ? 'Sending…' : 'Send a test reminder'}
+          onPress={sending ? undefined : () => {
             feedback('tap');
-            void ensureAllowed().then((ok) => {
-              if (ok) {
-                setSent(true);
-                void sendTestNotification();
-              }
-            });
+            setSent(false); setError(null); setSending(true);
+            void (async () => {
+              try { if (await ensureAllowed()) { await sendTestNotification(); setSent(true); } }
+              catch (failure) { setError(friendlyError(failure, 'We couldn’t send a test reminder. Please try again.', 'reminders.send_test')); }
+              finally { setSending(false); }
+            })();
           }}
           last
         />

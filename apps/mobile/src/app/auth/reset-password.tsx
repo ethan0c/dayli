@@ -28,7 +28,7 @@ export default function ResetPasswordScreen() {
       useStore.getState().showToast('Password changed.');
       leaveAuth(); // Stays busy while the screen leaves.
     } catch (failure) {
-      setError(authErrorMessage(failure));
+      setError(authErrorMessage(failure, 'auth.reset_password'));
       setPassword('');
       setBusy(false);
     }

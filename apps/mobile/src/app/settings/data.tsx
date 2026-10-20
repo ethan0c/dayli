@@ -9,6 +9,7 @@ import { Icon } from '@/components/Icon';
 import { Group, Row } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { buildBackup, buildIcs, shareText } from '@/lib/export';
+import { friendlyError } from '@/lib/errors';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
@@ -40,7 +41,7 @@ export default function DataScreen() {
   const setSettings = useStore((s) => s.setSettings);
   const [confirm, setConfirm] = useState(false);
   const [allChanges, setAllChanges] = useState(false);
-  const [unavailable, setUnavailable] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const jobs = useMemo(() => new Set(items.map((it) => it.employer?.trim().toLowerCase()).filter(Boolean)).size, [items]);
   const since = useMemo(() => items.map((it) => it.createdAt.slice(0, 10)).sort()[0], [items]);
@@ -52,8 +53,13 @@ export default function DataScreen() {
 
   const share = async (name: string, text: string, mime: string) => {
     feedback('tap');
-    const ok = await shareText(name, text, mime);
-    if (!ok) setUnavailable(true);
+    setExportError(null);
+    try {
+      const ok = await shareText(name, text, mime);
+      if (!ok) setExportError('Sharing isn’t available on this device. Try again after updating Semli.');
+    } catch (error) {
+      setExportError(friendlyError(error, 'We couldn’t export your plan. Check that your device has free storage, then try again.', 'export.share'));
+    }
   };
   const exportPlan = () => share('semli-plan.json', buildBackup({ items, courses, schedules, exportedAt: new Date().toISOString() }), 'application/json');
   const exportCalendar = () => share('semli.ics', buildIcs(items, courses), 'text/calendar');
@@ -84,7 +90,7 @@ export default function DataScreen() {
         <T token="body" style={styles.line}>{summary}</T>
       </View>
 
-      <Group title="Keep it safe" footer={unavailable ? 'Sharing isn’t available on this device.' : undefined}>
+      <Group title="Keep it safe" footer={exportError ?? undefined}>
         <ListRow title="Export my plan" sub="A file you can AirDrop, save, or bring to a new phone" onPress={() => void exportPlan()} />
         <ListRow title="Add to Calendar" sub="Every event into Apple or Google Calendar, once" onPress={() => void exportCalendar()} last />
       </Group>

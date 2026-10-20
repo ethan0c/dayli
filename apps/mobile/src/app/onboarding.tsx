@@ -21,6 +21,7 @@ import { requestExtraction } from "@/lib/api";
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/lib/capture-input";
 import { devStep } from "@/lib/dev";
 import { feedback } from "@/lib/feedback";
+import { reportError } from "@/lib/errors";
 import { enter, exit, springs } from "@/lib/motion";
 import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
 import { requestNotifications, syncReminders } from "@/lib/notifications";
@@ -498,7 +499,8 @@ function OwnStep({ onSample }: { onSample: () => void }) {
       track("import_succeeded", { kind: input.kind, items: res.extraction.items.length, type: res.extraction.detected_type, where: "onboarding" });
       setPending({ extraction: res.extraction, source });
       router.push("/review");
-    } catch {
+    } catch (failure) {
+      reportError("onboarding.import", failure);
       track("import_failed", { kind: input.kind, where: "onboarding" });
       setError("Semli couldn't read that right now. You can explore your preview and try yours later.");
     } finally {
@@ -513,6 +515,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
       const picked = await fn();
       if (picked) await run(picked.input, picked.source);
     } catch (e) {
+      reportError("onboarding.pick_file", e);
       setError(e instanceof InputError ? e.message : "Semli couldn't open that. Try another file, or type it instead.");
     }
   };
@@ -525,7 +528,8 @@ function OwnStep({ onSample }: { onSample: () => void }) {
       const lower = uri.toLowerCase();
       const mediaType = lower.endsWith(".png") ? "image/png" : lower.endsWith(".webp") ? "image/webp" : "image/jpeg";
       await run({ kind: "image", mediaType, data }, "Screenshot");
-    } catch {
+    } catch (failure) {
+      reportError("onboarding.open_screenshot", failure);
       setError("We couldn't open that screenshot. Try choosing it from your photos instead.");
     }
   }

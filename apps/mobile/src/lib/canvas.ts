@@ -1,5 +1,6 @@
 import { iconFor, localParts, normalizeTitle, type CommitPlan } from '@dayli/core';
 import type { Item } from '@dayli/schema';
+import { reportError } from './errors';
 
 /*
  * Canvas sync through the calendar feed: the .ics link every student can copy from

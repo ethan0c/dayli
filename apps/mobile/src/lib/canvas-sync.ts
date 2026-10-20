@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { AppState, Platform } from 'react-native';
 
 import { track } from './analytics';
+import { reportError } from './errors';
 import { CANVAS_MESSAGES, CANVAS_SOURCE, courseCodeOf, fetchCanvasFeed, planCanvasSync, syncSummary } from './canvas';
 import { usePurchases } from '../providers/PurchasesProvider';
 import { newId, useStore } from '../store';
@@ -20,7 +21,12 @@ export type SyncResult = { ok: true; summary: string | null; total: number } | {
  * the last good sync stays on screen and the error waits on the Canvas screen.
  */
 export function syncCanvas(feedUrl?: string): Promise<SyncResult> {
-  running ??= run(feedUrl).finally(() => { running = null; });
+  running ??= run(feedUrl).catch((error: unknown): SyncResult => {
+    reportError('canvas.synchronize', error);
+    const { settings, setSettings } = useStore.getState();
+    setSettings({ canvas: { ...settings.canvas, lastError: CANVAS_MESSAGES.connection } });
+    return { ok: false, error: CANVAS_MESSAGES.connection };
+  }).finally(() => { running = null; });
   return running;
 }
 

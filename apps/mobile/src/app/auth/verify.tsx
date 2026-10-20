@@ -43,7 +43,7 @@ export default function VerifyScreen() {
       if (purpose === 'recovery') router.replace('/auth/reset-password');
       else leaveAuth();
     } catch (failure) {
-      setError(authErrorMessage(failure));
+      setError(authErrorMessage(failure, 'auth.verify_code'));
       setCode('');
       setBusy(false);
       lock.current = false;
@@ -56,7 +56,7 @@ export default function VerifyScreen() {
       await authClient.resendCode(email, purpose);
       setWait(RESEND_AFTER_S);
     } catch (failure) {
-      setError(authErrorMessage(failure));
+      setError(authErrorMessage(failure, 'auth.resend_code'));
     }
   };
 

@@ -1,3 +1,5 @@
+import { reportError } from './errors';
+
 // A single pending gate survives the modal's lifetime without putting callbacks in route params.
 let pending: { promise: Promise<boolean>; resolve: (unlocked: boolean) => void } | null = null;
 
@@ -8,7 +10,8 @@ export function requestPaywall(present: () => void): Promise<boolean> {
   pending = { promise, resolve };
   try {
     present();
-  } catch {
+  } catch (error) {
+    reportError('paywall.present', error);
     finishPaywall(false);
   }
   return promise;

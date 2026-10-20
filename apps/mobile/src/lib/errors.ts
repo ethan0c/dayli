@@ -26,3 +26,8 @@ export function friendlyError(error: unknown, fallback: string, operation: strin
   reportError(operation, error);
   return fallback;
 }
+
+export async function withErrorLogging<T>(operation: string, action: () => Promise<T>): Promise<T> {
+  try { return await action(); }
+  catch (error) { reportError(operation, error); throw error; }
+}

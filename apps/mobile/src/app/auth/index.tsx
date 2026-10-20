@@ -27,7 +27,7 @@ export default function AuthWelcomeScreen() {
     try {
       const result = await authClient.signInWithGoogle();
       if (result?.signedIn) leaveAuth();
-    } catch (error) { setNotice(authErrorMessage(error)); }
+    } catch (error) { setNotice(authErrorMessage(error, 'auth.google')); }
   };
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>

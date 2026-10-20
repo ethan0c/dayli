@@ -58,7 +58,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       // On to the code screen; this form stays usable behind it. A null result is the Google sheet cancelled.
       if (result) router.push({ pathname: '/auth/verify', params: { email: address, purpose: forgot ? 'recovery' : 'signup' } });
     } catch (error) {
-      setNotice(authErrorMessage(error));
+      setNotice(authErrorMessage(error, `auth.${mode}.${provider}`));
     }
     setPassword('');
     setBusy(false);
