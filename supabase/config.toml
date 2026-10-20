@@ -1,0 +1,15 @@
+# The hosted project's settings that live in this repo. `supabase config push` writes only what
+# this file declares and leaves everything else on the project untouched; `supabase config diff`
+# previews. Everything else (providers, SMTP, Site URL, redirect allow list) is set in the dashboard.
+project_id = "vhzuefbxrzlhnvyrldad"
+
+# The app verifies emailed codes (verifyOtp with the signup and recovery types), so both emails
+# carry {{ .Token }} and no confirmation link. Supabase's default templates send a link that lands
+# on the Site URL, which the app cannot use.
+[auth.email.template.confirmation]
+subject = "Your Semli code"
+content_path = "./supabase/templates/confirm-signup.html"
+
+[auth.email.template.recovery]
+subject = "Your Semli reset code"
+content_path = "./supabase/templates/reset-password.html"
