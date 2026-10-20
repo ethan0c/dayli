@@ -41,4 +41,10 @@ describe('unconfigured auth boundary', () => {
     expect(authErrorMessage({ code: 'invalid_credentials', message: 'Invalid login credentials' })).toMatch(/don’t match/);
     expect(authErrorMessage({ code: 'something_new', message: 'raw detail' })).toBe('We couldn’t connect. Please try again.');
   });
+  it('names the failed account action without leaking provider details', () => {
+    const error = { code: '42883', message: 'function delete_account does not exist' };
+    expect(authErrorMessage(error, 'account.delete')).toMatch(/couldn’t delete your account/);
+    expect(authErrorMessage(error, 'account.delete')).not.toContain('delete_account');
+    expect(authErrorMessage(error, 'auth.verify_code')).toMatch(/couldn’t check that code/);
+  });
 });

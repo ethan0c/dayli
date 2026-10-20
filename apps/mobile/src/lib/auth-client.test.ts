@@ -176,7 +176,7 @@ describe('email login and sign-up', () => {
   it('still goes to the code screen when the fresh code hits the email rate limit', async () => {
     mocks.auth.signInWithPassword.mockResolvedValue({ data: {}, error: { code: 'email_not_confirmed' } });
     mocks.auth.resend.mockRejectedValue({ code: 'over_email_send_rate_limit' });
-    expect(await authClient.signIn(fields)).toEqual({ signedIn: false, confirmEmail: true });
+    expect(await authClient.signIn(fields)).toEqual({ signedIn: false, confirmEmail: true, resendFailed: true });
   });
 
   it('waits for the emailed code after sign-up and keeps the name on this phone', async () => {

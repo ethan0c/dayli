@@ -37,4 +37,14 @@ describe('friendly import failures', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(body, { status: 400 })));
     expect(await requestExtraction('https://semli.test', request)).toEqual(body);
   });
+
+  it('blocks raw server details even when the response has a valid error shape', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ ok: false, error: 'SQL error: private database connection' }, { status: 502 })));
+    expect(await requestExtraction('https://semli.test', request)).toEqual({ ok: false, error: IMPORT_MESSAGES.unavailable });
+  });
+
+  it('preserves the known actionable unreadable-file message', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ ok: false, error: IMPORT_MESSAGES.unreadable }, { status: 422 })));
+    expect(await requestExtraction('https://semli.test', request)).toEqual({ ok: false, error: IMPORT_MESSAGES.unreadable });
+  });
 });
