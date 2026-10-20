@@ -172,7 +172,7 @@ Tier 3, blog posts that earn links: "How to organize a rotating work schedule as
 
 **2. Reddit (credible, free, slow; the rules matter).**
 - Subreddits: r/StudentNurse, r/nursing (flair rules; many ban self-promo, read first), r/college, r/CollegeRant, r/GetStudying, r/productivity, r/ADHD (only if a user raises it; never pitch), r/sideproject and r/iosapps (builder audience, good for feedback).
-- Format that works: a founder post with the story and a screenshot, asking for beta testers, honest about what's not built. "I surveyed 66 students; 83% had missed an assignment because it got buried, so I built…" Reply to every comment. One post per subreddit, ever, unless mods invite more.
+- Format that works: a founder post with the story and a screenshot, asking for beta testers, honest about what's not built. "I surveyed more than 50 students; 83% had missed an assignment because it got buried, so I built…" Reply to every comment. One post per subreddit, ever, unless mods invite more.
 - What gets you banned and hurts the brand: multiple accounts, friends posting "has anyone tried Semli?", fake reviews. StudyStream's reviews call this out by name. Don't.
 - Ongoing: answer "best planner for nursing school" style questions with a real answer and a one-line mention; the link goes to the intent page.
 

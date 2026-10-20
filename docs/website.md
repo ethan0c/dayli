@@ -35,7 +35,7 @@ Desktop 1280 with 64 gutters, phone width stacks to one column. Geist, paper and
 1. **Header.** Wordmark, Pricing, "Try it" text link, "Get the app" ink pill (App Store link once live; until then it scrolls to the demo).
 2. **Hero.** Left: eyebrow "The daily planner for college students", H1 "Your week, already organized.", sub "Drop in a syllabus, a work schedule, or a text. Semli tells you what matters today.", primary "Try it with your schedule", secondary "Get the iPhone app". Right: the real Today screen in the phone (countdown, day bar, rows with pills, five-tab bar) with a schedule screenshot behind it fading into the page, the way the Moment header fades.
 3. **Try it, right under the hero.** The same box, result drawn like the app's review: "7 shifts" as the big number, the week as seven day bars, rows only for what needs a time. Caption: nothing is stored.
-4. **Proof band.** Three numbers from the survey with their questions, and "66 students, spring 2026" under them. No invented counts.
+4. **Proof band.** Three numbers from the survey with their questions, and "more than 50 students, spring 2026" under them. The exact count (66) stays in the internal docs; public copy says "more than 50".
 5. **How it works.** Three phones: Add (recent screenshots), Review (week chart, "7 shifts"), Plan right after (Undo toast). One line each.
 6. **The week is a chart.** Plan with the week header beside Today by the hour. Copy: the same timeline at three zooms.
 7. **New schedule, only the changes.** The update review: "4 changes", green new, red dropped, "Keep it".

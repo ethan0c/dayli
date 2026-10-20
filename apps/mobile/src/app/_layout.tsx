@@ -3,7 +3,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router, usePathname } fr
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { AppState, Appearance } from 'react-native';
+import { AppState, Appearance, LogBox } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
@@ -25,6 +25,10 @@ import { PurchasesProvider } from '@/providers/PurchasesProvider';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { useStore } from '@/store';
 import { mobileFonts, useTheme } from '@/theme';
+
+// NativeTabs preloads the other tabs with a PRELOAD action the stack has no handler for; the
+// warning is noise (nothing is lost) and its toast sits at the bottom of every dev recording.
+if (__DEV__) LogBox.ignoreLogs([/^The action 'PRELOAD'/]);
 
 SplashScreen.preventAutoHideAsync();
 configureNotifications();
@@ -101,7 +105,8 @@ function RootLayout() {
       // A recording: Today, then the Add tab, then the review of a screenshot or a syllabus,
       // which confirms itself and lands on Plan. Every transition is the real one.
       if (demo) {
-        setDevAutoConfirm(6000);
+        store.setSettings({ remindersAsked: true });
+        setDevAutoConfirm(7000);
         setTimeout(() => router.navigate('/add'), 3000);
         setTimeout(() => {
           store.setPending(cmd === 'demo'

@@ -79,19 +79,6 @@ export default function ReviewScreen() {
     if (!pending && !leaving.current) router.replace(useStore.getState().settings.onboarded ? '/plan' : '/onboarding');
   }, [pending]);
 
-  // Development only: a demo recording confirms the review by itself (see lib/dev.ts).
-  const confirmRef = useRef<() => Promise<void>>(async () => {});
-  useEffect(() => {
-    if (!__DEV__ || !devAutoConfirmMs || !pending) return;
-    const t = setTimeout(() => void confirmRef.current(), devAutoConfirmMs);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  useEffect(() => {
-    // `confirm` is declared below the early return; the effect runs after render, when it exists.
-    confirmRef.current = confirm;
-  });
-
   const ex = pending?.extraction;
   const courseFor = useCallback(
     (code: string | null) => (code ? (courses.find((k) => k.code?.toLowerCase() === code.toLowerCase())?.id ?? null) : null),
@@ -499,6 +486,7 @@ export default function ReviewScreen() {
         {footerNote ? <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>{footerNote}</T> : null}
         <Button label={checkingAccess ? 'Checking Plus…' : isUpdate && !isPro && total > 0 ? 'Update with Plus' : cta} disabled={checkingAccess} onPress={total === 0 ? close : () => void confirm()} />
       </>}>
+      {__DEV__ && devAutoConfirmMs ? <DevAutoConfirm onConfirm={() => void confirm()} /> : null}
       <ScrollView contentContainerStyle={styles.list} keyboardShouldPersistTaps="handled">
         <View style={styles.hero}>
           <T token="callout" color={c.inkSecondary}>{intro}</T>
@@ -625,3 +613,13 @@ const styles = StyleSheet.create({
   chart: { paddingTop: 24, gap: 8 },
   rows: { paddingTop: 20 },
 });
+
+/** Development only: confirms the review after `devAutoConfirmMs` so a recording needs no tap. */
+function DevAutoConfirm({ onConfirm }: { onConfirm: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onConfirm, devAutoConfirmMs);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}

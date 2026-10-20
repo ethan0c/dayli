@@ -64,7 +64,7 @@ export default function Home() {
             <p>{p.q}</p>
           </div>
         ))}
-        <p className={styles.source}>From a survey of 66 college students, spring 2026.</p>
+        <p className={styles.source}>From a survey of more than 50 college students, spring 2026.</p>
       </section>
 
       <section aria-labelledby="how-title">

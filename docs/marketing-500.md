@@ -30,7 +30,7 @@ Everything else is free: TestFlight public link, waitlist on semli.app, Reddit, 
 3. **Eight faceless clips, made from the simulator.** Screen recordings of the sample week: a syllabus becoming a semester, a work schedule screenshot becoming shifts, Today ranking the day, the review step with the evidence line, "switching from MyStudyLife" with the two-minute setup. Captions, no voice. These come out of the same simulator setup used for store screenshots, so they can be generated rather than filmed.
 4. **A brand TikTok and Instagram account**, not a personal one. Schedule all eight clips through the built-in schedulers, one a week. After this step the video channel costs zero hours until January.
 5. **Product Hunt coming-soon page.** Collects followers for the public release. Zero effort afterwards.
-6. **The founder post, written once.** "I surveyed 66 students; 83% had missed an assignment because it got buried, so I built a planner that reads the syllabus. Beta open, 200 spots, here is what is not built yet." Screenshot of Today. Reused across subreddits with the first paragraph adjusted.
+6. **The founder post, written once.** "I surveyed more than 50 students; 83% had missed an assignment because it got buried, so I built a planner that reads the syllabus. Beta open, 200 spots, here is what is not built yet." Screenshot of Today. Reused across subreddits with the first paragraph adjusted.
 
 ## 4. Where the 50 testers come from, online
 
