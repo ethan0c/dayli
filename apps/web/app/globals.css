@@ -680,6 +680,7 @@ textarea {
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  color: var(--ink);
   border-radius: var(--radius-card);
   background: var(--row);
   padding: var(--space-xl);
