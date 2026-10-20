@@ -1,8 +1,8 @@
 'use client';
 
-import { errorDiagnostic, localParts, toDrafts } from '@dayli/core';
-import { ExtractResponse, IMPORT_MESSAGES, friendlyImportError, importErrorForStatus, type ExtractRequest } from '@dayli/schema';
-import { useEffect, useRef, useState } from 'react';
+import { addDays, errorDiagnostic, localParts, toDrafts, weekOf } from '@dayli/core';
+import { ExtractResponse, IMPORT_MESSAGES, friendlyImportError, importErrorForStatus, type ExtractRequest, type Extraction } from '@dayli/schema';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Pill, Roll, Row, TermLine, WeekChart } from '@/components/Mock';
 import { feedback } from '@/lib/feedback';
 import { summarize, type Summary } from './review';
@@ -15,6 +15,30 @@ const PHASES = ['Reading', 'Finding dates and times', 'Sorting by day', 'Almost 
 const PHASE_MS = 1600;
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** What Semli reads from SAMPLE, placed around `today`, so the result side is never empty. */
+function exampleExtraction(today: string): Extraction {
+  const week = weekOf(today);
+  const upcoming = (i: number) => (week[i]! > today ? week[i]! : addDays(week[i]!, 7));
+  const fri = upcoming(4);
+  const sat = upcoming(5);
+  const wed = upcoming(2);
+  const mon = addDays(week[0]!, 7);
+  const item = (kind: 'event' | 'task', title: string, category: 'work' | 'school' | 'personal', date: string, start: string | null, end: string | null, is_deadline: boolean, evidence: string) => ({
+    kind, title, category, date, start, end, is_deadline, repeat_weekdays: [] as never[], repeat_until: null, course_code: null, evidence, confidence: 0.95, question: null,
+  });
+  return {
+    detected_type: 'general', employer: 'Campus café', course: null, covers_from: null, covers_to: null,
+    items: [
+      item('event', 'Café shift', 'work', fri, '16:00', '22:00', false, 'Friday 4-10'),
+      item('event', 'Café shift', 'work', sat, '11:00', '17:00', false, 'Saturday 11-5'),
+      item('event', 'Stats exam', 'school', mon, '09:00', null, true, 'stats exam next Monday at 9'),
+      item('task', 'Return library book', 'personal', wed, null, null, true, 'return a library book Wednesday'),
+    ],
+  };
+}
+
+const noop = () => () => {};
 
 async function fileToBase64(file: globalThis.File): Promise<string> {
   const buf = await file.arrayBuffer();
@@ -39,6 +63,15 @@ export function TryIt() {
   const [result, setResult] = useState<Summary | null>(null);
   const typer = useRef<ReturnType<typeof setInterval> | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  // The example result depends on today's date, so it renders only on the client (the page is prerendered).
+  const mounted = useSyncExternalStore(noop, () => true, () => false);
+  const example = useMemo(() => {
+    if (!mounted) return null;
+    const ex = exampleExtraction(localParts(new Date()).date);
+    return summarize(ex, toDrafts(ex, localParts(new Date()).date));
+  }, [mounted]);
+  const shown = result ?? example;
+  const isExample = !result;
 
   // Advance the status line while a request is in flight.
   useEffect(() => {
@@ -224,29 +257,29 @@ export function TryIt() {
               {[0, 1, 2].map((i) => <div key={i} className="skel" />)}
             </div>
           </>
-        ) : !result ? (
+        ) : !shown ? (
           <>
             <div className="try-found">What Semli would add</div>
             <p className="try-empty">See the dates and times from your upload here, with missing details marked for you to check.</p>
           </>
         ) : (
-          <div className="rise" key={`${result.found} ${result.big}`}>
-            <div className="try-found">{result.found}</div>
-            <div className="try-big"><Roll text={String(result.big)} /></div>
-            {result.line ? <div className="try-line">{result.line}</div> : null}
-            {result.view?.kind === 'week'
-              ? result.view.weeks.map((days, i) => <div key={i} className="try-chart"><WeekChart days={days} label="Your week as seven day bars" /></div>)
-              : result.view?.kind === 'term'
-                ? <div className="try-chart"><TermLine months={result.view.months} marks={result.view.marks} label="Your dates on one line" /></div>
+          <div className="rise" key={`${shown.found} ${shown.big}`}>
+            <div className="try-found">{isExample ? 'Example · from the message on the left' : shown.found}</div>
+            <div className="try-big"><Roll text={String(shown.big)} /></div>
+            {shown.line ? <div className="try-line">{shown.line}</div> : null}
+            {shown.view?.kind === 'week'
+              ? shown.view.weeks.map((days, i) => <div key={i} className="try-chart"><WeekChart days={days} label="Your week as seven day bars" /></div>)
+              : shown.view?.kind === 'term'
+                ? <div className="try-chart"><TermLine months={shown.view.months} marks={shown.view.marks} label="Your dates on one line" /></div>
                 : null}
-            {result.needs.length > 0 ? (
+            {shown.needs.length > 0 ? (
               <div className="try-rows">
-                {result.needs.map((n, i) => (
-                  <Row key={n.draft.key} index={i} lead="dot" title={n.draft.title} sub={n.sub} trailing={<Pill tone="amber">{n.pill}</Pill>} last={i === result.needs.length - 1} />
+                {shown.needs.map((n, i) => (
+                  <Row key={n.draft.key} index={i} lead="dot" title={n.draft.title} sub={n.sub} trailing={<Pill tone="amber">{n.pill}</Pill>} last={i === shown.needs.length - 1} />
                 ))}
               </div>
             ) : null}
-            <p className="try-caption">This is a preview, not a saved plan. In the app, you review the details before adding them.</p>
+            <p className="try-caption">{isExample ? 'Paste your own message, or drop in a screenshot or syllabus, to see yours.' : 'This is a preview, not a saved plan. In the app, you review the details before adding them.'}</p>
           </div>
         )}
       </div>
