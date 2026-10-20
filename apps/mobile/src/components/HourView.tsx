@@ -14,7 +14,7 @@ const PX_PER_HOUR = 28;
  * something starts before 8.
  */
 export function HourView({ items, now, conflicts, onPress }: { items: Item[]; now: { date: string; time: string }; conflicts: Set<string>; onPress?: (item: Item) => void }) {
-  const { c, dark } = useTheme();
+  const { c } = useTheme();
   const timed = items.filter((it) => it.start && it.date === now.date);
   const lanes = eventLanes(timed);
   const earliest = Math.min(8 * 60, ...timed.map((it) => toMinutes(it.start!)));
@@ -52,7 +52,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
               {past && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
               <T token="subhead" color={ink} numberOfLines={1} style={{ fontSize: 12, lineHeight: 16 }}>{it.urgent ? 'Urgent · ' : ''}{it.title}{h < 40 ? ` · ${sub}` : ''}{conflict ? ' · Overlaps' : ''}</T>
             </View>
-            {h >= 40 ? <T token="caption" color={conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkSecondary : dark ? c.chartOnBooked : '#B4B4AC'} numberOfLines={1}>{sub}{it.employer ? ` · ${it.employer}` : ''}</T> : null}
+            {h >= 40 ? <T token="caption" color={conflict ? c.conflict : past ? c.added : it.kind === 'task' ? c.inkSecondary : c.chartOnBooked} numberOfLines={1}>{sub}{it.employer ? ` · ${it.employer}` : ''}</T> : null}
           </Pressable>
         );
       })}

@@ -73,7 +73,7 @@ const light = {
   selectionFill: '#F0EFEB',
   selectionInk: '#222320',
   disclosureInk: '#686963',
-  chartBooked: '#222320',
+  chartBooked: '#76658F',
   chartOnBooked: '#FFFFFF',
   conflict: '#9F431F',
   conflictBg: '#F8EDE5',
