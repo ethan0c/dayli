@@ -26,9 +26,9 @@ import { navigationButtonOptions } from '@/components/NavButtons';
 import { useStore } from '@/store';
 import { mobileFonts, useTheme } from '@/theme';
 
-// NativeTabs preloads the other tabs with a PRELOAD action the stack has no handler for; the
-// warning is noise (nothing is lost) and its toast sits at the bottom of every dev recording.
-if (__DEV__) LogBox.ignoreLogs([/^The action 'PRELOAD'/]);
+// NativeTabs sends PRELOAD and ROUTE_NAMES_CHANGED actions the stack has no handler for; the
+// warnings are noise (nothing is lost) and their toast sits at the bottom of every dev recording.
+if (__DEV__) LogBox.ignoreLogs([/^The action '(PRELOAD|ROUTE_NAMES_CHANGED)'/]);
 
 SplashScreen.preventAutoHideAsync();
 configureNotifications();
@@ -89,6 +89,8 @@ function RootLayout() {
           const week = sampleWeek(today, { student: true, preview: true });
           useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });
         }
+        // A fresh install opened the welcome cover before the settings changed; Today is under it.
+        setTimeout(() => router.navigate('/'), 400);
       }
       if (cmd === 'plus') {
         // Back into onboarding, where dev-step.txt = plus opens the paywall page without a cover.
