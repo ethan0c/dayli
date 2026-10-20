@@ -28,7 +28,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const now = useNow();
   const { isPro, customerInfo, loading, busy, manageSubscription } = usePurchases();
   const settings = useStore((s) => s.settings);
-  /** null for a guest; '' for an Apple ID with a hidden email. */
+  /** null for a guest. */
   const email = useSession((s) => (s.session ? s.session.user.email ?? '' : null));
   const setSettings = useStore((s) => s.setSettings);
   const usage = useStore((s) => s.usage);
@@ -69,7 +69,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 
         {ACCOUNTS_ENABLED ? <Group title="Account" footer={email ? undefined : 'Planning as a guest. Your schedule is stored on this phone.'}>
           {email !== null
-            ? <Row label="Account settings" value={email || 'Apple ID'} onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
+            ? <Row label="Account settings" value={email || 'Signed in'} onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
             : <Row label="Log in or sign up" value="Guest" onPress={() => router.push('/auth')} last={!SHARING_ENABLED} />}
           {SHARING_ENABLED ? <Row label="Share your schedule" value="Preview" onPress={() => router.push('/share-schedule')} last /> : null}
         </Group> : null}

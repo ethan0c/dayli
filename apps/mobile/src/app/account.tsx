@@ -76,7 +76,7 @@ export default function AccountScreen() {
           <T token="display" accessibilityRole="header">{deleting ? 'Delete your account?' : 'Your account.'}</T>
           <T token="body" color={c.inkSecondary}>{deleting
             ? 'This removes your account and its backup for good. Your plan stays on this phone, and Semli Plus is billed by Apple: cancel it in Manage subscription.'
-            : user.email ?? 'Signed in with Apple'}</T>
+            : user.email ?? 'Signed in with Google'}</T>
         </View>
         {error ? <T token="callout" color={c.conflict} accessibilityRole="alert">{error}</T> : null}
         {!deleting ? <>

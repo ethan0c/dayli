@@ -28,7 +28,8 @@ describe('unconfigured auth boundary', () => {
     for (const operation of [
       () => authClient.signIn(fields), () => authClient.signUp(fields),
       () => authClient.signInWithGoogle(), () => authClient.resetPassword(fields.email),
-      () => authClient.signInWithApple(), () => authClient.updatePassword('new-password'),
+      () => authClient.verifyCode(fields.email, '123456', 'signup'), () => authClient.resendCode(fields.email, 'recovery'),
+      () => authClient.updatePassword('new-password'),
       () => authClient.signOut(), () => authClient.deleteAccount(),
     ]) await expect(operation()).rejects.toBeInstanceOf(AuthUnavailableError);
   });

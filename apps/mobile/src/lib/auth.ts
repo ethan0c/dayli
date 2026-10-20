@@ -27,14 +27,19 @@ async function unavailable(action: string): Promise<never> {
   throw new AuthUnavailableError(`${action} isn’t available yet. You can keep using Semli as a guest.`);
 }
 
+/** Email codes, not links: they work when the email is opened on another device. */
+export type CodePurpose = 'signup' | 'recovery';
+
 export type SignInResult = { signedIn: true; restored: boolean } | { signedIn: false; confirmEmail: true };
 
 export interface AuthClient {
   signIn: (fields: AuthFields) => Promise<SignInResult>;
   signUp: (fields: AuthFields) => Promise<SignInResult>;
   signInWithGoogle: () => Promise<SignInResult | null>;
-  signInWithApple: () => Promise<SignInResult | null>;
+  /** Sends a 6-digit code; verifyCode with 'recovery' signs in so updatePassword can run. */
   resetPassword: (email: string) => Promise<void>;
+  verifyCode: (email: string, code: string, purpose: CodePurpose) => Promise<SignInResult>;
+  resendCode: (email: string, purpose: CodePurpose) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -45,8 +50,9 @@ export const unavailableClient: AuthClient = {
   signIn: () => unavailable('Email login'),
   signUp: () => unavailable('Account creation'),
   signInWithGoogle: () => unavailable('Google sign-in'),
-  signInWithApple: () => unavailable('Apple sign-in'),
   resetPassword: () => unavailable('Password reset'),
+  verifyCode: () => unavailable('Email codes'),
+  resendCode: () => unavailable('Email codes'),
   updatePassword: () => unavailable('Password reset'),
   signOut: () => unavailable('Log out'),
   deleteAccount: () => unavailable('Account deletion'),
@@ -62,8 +68,8 @@ const MESSAGES: Record<string, string> = {
   same_password: 'Choose a password you haven’t used here before.',
   over_email_send_rate_limit: 'Too many emails in a row. Wait a minute and try again.',
   over_request_rate_limit: 'Too many tries in a row. Wait a minute and try again.',
-  otp_expired: 'That link has expired. Ask for a new one.',
-  flow_state_expired: 'That link has expired. Ask for a new one.',
+  otp_expired: 'That code is wrong or has expired. Check the latest email, or send a new code.',
+  flow_state_expired: 'That sign-in took too long. Please try again.',
 };
 
 export function authErrorMessage(error: unknown): string {

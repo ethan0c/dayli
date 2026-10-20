@@ -15,8 +15,7 @@
         "NSPhotoLibraryUsageDescription": "Semli reads screenshots of schedules and syllabi you choose.",
         "ITSAppUsesNonExemptEncryption": false,
         "NSAlarmKitUsageDescription": "Semli rings alarms at the time of events and to-dos you mark urgent."
-      },
-      "usesAppleSignIn": true
+      }
     },
     "web": {
       "output": "server",
@@ -62,8 +61,7 @@
           ]
         }
       ],
-      "expo-sharing",
-      "expo-apple-authentication"
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": false,

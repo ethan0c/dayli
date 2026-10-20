@@ -1,18 +1,16 @@
-import * as AppleAuthentication from 'expo-apple-authentication';
-import * as Crypto from 'expo-crypto';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import Purchases from 'react-native-purchases';
-import { Platform } from 'react-native';
 
-import { ACCOUNTS_ENABLED, AuthUnavailableError, unavailableClient, type AuthClient, type SignInResult } from './auth';
+import { ACCOUNTS_ENABLED, unavailableClient, type AuthClient, type SignInResult } from './auth';
 import { restoreFromCloud } from './cloud';
 import { supabase } from './supabase';
 import { useStore } from '../store';
 
 WebBrowser.maybeCompleteAuthSession();
 
+/** Only Google uses a redirect; email confirmation and reset use 6-digit codes. */
 const callbackUrl = () => Linking.createURL('auth/callback');
 
 /** Every sign-in ends here: pull the backed-up plan into this phone. */
@@ -21,7 +19,7 @@ async function signedIn(): Promise<SignInResult> {
   return { signedIn: true, restored };
 }
 
-/** A redirect back from Google or an email link: `?code=` (PKCE) or `?error_code=`. */
+/** The redirect back from Google: `?code=` (PKCE) or `?error_code=`. */
 export async function completeAuthFromUrl(url: string): Promise<SignInResult> {
   const query = url.includes('?') ? url.slice(url.indexOf('?') + 1).split('#')[0]! : '';
   const params = new URLSearchParams(query);
@@ -45,11 +43,11 @@ const supabaseClient: AuthClient = {
     const { data, error } = await supabase!.auth.signUp({
       email,
       password,
-      options: { data: name ? { full_name: name } : undefined, emailRedirectTo: callbackUrl() },
+      options: { data: name ? { full_name: name } : undefined },
     });
     if (error) throw error;
     if (name && !useStore.getState().settings.name) useStore.getState().setSettings({ name });
-    // With email confirmation on, the session arrives through the link instead.
+    // With email confirmation on, the session arrives once the emailed code is entered.
     if (!data.session) return { signedIn: false, confirmEmail: true };
     return signedIn();
   },
@@ -63,35 +61,21 @@ const supabaseClient: AuthClient = {
     return completeAuthFromUrl(result.url);
   },
 
-  async signInWithApple() {
-    if (Platform.OS !== 'ios') throw new AuthUnavailableError('Apple sign-in works on iPhone.');
-    const raw = Crypto.randomUUID();
-    const hashed = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, raw);
-    let credential: AppleAuthentication.AppleAuthenticationCredential;
-    try {
-      credential = await AppleAuthentication.signInAsync({
-        requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
-        nonce: hashed,
-      });
-    } catch (error) {
-      if ((error as { code?: string }).code === 'ERR_REQUEST_CANCELED') return null;
-      throw error;
-    }
-    if (!credential.identityToken) throw new Error('No identity token from Apple.');
-    const { error } = await supabase!.auth.signInWithIdToken({ provider: 'apple', token: credential.identityToken, nonce: raw });
+  async resetPassword(email) {
+    const { error } = await supabase!.auth.resetPasswordForEmail(email);
     if (error) throw error;
-    // Apple sends the name only on the first sign-in.
-    const given = credential.fullName?.givenName;
-    if (given) {
-      const full = [given, credential.fullName?.familyName].filter(Boolean).join(' ');
-      void supabase!.auth.updateUser({ data: { full_name: full } });
-      if (!useStore.getState().settings.name) useStore.getState().setSettings({ name: given });
-    }
+  },
+
+  async verifyCode(email, code, purpose) {
+    const { error } = await supabase!.auth.verifyOtp({ email, token: code, type: purpose });
+    if (error) throw error;
     return signedIn();
   },
 
-  async resetPassword(email) {
-    const { error } = await supabase!.auth.resetPasswordForEmail(email, { redirectTo: Linking.createURL('auth/reset-password') });
+  async resendCode(email, purpose) {
+    const { error } = purpose === 'signup'
+      ? await supabase!.auth.resend({ type: 'signup', email })
+      : await supabase!.auth.resetPasswordForEmail(email);
     if (error) throw error;
   },
 

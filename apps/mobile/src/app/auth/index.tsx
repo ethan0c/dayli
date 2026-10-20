@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppleButton, GoogleButton } from '@/components/AuthControls';
+import { GoogleButton } from '@/components/AuthControls';
 import { TextButton } from '@/components/Controls';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { Button } from '@/components/Sheet';
@@ -23,10 +23,10 @@ export default function AuthWelcomeScreen() {
   const onboarded = useStore((s) => s.settings.onboarded);
   const [notice, setNotice] = useState<string | null>(null);
   const start = () => { if (onboarded) router.dismissTo('/'); else router.replace('/onboarding?step=role'); };
-  const social = async (provider: 'google' | 'apple') => {
+  const google = async () => {
     setNotice(null);
     try {
-      const result = provider === 'google' ? await authClient.signInWithGoogle() : await authClient.signInWithApple();
+      const result = await authClient.signInWithGoogle();
       if (result?.signedIn) leaveAuth();
     } catch (error) { setNotice(authErrorMessage(error)); }
   };
@@ -44,8 +44,7 @@ export default function AuthWelcomeScreen() {
         <Animated.View entering={enter.rise} style={styles.actions}>
           {!ACCOUNTS_ENABLED ? <Button label="Get started" onPress={start} /> : <>
           {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert" style={styles.center}>{notice}</T> : null}
-          <AppleButton onPress={() => void social('apple')} />
-          <GoogleButton onPress={() => void social('google')} />
+          <GoogleButton onPress={() => void google()} />
           <Button label="Sign up with email" onPress={() => router.push('/auth/signup')} />
           <TextButton label="Already have an account? Log in" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} />
           <View style={[styles.guest, { borderTopColor: c.line }]}>

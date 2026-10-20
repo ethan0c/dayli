@@ -2,7 +2,7 @@ import { useRef, useState, type ComponentRef } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
-import { AppleButton, AuthField, GoogleButton } from '@/components/AuthControls';
+import { AuthField, GoogleButton } from '@/components/AuthControls';
 import { TextButton } from '@/components/Controls';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
@@ -15,7 +15,7 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
 const COPY = {
   login: { title: 'Log in', heading: 'Welcome back.', body: 'A little less juggling starts here.', action: 'Log in' },
   signup: { title: 'Sign up', heading: 'Make room for your week.', body: 'Create your Semli account.', action: 'Create account' },
-  'forgot-password': { title: 'Forgot password', heading: 'Let’s get you back in.', body: 'Enter the email you use for Semli. We’ll send a link to reset your password.', action: 'Send reset link' },
+  'forgot-password': { title: 'Forgot password', heading: 'Let’s get you back in.', body: 'Enter the email you use for Semli. We’ll send a 6-digit code to reset your password.', action: 'Send code' },
 };
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
@@ -26,8 +26,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<AuthFieldErrors>({});
   const [notice, setNotice] = useState<string | null>(null);
-  /** A sent email: shown in ink, not red. */
-  const [sent, setSent] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
   const emailRef = useRef<ComponentRef<typeof TextInput>>(null);
@@ -38,7 +36,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const guest = () => { if (onboarded) router.dismissTo('/'); else router.dismissTo('/onboarding?step=role'); };
   const clear = (field: keyof AuthFieldErrors) => { setErrors((current) => ({ ...current, [field]: undefined })); setNotice(null); };
 
-  async function submit(provider: 'email' | 'google' | 'apple' = 'email') {
+  async function submit(provider: 'email' | 'google' = 'email') {
     if (lock.current) return;
     if (provider === 'email') {
       const invalid = validateAuthForm(mode, { name, email, password });
@@ -51,20 +49,18 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     lock.current = true;
     setBusy(true);
     setNotice(null);
-    setSent(null);
     try {
       let result: SignInResult | null;
       if (provider === 'google') result = await authClient.signInWithGoogle();
-      else if (provider === 'apple') result = await authClient.signInWithApple();
       else if (forgot) {
         await authClient.resetPassword(email.trim());
-        setSent(`If ${email.trim()} has a Semli account, a reset link is on its way. Open it on this phone.`);
+        router.push({ pathname: '/auth/verify', params: { email: email.trim(), purpose: 'recovery' } });
         return;
       }
       else if (signup) result = await authClient.signUp({ name: name.trim(), email: email.trim(), password });
       else result = await authClient.signIn({ email: email.trim(), password });
       if (!result) return; // Cancelled in the Google or Apple sheet.
-      if (!result.signedIn) { setSent(`Check ${email.trim()} for a link to confirm your account. Open it on this phone.`); return; }
+      if (!result.signedIn) { router.push({ pathname: '/auth/verify', params: { email: email.trim(), purpose: 'signup' } }); return; }
       leaveAuth();
     } catch (error) {
       setNotice(authErrorMessage(error));
@@ -83,7 +79,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           <T token="body" color={c.inkSecondary}>{copy.body}</T>
         </View>
         {!forgot ? <>
-          <AppleButton onPress={() => void submit('apple')} disabled={busy} />
           <GoogleButton onPress={() => void submit('google')} disabled={busy} />
           <View style={styles.divider}><View style={[styles.line, { backgroundColor: c.line }]} /><T token="caption" color={c.inkTertiary}>or with email</T><View style={[styles.line, { backgroundColor: c.line }]} /></View>
         </> : null}
@@ -100,7 +95,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           {mode === 'login' ? <TextButton label="Forgot password?" tone="muted" onPress={() => { setPassword(''); router.push('/auth/forgot-password'); }} style={styles.start} /> : null}
         </View>
         {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert">{notice}</T> : null}
-        {sent ? <T token="callout" color={c.inkSecondary} accessibilityRole="alert">{sent}</T> : null}
         <View style={{ gap: 12 }}>
           <Button label={busy ? 'One moment…' : copy.action} disabled={busy} onPress={() => void submit()} />
           {signup ? <T token="caption" color={c.inkSecondary} style={styles.center}>By creating an account, you agree to our <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.terms)}>Terms</T> and <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.privacy)}>Privacy policy</T>.</T> : null}
