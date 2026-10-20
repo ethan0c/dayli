@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { feedback } from '@/lib/feedback';
-import { FREE_IMPORTS_PER_MONTH, PLUS_PLANS, TRIAL_DAYS, money, type PlanId } from '@/lib/site';
+import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, PLUS_PLANS, TRIAL_DAYS, money, type PlanId } from '@/lib/site';
 
 const FREE = ['Calendar, tasks, and Today', 'Reminders on your phone', `${FREE_IMPORTS_PER_MONTH} AI imports a month: text, screenshot, or PDF`, 'Add events and to-dos by hand anytime'];
-const PLUS = ['Unlimited AI imports', 'Syllabus import: a whole course in one go', 'See what changed when you add a new work schedule', 'Suggested times for overlapping plans', 'Canvas sync: due dates move when your professor changes them'];
+const PLUS = ['Unlimited imports from text, screenshots, and PDFs', 'Compare updates to your work schedule', 'Suggested times for overlapping plans', 'Canvas sync when assignment dates change'];
 
 export function PlanCards() {
   const [billing, setBilling] = useState<PlanId>('semester');
@@ -34,7 +34,7 @@ export function PlanCards() {
         <span className="sw" aria-hidden="true" />
         <span>
           I&apos;m a student
-          <small>Student pricing works on the honor system. No student ID or school email needed. Turn this off to see regular prices.</small>
+          <small>No student ID or school email needed. Turn this off to see regular prices.</small>
         </span>
       </label>
 
@@ -53,7 +53,7 @@ export function PlanCards() {
             ))}
           </ul>
           <Link className="btn ghost" href="/#try">
-            Try it now
+            Try a schedule
           </Link>
         </div>
 
@@ -76,9 +76,8 @@ export function PlanCards() {
               <li key={f}>{f}</li>
             ))}
           </ul>
-          <span className="btn" aria-disabled="true" title="Semli Plus will be available with the iPhone beta">
-            {TRIAL_DAYS}-day free trial, soon
-          </span>
+          {APP_STORE_LIVE ? <a className="btn" href={APP_STORE_URL}>Get Plus on iPhone</a> : <Link className="btn" href="/#beta">Join the iPhone beta</Link>}
+          <p className="note">At launch, eligible new subscribers can try Plus free for {TRIAL_DAYS} days.</p>
         </div>
       </div>
     </div>

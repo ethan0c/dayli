@@ -24,9 +24,12 @@ Everything the campaign needs to have ready, with where it lives. Make these onc
 | Waitlist email 1 and 2 | "Semester starts next week, set it up in two minutes" (Jan 5) and day-one email (Jan 11) | Drafted in December |
 | Flyer and sticker | One page, QR to `semli.app/beta`, the Today screenshot, "Set up your semester in two minutes" | Ordered by Dec 20, delivered by Jan 8 |
 | Ambassador agreement | Two people, $50 after 25 installs each, free Plus | Two names by Dec 15 |
-| Custom product pages | One per creator, their clip first | After public release |
 | Support playbook | [todo.md](todo.md): Restore, reminders, wrong schedule, export | One page |
 | Beta tester quotes | With permission, after Dec 15 | Three lines for the site |
+
+## Keep it small
+
+One person runs this. The toolkit is the rating prompt in the app, App Store Connect's own analytics, and the `?r=` link ([milestones.md](milestones.md) §6). Anything else is a January-or-later question, and only if a number asks for it.
 
 ## What we can claim
 
@@ -45,7 +48,7 @@ Everything the campaign needs to have ready, with where it lives. Make these onc
 - [ ] Sign in with Apple: App ID capability, Supabase provider, new binary, real-device check with Hide My Email.
 - [ ] Internal TestFlight build to you and Rico. One sandbox purchase per term, Restore, the trial shows as a trial in RevenueCat.
 - [ ] A reminder fired on a real phone. A Canvas feed synced on a real phone.
-- [ ] Add `expo-store-review`: the system prompt after the second confirmed import on a second day, 120-day cooldown, never during the purchase celebration.
+- [x] Rating prompt: the system prompt after the second confirmed import on a second day, 120-day cooldown, quiet after a Plus gate (`apps/mobile/src/lib/store-review.ts`). Verify once on a TestFlight build; Apple only shows the sheet in production builds.
 - [ ] Site: waitlist live and tested end to end with an `r` tag; Search Console verified; `APP_STORE_LIVE` stays false.
 - [ ] Brand TikTok and Instagram created. Product Hunt coming-soon page up.
 - [ ] Creator list of 20 written; brief written.
@@ -102,9 +105,6 @@ Everything the campaign needs to have ready, with where it lives. Make these onc
 ### Dec 16 to Jan 3: review and the break
 
 - [ ] App Review passed; release set to manual for Jan 5.
-- [ ] Custom product pages: one per creator and ambassador.
-- [ ] In-app event "Set up spring in two minutes", Jan 5 to 20.
-- [ ] Appfigures or AppDrift tracking the keyword set.
 - [ ] Testimonial lines on the site, with permission.
 - [ ] Flyers and stickers in hand by Jan 8.
 

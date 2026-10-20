@@ -21,6 +21,7 @@ import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
 import { layout } from '@/lib/motion';
 import { requestNotifications, syncReminders } from '@/lib/notifications';
+import { noteConfirmedImport } from '@/lib/store-review';
 import { usePlusAccess } from '@/lib/plus-access';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
@@ -254,6 +255,8 @@ export default function ReviewScreen() {
       course: newCourse ? { id: courseId, ...newCourse, sourceId: null } : undefined,
     });
     feedback('success');
+    // The rating prompt, when it is due; quiet after a Plus gate so it never lands on the celebration.
+    void noteConfirmedImport({ prompt: !isUpdate });
     const parts = [
       plan.create.length ? `${plan.create.length} added` : null,
       plan.update.length ? `${plan.update.length} updated` : null,

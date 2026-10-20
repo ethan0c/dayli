@@ -25,7 +25,7 @@ const ROWS: { label: string; free: string | boolean; plus: string | boolean }[] 
 const FAQS = [
   {
     q: 'Is there a free plan?',
-    a: `Yes, and it doesn't expire. You get the calendar, tasks, Today, reminders, and ${FREE_IMPORTS_PER_MONTH} AI imports a month. Your first import works before you even sign up.`,
+    a: `Yes. Your calendar, to-dos, reminders, and ${FREE_IMPORTS_PER_MONTH} AI imports a month are free, with no time limit. You can use the app as a guest.`,
   },
   {
     q: 'What counts as an import?',
@@ -33,23 +33,23 @@ const FAQS = [
   },
   {
     q: 'How does student pricing work?',
-    a: `Student pricing works on the honor system. No student ID or school email needed. Students pay ${money(plan('monthly').student)}, ${money(plan('semester').student)}, or ${money(plan('yearly').student)}. Everyone else pays ${money(plan('monthly').regular)}, ${money(plan('semester').regular)}, or ${money(plan('yearly').regular)}. Turn off student pricing to see regular prices.`,
+    a: `Choose student pricing if you’re in college; no student ID or school email is needed. Student plans cost ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} every six months, or ${money(plan('yearly').student)} a year. Turn off the student switch to see regular prices.`,
   },
   {
     q: 'Why a semester plan?',
-    a: `It covers a semester and the break in one payment. ${money(plan('semester').student)} covers six months. Yearly is ${money(plan('yearly').student)}, which works out to ${money(plan('yearly').student / 12)} a month.`,
+    a: `The semester plan covers six months, including the break, for ${money(plan('semester').student)} at the student price. The yearly student plan is ${money(plan('yearly').student)}, equivalent to ${money(plan('yearly').student / 12)} a month.`,
   },
   {
     q: 'Is there a trial?',
-    a: `Every Plus plan starts with a ${TRIAL_DAYS}-day free trial. Cancel before it ends and you pay nothing. You keep the free plan either way.`,
+    a: `Eligible new subscribers can try Plus free for ${TRIAL_DAYS} days. Trial eligibility, the renewal price, and the billing period are shown before you subscribe. You can keep using the free plan if you cancel.`,
   },
   {
     q: 'How do I cancel?',
-    a: 'If you subscribed on your iPhone, cancel in Settings, then your name, then Subscriptions. If you subscribed on the web, use the link in your receipt email or write to us. Cancelling stops the next charge; you keep Plus until the period ends.',
+    a: 'On your iPhone, open Settings, tap your name, then Subscriptions, and choose Semli. Cancelling stops the next renewal; Plus stays available until the current period ends.',
   },
   {
     q: 'Do you offer refunds?',
-    a: 'Purchases through the App Store follow Apple’s refund policy. For web purchases, email us within 14 days of a charge and we’ll sort it out.',
+    a: 'App Store purchases follow Apple’s refund policy. You can request a refund at reportaproblem.apple.com. For help understanding a charge, email hello@semli.app.',
   },
 ];
 
@@ -75,15 +75,15 @@ export default function PricingPage() {
       <header className="page-head">
         <h1>Start free. Get more room with Plus.</h1>
         <p className="lede">
-          Use Semli free for as long as you like. Plus removes the import limit, so every syllabus and every new work schedule goes
-          straight in.
+          Keep your week organized for free. Plus adds unlimited imports, Canvas sync, work-schedule comparisons,
+          and suggested times for overlapping plans.
         </p>
       </header>
 
       <PlanCards />
 
       <section className="cmp" aria-label="Free versus Plus">
-        <h2>Free vs Plus</h2>
+        <h2>Free and Plus, compared</h2>
         <table>
           <thead>
             <tr>

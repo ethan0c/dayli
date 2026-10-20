@@ -109,31 +109,12 @@ Check these on the Monday read ([marketing-500.md](marketing-500.md) §5). Each 
 - **Cost per install over $4 across all paid channels for a month.** Pause paid, keep Reddit and Discord, and spend the hours on the ten free-Plus creators instead.
 - **Semester renewals under 35% in July 2027.** Email the lapsed semester payers two weeks before classes with an offer code for the first month of a new semester plan; the semester plan is the whole model.
 
-## 6. Tools that move the milestones
+## 6. The three tools, and nothing else
 
-None of these cost money until the Appfigures line, and none of them are in the repo yet.
+One person runs this, so the kit is three things. Everything else (rank trackers, custom product pages, A/B tests, in-app events) waits until there is revenue and a reason.
 
-**Ratings and reviews**
-- Add `expo-store-review` and ask with the system prompt after the second confirmed import on a second day, with a 120-day cooldown and never on the purchase celebration. [launch-guide.md](launch-guide.md) §3.4 already calls for this; it is still unbuilt ([todo.md](todo.md)). Ratings are the biggest conversion lever on the product page after screenshots.
-- Reply to every App Store review from App Store Connect within a week. Replies show on the listing and count toward conversion.
-- Keep "Rate Semli" in You as the manual path; it already opens the review URL.
-- Testimonials on the site come from beta testers, with permission, after Dec 15. Until then the proof band carries the survey numbers only. No reviews heading with nothing under it, and nothing bought.
+1. **The rating prompt in the app.** Built: `apps/mobile/src/lib/store-review.ts` asks with the system prompt after the second confirmed import on a second day, at most once every 120 days, never right after a Plus gate. "Rate Semli" in You stays as the manual path. Ratings are the biggest lever on the product page after screenshots, and this one runs itself.
+2. **App Store Connect, App Analytics.** Free and already there. The Monday read adds one number: product page conversion (installs divided by page views). AppTweak's 2025 category median is 56%; under 40% means the first three screenshots or the subtitle are wrong. Reply to every review from the same console within a week; replies show on the listing.
+3. **The `?r=` link.** Already built: `semli.app/beta?r=name` logs to PostHog before the redirect. It is the only attribution needed to decide which creator to rebook.
 
-**ASO, free**
-- App Store Connect, App Analytics: impressions, product page views, conversion rate, and installs by source. Read the conversion rate every Monday; AppTweak's 2025 category median is 56% of taps, so under 40% means the first three screenshots or the subtitle are wrong.
-- Apple Ads campaign setup (no spend needed) shows search popularity for every keyword. Use it to rank the 100-character keyword field. The two drafts in the repo disagree: [launch-guide.md](launch-guide.md) ends in `todo`, [app-store-connect.md](app-store-connect.md) ends in `canvas`. Keep `canvas`.
-- Product page optimization in App Store Connect: A/B test the icon and the first screenshot free, three treatments at a time, after the first 1,000 impressions a week.
-- Custom product pages (up to 35): one per creator link, with that creator's clip as the first screenshot. The `?r=` redirect at `semli.app/beta` can point each creator at their page once the app is public.
-- In-app events for the two semester pushes ("Set up spring in two minutes", Jan 5 to 20). They show in search and on the Today tab of the App Store.
-- Store autocomplete and Google Trends for the long-tail terms ("syllabus to calendar", "nursing school planner").
-
-**ASO, paid, when there is revenue**
-- Appfigures (about $10 a month for the entry tier; the tier with keyword research is reported at $69) for daily keyword rank tracking and review alerts in one place. Start it in January.
-- AppDrift's free tier tracks keywords for one app daily, enough until then.
-
-**Attribution**
-- Keep the `semli.app/beta?r=name` redirect logging to PostHog; TestFlight public links cannot attribute on their own.
-- After public release, App Store Connect campaign links (Analytics, Campaigns) attribute installs per creator for free. Give each creator a campaign link behind their `?r=` tag.
-
-**Reviews of the competition**
-- Rerun the review-mining script quarterly ([strategy.md](strategy.md) §5). MyStudyLife at 1.6 stars is a window that closes when they fix their sync bug.
+Two notes that save time later: keep `canvas` as the last keyword (the two drafts in the repo disagree), and when a testimonial is wanted on the site, take it from a paying beta tester with permission, never from anywhere else.

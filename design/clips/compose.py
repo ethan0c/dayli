@@ -4,6 +4,12 @@ paper above it, an end card with the beta link. 1080x1920 for TikTok, Reels and 
 
     python3 design/clips/compose.py raw/ out/            # every clip in CLIPS with a raw file
     python3 design/clips/compose.py raw/ out/ shifts     # one clip
+    python3 design/clips/compose.py raw/ out/ --music track.mp3   # a different music bed
+
+Every clip fades in from black over the first second and out to the end card. The music bed is
+design/clips/music/lofi-bed.wav (a placeholder from music.py) unless --music names another file;
+it fades in with the picture and out with the end card. --no-music leaves the clip silent for a
+sound added inside TikTok or Instagram.
 
 `raw/<name>.mp4` are `xcrun simctl io booted recordVideo` captures (1320x2868) of the dev build
 driven by the demo commands in apps/mobile/src/lib/dev.ts; see docs/launch-guide.md part 2 for
@@ -27,6 +33,9 @@ FONTS = ROOT / 'apps/mobile/assets/fonts'
 FRAME = ROOT / 'apps/web/public/phones/iphone-frame.png'        # 944x1902, transparent screen
 MASK = ROOT / 'apps/web/public/phones/iphone-screen-mask.png'   # 850x1814 at (47, 44)
 
+MUSIC = Path(__file__).resolve().parent / 'music' / 'lofi-bed.wav'
+FADE_IN = 1.0          # seconds from black
+END_CARD = 3.0         # seconds the end card stays
 W, H = 1080, 1920
 PAPER, INK, INK2 = (250, 249, 246), (34, 35, 32), (104, 105, 99)
 PHONE_W = 800                      # the frame's width on the canvas; it bleeds off the bottom
@@ -59,7 +68,7 @@ CLIPS = [
     Clip('switch', 'Set up a semester in two minutes.', 'Not two hours. Calendar, to-dos and reminders stay free, for everyone.', raw='syllabus', start=7, speed=1.25),
     Clip('free', 'Calendar, to-dos, reminders: always free.', 'Plus is unlimited imports and Canvas sync. Student pricing, no proof needed.', raw='free', start=27, hold=5),
 ]
-END_CARD = ('semli.app/beta', '200 beta spots on iPhone. Link in bio.')
+END_TEXT = ('semli.app/beta', '200 beta spots on iPhone. Link in bio.')
 
 
 def font(name: str, size: int) -> ImageFont.FreeTypeFont:
@@ -109,7 +118,7 @@ def caption_card(clip: Clip) -> Image.Image:
 def end_card() -> Image.Image:
     img = Image.new('RGB', (W, H), PAPER)
     d = ImageDraw.Draw(img)
-    title, sub = END_CARD
+    title, sub = END_TEXT
     tf, sf = font('Light', 104), font('Regular', 40)
     tw = d.textlength(title, font=tf)
     d.text(((W - tw) / 2, H / 2 - 110), title, font=tf, fill=INK)
@@ -118,7 +127,7 @@ def end_card() -> Image.Image:
     return img
 
 
-def render(clip: Clip, raw: Path, out: Path) -> None:
+def render(clip: Clip, raw: Path, out: Path, music: Path | None) -> None:
     scale = PHONE_W / 944
     sw, sh = round(850 * scale), round(1814 * scale)
     sx, sy = (W - PHONE_W) // 2 + round(47 * scale), PHONE_TOP + round(44 * scale)
@@ -140,22 +149,43 @@ def render(clip: Clip, raw: Path, out: Path) -> None:
             f'[bg][scr]overlay={sx}:{sy}:shortest=1[v1];'
             f'[v1][1:v]overlay=0:0:shortest=1[v2];'
             f'[2:v]fps={FPS}[endv];'
-            f'[v2][endv]xfade=transition=fade:duration=0.5:offset={max(screen - 0.5, 0.1):.2f}[v]'
+            f'[v2][endv]xfade=transition=fade:duration=0.5:offset={max(screen - 0.5, 0.1):.2f},'
+            f'fade=t=in:st=0:d={FADE_IN}[v]'
         )
-        subprocess.run([
-            'ffmpeg', '-y', '-v', 'error',
+        total = screen - 0.5 + END_CARD
+        inputs = [
             '-ss', str(clip.start), '-to', str(raw_end), '-i', str(raw),
             '-loop', '1', '-t', str(screen + 1), '-i', str(card),
-            '-loop', '1', '-t', '3', '-i', str(end),
-            '-filter_complex', filt, '-map', '[v]',
-            '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '20', '-movflags', '+faststart', '-an',
+            '-loop', '1', '-t', str(END_CARD), '-i', str(end),
+        ]
+        audio: list[str] = ['-an']
+        if music:
+            inputs += ['-stream_loop', '-1', '-i', str(music)]
+            filt += (
+                f';[3:a]atrim=0:{total:.2f},asetpts=PTS-STARTPTS,'
+                f'afade=t=in:st=0:d={FADE_IN + 0.5},afade=t=out:st={total - 1.5:.2f}:d=1.5,volume=0.9[a]'
+            )
+            audio = ['-map', '[a]', '-c:a', 'aac', '-b:a', '160k']
+        subprocess.run([
+            'ffmpeg', '-y', '-v', 'error', *inputs,
+            '-filter_complex', filt, '-map', '[v]', *audio,
+            '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '20', '-movflags', '+faststart', '-shortest',
             str(out),
         ], check=True)
 
 
 def main() -> None:
-    raw_dir, out_dir = Path(sys.argv[1]), Path(sys.argv[2])
-    only = set(sys.argv[3:])
+    args = sys.argv[1:]
+    music: Path | None = MUSIC if MUSIC.exists() else None
+    if '--no-music' in args:
+        args.remove('--no-music')
+        music = None
+    if '--music' in args:
+        i = args.index('--music')
+        music = Path(args[i + 1])
+        del args[i:i + 2]
+    raw_dir, out_dir = Path(args[0]), Path(args[1])
+    only = set(args[2:])
     out_dir.mkdir(parents=True, exist_ok=True)
     for clip in CLIPS:
         if only and clip.name not in only:
@@ -165,7 +195,7 @@ def main() -> None:
             print(f'skip {clip.name}: no {raw}')
             continue
         out = out_dir / f'{clip.name}.mp4'
-        render(clip, raw, out)
+        render(clip, raw, out, music)
         print(f'wrote {out}')
 
 

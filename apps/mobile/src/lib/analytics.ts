@@ -23,6 +23,7 @@ export type AnalyticsEvent =
   | 'paywall_shown'
   | 'purchase_completed'
   | 'purchase_restored'
+  | 'review_requested'
   | 'reminders_permission'
   | 'reminders_changed'
   | 'briefing_changed'

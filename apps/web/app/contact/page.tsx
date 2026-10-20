@@ -4,7 +4,7 @@ import { SUPPORT_EMAIL } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Get in touch with the people building Semli.',
+  description: 'Get help with Semli, ask a billing question, or share feedback directly with the developer.',
   alternates: { canonical: '/contact' },
 };
 
@@ -18,7 +18,7 @@ const REASONS = [
 export default function ContactPage() {
   return (
     <main className="page">
-      <Prose title="Say hi." lede="One inbox, read by the people building Semli. We answer within a day or two.">
+      <Prose title="Say hi." lede="Need help, have an idea, or want to share feedback? Your message goes directly to Semli’s developer.">
         <p className="contact-mail">
           <a className="btn" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}

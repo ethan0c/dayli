@@ -13,39 +13,52 @@ export default function DeleteAccountPage() {
     <main className="page">
       <Prose
         title="Delete your data"
-        lede="Semli keeps your plan on your device, so deleting it is in your hands. Here is exactly what to do and what it covers."
+        lede="You can delete your account and cloud backup, clear the plan on your phone, or do both. Here’s where to find each option."
         meta={<span>Updated {LEGAL_UPDATED}</span>}
       >
         <section>
-          <h2>In the app</h2>
+          <h2>Delete your account and cloud backup</h2>
           <ol>
-            <li>Open Semli and tap the You tab.</li>
-            <li>Scroll to Data.</li>
-            <li>Tap Clear everything.</li>
+            <li>Open Semli and tap You.</li>
+            <li>Open Account settings.</li>
+            <li>Tap Delete account, then confirm with Delete my account.</li>
           </ol>
           <p>
-            That removes every event, task, course, work schedule, and import record. It takes effect immediately. Deleting the app from your
-            phone does the same thing.
+            This deletes your sign-in account and its plan backup. Your plan stays on this phone.
+            To remove both copies, delete your account first, then clear the local plan using the steps below.
           </p>
         </section>
 
         <section>
-          <h2>What about our servers?</h2>
+          <h2>Clear the plan on your phone</h2>
+          <ol>
+            <li>Open Semli and tap the You tab.</li>
+            <li>Open Your data.</li>
+            <li>Tap Clear everything, then Clear to confirm.</li>
+          </ol>
           <p>
-            There is nothing to delete there. The current version of Semli has no accounts, and our server does not store the content you
-            send it to be read or the results it sends back. See the <a href="/privacy">Privacy Policy</a> for how reading works.
+            This removes the events, tasks, courses, work schedules, and import history stored in the app. It cannot be undone.
+            You can use Export my plan first if you want a copy. Clearing the plan does not delete your account.
+          </p>
+        </section>
+
+        <section>
+          <h2>Uploads and beta signups</h2>
+          <p>
+            Semli’s servers do not save the original messages or files you send to be read. Account information and plan backups
+            are separate from uploads. See the <a href="/privacy">Privacy Policy</a> for details.
           </p>
           <p>
-            When accounts and sync arrive, this page will describe how to delete your account from inside the app and by email, and how
-            long deletion takes.
+            If you joined the beta waitlist, email us to remove your signup. You can also contact us if you no longer have access
+            to the app and need help deleting an account.
           </p>
         </section>
 
         <section>
           <h2>Plus subscriptions</h2>
           <p>
-            Clearing your data does not cancel a subscription. If you bought Plus on your iPhone, cancel in Settings, under your name, then
-            Subscriptions. If you bought it on the web, use the link in your receipt email or write to us.
+            Deleting your account or clearing your plan does not cancel Plus. On your iPhone, open Settings, tap your name,
+            then Subscriptions, and choose Semli to cancel.
           </p>
         </section>
 
