@@ -252,7 +252,7 @@ Agreements: the **Paid Applications** agreement must be signed (Business → Agr
 ## 8. Before you press Submit
 
 - [ ] `expo.version` bumped to `1.0.0`; build number set by EAS (`autoIncrement` in `eas.json`).
-- [ ] Production keys in EAS env: `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY` (`appl_…`), `EXPO_PUBLIC_POSTHOG_KEY`, `EXPO_PUBLIC_SENTRY_DSN` (set Oct 20, 2026), `SENTRY_AUTH_TOKEN` as a secret so EAS uploads source maps and dSYMs to the `semli-mobile` project, `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY`, `EXPO_PUBLIC_API_URL=https://semli.app`.
+- [x] Production keys in EAS env (pushed Oct 20, 2026 to `production` and `preview`): every `EXPO_PUBLIC_*` value from `apps/mobile/.env` with `EXPO_PUBLIC_API_URL=https://semli.app`, plus `SENTRY_AUTH_TOKEN` so EAS uploads source maps and dSYMs to the `semli-mobile` Sentry project. Re-push after a key changes: `npx eas-cli env:push --environment production --environment preview --path <file>`.
 - [ ] Web host env: `SUPABASE_URL`, `SUPABASE_KEY`, `REVENUECAT_SECRET_KEY`, `ANTHROPIC_API_KEY`.
 - [ ] Supabase: anonymous sign-ins on (off as of Oct 20), all three migrations run. Done Oct 20: Resend SMTP on (dashboard), code email templates pushed from `supabase/config.toml`, Site URL `https://semli.app`. See `supabase/templates/README.md`.
 - [ ] One sandbox purchase per term works, Restore works, the trial shows as a trial in RevenueCat.
