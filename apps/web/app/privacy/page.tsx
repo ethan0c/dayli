@@ -166,7 +166,7 @@ export default function PrivacyPage() {
             Delete your account in Account settings to remove the account and its plan backup. Your local plan remains until you clear it
             separately. You can export a copy first. For the full steps, see <Link href="/delete-account">Delete your data</Link>.
           </p>
-          <p>Usage records and diagnostic reports are kept for up to 90 days, then deleted.</p>
+          <p>Usage records and diagnostic reports are kept for no longer than one year, then deleted.</p>
           <p>If you want a beta signup removed or need help with data you cannot delete in the app, email us.</p>
         </section>
 

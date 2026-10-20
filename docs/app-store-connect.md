@@ -179,6 +179,7 @@ Data collected, with purpose. Nothing is used for tracking; do not check "Tracki
 
 | Data type | Linked to you? | Purpose | Source |
 |---|---|---|---|
+| Contact Info → Name | Linked | App Functionality | Account metadata, only when they sign up with a name |
 | Contact Info → Email Address | Linked | App Functionality (account) | Supabase, only when they sign up |
 | Identifiers → User ID | Linked | App Functionality | Supabase user id, RevenueCat app user id |
 | Purchases → Purchase History | Linked | App Functionality | RevenueCat |
@@ -190,7 +191,7 @@ Data collected, with purpose. Nothing is used for tracking; do not check "Tracki
 
 Not collected: name (optional, stays on the phone unless they sign up with it; if you keep it in the Supabase user metadata, add Contact Info → Name, linked), location, contacts, health, financial info, browsing history, search history.
 
-Privacy policy must name Anthropic as the processor of uploaded content and Supabase as the host of account data. Check `apps/web/app/privacy/page.tsx` says both.
+Privacy policy (`apps/web/app/privacy/page.tsx`, rewritten Oct 20, 2026) covers all ten declared types and names providers only by role (AI model, hosting, database and authentication, subscriptions, product analytics, error monitoring), never by company. Keep it that way. Phone Number is not collected. Turn on "Prevent storing of IP addresses" in the Sentry project so no location is collected.
 
 ## 5b. Trust & Safety → App Accessibility (Accessibility Nutrition Label)
 

@@ -149,7 +149,7 @@ export default function TermsPage() {
           <h2>9. Third-party services</h2>
           <p>
             Semli uses third-party services to work, including an AI provider to read your content, hosting providers, Apple&apos;s App
-            Store, Supabase for accounts and backups, and RevenueCat for subscription status. Those services have their own terms. We are not responsible for them, and we don&apos;t control
+            Store, a database provider for accounts and backups, a subscription management provider, and analytics and error monitoring providers. Those services have their own terms. We are not responsible for them, and we don&apos;t control
             schools, employers, or scheduling systems whose documents you send us.
           </p>
         </section>
