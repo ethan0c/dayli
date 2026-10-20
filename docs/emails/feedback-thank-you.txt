@@ -1,0 +1,15 @@
+Subject: Thanks for the Semli feedback
+
+Hi,
+
+Thanks for taking the time to tell me about [FEEDBACK_SUMMARY].
+
+[PERSONAL_REPLY]
+
+If there's anything else you'd like me to know, you can reply here.
+
+Thanks again,
+Semli
+
+This is a reply to the feedback you sent about Semli.
+Contact Semli: hello@semli.app

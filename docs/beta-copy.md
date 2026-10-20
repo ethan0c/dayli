@@ -57,6 +57,26 @@ The site already serves the brand icons. Both URLs were checked on Oct 20, 2026:
 
 Use these absolute HTTPS URLs if adding icons to a future email. The existing Supabase account-email templates already use the app icon URL. The current Survey invitation stays image-free; hosting an image on the site does not by itself prevent spam placement.
 
+### Other email templates
+
+All five drafts use the same image-free Semli layout as the Survey invitation. Each has a standalone HTML version for Resend's code editor and a plain-text version. The first line of each `.txt` file is the subject; paste the remaining text into the message body if using that version. These are prepared files, not scheduled emails or automated flows.
+
+| Template | Files | Subject | Audience and timing |
+| --- | --- | --- | --- |
+| Public beta invitation | [HTML](emails/public-beta-invite.html) · [Text](emails/public-beta-invite.txt) | Your Semli beta invite is here | Website waitlist only, excluding Survey recipients. Send once the public Beta invite installs the approved build and that group has room. Uses the separate 200-person Beta link. |
+| Tester check-in | [HTML](emails/tester-check-in.html) · [Text](emails/tester-check-in.txt) | How did your first Semli import go? | People confirmed to have started testing, from either group, about 3–5 days after they start. Send once; don't treat the full waitlist as installed testers. |
+| Feedback thank-you | [HTML](emails/feedback-thank-you.html) · [Text](emails/feedback-thank-you.txt) | Thanks for the Semli feedback | A personal reply to the person who sent feedback. Send after reading their message, using your monitored inbox or a one-to-one email send. |
+| App Store launch | [HTML](emails/app-store-launch.html) · [Text](emails/app-store-launch.txt) | Semli is now on the App Store | People subscribed to launch updates. Hold until the App Store listing is public and the download works in the intended regions. |
+| Semester reminder | [HTML](emails/semester-reminder.html) · [Text](emails/semester-reminder.txt) | Got your new syllabus yet? | People subscribed to ongoing updates, near their semester start. This version uses the public App Store link, so send only after release. |
+
+Use Resend Broadcasts for the public invite, tester check-in, launch, and semester reminder. Select the relevant segment each time and preserve unsubscribe and suppression status. Survey participation alone does not mean someone asked for ongoing updates. Deduplicate overlapping segments rather than sending two copies to the same person. Keep the same verified sender, monitored Reply-To, and tracking-off settings described above.
+
+Before sending a Broadcast, replace `[SENDER_POSTAL_ADDRESS]` with the real sender address in its footer. Keep `{{{RESEND_UNSUBSCRIBE_URL}}}` intact for Resend to resolve. If copying the plain-text version into another mail tool, replace that token with the actual recipient-specific unsubscribe link; it is a Resend Broadcast token, not a working URL by itself.
+
+For the feedback thank-you, replace `[FEEDBACK_SUMMARY]` with a short description of their feedback and `[PERSONAL_REPLY]` with your actual response. For example: "I can see how that would be confusing. Could you tell me which screen you were on when it happened?" If something is fixed, explain the real change and build number; otherwise, don't promise a fix or a deadline. Reply in the original thread when possible. This one-to-one reply has no Broadcast unsubscribe token and should not be sent as a campaign.
+
+The launch and semester drafts use the App Store URL already configured in `apps/web/lib/site.ts`; they do not claim the listing is live today. Check the free-plan wording again before the launch send. For each draft, preview the HTML in your own inboxes and verify its links and any edited fields before sending.
+
 ## 2. Reddit founder post (one per subreddit, ever; Tuesday evening)
 
 Post from the pseudonymous account. Attach the Today screenshot (`design/screenshots/03-today-mon.png`). Change only the first line per subreddit.

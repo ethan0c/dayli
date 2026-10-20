@@ -89,7 +89,7 @@ One person runs this. The toolkit is the rating prompt in the app, App Store Con
 
 - [ ] Discord posts (one per server, clip attached).
 - [ ] Recruit the two January ambassadors from the most engaged testers.
-- [ ] Draft waitlist emails 1 and 2.
+- [x] Draft waitlist emails 1 and 2: [App Store launch](emails/app-store-launch.html) and [semester reminder](emails/semester-reminder.html), with [subjects, audiences, and sending notes](beta-copy.md#other-email-templates). Preview and send after the listing is live.
 
 ### Dec 1 to 14: the purchase test window
 

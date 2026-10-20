@@ -1,0 +1,26 @@
+Subject: Your Semli beta invite is here
+
+Hi,
+
+You joined the Semli waitlist, and the iPhone beta is ready to try. Thanks for waiting.
+
+You can add a syllabus PDF, a screenshot of your work schedule, or a message from class. Check the dates Semli finds, then save them to one calendar.
+
+The public beta is capped at 200 testers. Here's your invite:
+
+Try Semli on iPhone
+https://testflight.apple.com/join/j15Rp5m4
+
+You'll need Apple's free TestFlight app. If the invite asks you to install it, do that first, then open this invite again and tap Install for Semli.
+
+It's free to test through TestFlight. Try it with a schedule you already have and see how it goes.
+
+If something gets a date wrong or leaves you wondering what to do next, reply to this email. I'd like to hear about it.
+
+Thanks for giving it a try,
+Semli
+
+You're receiving this because you joined the Semli beta waitlist.
+[SENDER_POSTAL_ADDRESS]
+Contact Semli: hello@semli.app
+Unsubscribe: {{{RESEND_UNSUBSCRIBE_URL}}}

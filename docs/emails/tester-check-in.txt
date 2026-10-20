@@ -1,0 +1,21 @@
+Subject: How did your first Semli import go?
+
+Hi,
+
+Thanks for trying the Semli beta. If you've had a chance to use it, I'd like to hear how it went.
+
+Did you get a syllabus or work schedule into your plan? Were the dates right, and was there anything you had to fix?
+
+And was there a point where you weren't sure what to do next?
+
+A sentence or two is plenty. Just reply here with whatever stood out, even if you opened it once and haven't been back.
+
+If you haven't had time to try it yet, that's okay too.
+
+Thanks for your help,
+Semli
+
+You're receiving this as a follow-up to testing the Semli beta.
+[SENDER_POSTAL_ADDRESS]
+Contact Semli: hello@semli.app
+Unsubscribe: {{{RESEND_UNSUBSCRIBE_URL}}}
