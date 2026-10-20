@@ -14,7 +14,7 @@ export default function PrivacyPage() {
     <main className="page">
       <Prose
         title="Privacy Policy"
-        lede="Your schedule is personal. Semli reads your documents to build your plan, keeps that plan on your device, and does not sell, share, or train on what you send."
+        lede="Your schedule is personal. Here’s what Semli processes to build your plan, where that information lives, and how to remove it."
         meta={
           <>
             <span>Effective {LEGAL_EFFECTIVE}</span>
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
         <section>
           <h2>1. Who we are</h2>
           <p>
-            Semli (&ldquo;we&rdquo;, &ldquo;us&rdquo;) makes the Semli iPhone app, the Semli web app, and this website (together, the
+            Semli (&ldquo;we&rdquo;, &ldquo;us&rdquo;) makes the Semli iPhone app and this website, including its schedule preview (together, the
             &ldquo;Service&rdquo;). This policy explains what information the Service handles and why. If you have a question it doesn&apos;t
             answer, email <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
           </p>
@@ -48,21 +48,25 @@ export default function PrivacyPage() {
           </p>
           <h3>2.3 Your account, if you make one</h3>
           <p>
-            An account is optional. If you sign up, we store your email address and, if you choose Google sign-in, the name and email
-            Google provides. Passwords are stored hashed by our authentication provider; we never see them. Guests get an anonymous
-            identifier so the free monthly imports can be counted.
+            An account is optional. If you sign up, our authentication provider stores your email address and any name you provide.
+            Apple or Google sign-in supplies the account details you choose to share; Apple can provide a private relay email address.
+            Passwords are stored hashed by our authentication provider. Guests get an anonymous identifier so free monthly imports can be counted.
+          </p>
+          <p>
+            If you join the beta waitlist, we store your email address and any referral tag attached to your signup so we can send
+            your invitation and track referrals. The website preview uses a hash of your IP address to count daily previews.
           </p>
           <h3>2.4 Things we don&apos;t collect</h3>
           <ul>
-            <li>No account is required. Without one, we hold no email address for you.</li>
+            <li>No account is required. We receive your email only if you provide it, such as by creating an account, joining the waitlist, or contacting us.</li>
             <li>No location, contacts, or health data.</li>
             <li>No advertising identifiers, and no third-party ad or analytics trackers on this website.</li>
-            <li>No payment card details. If you buy Plus, Apple or our payment processor handles the card, and we receive only a confirmation.</li>
+            <li>No payment card details. App Store purchases are handled by Apple; RevenueCat manages subscription status.</li>
           </ul>
           <h3>2.5 Permissions on iPhone</h3>
           <p>
-            Semli asks for the photo library only when you choose a screenshot, and for the camera only when you choose to photograph a
-            printed schedule. It reads the image you pick and nothing else.
+            Photo access lets Semli show recent screenshots for you to choose from. You can limit access using your iPhone’s permission
+            controls. Camera access lets you photograph a printed schedule. Only the image you choose to import is sent for reading.
           </p>
         </section>
 
@@ -116,10 +120,10 @@ export default function PrivacyPage() {
               <strong>RevenueCat</strong> keeps track of Plus subscriptions so they work across your devices.
             </li>
             <li>
-              <strong>Apple</strong> handles App Store purchases and tells us that a purchase happened.
+              <strong>Apple</strong> handles App Store purchases and, if you choose it, Sign in with Apple.
             </li>
             <li>
-              <strong>Our payment processor</strong> handles web purchases of Plus and holds your card details, not us.
+              <strong>Google</strong> handles sign-in if you choose Continue with Google.
             </li>
           </ul>
           <p>We will also disclose information if the law requires it, or to protect the safety of people using the Service.</p>
@@ -128,14 +132,14 @@ export default function PrivacyPage() {
         <section>
           <h2>6. Where your data lives, and for how long</h2>
           <p>
-            Today, your plan lives on your device. Delete the app, or use <em>Clear everything</em> in the app&apos;s You screen, and it is
-            gone. We hold nothing to delete.
+            Your plan is stored on your device. If you create an account, Supabase also stores a backup so you can restore it on a new
+            phone. Deleting the app does not delete your account or its cloud backup.
           </p>
           <p>
-            When accounts and sync arrive, your plan will be stored on our servers in the United States, encrypted in transit and at rest,
-            and kept until you delete your account. You will be able to export it (as a file and as a calendar feed) and delete it from
-            inside the app. We will update this policy before that happens.
+            Delete your account in Account settings to remove the account and its plan backup. Your local plan remains until you clear it
+            separately. You can export a copy first. For the full steps, see <Link href="/delete-account">Delete your data</Link>.
           </p>
+          <p>If you want a beta signup removed or need help with data you cannot delete in the app, email us.</p>
         </section>
 
         <section>
@@ -145,7 +149,7 @@ export default function PrivacyPage() {
               <strong>Review before it&apos;s added.</strong> Nothing Semli reads becomes part of your plan until you confirm it.
             </li>
             <li>
-              <strong>Undo.</strong> Every import can be undone from the You screen.
+              <strong>Undo.</strong> Open You → Your data → Recent changes to undo an import.
             </li>
             <li>
               <strong>Delete.</strong> See <Link href="/delete-account">Delete your data</Link>.

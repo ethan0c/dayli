@@ -26,7 +26,7 @@ export default function TermsPage() {
           <h2>1. Agreement</h2>
           <p>
             These Terms of Service (&ldquo;Terms&rdquo;) are between you and Semli (&ldquo;Semli&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;). They cover the Semli
-            iPhone app, the Semli web app, this website, and the services behind them (together, the &ldquo;Service&rdquo;). By using the
+            iPhone app, this website and its schedule preview, and the services behind them (together, the &ldquo;Service&rdquo;). By using the
             Service you agree to these Terms. If you don&apos;t agree, don&apos;t use the Service.
           </p>
           <p>
@@ -75,8 +75,8 @@ export default function TermsPage() {
         <section>
           <h2>5. Accounts</h2>
           <p>
-            The current version of Semli keeps your data on your device and does not require an account. When accounts and sync arrive,
-            you will be responsible for keeping your sign-in private and for what happens under your account. Tell us at{' '}
+            You can use Semli as a guest or create an optional account for plan backup. If you create an account,
+            you are responsible for keeping your sign-in private and for what happens under your account. Tell us at{' '}
             <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> if you think someone else is using it.
           </p>
         </section>
@@ -107,20 +107,19 @@ export default function TermsPage() {
               . Manage or cancel in your iPhone&apos;s Settings, under your name, then Subscriptions.
             </li>
             <li>
-              <strong>On the web:</strong> Plus is sold through our payment processor. We never see or store your card number. Manage or
-              cancel with the link in your receipt email, or by writing to us.
+              <strong>On the web:</strong> This website offers a schedule preview and beta signup. Web purchases of Plus are not currently available.
             </li>
           </ul>
           <h3>6.4 Trials and renewals</h3>
           <p>
-            Plus plans start with a {TRIAL_DAYS}-day free trial unless we say otherwise. If you don&apos;t cancel before the trial ends, the
+            Eligible new subscribers can start with a {TRIAL_DAYS}-day free trial. Your eligibility and renewal price are shown before you subscribe. If you don&apos;t cancel before the trial ends, the
             plan starts and you are charged. Subscriptions renew automatically at the end of each period until you cancel. Cancelling
             stops the next charge; you keep Plus until the current period ends.
           </p>
           <h3>6.5 Refunds</h3>
           <p>
-            App Store purchases follow Apple&apos;s refund rules; request one through Apple. For web purchases, email us within 14 days of a
-            charge and we&apos;ll refund it. Beyond that, refunds are at our discretion.
+            App Store purchases follow Apple&apos;s refund rules; request a refund through Apple. If you need help understanding a charge,
+            contact us at <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
           </p>
           <h3>6.6 Price changes</h3>
           <p>We may change Plus prices. We&apos;ll tell you at least 30 days before a change affects an existing subscription.</p>
