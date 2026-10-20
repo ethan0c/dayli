@@ -2,7 +2,8 @@
    and one dark band. Layout only; the phones bring their own CSS. */
 
 .home {
-  gap: 96px;
+  --section-gap: 96px;
+  gap: var(--section-gap);
 }
 
 /* Hero: copy beside the phone, a photo fading into the paper behind the phone */
@@ -70,6 +71,10 @@
 }
 .bandInner {
   position: relative;
+}
+/* Two bands in a row touch; the page gap would otherwise show as a slit of paper between them. */
+.band + .band {
+  margin-top: calc(-1 * var(--section-gap));
 }
 .bandPhoto {
   position: absolute;
@@ -413,7 +418,7 @@
 
 @media (max-width: 820px) {
   .home {
-    gap: 64px;
+    --section-gap: 64px;
   }
   .band {
     padding-block: 56px;
