@@ -39,7 +39,7 @@ export function initializePurchases(): Promise<void> {
           ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY
           : process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY;
       if (!apiKey || (!usingTestStore && apiKey.startsWith('test_'))) {
-        throw new SubscriptionError('Subscriptions are not configured for this build. Please try a newer version of Semli.');
+        throw new SubscriptionError('Plans aren’t available in this version of Semli. Please update the app and try again.', `RevenueCat is not configured: ${!apiKey ? 'public API key missing' : 'Test Store key used in production'}`);
       }
       await Purchases.setLogLevel(__DEV__ ? LOG_LEVEL.DEBUG : LOG_LEVEL.ERROR);
       if (!(await Purchases.isConfigured())) Purchases.configure({ apiKey });
@@ -82,7 +82,12 @@ export function purchaseErrorMessage(error: unknown, operation = 'purchases'): s
         return 'Plans aren’t available right now. Please try again later.';
     }
   }
-  return error instanceof SubscriptionError ? error.message : 'We couldn’t update your plan. Please try again.';
+  return error instanceof SubscriptionError ? error.userMessage : 'We couldn’t update your plan. Please try again.';
 }
 
-export class SubscriptionError extends Error {}
+export class SubscriptionError extends Error {
+  constructor(readonly userMessage: string, diagnosticMessage = userMessage) {
+    super(diagnosticMessage);
+    this.name = 'SubscriptionError';
+  }
+}

@@ -81,6 +81,13 @@ describe('RevenueCat initialization', () => {
     expect(mocks.purchases.configure).not.toHaveBeenCalled();
   });
 
+  it('keeps configuration diagnostics separate from the message shown on the paywall', async () => {
+    const { SubscriptionError, purchaseErrorMessage } = await import('./revenuecat');
+    const error = new SubscriptionError('Update Semli and try again.', 'RevenueCat public key missing');
+    expect(error.message).toBe('RevenueCat public key missing');
+    expect(purchaseErrorMessage(error)).toBe('Update Semli and try again.');
+  });
+
   it.each(['web', 'expo-go'])('never unlocks real billing through %s preview mocks', async (environment) => {
     if (environment === 'web') mocks.platform.OS = 'web';
     else mocks.constants.executionEnvironment = 'storeClient';

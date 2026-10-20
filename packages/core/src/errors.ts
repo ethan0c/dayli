@@ -19,8 +19,9 @@ export function errorDiagnostic(error: unknown) {
     : typeof record.code === 'number' && Math.abs(record.code) < 1000 ? String(record.code) : undefined;
   const status = typeof record.status === 'number' ? record.status : typeof record.statusCode === 'number' ? record.statusCode : undefined;
   const rawMessage = typeof record.message === 'string' ? record.message : typeof error === 'string' ? error : 'No error message provided';
+  const position = rawMessage.match(/(?:position \d+|line \d+ column \d+)/)?.[0];
   // Serialized responses can contain uploads, credentials or receipts. Keep their code/status instead.
-  const message = name === 'SyntaxError' ? `Invalid data format${rawMessage.match(/(?:position \d+|line \d+ column \d+)/)?.[0] ? ` (${rawMessage.match(/(?:position \d+|line \d+ column \d+)/)![0]})` : ''}`
+  const message = name === 'SyntaxError' ? `Invalid data format${position ? ` (${position})` : ''}`
     : /^[\s]*[\[{]/.test(rawMessage) ? 'Structured error details omitted' : redactDiagnosticText(rawMessage);
   const stack = typeof record.stack === 'string' ? redactDiagnosticText(record.stack.split('\n').filter((line) => /^\s*at\s|^[\w.$<>]*@/.test(line)).slice(0, 12).join('\n')) : undefined;
   return { name, code, status, message, stack };

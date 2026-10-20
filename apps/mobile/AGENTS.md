@@ -23,6 +23,13 @@ npx expo install --fix      # fix incompatible package versions
 
 Run lint and typecheck before declaring any task done.
 
+## Error handling
+
+- Screen messages explain what failed and what the person can do next. Never show a raw SDK/server exception, stack trace or response body. Use the auth/purchase formatters or `friendlyError` from `src/lib/errors.ts` with action-specific copy.
+- Log failures at their service boundary with `reportError` or `withErrorLogging` and a specific operation such as `auth.verify_code`, `storage.save` or `reminders.send_test`. Nested callers may consume an already-reported failure. User cancellations and absent optional development files are expected outcomes.
+- Diagnostics retain the error name, technical message, code, HTTP status and stack frames through the shared sanitizer. Never pass credentials, OTPs, sessions, receipts, uploaded content, whole SDK objects or private feed URLs as logging context. Sentry receives sanitized exceptions only when configured.
+- Await user actions and handle rejection before reporting success. Keep failed local saves visible and retryable. A hydration failure must block replacement writes; never reset a saved plan to recover from an error.
+
 ## Navigation & Routing
 
 - Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.

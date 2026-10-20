@@ -42,6 +42,14 @@ Geist carries product text: normal / Regular 400 for all large headings, the one
 
 Fonts load locally on iOS from the Geist release (OFL); the web uses the same files.
 
+## Errors
+
+Use a short, action-specific sentence and a useful next step: “We couldn’t send a test reminder. Please try again.” Technical details belong in diagnostics, not toasts, fields or alerts. Auth, purchases, imports, Canvas, reminders, alarms, export and backup use named error boundaries; known cancellations remain quiet. Unexpected screen failures have a plain retry screen, and old links offer Open Semli.
+
+`reportError` records a specific operation, error name, code, status and sanitized message/stack once per exception. `errorDiagnostic` allowlists fields and redacts credentials, codes, URLs, email addresses and local usernames; request bodies, session objects, receipts, calendar feeds and uploaded files are never attached. Configured Sentry receives the sanitized exception. Import responses must use known shared product copy before the client displays them.
+
+A failed local save keeps the current plan in memory and shows a persistent save warning with Retry. A failed read/decode shows recovery before the planner opens and blocks replacement writes. Recovery never clears a saved plan. Test-reminder success appears only after native scheduling succeeds; a failed confirmation resend still allows entering the latest emailed code and explains that a fresh code was not sent.
+
 ## Buttons
 Five roles, all fully round, press shrinks 3% and dims to 88% on `spring.snappy`, one haptic per role.
 1. Primary: ink in light mode, purple in dark, with `controlInk` text, 52 high, one per screen. Haptic tap.
