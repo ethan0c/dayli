@@ -39,5 +39,6 @@ Sentry token is.
 | --- | --- |
 | `DATABASE_PASSWORD` | `supabase db push` |
 | `RESEND_API_KEY` | SMTP password under Authentication, Emails in the Supabase dashboard |
+| `REVIEW_EMAIL`, `REVIEW_PASSWORD` | App Store review account, pasted into App Store Connect Sign-in Information |
 
 Last reorganized Oct 20, 2026.

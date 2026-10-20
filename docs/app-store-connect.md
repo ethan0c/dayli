@@ -153,7 +153,7 @@ Apple scales the 6.9-inch set to every other iPhone size. The 6.1"/6.3" slot (12
 
 | Field | Value |
 |---|---|
-| Sign-in required | **Yes** (the app has optional accounts; reviewers need a way in). Create a reviewer account in the app with email `review@semli.app` (**you**: the password), confirm it, and paste both here. |
+| Sign-in required | **Yes** (the app has optional accounts; reviewers need a way in). Reviewer account `review@semli.app` exists, email confirmed (created Oct 20, 2026 via the Supabase admin API). The password is `REVIEW_PASSWORD` in the repo-root `.env`; paste both into Sign-in Information. Notes: "Log in on the welcome screen with email and password. An account is optional; every feature also works signed out." |
 | Contact first/last name, phone, email | **you** |
 | Notes | see below |
 | Attachment | none |
