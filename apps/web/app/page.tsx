@@ -4,6 +4,7 @@ import { PhoneFrame } from '@/components/PhoneFrame';
 import { AddPhone, AddedPhone, DiffPhone, HourPhone, PlanPhone, ReviewPhone, SchoolPhone, SyllabusPhone, TodayScreen } from '@/components/Screens';
 import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
 import { TryIt } from './TryIt';
+import { Waitlist } from './Waitlist';
 import styles from './home.module.css';
 
 export const metadata: Metadata = { alternates: { canonical: '/' } };
@@ -26,7 +27,7 @@ const FAQS = [
 
 function GetApp({ ghost = false }: { ghost?: boolean }) {
   const cls = `btn${ghost ? ' ghost' : ''}`;
-  return APP_STORE_LIVE ? <a className={cls} href={APP_STORE_URL}>Get the iPhone app</a> : <Link className={cls} href="/#try">Get the iPhone app</Link>;
+  return APP_STORE_LIVE ? <a className={cls} href={APP_STORE_URL}>Get the iPhone app</a> : <Link className={cls} href="/#beta">Join the iPhone beta</Link>;
 }
 
 export default function Home() {
@@ -42,7 +43,10 @@ export default function Home() {
             <a className="btn" href="#try">Try it with your schedule</a>
             <GetApp ghost />
           </div>
-          <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone.' : 'iPhone beta coming soon. Try it here first, no account needed.'}</p>
+          {APP_STORE_LIVE ? <p className={styles.note}>Free on iPhone.</p> : <>
+            <p className={styles.note}>iPhone beta opening soon, 200 spots. Leave your email for the link.</p>
+            <Waitlist compact />
+          </>}
         </div>
         <div className={styles.heroPhone}>
           <PhoneFrame priority width={330} label="Today in Semli: 2 hours 14 minutes until a café shift, the day as a bar, and the list with due and done pills">
@@ -119,6 +123,14 @@ export default function Home() {
         </div>
         <div className="faq-list">{FAQS.map(({ q, a }) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
       </section>
+
+      {!APP_STORE_LIVE ? (
+        <section id="beta" className={styles.beta} aria-labelledby="beta-title">
+          <h2 id="beta-title" className="section-title">The iPhone beta opens soon.</h2>
+          <p className="lede">200 spots on TestFlight. You get the real app with the real 7-day trial, and the people building it read every message you send.</p>
+          <Waitlist />
+        </section>
+      ) : null}
 
       <section className={styles.closing} aria-labelledby="final-title">
         <h2 id="final-title" className="section-title">One less thing to keep in your head.</h2>

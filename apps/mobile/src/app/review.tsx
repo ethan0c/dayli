@@ -5,6 +5,7 @@ import {
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { devAutoConfirmMs } from '@/lib/dev';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -77,6 +78,19 @@ export default function ReviewScreen() {
     // Explicit close/confirm handlers own their navigation; do not navigate twice.
     if (!pending && !leaving.current) router.replace(useStore.getState().settings.onboarded ? '/plan' : '/onboarding');
   }, [pending]);
+
+  // Development only: a demo recording confirms the review by itself (see lib/dev.ts).
+  const confirmRef = useRef<() => Promise<void>>(async () => {});
+  useEffect(() => {
+    if (!__DEV__ || !devAutoConfirmMs || !pending) return;
+    const t = setTimeout(() => void confirmRef.current(), devAutoConfirmMs);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    // `confirm` is declared below the early return; the effect runs after render, when it exists.
+    confirmRef.current = confirm;
+  });
 
   const ex = pending?.extraction;
   const courseFor = useCallback(

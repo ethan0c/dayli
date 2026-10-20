@@ -39,3 +39,12 @@ export async function devClock(): Promise<string | null> {
     return null;
   }
 }
+
+/**
+ * Development only: when set, the review screen confirms itself after this many milliseconds,
+ * so a recording shows the whole import without a tap. Set by the `demo` commands at launch.
+ */
+export let devAutoConfirmMs = 0;
+export function setDevAutoConfirm(ms: number) {
+  if (__DEV__) devAutoConfirmMs = ms;
+}

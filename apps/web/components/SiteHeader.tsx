@@ -16,8 +16,8 @@ export function SiteHeader() {
             Get the app
           </a>
         ) : (
-          <Link className="btn" href="/#try">
-            Get the app
+          <Link className="btn" href="/#beta">
+            Join the beta
           </Link>
         )}
       </nav>

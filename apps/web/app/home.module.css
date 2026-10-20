@@ -151,6 +151,75 @@
   max-width: 16ch;
 }
 
+/* Beta waitlist: one field and one pill, in the hero and in its own section */
+.waitlist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  max-width: 520px;
+}
+.waitlistInput {
+  flex: 1 1 220px;
+  min-width: 0;
+  height: 52px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--canvas);
+  font-size: 16px;
+}
+.waitlistInput::placeholder {
+  color: var(--ink-2);
+}
+.waitlistInput:focus {
+  border-color: var(--ink);
+  outline: none;
+}
+.waitlistNote,
+.waitlistError,
+.waitlistDone {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ink-2);
+}
+.waitlistError {
+  color: var(--conflict);
+}
+.waitlistDone {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--ink);
+  max-width: 40ch;
+}
+.beta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 24px;
+}
+.beta .section-title {
+  max-width: 18ch;
+}
+.beta .lede {
+  margin-top: 12px;
+  max-width: 44ch;
+}
+.beta .waitlist {
+  justify-content: center;
+  margin-top: 24px;
+}
+.beta .waitlist .waitlistNote,
+.beta .waitlist .waitlistError {
+  text-align: center;
+}
+
 @media (max-width: 1000px) {
   .pair {
     gap: 12px;

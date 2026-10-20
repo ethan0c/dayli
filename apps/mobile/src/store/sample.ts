@@ -120,3 +120,33 @@ export function sampleScheduleUpdate(today: string): Extraction {
     items: [shift(mon, '16:00', '22:00'), shift(tue, '16:00', '22:00'), shift(wed, '17:00', '21:00'), shift(thu, '17:00', '23:00'), shift(sun, '11:00', '17:00')],
   };
 }
+
+/**
+ * Development only: a Pharmacology syllabus for the nursing persona, read as the model would
+ * return it: the class meeting as one repeating event, then every exam, quiz and assignment
+ * through the end of term. Shows the syllabus review without calling the API.
+ */
+export function sampleSyllabusExtraction(today: string): Extraction {
+  const [mon] = weekOf(today) as [string];
+  const tue = addDays(mon, 1);
+  const end = addDays(mon, 56);
+  const on = (date: string, title: string, kind: 'event' | 'task', start: string | null, end: string | null, evidence: string, question: string | null = null) => ({
+    kind, title, category: 'school' as const, date, start, end, is_deadline: true, repeat_weekdays: [] as ('mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun')[],
+    repeat_until: null, course_code: 'NURS 210', evidence, confidence: start ? 0.96 : 0.7, question,
+  });
+  return {
+    detected_type: 'syllabus', employer: null, course: { code: 'NURS 210', title: 'Pharmacology I', instructor: 'Dr. Okafor' }, covers_from: null, covers_to: null,
+    items: [
+      { kind: 'event', title: 'Pharmacology lecture', category: 'school', date: tue, start: '10:30', end: '11:45', is_deadline: false, repeat_weekdays: ['tue', 'thu'], repeat_until: end, course_code: 'NURS 210', evidence: 'Class meets Tuesday and Thursday 10:30–11:45, Nursing 204', confidence: 0.98, question: null },
+      on(addDays(tue, 7), 'Drug card set 1', 'task', '23:59', null, 'Drug card set 1 due 11:59 pm'),
+      on(addDays(tue, 14), 'Exam 1: Pharmacokinetics', 'event', '10:30', '11:45', 'Exam 1 (Units 1–3), in class'),
+      on(addDays(tue, 16), 'Quiz: Dosage calculations', 'task', null, null, 'Dosage calc quiz, week 6', 'What time is this quiz?'),
+      on(addDays(tue, 21), 'Drug card set 2', 'task', '23:59', null, 'Drug card set 2 due 11:59 pm'),
+      on(addDays(tue, 28), 'Care plan: cardiac meds', 'task', '23:59', null, 'Care plan 1 due Sunday 11:59 pm'),
+      on(addDays(tue, 35), 'Exam 2: Cardiovascular', 'event', '10:30', '11:45', 'Exam 2 (Units 4–6), in class'),
+      on(addDays(tue, 42), 'Drug card set 3', 'task', '23:59', null, 'Drug card set 3 due 11:59 pm'),
+      on(addDays(tue, 49), 'Care plan: antibiotics', 'task', '23:59', null, 'Care plan 2 due Sunday 11:59 pm'),
+      on(addDays(tue, 58), 'Final exam', 'event', '08:00', '10:00', 'Cumulative final, finals week, 8:00–10:00 am'),
+    ],
+  };
+}

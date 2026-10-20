@@ -16,9 +16,9 @@ import { reportError } from '@/lib/errors';
 import { useStorageStatus } from '@/lib/storage';
 import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
-import { devClock, devCommand } from '@/lib/dev';
+import { devClock, devCommand, setDevAutoConfirm } from '@/lib/dev';
 import { setDevTime } from '@/lib/now';
-import { sampleScheduleExtraction, sampleScheduleUpdate, sampleWeek } from '@/store/sample';
+import { sampleScheduleExtraction, sampleScheduleUpdate, sampleSyllabusExtraction, sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
 
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
@@ -78,7 +78,8 @@ function RootLayout() {
       if (!cmd) return;
       const store = useStore.getState();
       const today = localParts(new Date()).date;
-      if (cmd === 'sample' || cmd === 'moment' || cmd === 'item' || cmd === 'review' || cmd === 'review-update' || cmd === 'hours' || cmd === 'list') {
+      const demo = cmd === 'demo' || cmd === 'demo-syllabus';
+      if (cmd === 'sample' || cmd === 'moment' || cmd === 'item' || cmd === 'review' || cmd === 'review-update' || cmd === 'hours' || cmd === 'list' || demo) {
         store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', ...(cmd === 'hours' || cmd === 'list' ? { todayView: cmd } : {}), breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
         if (Object.keys(store.items).length === 0) {
           const week = sampleWeek(today, { student: true, preview: true });
@@ -96,6 +97,18 @@ function RootLayout() {
       if (cmd === 'review' || cmd === 'review-update') {
         store.setPending({ extraction: (cmd === 'review' ? sampleScheduleExtraction : sampleScheduleUpdate)(today), source: 'Screenshot' });
         setTimeout(() => router.push('/review'), 2500);
+      }
+      // A recording: Today, then the Add tab, then the review of a screenshot or a syllabus,
+      // which confirms itself and lands on Plan. Every transition is the real one.
+      if (demo) {
+        setDevAutoConfirm(6000);
+        setTimeout(() => router.navigate('/add'), 3000);
+        setTimeout(() => {
+          store.setPending(cmd === 'demo'
+            ? { extraction: sampleScheduleExtraction(today), source: 'Screenshot' }
+            : { extraction: sampleSyllabusExtraction(today), source: 'NURS210-syllabus.pdf' });
+          router.push('/review');
+        }, 6500);
       }
       if (cmd === 'item') {
         const first = Object.values(useStore.getState().items).find((i) => i.kind === 'event' && i.date >= today);
