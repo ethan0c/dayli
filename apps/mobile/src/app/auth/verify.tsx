@@ -10,11 +10,14 @@ import { authErrorMessage, type CodePurpose } from '@/lib/auth';
 import { authClient, leaveAuth } from '@/lib/auth-client';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
-const CODE_LENGTH = 6;
+/** Supabase sends 6 to 8 digits (Authentication → Providers → Email → Email OTP length). Accepting the
+ * range means a dashboard change never locks anyone out; a full-length code submits on its own. */
+const CODE_MIN = 6;
+const CODE_MAX = 8;
 /** Supabase allows one email a minute per address. */
 const RESEND_AFTER_S = 60;
 
-/** The 6-digit code from a sign-up or reset email. Sign-up lands in the planner; reset goes on to a new password. */
+/** The code from a sign-up or reset email. Sign-up lands in the planner; reset goes on to a new password. */
 export default function VerifyScreen() {
   const { c } = useTheme();
   const params = useLocalSearchParams<{ email?: string; purpose?: string; resendFailed?: string }>();
@@ -34,7 +37,7 @@ export default function VerifyScreen() {
   }, [wait]);
 
   const verify = async (value = code) => {
-    if (lock.current || value.length < CODE_LENGTH) return;
+    if (lock.current || value.length < CODE_MIN) return;
     lock.current = true;
     setBusy(true);
     setError(null);
@@ -67,18 +70,18 @@ export default function VerifyScreen() {
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.body}>
         <View style={styles.hero}>
           <T token="display" accessibilityRole="header">Check your email.</T>
-          <T token="body" color={c.inkSecondary}>{codeSent ? `We sent a ${CODE_LENGTH}-digit code to ${email}. It works for an hour.` : `Use the latest code sent to ${email}, or request a new one below.`}</T>
+          <T token="body" color={c.inkSecondary}>{codeSent ? `We sent a code to ${email}. It works for an hour.` : `Use the latest code sent to ${email}, or request a new one below.`}</T>
         </View>
-        <AuthField label="Code" value={code} error={error ?? undefined} placeholder="123456" autoFocus
-          keyboardType="number-pad" textContentType="oneTimeCode" autoComplete="one-time-code" maxLength={CODE_LENGTH} editable={!busy}
+        <AuthField label="Code" value={code} error={error ?? undefined} placeholder="Your code" autoFocus
+          keyboardType="number-pad" textContentType="oneTimeCode" autoComplete="one-time-code" maxLength={CODE_MAX} editable={!busy}
           onChangeText={(v) => {
             const digits = v.replace(/\D/g, '');
             setCode(digits);
             setError(null);
-            if (digits.length === CODE_LENGTH) void verify(digits);
+            if (digits.length === CODE_MAX) void verify(digits);
           }} />
         <View style={{ gap: 12 }}>
-          <Button label={busy ? 'Checking…' : 'Continue'} disabled={busy || code.length < CODE_LENGTH} onPress={() => void verify()} />
+          <Button label={busy ? 'Checking…' : 'Continue'} disabled={busy || code.length < CODE_MIN} onPress={() => void verify()} />
           {wait > 0
             ? <T token="caption" color={c.inkSecondary} style={styles.center}>{`Send a new code in ${wait}s`}</T>
             : <TextButton label="Send a new code" tone="muted" onPress={() => void resend()} style={styles.link} />}

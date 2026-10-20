@@ -14,7 +14,7 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
 const COPY = {
   login: { title: 'Log in', heading: 'Welcome back.', body: 'A little less juggling starts here.', action: 'Log in' },
   signup: { title: 'Sign up', heading: 'Make room for your week.', body: 'Create your Semli account.', action: 'Create account' },
-  'forgot-password': { title: 'Forgot password', heading: 'Let’s get you back in.', body: 'Enter the email you use for Semli. We’ll send a 6-digit code to reset your password.', action: 'Send code' },
+  'forgot-password': { title: 'Forgot password', heading: 'Let’s get you back in.', body: 'Enter the email you use for Semli. We’ll send you a code to reset your password.', action: 'Send code' },
 };
 
 export function AuthForm({ mode }: { mode: AuthMode }) {

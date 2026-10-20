@@ -38,7 +38,7 @@ export interface AuthClient {
   signIn: (fields: AuthFields) => Promise<SignInResult>;
   signUp: (fields: AuthFields) => Promise<SignInResult>;
   signInWithGoogle: () => Promise<SignInResult | null>;
-  /** Sends a 6-digit code; verifyCode with 'recovery' signs in so updatePassword can run. */
+  /** Sends a code by email; verifyCode with 'recovery' signs in so updatePassword can run. */
   resetPassword: (email: string) => Promise<void>;
   verifyCode: (email: string, code: string, purpose: CodePurpose) => Promise<SignInResult>;
   resendCode: (email: string, purpose: CodePurpose) => Promise<void>;

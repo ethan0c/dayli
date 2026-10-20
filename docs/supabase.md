@@ -10,13 +10,13 @@ The app turns accounts on by itself when `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PU
 3. Authentication → URL Configuration: Site URL `https://semli.app`; Redirect URLs `semli://**` (add `exp://**` only if you test in Expo Go).
 4. Email: keep "Confirm email" on. Set the sender to hello@semli.app with custom SMTP before the beta; the built-in sender is rate-limited to a few emails an hour.
 5. Google: create an OAuth client (Web application) in Google Cloud, add `https://<project>.supabase.co/auth/v1/callback` as its redirect URI, paste the client ID and secret into Authentication → Providers → Google.
-6. Email codes, not links: in Authentication → Emails → Templates, put `{{ .Token }}` (the 6-digit code) in **Confirm signup** and **Reset password**, and take `{{ .ConfirmationURL }}` out. The app's code screen is `auth/verify`. Codes last an hour by default (Providers → Email → Email OTP expiration).
+6. Email codes, not links: in Authentication → Emails → Templates, put `{{ .Token }}` (the code) in **Confirm signup** and **Reset password**, and take `{{ .ConfirmationURL }}` out. The app's code screen is `auth/verify`; it accepts 6 to 8 digits, so Email OTP length (Providers → Email) can be 6 or 8 (the project uses 8 as of Oct 20, 2026). Codes last an hour by default (Email OTP expiration). Minimum password length there is 6; the app asks for 8.
 7. Rebuild the dev client (`npx expo run:ios` or EAS) after native package changes.
 
 Sign-in is Google and email only (founder's call, Oct 19, 2026). App Store rule 4.8 can require Sign in with Apple when Google is offered; if review flags it, add Apple back.
 
 ## Device checks
-- [ ] Email sign-up → 6-digit code → signed in; wrong or expired code; resend after 60 s; login; wrong password; forgot password → code → new password.
+- [ ] Email sign-up → code → signed in; wrong or expired code; resend after 60 s; login; wrong password; forgot password → code → new password.
 - [ ] Google, including cancel and a `redirect_uri_mismatch` check.
 - [ ] Guest with a plan signs up → plan backed up; fresh install → log in → plan restored and onboarding skipped.
 - [ ] Sign up on a fresh install, enter the code, quit before onboarding; fresh install → log in → onboarding runs (name filled in), not an empty planner. The row carries `onboarded`; rows saved before Oct 20, 2026 count as finished only when they hold a plan.

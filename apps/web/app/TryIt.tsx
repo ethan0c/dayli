@@ -1,7 +1,7 @@
 'use client';
 
-import { localParts, toDrafts } from '@dayli/core';
-import { ExtractResponse, type ExtractRequest } from '@dayli/schema';
+import { errorDiagnostic, localParts, toDrafts } from '@dayli/core';
+import { ExtractResponse, IMPORT_MESSAGES, friendlyImportError, importErrorForStatus, type ExtractRequest } from '@dayli/schema';
 import { useEffect, useRef, useState } from 'react';
 import { Pill, Row, TermLine, WeekChart } from '@/components/Mock';
 import { feedback } from '@/lib/feedback';
@@ -90,7 +90,11 @@ export function TryIt() {
     let input: ExtractRequest['input'];
     if (file) {
       if (file.size > 20 * 1024 * 1024) return fail('That file is over 20 MB. Try a smaller one.');
-      const data = await fileToBase64(file);
+      const data = await fileToBase64(file).catch((error: unknown) => {
+        console.info('[web.import.read_file]', errorDiagnostic(error));
+        return null;
+      });
+      if (data === null) return fail(IMPORT_MESSAGES.file);
       if (file.type === 'application/pdf') input = { kind: 'pdf', data };
       else if (ACCEPT.includes(file.type)) input = { kind: 'image', mediaType: file.type as 'image/png', data };
       else return fail('Semli reads PDFs and images (PNG, JPEG, WebP, GIF).');
@@ -113,14 +117,27 @@ export function TryIt() {
           context: { today, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, courses: [], employers: [] },
         } satisfies ExtractRequest),
       });
-      const parsed = ExtractResponse.safeParse(await res.json());
-      if (!parsed.success) throw new Error('bad response');
-      if (!parsed.data.ok) return fail(parsed.data.error);
+      let body: unknown;
+      try { body = await res.json(); }
+      catch (error) {
+        console.info('[web.import.response_json]', { ...errorDiagnostic(error), status: res.status });
+        return fail(importErrorForStatus(res.status));
+      }
+      const parsed = ExtractResponse.safeParse(body);
+      if (!parsed.success || (!res.ok && parsed.data.ok)) {
+        console.info('[web.import.response_schema]', { code: 'invalid_response', status: res.status });
+        return fail(importErrorForStatus(res.status));
+      }
+      if (!parsed.data.ok) {
+        console.info('[web.import.response]', { code: 'import_rejected', status: res.status });
+        return fail(friendlyImportError(parsed.data.error, res.status));
+      }
       const drafts = toDrafts(parsed.data.extraction, today);
       feedback(drafts.length > 0 ? 'success' : 'ready');
       setResult(summarize(parsed.data.extraction, drafts));
-    } catch {
-      fail('Semli couldn’t read that right now. Try again.');
+    } catch (error) {
+      console.info('[web.import.request_or_review]', errorDiagnostic(error));
+      fail(IMPORT_MESSAGES.unavailable);
     } finally {
       setBusy(false);
     }

@@ -11,7 +11,7 @@ import { useStore } from '../store';
 
 WebBrowser.maybeCompleteAuthSession();
 
-/** Only Google uses a redirect; email confirmation and reset use 6-digit codes. */
+/** Only Google uses a redirect; email confirmation and reset use emailed codes. */
 const callbackUrl = () => Linking.createURL('auth/callback');
 
 /** Every sign-in ends here: pull the backed-up plan into this phone. */
