@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 const ROWS: { label: string; free: string | boolean; plus: string | boolean }[] = [
   { label: 'Calendar, tasks, and the Today screen', free: true, plus: true },
   { label: 'Reminders', free: true, plus: true },
+  { label: 'Urgent items that ring like an alarm', free: false, plus: true },
   { label: 'Add by hand', free: true, plus: true },
   { label: 'AI imports from text, screenshots, and PDFs', free: `${FREE_IMPORTS_PER_MONTH} a month`, plus: 'Unlimited' },
   { label: 'Syllabus import', free: 'Counts as an import', plus: true },
@@ -76,7 +77,7 @@ export default function PricingPage() {
         <h1>Start free. Add more with Plus.</h1>
         <p className="lede">
           Keep your week organized for free. Plus adds unlimited imports, Canvas sync, work-schedule comparisons,
-          and suggested times for overlapping plans.
+          suggested times for overlapping plans, and urgent items that ring like an alarm.
         </p>
       </header>
 

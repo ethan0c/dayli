@@ -139,6 +139,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 **Urgent items and ringing alarms**
 - Events and to-dos have an explicit Urgent switch in Create and item details, with an Urgent label in lists and the hour view. Imports never infer urgency. Existing saved items remain compatible.
+- Urgent is part of Semli Plus (Oct 20, 2026): the switch asks for Plus before turning on, `lib/plus-status.ts` carries the entitlement to the alarm sync, and alarms are cancelled on a lapse and restored on a purchase or restore.
 - Timed urgent items use the native iOS 26+ AlarmKit integration in `apps/mobile/src/native`. Enable ringing alarms from the item or Settings → Reminders; alarm authorization and the ringing preference are separate from ordinary notification permission. Untimed urgent items ask for a time. No backend is needed.
 - Alarm synchronization keeps the nearest 32 future urgent items scheduled, preserves an unchanged alarm that is currently ringing, updates changed titles/times, and cancels alarms when items are completed, deleted, unmarked, or ringing alarms are disabled. It only changes Semli's recorded alarm IDs. Synchronization runs after hydration, item/preference changes, and foregrounding; open Semli periodically to replenish the 32-alarm window.
 - Existing native binaries prompt the person to update Semli. Android and older iOS retain urgent labels and ordinary reminders; full ringing alarms are not implemented there. Do not describe a notification sound as a full ringing alarm.

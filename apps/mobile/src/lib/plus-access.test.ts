@@ -50,6 +50,12 @@ describe('shared Plus access checks', () => {
     await expect(createAccess().requireImportAccess()).rejects.toThrow('Offline');
     expect(mocks.presentPaywall).not.toHaveBeenCalled();
   });
+  it('gates urgent items on the entitlement, not on free imports', async () => {
+    expect(await createAccess().requirePlus('urgent')).toBe(false);
+    expect(mocks.track).toHaveBeenCalledWith('paywall_shown', { reason: 'urgent' });
+    mocks.presentPaywall.mockResolvedValue(true);
+    expect(await createAccess().requirePlus('urgent')).toBe(true);
+  });
   it('gates schedule updates even when free imports remain', async () => {
     expect(await createAccess().requirePlus('schedule_update')).toBe(false);
     expect(mocks.track).toHaveBeenCalledWith('paywall_shown', { reason: 'schedule_update' });

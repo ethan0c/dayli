@@ -156,7 +156,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           </View>
         )}
         <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
-          Unlimited imports, Canvas kept in sync, updates to your work schedule, and suggested times for overlapping plans. Calendar, to-dos, reminders and overlap warnings stay free forever.
+          Unlimited imports, Canvas kept in sync, updates to your work schedule, suggested times for overlapping plans, and urgent items that ring like an alarm. Calendar, to-dos, reminders and overlap warnings stay free forever.
         </T>
       </View>
 

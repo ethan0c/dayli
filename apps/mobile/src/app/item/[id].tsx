@@ -16,6 +16,7 @@ import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
+import { usePlusAccess } from '@/lib/plus-access';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
 import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
@@ -74,6 +75,13 @@ export default function ItemScreen() {
   const reminders = useStore((s) => s.settings.reminders);
   const toggleDone = useStore((s) => s.toggleDone);
   const updateItem = useStore((s) => s.updateItem);
+  const { requirePlus } = usePlusAccess();
+  // Urgent items ring like an alarm, which is part of Plus. Turning it off is always allowed.
+  const setUrgent = async (urgent: boolean) => {
+    if (!id || (urgent && !(await requirePlus('urgent')))) return;
+    feedback('select');
+    updateItem(id, { urgent });
+  };
   const removeItem = useStore((s) => s.removeItem);
   const removeItems = useStore((s) => s.removeItems);
   const [title, setTitle] = useState(item?.title ?? '');
@@ -235,7 +243,7 @@ export default function ItemScreen() {
               <TextButton label="Done" tone="muted" onPress={() => setEditing(null)} />
             </Animated.View>
           ) : null}
-          <Row trailing={<NativeToggle label="Urgent" value={!!item.urgent} onChange={(urgent) => { feedback('select'); updateItem(item.id, { urgent }); }} />}>
+          <Row trailing={<NativeToggle label="Urgent" value={!!item.urgent} onChange={(urgent) => void setUrgent(urgent)} />}>
             <T token="body" style={{ flex: 1 }}>Urgent</T>
           </Row>
           {item.urgent && !item.done ? <RingingAlarmInfo timed={!!item.start} itemID={item.id} /> : null}

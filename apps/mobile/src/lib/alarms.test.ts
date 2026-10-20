@@ -9,8 +9,9 @@ vi.mock('react-native', () => ({ Platform: mocks.platform }));
 vi.mock('../store', () => ({ useStore: { getState: () => ({ ...mocks.state, setSettings: mocks.setSettings }) } }));
 const task = { id: 'task', title: 'Assignment', kind: 'task', date: '2026-10-20', start: '13:00', urgent: true, done: false };
 
-beforeEach(() => {
+beforeEach(async () => {
   vi.resetModules(); vi.resetAllMocks(); mocks.platform.OS = 'ios';
+  (await import('./plus-status')).setPlusStatus('active');
   mocks.requireOptionalNativeModule.mockReturnValue(mocks);
   mocks.getStatusAsync.mockResolvedValue('authorized'); mocks.requestAuthorizationAsync.mockResolvedValue('authorized');
   mocks.syncAsync.mockResolvedValue(['task']);
@@ -46,6 +47,20 @@ describe('native ringing alarm access', () => {
     mocks.state.items = { task: { ...task, urgent: false } }; await syncRingingAlarms();
     expect(mocks.syncAsync).toHaveBeenLastCalledWith('[]');
     mocks.state.items = {}; await syncRingingAlarms(); expect(mocks.syncAsync).toHaveBeenLastCalledWith('[]');
+  });
+  it('schedules nothing without Plus, leaves alarms alone until the store answers, and follows a purchase or lapse', async () => {
+    const { setPlusStatus } = await import('./plus-status');
+    const { syncRingingAlarms, enableRingingAlarms } = await import('./alarms');
+    setPlusStatus('unknown'); await syncRingingAlarms(); expect(mocks.syncAsync).not.toHaveBeenCalled();
+    setPlusStatus('inactive'); await syncRingingAlarms(); expect(mocks.syncAsync).toHaveBeenLastCalledWith('[]');
+    await expect(enableRingingAlarms()).rejects.toThrow('Semli Plus');
+    expect(mocks.requestAuthorizationAsync).not.toHaveBeenCalled();
+    setPlusStatus('active');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(JSON.parse(mocks.syncAsync.mock.lastCall?.[0])).toMatchObject([{ id: 'task' }]);
+    setPlusStatus('inactive');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mocks.syncAsync).toHaveBeenLastCalledWith('[]');
   });
   it('handles old builds and unsupported platforms without manufacturing an alarm', async () => {
     mocks.requireOptionalNativeModule.mockReturnValue(null);

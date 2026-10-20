@@ -117,7 +117,7 @@ export default function RemindersScreen() {
         {timeRow('At', 'briefingAt', true)}
       </Group>
 
-      <Group title="Urgent ringing alarms">
+      <Group title="Urgent ringing alarms" footer="Part of Semli Plus. Standard reminders are always free.">
         <RingingAlarmInfo settings />
       </Group>
 

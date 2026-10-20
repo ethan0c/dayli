@@ -66,7 +66,7 @@ Calendar, tasks, Today, reminders, repeating classes, manual add, **3 AI imports
 
 Student pricing is on the honor system. The toggle in onboarding says so plainly: we don't check IDs or .edu emails, we trust you, switch it off when you graduate. The regular price exists so the student price reads as a real discount (~40%) and so non-students (parents, grads, shift workers) have a way to pay.
 
-Plus includes unlimited AI imports, work-schedule update comparisons, and suggested times for overlapping plans. Syllabi count toward the three free monthly imports; Plus removes that limit. Canvas sync is still planned.
+Plus includes unlimited AI imports, work-schedule update comparisons, suggested times for overlapping plans, and urgent items with ringing alarms (decided Oct 20, 2026; standard reminders stay free). Syllabi count toward the three free monthly imports; Plus removes that limit. Canvas sync is still planned.
 
 ### Access audit (Oct 19, 2026)
 
@@ -77,6 +77,7 @@ Plus includes unlimited AI imports, work-schedule update comparisons, and sugges
 | Updating an existing work schedule | Review shows a preview; committing a comparison requires Plus. A first schedule or a new week without existing shifts uses the normal import allowance. Manual shift edits remain free. Cancelling the paywall preserves the pending review. |
 | Overlap detection and named warnings | Free on both events, including the detail graph and agenda. |
 | Suggested rescheduling | Plus; active entitlement checked again before applying. Fixed times stay fixed by default. A suggestion moves only the selected occurrence and is undoable. |
+| Urgent items and ringing alarms | Plus. The Urgent switch in Create and item details asks for Plus before turning on; turning off is free. Alarm sync schedules nothing without an active entitlement and leaves existing alarms alone until the store has answered, so a lapse cancels alarms and a restore brings them back. Standard reminders are free. |
 | Canvas sync | Not implemented or advertised as available. |
 
 The subscription source of truth is RevenueCat's active entitlement, including an active store trial; saved trial dates and plan preferences grant no access. Store errors do not unlock paid actions. Existing entitlement tests cover inactive/wrong entitlements, cancellation, and restores.

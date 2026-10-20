@@ -12,6 +12,7 @@ import { Segmented } from '@/components/Segmented';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
+import { usePlusAccess } from '@/lib/plus-access';
 import { buildManualItem, defaultManualTimes, type ManualDraft } from '@/lib/manual-item';
 import { courseTint, useCourseList, useStore } from '@/store';
 import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
@@ -39,6 +40,13 @@ export default function CreateScreen() {
   const [picker, setPicker] = useState<Picker | null>(null);
   const saving = useRef(false);
   const patch = (values: Partial<ManualDraft>) => { setDraft((previous) => ({ ...previous, ...values })); setError(null); };
+  const { requirePlus } = usePlusAccess();
+  // Urgent items ring like an alarm, which is part of Plus. Turning it off is always allowed.
+  const setUrgent = async (urgent: boolean) => {
+    if (urgent && !(await requirePlus('urgent'))) return;
+    feedback('select');
+    patch({ urgent });
+  };
   const event = draft.kind === 'event';
 
   const save = () => {
@@ -104,7 +112,7 @@ export default function CreateScreen() {
         </View>
 
         <View>
-          <FieldRow label="Urgent" last><NativeToggle label="Urgent" value={!!draft.urgent} onChange={(urgent) => { feedback('select'); patch({ urgent }); }} /></FieldRow>
+          <FieldRow label="Urgent" last><NativeToggle label="Urgent" value={!!draft.urgent} onChange={(urgent) => void setUrgent(urgent)} /></FieldRow>
           {draft.urgent ? <RingingAlarmInfo timed={event ? !draft.allDay : draft.hasDueTime} draft /> : <T token="caption" color={c.inkSecondary}>Make this stand out in your plan.</T>}
         </View>
 

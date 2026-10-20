@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 
 import { planRingingAlarms } from './alarm-plan';
 import { reportError } from './errors';
+import { getPlusStatus, onPlusStatus } from './plus-status';
 import { useStore } from '../store';
 
 type Authorization = 'checking' | 'authorized' | 'denied' | 'notDetermined' | 'unsupported' | 'needs-build';
@@ -32,8 +33,11 @@ export function syncRingingAlarms(): Promise<void> {
       const authorization = await native.getStatusAsync();
       publish({ authorization });
       if (authorization !== 'authorized') { publish({ scheduledIDs: [], error: null }); return; }
+      // Ringing alarms are part of Plus. Until the store has answered, leave the alarms as they are.
+      const plus = getPlusStatus();
+      if (plus === 'unknown') return;
       const { items, settings } = useStore.getState();
-      const requests = settings.reminders.urgentAlarmsEnabled ? planRingingAlarms(Object.values(items)) : [];
+      const requests = settings.reminders.urgentAlarmsEnabled && plus === 'active' ? planRingingAlarms(Object.values(items)) : [];
       const scheduledIDs = await native.syncAsync(JSON.stringify(requests));
       publish({ scheduledIDs, error: null });
     } finally { publish({ syncing: false }); }
@@ -50,6 +54,7 @@ export function syncRingingAlarms(): Promise<void> {
 export async function enableRingingAlarms(): Promise<void> {
   const native = nativeModule();
   if (!native) throw new Error('A new iOS development build is needed for ringing alarms.');
+  if (getPlusStatus() !== 'active') throw new Error('Urgent ringing alarms are part of Semli Plus.');
   const authorization = await native.requestAuthorizationAsync();
   publish({ authorization });
   if (authorization !== 'authorized') return;
@@ -57,6 +62,9 @@ export async function enableRingingAlarms(): Promise<void> {
   store.setSettings({ reminders: { ...store.settings.reminders, urgentAlarmsEnabled: true } });
   await syncRingingAlarms();
 }
+
+// A purchase, restore or lapse changes what may ring; bring the native alarms in line.
+onPlusStatus(() => { void syncRingingAlarms().catch(() => {}); });
 
 export async function disableRingingAlarms(): Promise<void> {
   const store = useStore.getState();

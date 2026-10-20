@@ -53,7 +53,7 @@ export function PlanCards() {
               <span className="per">{PERIOD[billing]}</span>
             </div>
             <p className="plan-caption">{money(price)} billed {selected.billed}. {selected.months > 1 ? `Equivalent to ${money(price / selected.months)} a month.` : 'Billed once a month.'}</p>
-            <p className="plan-description">Unlimited imports, Canvas kept in sync, work-schedule updates, and suggested times for overlapping plans.</p>
+            <p className="plan-description">Unlimited imports, Canvas kept in sync, work-schedule updates, suggested times for overlapping plans, and urgent items that ring like an alarm.</p>
           </header>
 
           <div>

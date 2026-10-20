@@ -5,6 +5,7 @@ import Purchases, { type CustomerInfo, type PurchasesOffering, type PurchasesOff
 import RevenueCatUI from 'react-native-purchases-ui';
 
 import { customerCenterEnabled, hasSemliPro, initializePurchases, offeringFor, purchaseErrorMessage, purchasesUnavailableReason, SubscriptionError } from '@/lib/revenuecat';
+import { getPlusStatus, setPlusStatus } from '@/lib/plus-status';
 import { accountOf, useSession } from '@/lib/supabase';
 import { useStore } from '@/store';
 import { requestPaywall } from '@/lib/paywall-request';
@@ -42,6 +43,12 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
   const operationInProgress = useRef(false);
   // Guests keep RevenueCat's own anonymous id, so a purchase made as a guest carries over on sign-up.
   const userId = useSession((st) => accountOf(st.session)?.user.id);
+
+  // Code outside React (alarm sync) reads Plus from here. Without a store answer, Plus is off.
+  useEffect(() => {
+    if (customerInfo) setPlusStatus(hasSemliPro(customerInfo) ? 'active' : 'inactive');
+    else if (purchasesUnavailableReason) setPlusStatus('inactive');
+  }, [customerInfo]);
 
   const updateCustomerInfo = useCallback((info: CustomerInfo) => {
     // A slower initial request must not overwrite a newer purchase/listener update.
@@ -98,6 +105,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       if (!disposed) {
         setError(purchaseErrorMessage(failure, 'purchases.initialize'));
         setLoading(false);
+        if (getPlusStatus() === 'unknown') setPlusStatus('inactive');
       }
     });
     const subscription = AppState.addEventListener('change', (state) => {
