@@ -12,6 +12,9 @@ export const IMPORT_MESSAGES = {
   unreadable: "We couldn't read this. Try a clearer image, a different PDF, or type the details instead.",
   tooMuch: 'There is too much to read at once. Try a shorter message or send a few pages at a time.',
   incomplete: "We couldn't read this. Try sending it again, or type the details instead.",
+  quota: "You've used this month's free imports. Semli Plus has unlimited imports, or add things by hand for free.",
+  demoLimit: "That's the limit for previews today. Get the iPhone app to keep going.",
+  session: "Semli couldn't confirm this phone. Close and reopen Semli, then try again.",
 } as const;
 
 /** Even a schema-valid server error must be known product copy before it reaches a screen. */
@@ -21,6 +24,8 @@ export function friendlyImportError(message: string, status: number): string {
 
 export function importErrorForStatus(status: number): string {
   if (status === 400 || status === 422) return IMPORT_MESSAGES.request;
+  if (status === 401) return IMPORT_MESSAGES.session;
+  if (status === 402) return IMPORT_MESSAGES.quota;
   if (status === 408 || status === 504) return IMPORT_MESSAGES.timeout;
   if (status === 413) return IMPORT_MESSAGES.tooLarge;
   if (status === 415) return IMPORT_MESSAGES.unsupported;

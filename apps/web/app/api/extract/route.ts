@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { extract } from '@dayli/extract';
 import { ExtractRequest, IMPORT_MESSAGES, friendlyImportError, type ExtractResponse } from '@dayli/schema';
 import { errorDiagnostic } from '@dayli/core';
+import { checkImportAccess, type Access } from '../../../lib/import-access';
 
 // Dense multi-page syllabi can take more than a minute to read.
 export const maxDuration = 180;
@@ -9,7 +10,7 @@ export const maxDuration = 180;
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RevenueCat-App-User-Id',
 };
 
 function reply(body: ExtractResponse, status = 200) {
@@ -34,14 +35,26 @@ export async function POST(request: Request) {
     return reply({ ok: false, error: IMPORT_MESSAGES.request }, 400);
   }
 
+  let access: Access;
+  try {
+    access = await checkImportAccess(request);
+  } catch (err) {
+    console.error('[extract.access]', errorDiagnostic(err));
+    return reply({ ok: false, error: IMPORT_MESSAGES.unavailable }, 503);
+  }
+  if (!access.ok) return reply({ ok: false, error: access.error }, access.status);
+
   try {
     const result = await extract(parsed.data);
     if (!result.ok) {
+      // A failed read never costs an import.
+      await access.refund();
       console.error('[extract.result]', { code: Object.entries(IMPORT_MESSAGES).find(([, message]) => message === result.error)?.[0] ?? 'unknown_failure' });
       return reply({ ok: false, error: friendlyImportError(result.error, 422) }, 422);
     }
     return reply({ ok: true, extraction: result.extraction });
   } catch (err) {
+    await access.refund();
     console.error('[extract.provider]', errorDiagnostic(err));
     if (err instanceof Anthropic.AuthenticationError) {
       return reply({ ok: false, error: IMPORT_MESSAGES.unavailable }, 500);

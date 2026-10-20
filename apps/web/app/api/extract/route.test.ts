@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Anthropic from '@anthropic-ai/sdk';
 import { IMPORT_MESSAGES } from '@dayli/schema';
 import { extract } from '@dayli/extract';
@@ -40,5 +40,61 @@ describe('import API errors', () => {
     const res = await POST(request());
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ ok: false, error: IMPORT_MESSAGES.unavailable });
+  });
+});
+
+describe('import limits', () => {
+  const env = { SUPABASE_URL: 'https://db.test', SUPABASE_KEY: 'sb_publishable_test', REVENUECAT_SECRET_KEY: 'sk_test' };
+  const withAuth = (headers: Record<string, string>) => new Request('https://semli.test/api/extract', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ input: { kind: 'text', text: 'Exam tomorrow at 9' }, context: { today: '2026-10-19', timezone: 'America/New_York', courses: [], employers: [] } }),
+  });
+  const ok = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
+
+  beforeEach(() => {
+    for (const [k, v] of Object.entries(env)) vi.stubEnv(k, v);
+    vi.mocked(extract).mockResolvedValue({ ok: true, extraction: { detected_type: 'general', employer: null, course: null, covers_from: null, covers_to: null, items: [] } });
+  });
+  afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+
+  it('lets Plus through without counting', async () => {
+    const fetchMock = vi.fn(async (url: string) => url.includes('/auth/v1/user') ? ok({ id: 'u1' })
+      : url.includes('revenuecat') ? ok({ subscriber: { entitlements: { semli_pro: { expires_date: '2999-01-01T00:00:00Z' } } } })
+      : ok(false));
+    vi.stubGlobal('fetch', fetchMock);
+    const res = await POST(withAuth({ authorization: 'Bearer t', 'x-revenuecat-app-user-id': 'u1' }));
+    expect(res.status).toBe(200);
+    expect(fetchMock.mock.calls.some(([u]) => String(u).includes('claim_import'))).toBe(false);
+  });
+
+  it('stops a free user past the monthly imports before reading', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => url.includes('/auth/v1/user') ? ok({ id: 'u1' }) : url.includes('revenuecat') ? ok({ subscriber: { entitlements: {} } }) : ok(false)));
+    const res = await POST(withAuth({ authorization: 'Bearer t' }));
+    expect(res.status).toBe(402);
+    expect(await res.json()).toEqual({ ok: false, error: IMPORT_MESSAGES.quota });
+    expect(extract).not.toHaveBeenCalled();
+  });
+
+  it('gives the import back when the read fails', async () => {
+    const fetchMock = vi.fn(async (url: string) => url.includes('/auth/v1/user') ? ok({ id: 'u1' }) : url.includes('claim_import') ? ok(true) : ok(null));
+    vi.stubGlobal('fetch', fetchMock);
+    vi.mocked(extract).mockRejectedValue(new Error('boom'));
+    await POST(withAuth({ authorization: 'Bearer t' }));
+    expect(fetchMock.mock.calls.some(([u]) => String(u).includes('refund_import'))).toBe(true);
+  });
+
+  it('rejects a session the database does not know', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 401 })));
+    const res = await POST(withAuth({ authorization: 'Bearer forged' }));
+    expect(res.status).toBe(401);
+    expect(extract).not.toHaveBeenCalled();
+  });
+
+  it('limits the website demo per visitor', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ok(false)));
+    const res = await POST(withAuth({ 'x-forwarded-for': '1.2.3.4' }));
+    expect(res.status).toBe(429);
+    expect(await res.json()).toEqual({ ok: false, error: IMPORT_MESSAGES.demoLimit });
   });
 });
