@@ -15,8 +15,9 @@ import { reportError } from '@/lib/errors';
 import { useStorageStatus } from '@/lib/storage';
 import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
-import { devCommand } from '@/lib/dev';
-import { sampleWeek } from '@/store/sample';
+import { devClock, devCommand } from '@/lib/dev';
+import { setDevTime } from '@/lib/now';
+import { sampleScheduleExtraction, sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
 
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
@@ -69,16 +70,21 @@ function RootLayout() {
   // Development: a command file in Documents seeds a state for screenshots (see lib/dev.ts).
   useEffect(() => {
     if (!ready) return;
+    void devClock().then(setDevTime);
     void devCommand().then((cmd) => {
       if (!cmd) return;
       const store = useStore.getState();
       const today = localParts(new Date()).date;
-      if (cmd === 'sample' || cmd === 'moment' || cmd === 'item') {
+      if (cmd === 'sample' || cmd === 'moment' || cmd === 'item' || cmd === 'review') {
         store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
         if (Object.keys(store.items).length === 0) {
           const week = sampleWeek(today, { student: true, preview: true });
           useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });
         }
+      }
+      if (cmd === 'review') {
+        store.setPending({ extraction: sampleScheduleExtraction(today), source: 'Screenshot' });
+        setTimeout(() => router.push('/review'), 600);
       }
       if (cmd === 'item') {
         const first = Object.values(useStore.getState().items).find((i) => i.kind === 'event' && i.date >= today);

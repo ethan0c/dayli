@@ -1,5 +1,5 @@
 import { addDays, weekOf } from '@dayli/core';
-import type { Course, Item, ScheduleVersion } from '@dayli/schema';
+import type { Course, Extraction, Item, ScheduleVersion } from '@dayli/schema';
 
 /** Marker on sample rows so the app can label and clear them. */
 export const SAMPLE_SOURCE = 'sample';
@@ -82,4 +82,21 @@ export function sampleWeek(today: string, options: { student?: boolean; preview?
     { id: 'sample-sched', employer: EMPLOYER, coversFrom: mon, coversTo: addDays(mon, 6), sourceId: shots, createdAt },
   ];
   return { items, courses, schedules };
+}
+
+/**
+ * Development only: next week's Campus Café schedule as the model would read it, one shift
+ * with no time. Opens the review screen for screenshots without calling the API.
+ */
+export function sampleScheduleExtraction(today: string): Extraction {
+  const next = weekOf(addDays(today, 7)) as [string, string, string, string, string, string, string];
+  const shift = (date: string, start: string | null, end: string | null) => ({
+    kind: 'event' as const, title: 'Café shift', category: 'work' as const, date, start, end, is_deadline: false,
+    repeat_weekdays: [], repeat_until: null, course_code: null, evidence: `${date} ${start ?? ''}–${end ?? ''}`,
+    confidence: start ? 0.97 : 0.6, question: start ? null : 'What time is this shift?',
+  });
+  return {
+    detected_type: 'work_schedule', employer: EMPLOYER, course: null, covers_from: next[0], covers_to: next[6],
+    items: [shift(next[0], '16:00', '22:00'), shift(next[1], '16:00', '22:00'), shift(next[3], '16:00', '22:00'), shift(next[4], null, null), shift(next[5], '09:00', '15:00'), shift(next[6], '11:00', '17:00')],
+  };
 }

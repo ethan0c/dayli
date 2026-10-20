@@ -27,3 +27,15 @@ export async function devCommand(): Promise<string | null> {
     return null;
   }
 }
+
+/** Development only: `dev-clock.txt` holds an HH:mm the app shows as now, so screenshots match the 9:41 status bar. */
+export async function devClock(): Promise<string | null> {
+  if (!__DEV__) return null;
+  try {
+    const f = new File(Paths.document, 'dev-clock.txt');
+    if (!f.exists) return null;
+    return (await f.text()).trim() || null;
+  } catch {
+    return null;
+  }
+}
