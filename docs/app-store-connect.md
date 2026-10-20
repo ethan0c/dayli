@@ -91,7 +91,7 @@ First release. Syllabus and work-schedule import, Canvas sync, reminders, and th
 |---|---|---|
 | 1 | `1-today.png` | Know what matters today |
 | 2 | `2-review.png` | Screenshot your work schedule. Done. |
-| 3 | `3-item.png` | New schedule? See only what changed |
+| 3 | `3-update.png` | New schedule? See only what changed |
 | 4 | `4-plan.png` | Your whole week as a chart |
 | 5 | `5-school.png` | Every syllabus, mapped to the term |
 | 6 | `6-paywall.png` | Calendar, to-dos, reminders: always free |

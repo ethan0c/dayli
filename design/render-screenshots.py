@@ -4,7 +4,7 @@
 Input: design/screenshots/raw/<name>.png, 1320 x 2868 captures from the iPhone 17 Pro Max
 simulator (dev build, light mode, 9:41 status bar; see docs/launch-guide.md, part 2).
 Output: design/screenshots/<nn>-<name>.png at 1320 x 2868, no alpha, ready for the
-6.9-inch slot. Caption in Geist on paper, ink text, one device per image bleeding off
+6.9-inch slot. Caption in Geist Medium on paper, ink text, one device per image bleeding off
 the bottom edge, as the best-selling planners do (Things, Structured, Opal).
 
     python3 design/render-screenshots.py                 # all, default layout
@@ -26,6 +26,8 @@ RAW = ROOT / "design" / "screenshots" / "raw"
 OUT = ROOT / "design" / "screenshots"
 FONTS = ROOT / "apps" / "mobile" / "assets" / "fonts"
 WORDMARK = ROOT / "apps" / "mobile" / "assets" / "images" / "splash-icon-light.png"
+FRAME = ROOT / "apps" / "web" / "public" / "phones" / "iphone-frame.png"  # 944 x 1902, the site's device render
+FRAME_MASK = ROOT / "apps" / "web" / "public" / "phones" / "iphone-screen-mask.png"  # 850 x 1814, screen box at (47, 44)
 
 W, H = 1320, 2868
 PAPER = (250, 249, 246)
@@ -45,7 +47,7 @@ class Layout:
     secondary: tuple[int, int, int]
     title_size: int = 112
     title_lead: int = 124
-    title_weight: str = "Regular"
+    title_weight: str = "Medium"
     sub_size: int = 46
     sub_lead: int = 58
     margin: int = 96
@@ -55,13 +57,15 @@ class Layout:
     bezel: int = 28
     radius: int = 140
     shadow: int = 44
+    frame: bool = False  # True draws the site's photographic iPhone frame instead of the flat bezel
 
 
 LAYOUTS = {
     "left": Layout("left", "left", PAPER, INK, SECONDARY),
     "center": Layout("center", "center", PAPER, INK, SECONDARY, title_size=120, title_lead=132),
     "ink": Layout("ink", "center", INK, PAPER, DARK_SECONDARY, title_size=120, title_lead=132),
-    "medium": Layout("medium", "left", PAPER, INK, SECONDARY, title_weight="Medium"),
+    "regular": Layout("regular", "left", PAPER, INK, SECONDARY, title_weight="Regular"),
+    "frame": Layout("frame", "left", PAPER, INK, SECONDARY, frame=True, screen_w=1176),
 }
 
 # Order matters: the first three show in search results. Titles fit two lines at 112px.
@@ -97,8 +101,27 @@ def wrap(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont, width:
     return lines
 
 
+def framed(capture: Image.Image, L: Layout) -> Image.Image:
+    """The capture inside the website's iPhone render; `screen_w` is the frame's outer width here."""
+    frame = Image.open(FRAME).convert("RGBA")
+    mask = Image.open(FRAME_MASK).convert("RGBA").split()[-1]
+    s = L.screen_w / frame.width
+    out = Image.new("RGBA", (L.screen_w, round(frame.height * s)), (0, 0, 0, 0))
+    box = (round(47 * s), round(44 * s), round(850 * s), round(1814 * s))
+    shot = capture.convert("RGBA").resize((box[2], box[3]), Image.LANCZOS)
+    shot.putalpha(mask.resize((box[2], box[3]), Image.LANCZOS))
+    out.alpha_composite(shot, (box[0], box[1]))
+    out.alpha_composite(frame.resize(out.size, Image.LANCZOS))
+    pad = L.shadow * 3
+    canvas = Image.new("RGBA", (out.width + 2 * pad, out.height + 2 * pad), (0, 0, 0, 0))
+    canvas.alpha_composite(out, (pad, pad))
+    return canvas
+
+
 def device(capture: Image.Image, L: Layout) -> Image.Image:
     """The capture inside a bezel with rounded corners, on a transparent canvas with a soft shadow."""
+    if L.frame:
+        return framed(capture, L)
     scale = L.screen_w / capture.width
     screen = capture.convert("RGB").resize((L.screen_w, round(capture.height * scale)), Image.LANCZOS)
     sw, sh = screen.size
@@ -130,10 +153,39 @@ def text_block(draw: ImageDraw.ImageDraw, lines: list[str], f: ImageFont.FreeTyp
     return y
 
 
+def fix_paywall_band(capture: Image.Image) -> Image.Image:
+    """The paywall cover lays out below the status bar in the current build, leaving a paper band
+    with white status text on it. Paint that band the dark canvas until the screen is fixed."""
+    img = capture.convert("RGB")
+    px = img.load()
+    for y in range(0, 350):
+        for x in range(img.width):
+            r, g, b = px[x, y]
+            if 236 < r < 254 and 236 < g < 253 and 230 < b < 250 and abs(r - g) < 12:  # paper, not the white glyphs
+                px[x, y] = (21, 21, 21)
+    return img
+
+
+def fix_grey_band(capture: Image.Image) -> Image.Image:
+    """A dev-client overlay tints the status bar grey on captures taken right after a deep link. Paint it paper."""
+    img = capture.convert("RGB")
+    px = img.load()
+    for y in range(0, 230):
+        for x in range(img.width):
+            r, g, b = px[x, y]
+            if 70 < r < 244 and abs(r - g) < 10 and abs(g - b) < 10:
+                px[x, y] = (250, 249, 246)
+    return img
+
+
 def render(name: str, title: str, sub: str, index: int, L: Layout, out_dir: Path, wordmark: bool) -> Path:
     capture = Image.open(RAW / f"{name}.png")
     if capture.size != (W, H):
         raise SystemExit(f"{name}.png is {capture.size}, expected {W}x{H} (iPhone 17 Pro Max simulator)")
+    if name == "paywall":
+        capture = fix_paywall_band(capture)
+    if name == "today-mon":
+        capture = fix_grey_band(capture)
     img = Image.new("RGB", (W, H), L.bg)
     draw = ImageDraw.Draw(img)
     width = W - 2 * L.margin

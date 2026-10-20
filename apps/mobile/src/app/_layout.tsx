@@ -82,6 +82,14 @@ function RootLayout() {
           useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });
         }
       }
+      if (cmd === 'plus') {
+        // Back into onboarding, where dev-step.txt = plus opens the paywall page without a cover.
+        store.setSettings({ onboarded: false, seeded: true, isStudent: true, major: 'nursing' });
+        if (Object.keys(store.items).length === 0) {
+          const week = sampleWeek(today, { student: true, preview: true });
+          useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });
+        }
+      }
       if (cmd === 'review' || cmd === 'review-update') {
         store.setPending({ extraction: (cmd === 'review' ? sampleScheduleExtraction : sampleScheduleUpdate)(today), source: 'Screenshot' });
         setTimeout(() => router.push('/review'), 2500);

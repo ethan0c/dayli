@@ -85,11 +85,12 @@ export function sampleWeek(today: string, options: { student?: boolean; preview?
 }
 
 /**
- * Development only: next week's Campus Café schedule as the model would read it, one shift
- * with no time. Opens the review screen for screenshots without calling the API.
+ * Development only: a Campus Café schedule as the model would read it, for the review screen
+ * without calling the API. `next` is next week with one shift missing its time; `update` is
+ * this week with one shift moved, one new and one dropped, so the review shows the changes.
  */
-export function sampleScheduleExtraction(today: string): Extraction {
-  const next = weekOf(addDays(today, 7)) as [string, string, string, string, string, string, string];
+export function sampleScheduleExtraction(today: string, mode: 'next' | 'update' = 'next'): Extraction {
+  const next = weekOf(mode === 'next' ? addDays(today, 7) : today) as [string, string, string, string, string, string, string];
   const shift = (date: string, start: string | null, end: string | null) => ({
     kind: 'event' as const, title: 'Café shift', category: 'work' as const, date, start, end, is_deadline: false,
     repeat_weekdays: [], repeat_until: null, course_code: null, evidence: `${date} ${start ?? ''}–${end ?? ''}`,
@@ -97,7 +98,9 @@ export function sampleScheduleExtraction(today: string): Extraction {
   });
   return {
     detected_type: 'work_schedule', employer: EMPLOYER, course: null, covers_from: next[0], covers_to: next[6],
-    items: [shift(next[0], '16:00', '22:00'), shift(next[1], '16:00', '22:00'), shift(next[3], '16:00', '22:00'), shift(next[4], null, null), shift(next[5], '09:00', '15:00'), shift(next[6], '11:00', '17:00')],
+    items: mode === 'next'
+      ? [shift(next[0], '16:00', '22:00'), shift(next[1], '16:00', '22:00'), shift(next[3], '16:00', '22:00'), shift(next[4], null, null), shift(next[5], '09:00', '15:00'), shift(next[6], '11:00', '17:00')]
+      : [shift(next[0], '16:00', '22:00'), shift(next[1], '16:00', '22:00'), shift(next[2], '17:00', '21:00'), shift(next[3], '17:00', '23:00'), shift(next[6], '11:00', '17:00')],
   };
 }
 

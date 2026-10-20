@@ -3,7 +3,7 @@ import {
   type CommitPlan, type DatedDraft, type Draft,
 } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -24,6 +24,7 @@ import { usePlusAccess } from '@/lib/plus-access';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { newId, useCourseList, useItemList, useStore } from '@/store';
+import { sampleScheduleExtraction } from '@/store/sample';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 /*
@@ -37,7 +38,14 @@ type SeriesEnd = { mode: 'suggested' | 'pick'; date: string };
 
 export default function ReviewScreen() {
   const { c } = useTheme();
-  const pending = useStore((s) => s.pending);
+  // Development only: semli://review?dev=schedule|update opens the sample schedule for screenshots.
+  const params = useLocalSearchParams<{ dev?: string }>();
+  const devMode = __DEV__ && (params.dev === 'schedule' || params.dev === 'update') ? params.dev : null;
+  const stored = useStore((s) => s.pending);
+  const pending = useMemo(
+    () => stored ?? (devMode ? { extraction: sampleScheduleExtraction(localParts(new Date()).date, devMode === 'update' ? 'update' : 'next'), source: 'Screenshot' } : null),
+    [stored, devMode],
+  );
   const setPending = useStore((s) => s.setPending);
   const applyPlan = useStore((s) => s.applyPlan);
   const showToast = useStore((s) => s.showToast);

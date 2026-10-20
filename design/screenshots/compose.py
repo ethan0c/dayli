@@ -24,7 +24,7 @@ PHONE_TOP = 640
 SHOTS = [
     ('today', 'Know what matters today', 'Classes, work shifts and due dates in one list, with a countdown to what’s next.'),
     ('review', 'Screenshot your work schedule. Done.', 'Semli reads the shifts and asks only about the one with no time.'),
-    ('item', 'New schedule? See only what changed', 'Moved, new and dropped shifts, before anything is saved.'),
+    ('update', 'New schedule? See only what changed', 'Moved, new and dropped shifts, before anything is saved.'),
     ('plan', 'Your whole week as a chart', 'Lectures, shifts and study time on one timeline. Overlaps show in red.'),
     ('school', 'Every syllabus, mapped to the term', 'Exams and assignments from a PDF, or kept in sync with Canvas.'),
     ('paywall', 'Calendar, to-dos, reminders: always free', 'Plus adds unlimited imports and Canvas sync. Student pricing, no proof needed.'),
