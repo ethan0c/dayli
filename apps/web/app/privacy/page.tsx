@@ -50,20 +50,39 @@ export default function PrivacyPage() {
           <p>
             An account is optional. If you sign up, our authentication provider stores your email address and any name you provide.
             Apple or Google sign-in supplies the account details you choose to share; Apple can provide a private relay email address.
-            Passwords are stored hashed by our authentication provider. Guests get an anonymous identifier so free monthly imports can be counted.
+            Passwords are stored hashed by our authentication provider. Each account, and each guest, gets an identifier so your plan,
+            your subscription, and your free monthly imports stay attached to you.
           </p>
           <p>
             If you join the beta waitlist, we store your email address and any referral tag attached to your signup so we can send
             your invitation and track referrals. The website preview uses a hash of your IP address to count daily previews.
           </p>
-          <h3>2.4 Things we don&apos;t collect</h3>
+          <h3>2.4 Purchases</h3>
+          <p>
+            If you subscribe to Plus, we receive a record of the purchase from Apple: which plan, when it started, and whether it is
+            active or in a trial. We use it to unlock Plus on your devices. We never see your payment details.
+          </p>
+          <h3>2.5 How the app is used, and when it breaks</h3>
+          <p>
+            The app records how its features are used, such as finishing onboarding, starting an import, or opening the Plus page, along
+            with a random identifier for your device. These records never include the titles, notes, or contents of your plan or of
+            anything you import, and we use them only to understand which parts of Semli work and which don&apos;t.
+          </p>
+          <p>
+            When the app crashes or an action fails, it sends a diagnostic report: the type of error, where in the code it happened, the
+            app version, and your device model and iOS version. The app also measures things like how long it takes to start. Before a
+            report leaves your phone, the app removes email addresses, links, codes, and anything that looks like a password or key.
+          </p>
+          <p>Neither kind of record is used for advertising or shared with advertisers or data brokers.</p>
+          <h3>2.6 Things we don&apos;t collect</h3>
           <ul>
             <li>No account is required. We receive your email only if you provide it, such as by creating an account, joining the waitlist, or contacting us.</li>
             <li>No location, contacts, or health data.</li>
-            <li>No advertising identifiers, and no third-party ad or analytics trackers on this website.</li>
-            <li>No payment card details. App Store purchases are handled by Apple; RevenueCat manages subscription status.</li>
+            <li>No phone number.</li>
+            <li>No advertising identifiers, no tracking across other companies&apos; apps or websites, and no analytics on this website.</li>
+            <li>No payment card details. App Store purchases are handled by Apple.</li>
           </ul>
-          <h3>2.5 Permissions on iPhone</h3>
+          <h3>2.7 Permissions on iPhone</h3>
           <p>
             Photo access lets Semli show recent screenshots for you to choose from. You can limit access using your iPhone’s permission
             controls. Camera access lets you photograph a printed schedule. Only the image you choose to import is sent for reading.
@@ -73,7 +92,7 @@ export default function PrivacyPage() {
         <section>
           <h2>3. How reading works, and who sees it</h2>
           <p>
-            To read your content, the app sends it to our server, which passes it to Anthropic&apos;s Claude API, the AI model Semli uses.
+            To read your content, the app sends it to our server, which passes it to the AI model provider Semli uses.
             The model returns a structured list of dates and items, and our server passes it back to you.
           </p>
           <ul>
@@ -82,8 +101,8 @@ export default function PrivacyPage() {
               forgets it. Logs record errors, not your content.
             </li>
             <li>
-              <strong>It is not used for training.</strong> We use Anthropic&apos;s commercial API, whose terms do not allow your content to be
-              used to train its models. Anthropic may keep requests for a limited time to monitor for abuse, then deletes them.
+              <strong>It is not used for training.</strong> We use our AI provider&apos;s commercial service, whose terms do not allow your content
+              to be used to train its models. The provider may keep requests for a limited time to monitor for abuse, then deletes them.
             </li>
             <li>
               <strong>The try-it box on this site works the same way.</strong> What you paste is read and shown back to you. It is not
@@ -96,7 +115,8 @@ export default function PrivacyPage() {
           <h2>4. Why we handle it</h2>
           <ul>
             <li>To read your documents and build your plan. That is the product.</li>
-            <li>To keep the Service working, find bugs, and stop abuse.</li>
+            <li>To keep the Service working, find and fix crashes, and stop abuse.</li>
+            <li>To understand which features people use, so we know what to improve.</li>
             <li>To process your Plus purchase and know which plan you&apos;re on.</li>
             <li>To answer you when you write to us.</li>
           </ul>
@@ -108,16 +128,22 @@ export default function PrivacyPage() {
           <p>Only the services needed to run Semli:</p>
           <ul>
             <li>
-              <strong>Anthropic</strong> reads the content you send, as described in section 3.
+              <strong>An AI model provider</strong> reads the content you send, as described in section 3.
             </li>
             <li>
-              <strong>Our hosting provider</strong> runs the website and the server that forwards your content.
+              <strong>A hosting provider</strong> runs the website and the server that forwards your content.
             </li>
             <li>
-              <strong>Supabase</strong> hosts accounts and plan backups, and counts free imports.
+              <strong>A database and authentication provider</strong> hosts accounts and plan backups, and counts free imports.
             </li>
             <li>
-              <strong>RevenueCat</strong> keeps track of Plus subscriptions so they work across your devices.
+              <strong>A subscription management provider</strong> keeps track of Plus so it works across your devices.
+            </li>
+            <li>
+              <strong>A product analytics provider</strong> receives the usage records described in section 2.5.
+            </li>
+            <li>
+              <strong>An error monitoring provider</strong> receives the diagnostic reports described in section 2.5.
             </li>
             <li>
               <strong>Apple</strong> handles App Store purchases and, if you choose it, Sign in with Apple.
@@ -126,19 +152,21 @@ export default function PrivacyPage() {
               <strong>Google</strong> handles sign-in if you choose Continue with Google.
             </li>
           </ul>
+          <p>Each provider handles your information only to perform its service for Semli.</p>
           <p>We will also disclose information if the law requires it, or to protect the safety of people using the Service.</p>
         </section>
 
         <section>
           <h2>6. Where your data lives, and for how long</h2>
           <p>
-            Your plan is stored on your device. If you create an account, Supabase also stores a backup so you can restore it on a new
+            Your plan is stored on your device. If you create an account, our database provider also stores a backup so you can restore it on a new
             phone. Deleting the app does not delete your account or its cloud backup.
           </p>
           <p>
             Delete your account in Account settings to remove the account and its plan backup. Your local plan remains until you clear it
             separately. You can export a copy first. For the full steps, see <Link href="/delete-account">Delete your data</Link>.
           </p>
+          <p>Usage records and diagnostic reports are kept for up to 90 days, then deleted.</p>
           <p>If you want a beta signup removed or need help with data you cannot delete in the app, email us.</p>
         </section>
 
