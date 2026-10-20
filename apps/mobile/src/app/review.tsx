@@ -263,7 +263,7 @@ export default function ReviewScreen() {
     }
     if (!settings.remindersAsked) {
       setSettings({ remindersAsked: true });
-      void requestNotifications().then((ok) => { if (ok) void syncReminders(); }).catch(() => {});
+      void requestNotifications().then((ok) => ok ? syncReminders() : undefined).catch(() => {});
     }
     router.dismissAll();
     router.replace('/plan');

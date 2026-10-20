@@ -57,6 +57,8 @@ export async function syncReminders(): Promise<number> {
     const plan = allowed ? planReminders(Object.values(items), settings.reminders, localParts(new Date()), { trial: settings.trial }) : [];
     const signature = JSON.stringify(plan.map((p) => [p.id, p.date, p.time, p.body]));
     if (signature === lastSignature) return plan.length;
+    // A failed replacement may leave a partial schedule. Never reuse its old signature.
+    lastSignature = '';
     await Notifications.cancelAllScheduledNotificationsAsync();
     for (const p of plan) {
       await Notifications.scheduleNotificationAsync({

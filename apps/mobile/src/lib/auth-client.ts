@@ -32,7 +32,7 @@ export async function completeAuthFromUrl(url: string): Promise<SignInResult> {
   const errorCode = params.get('error_code');
   if (errorCode) throw { code: errorCode };
   const code = params.get('code');
-  if (!code) throw { code: 'oauth_callback_missing' };
+  if (!code) throw Object.assign(new Error('No code in the redirect.'), { code: 'oauth_callback_missing' });
   const { error } = await supabase!.auth.exchangeCodeForSession(code);
   if (error) throw error;
   return signedIn();
@@ -44,8 +44,13 @@ const supabaseClient: AuthClient = {
     if (error) {
       // Signed up but never entered the code: send a fresh one and go to the code screen.
       if (error.code !== 'email_not_confirmed') throw error;
-      const { error: resendError } = await supabase!.auth.resend({ type: 'signup', email });
-      if (resendError) throw resendError;
+      try {
+        const { error: resendError } = await supabase!.auth.resend({ type: 'signup', email });
+        if (resendError) throw resendError;
+      } catch (resendError) {
+        reportError('auth.resend_before_confirmation', resendError);
+        return { signedIn: false, confirmEmail: true, resendFailed: true };
+      }
       return { signedIn: false, confirmEmail: true };
     }
     return signedIn();

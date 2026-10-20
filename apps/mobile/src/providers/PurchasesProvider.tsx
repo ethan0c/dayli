@@ -8,6 +8,7 @@ import { customerCenterEnabled, hasSemliPro, initializePurchases, offeringFor, p
 import { useSession } from '@/lib/supabase';
 import { useStore } from '@/store';
 import { requestPaywall } from '@/lib/paywall-request';
+import { withErrorLogging } from '@/lib/errors';
 
 interface PurchasesContextValue {
   customerInfo: CustomerInfo | null;
@@ -53,12 +54,12 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     void initializePurchases()
       .then(() => Purchases.logIn(userId))
       .then(({ customerInfo: info }) => updateCustomerInfo(info))
-      .catch(() => {});
+      .catch((failure: unknown) => setError(purchaseErrorMessage(failure, 'purchases.link_account')));
   }, [userId, updateCustomerInfo]);
 
   const refreshCustomerInfo = useCallback(async () => {
     await initializePurchases();
-    const info = await Purchases.getCustomerInfo();
+    const info = await withErrorLogging('purchases.customer_info', () => Purchases.getCustomerInfo());
     updateCustomerInfo(info);
     return info;
   }, [updateCustomerInfo]);
@@ -73,10 +74,11 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
         refreshCustomerInfo(),
         Purchases.getOfferings().then(setOfferings),
       ]);
-      const failure = results.find((result) => result.status === 'rejected');
-      if (failure?.status === 'rejected') setError(purchaseErrorMessage(failure.reason));
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') setError(purchaseErrorMessage(result.reason, index === 0 ? 'purchases.customer_info' : 'purchases.offerings'));
+      });
     } catch (failure) {
-      setError(purchaseErrorMessage(failure));
+      setError(purchaseErrorMessage(failure, 'purchases.refresh'));
     } finally {
       setLoading(false);
     }
@@ -93,7 +95,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       if (!disposed) void refresh();
     }).catch((failure: unknown) => {
       if (!disposed) {
-        setError(purchaseErrorMessage(failure));
+        setError(purchaseErrorMessage(failure, 'purchases.initialize'));
         setLoading(false);
       }
     });
@@ -107,7 +109,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     };
   }, [refresh, updateCustomerInfo]);
 
-  const run = useCallback(async <T,>(operation: () => Promise<T>): Promise<T> => {
+  const run = useCallback(async <T,>(name: string, operation: () => Promise<T>): Promise<T> => {
     if (operationInProgress.current) throw new SubscriptionError('Another plan action is still in progress.');
     operationInProgress.current = true;
     setBusy(true);
@@ -116,7 +118,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
       await initializePurchases();
       return await operation();
     } catch (failure) {
-      setError(purchaseErrorMessage(failure));
+      setError(purchaseErrorMessage(failure, name));
       throw failure;
     } finally {
       operationInProgress.current = false;
@@ -124,18 +126,18 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const purchase = useCallback((pack: PurchasesPackage) => run(async () => {
+  const purchase = useCallback((pack: PurchasesPackage) => run('purchases.purchase', async () => {
     try {
       const { customerInfo: info } = await Purchases.purchasePackage(pack);
       updateCustomerInfo(info);
       return info;
     } catch (failure) {
-      if (purchaseErrorMessage(failure) === null) return null;
+      if (purchaseErrorMessage(failure, 'purchases.purchase') === null) return null;
       throw failure;
     }
   }), [run, updateCustomerInfo]);
 
-  const restore = useCallback(() => run(async () => {
+  const restore = useCallback(() => run('purchases.restore', async () => {
     const info = await Purchases.restorePurchases();
     updateCustomerInfo(info);
     return info;
@@ -149,7 +151,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
     return requestPaywall(() => router.push('/paywall'));
   }, []);
 
-  const manageSubscription = useCallback(() => run(async () => {
+  const manageSubscription = useCallback(() => run('purchases.manage', async () => {
     if (customerCenterEnabled) {
       await RevenueCatUI.presentCustomerCenter({
         callbacks: { onRestoreCompleted: ({ customerInfo: info }) => updateCustomerInfo(info) },

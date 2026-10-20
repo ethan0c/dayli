@@ -17,13 +17,14 @@ const RESEND_AFTER_S = 60;
 /** The 6-digit code from a sign-up or reset email. Sign-up lands in the planner; reset goes on to a new password. */
 export default function VerifyScreen() {
   const { c } = useTheme();
-  const params = useLocalSearchParams<{ email?: string; purpose?: string }>();
+  const params = useLocalSearchParams<{ email?: string; purpose?: string; resendFailed?: string }>();
   const email = params.email ?? '';
   const purpose: CodePurpose = params.purpose === 'recovery' ? 'recovery' : 'signup';
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => params.resendFailed === '1' ? 'We couldn’t send a new code. Use the latest code in your email, or wait a minute and choose Send a new code.' : null);
   const [wait, setWait] = useState(RESEND_AFTER_S);
+  const [codeSent, setCodeSent] = useState(params.resendFailed !== '1');
   const lock = useRef(false);
 
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function VerifyScreen() {
     setError(null);
     try {
       await authClient.resendCode(email, purpose);
+      setCodeSent(true);
       setWait(RESEND_AFTER_S);
     } catch (failure) {
       setError(authErrorMessage(failure, 'auth.resend_code'));
@@ -65,7 +67,7 @@ export default function VerifyScreen() {
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.body}>
         <View style={styles.hero}>
           <T token="display" accessibilityRole="header">Check your email.</T>
-          <T token="body" color={c.inkSecondary}>{`We sent a ${CODE_LENGTH}-digit code to ${email}. It works for an hour.`}</T>
+          <T token="body" color={c.inkSecondary}>{codeSent ? `We sent a ${CODE_LENGTH}-digit code to ${email}. It works for an hour.` : `Use the latest code sent to ${email}, or request a new one below.`}</T>
         </View>
         <AuthField label="Code" value={code} error={error ?? undefined} placeholder="123456" autoFocus
           keyboardType="number-pad" textContentType="oneTimeCode" autoComplete="one-time-code" maxLength={CODE_LENGTH} editable={!busy}

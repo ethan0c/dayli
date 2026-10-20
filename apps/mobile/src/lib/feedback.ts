@@ -2,6 +2,7 @@ import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-aud
 import * as Haptics from 'expo-haptics';
 
 import { useStore } from '@/store';
+import { reportError } from './errors';
 
 /**
  * What just happened, in UI terms. Each cue pairs a haptic with an optional sound.
@@ -41,7 +42,7 @@ let players: Partial<Record<Sound, AudioPlayer>> | null = null;
 function player(name: Sound): AudioPlayer {
   if (!players) {
     players = {};
-    setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers' }).catch(() => {});
+    setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers' }).catch((error: unknown) => reportError('feedback.audio_mode', error));
   }
   return (players[name] ??= Object.assign(createAudioPlayer(SOURCES[name]), { volume: 0.6 }));
 }
@@ -50,13 +51,14 @@ function player(name: Sound): AudioPlayer {
 export function feedback(cue: Cue) {
   const { sounds, haptics } = useStore.getState().settings;
   const { haptic, sound } = CUES[cue];
-  if (haptics) haptic().catch(() => {});
+  if (haptics) haptic().catch((error: unknown) => reportError('feedback.haptics', error));
   if (sounds && sound) {
     try {
       const p = player(sound);
-      p.seekTo(0);
+      void p.seekTo(0).catch((error: unknown) => reportError('feedback.audio_seek', error));
       p.play();
-    } catch {
+    } catch (error) {
+      reportError('feedback.audio_play', error);
       // A missing audio route should never break the action that triggered it.
     }
   }

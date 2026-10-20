@@ -32,7 +32,7 @@ async function unavailable(action: string): Promise<never> {
 /** Email codes, not links: they work when the email is opened on another device. */
 export type CodePurpose = 'signup' | 'recovery';
 
-export type SignInResult = { signedIn: true; restored: boolean } | { signedIn: false; confirmEmail: true };
+export type SignInResult = { signedIn: true; restored: boolean } | { signedIn: false; confirmEmail: true; resendFailed?: boolean };
 
 export interface AuthClient {
   signIn: (fields: AuthFields) => Promise<SignInResult>;
@@ -88,5 +88,14 @@ export function authErrorMessage(error: unknown, operation = 'auth'): string {
   reportError(operation, error);
   if (error instanceof AuthUnavailableError) return error.message;
   const code = typeof error === 'object' && error !== null ? (error as { code?: unknown }).code : undefined;
-  return (typeof code === 'string' && MESSAGES[code]) || 'We couldn’t connect. Please try again.';
+  const fallback = operation === 'account.delete' ? 'We couldn’t delete your account. Please try again, or contact hello@semli.app for help.'
+    : operation === 'account.log_out' ? 'We couldn’t log you out. Please try again.'
+    : operation === 'auth.reset_password' ? 'We couldn’t save your new password. Please try again.'
+    : operation === 'auth.verify_code' ? 'We couldn’t check that code. Check your connection and try again.'
+    : operation === 'auth.resend_code' || operation.startsWith('auth.forgot-password') ? 'We couldn’t send a code. Check your connection and try again.'
+    : operation.startsWith('auth.signup') ? 'We couldn’t create your account. Check your connection and try again.'
+    : operation.includes('google') ? 'Google sign-in didn’t finish. Try again, or log in with email.'
+    : operation.startsWith('auth.login') ? 'We couldn’t log you in. Check your connection and try again.'
+    : 'We couldn’t connect. Please try again.';
+  return (typeof code === 'string' && MESSAGES[code]) || fallback;
 }

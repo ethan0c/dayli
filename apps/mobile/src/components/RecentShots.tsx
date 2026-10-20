@@ -5,6 +5,7 @@ import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { GroupLabel, TextButton } from '@/components/Controls';
 import { Press } from '@/components/Press';
 import { SkeletonShots } from '@/components/Skeleton';
+import { T } from '@/components/Text';
 import { reportError } from '@/lib/errors';
 import { useTheme } from '@/theme';
 
@@ -28,6 +29,7 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
   const { c } = useTheme();
   const [shots, setShots] = useState<Shot[] | null>(null);
   const [allowed, setAllowed] = useState<boolean | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   async function load() {
     try {
@@ -41,6 +43,7 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
       setShots(uris);
     } catch (error) {
       reportError('photos.recent_screenshots', error);
+      setNotice('We couldn’t load recent screenshots. Choose All photos to pick one.');
       setShots([]);
     }
   }
@@ -51,7 +54,7 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
       const ok = usable(p);
       setAllowed(ok);
       if (ok) void load();
-    }).catch((error: unknown) => { reportError('photos.check_permission', error); setAllowed(false); });
+    }).catch((error: unknown) => { reportError('photos.check_permission', error); setNotice('We couldn’t check photo access. Choose All photos to try again.'); setAllowed(false); });
   }, []);
 
   if (Platform.OS === 'web') return null;
@@ -71,6 +74,7 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
           </Press>
         ))}
       </ScrollView>
+      {notice ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{notice}</T> : null}
     </View>
   );
 }

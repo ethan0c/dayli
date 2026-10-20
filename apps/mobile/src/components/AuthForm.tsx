@@ -56,7 +56,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       // Stays busy: the screen is leaving, and a form that springs back for a frame looks broken.
       if (result?.signedIn) { leaveAuth(); return; }
       // On to the code screen; this form stays usable behind it. A null result is the Google sheet cancelled.
-      if (result) router.push({ pathname: '/auth/verify', params: { email: address, purpose: forgot ? 'recovery' : 'signup' } });
+      if (result) router.push({ pathname: '/auth/verify', params: { email: address, purpose: forgot ? 'recovery' : 'signup', resendFailed: !result.signedIn && result.resendFailed ? '1' : undefined } });
     } catch (error) {
       setNotice(authErrorMessage(error, `auth.${mode}.${provider}`));
     }
