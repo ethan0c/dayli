@@ -4,13 +4,14 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GoogleButton } from '@/components/AuthControls';
+import { AppleButton, GoogleButton } from '@/components/AuthControls';
 import { TextButton } from '@/components/Controls';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { Button } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
-import { ACCOUNTS_ENABLED, authClient, authErrorMessage } from '@/lib/auth';
+import { ACCOUNTS_ENABLED, authErrorMessage } from '@/lib/auth';
+import { authClient, leaveAuth } from '@/lib/auth-client';
 import { enter } from '@/lib/motion';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
@@ -22,9 +23,12 @@ export default function AuthWelcomeScreen() {
   const onboarded = useStore((s) => s.settings.onboarded);
   const [notice, setNotice] = useState<string | null>(null);
   const start = () => { if (onboarded) router.dismissTo('/'); else router.replace('/onboarding?step=role'); };
-  const google = async () => {
-    try { await authClient.signInWithGoogle(); }
-    catch (error) { setNotice(authErrorMessage(error)); }
+  const social = async (provider: 'google' | 'apple') => {
+    setNotice(null);
+    try {
+      const result = provider === 'google' ? await authClient.signInWithGoogle() : await authClient.signInWithApple();
+      if (result?.signedIn) leaveAuth();
+    } catch (error) { setNotice(authErrorMessage(error)); }
   };
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas }}>
@@ -40,7 +44,8 @@ export default function AuthWelcomeScreen() {
         <Animated.View entering={enter.rise} style={styles.actions}>
           {!ACCOUNTS_ENABLED ? <Button label="Get started" onPress={start} /> : <>
           {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert" style={styles.center}>{notice}</T> : null}
-          <GoogleButton onPress={() => void google()} />
+          <AppleButton onPress={() => void social('apple')} />
+          <GoogleButton onPress={() => void social('google')} />
           <Button label="Sign up with email" onPress={() => router.push('/auth/signup')} />
           <TextButton label="Already have an account? Log in" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} />
           <View style={[styles.guest, { borderTopColor: c.line }]}>

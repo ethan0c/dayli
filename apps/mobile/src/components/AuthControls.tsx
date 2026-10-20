@@ -1,10 +1,32 @@
-import { useState, type ComponentRef, type Ref } from 'react';
-import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { useEffect, useState, type ComponentRef, type Ref } from 'react';
+import { Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { textStyle, useTheme } from '@/theme';
+
+/** Apple's own button (App Store rule 4.8 when Google is offered). Pill-round, ink in light, white in dark. */
+export function AppleButton({ onPress, disabled = false }: { onPress: () => void; disabled?: boolean }) {
+  const { dark } = useTheme();
+  const [available, setAvailable] = useState(false);
+  useEffect(() => {
+    if (Platform.OS === 'ios') void AppleAuthentication.isAvailableAsync().then(setAvailable).catch(() => {});
+  }, []);
+  if (!available) return null;
+  return (
+    <View pointerEvents={disabled ? 'none' : 'auto'} style={{ opacity: disabled ? 0.5 : 1 }}>
+      <AppleAuthentication.AppleAuthenticationButton
+        buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+        buttonStyle={dark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+        cornerRadius={26}
+        onPress={onPress}
+        style={styles.apple}
+      />
+    </View>
+  );
+}
 
 export function GoogleButton({ onPress, disabled = false }: { onPress: () => void; disabled?: boolean }) {
   return (
@@ -44,6 +66,7 @@ export function AuthField({ label, error, password = false, inputRef, ...props }
 }
 
 const styles = StyleSheet.create({
+  apple: { height: 52, alignSelf: 'stretch' },
   google: { minHeight: 52, paddingHorizontal: 20, paddingVertical: 14, borderRadius: 999, borderWidth: 1, borderColor: '#747775', backgroundColor: '#FFFFFF', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, alignSelf: 'stretch' },
   field: { minHeight: 56, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', paddingLeft: 18, paddingRight: 6 },
   input: { flex: 1, minWidth: 0, paddingVertical: 16 },

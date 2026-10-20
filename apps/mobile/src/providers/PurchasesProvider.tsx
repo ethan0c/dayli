@@ -5,6 +5,7 @@ import Purchases, { type CustomerInfo, type PurchasesOffering, type PurchasesOff
 import RevenueCatUI from 'react-native-purchases-ui';
 
 import { customerCenterEnabled, hasSemliPro, initializePurchases, offeringFor, purchaseErrorMessage, purchasesUnavailableReason, SubscriptionError } from '@/lib/revenuecat';
+import { useSession } from '@/lib/supabase';
 import { useStore } from '@/store';
 import { requestPaywall } from '@/lib/paywall-request';
 
@@ -38,11 +39,22 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const operationInProgress = useRef(false);
+  const userId = useSession((st) => st.session?.user.id);
 
   const updateCustomerInfo = useCallback((info: CustomerInfo) => {
     // A slower initial request must not overwrite a newer purchase/listener update.
     setCustomerInfo((current) => current && Date.parse(current.requestDate) > Date.parse(info.requestDate) ? current : info);
   }, []);
+
+  // Plus follows the account: a signed-in person's purchases are keyed to their Supabase id,
+  // so they come back on a new phone. Log out happens in authClient.signOut.
+  useEffect(() => {
+    if (purchasesUnavailableReason || !userId) return;
+    void initializePurchases()
+      .then(() => Purchases.logIn(userId))
+      .then(({ customerInfo: info }) => updateCustomerInfo(info))
+      .catch(() => {});
+  }, [userId, updateCustomerInfo]);
 
   const refreshCustomerInfo = useCallback(async () => {
     await initializePurchases();

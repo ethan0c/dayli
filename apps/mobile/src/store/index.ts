@@ -73,6 +73,8 @@ interface Settings {
   trial: { endsAt: string; label: string } | null;
   /** Where assignments live, asked in onboarding. Only Canvas syncs today; the rest is demand data. */
   lms: Lms | null;
+  /** Account backup status, for You → Account. Nothing here is synced. */
+  cloud: { backedUpAt: string | null; error: string | null };
   /** Canvas calendar feed sync. The link is the only credential; it stays on this phone. */
   canvas: CanvasSettings;
 }
@@ -153,7 +155,7 @@ export const useStore = create<State>()(
       suggestionDismissals: { date: '', ids: [] },
       captureDraft: '',
       selectedPlanDate: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null } },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null } },
       usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),

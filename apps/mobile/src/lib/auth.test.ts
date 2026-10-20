@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { authClient, authErrorMessage, AuthUnavailableError, validateAuthForm } from './auth';
+import { authErrorMessage, AuthUnavailableError, unavailableClient as authClient, validateAuthForm } from './auth';
 
 describe('auth forms', () => {
   it('accepts surrounding email whitespace without changing the password', () => {
@@ -28,11 +28,16 @@ describe('unconfigured auth boundary', () => {
     for (const operation of [
       () => authClient.signIn(fields), () => authClient.signUp(fields),
       () => authClient.signInWithGoogle(), () => authClient.resetPassword(fields.email),
-      () => authClient.deleteAccount(),
+      () => authClient.signInWithApple(), () => authClient.updatePassword('new-password'),
+      () => authClient.signOut(), () => authClient.deleteAccount(),
     ]) await expect(operation()).rejects.toBeInstanceOf(AuthUnavailableError);
   });
   it('does not expose credentials or raw provider errors in messages', () => {
     expect(authErrorMessage(new Error('private-password or provider detail'))).toBe('We couldn’t connect. Please try again.');
     expect(authErrorMessage(new AuthUnavailableError('Google sign-in isn’t available yet.'))).toBe('Google sign-in isn’t available yet.');
+  });
+  it('explains known provider codes in plain words', () => {
+    expect(authErrorMessage({ code: 'invalid_credentials', message: 'Invalid login credentials' })).toMatch(/don’t match/);
+    expect(authErrorMessage({ code: 'something_new', message: 'raw detail' })).toBe('We couldn’t connect. Please try again.');
   });
 });

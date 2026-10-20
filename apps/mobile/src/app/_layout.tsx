@@ -10,6 +10,7 @@ import * as Sentry from '@sentry/react-native';
 
 import { syncRingingAlarms } from '@/lib/alarms';
 import { CanvasAutoSync } from '@/lib/canvas-sync';
+import { CloudBackup } from '@/lib/cloud';
 import { devCommand } from '@/lib/dev';
 import { sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
@@ -89,6 +90,7 @@ function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
     <PurchasesProvider>
       <CanvasAutoSync />
+      <CloudBackup />
       <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
         <Stack
           screenOptions={{

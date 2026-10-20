@@ -8,7 +8,8 @@ import { Skeleton } from '@/components/Skeleton';
 import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
-import { ACCOUNTS_ENABLED } from '@/lib/auth';
+import { ACCOUNTS_ENABLED, SHARING_ENABLED } from '@/lib/auth';
+import { useSession } from '@/lib/supabase';
 import { feedback } from '@/lib/feedback';
 import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
 import { profileFor } from '@/lib/majors';
@@ -27,6 +28,8 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const now = useNow();
   const { isPro, customerInfo, loading, busy, manageSubscription } = usePurchases();
   const settings = useStore((s) => s.settings);
+  /** null for a guest; '' for an Apple ID with a hidden email. */
+  const email = useSession((s) => (s.session ? s.session.user.email ?? '' : null));
   const setSettings = useStore((s) => s.setSettings);
   const usage = useStore((s) => s.usage);
   const month = new Date().toISOString().slice(0, 7);
@@ -64,10 +67,11 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
           <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
         </Group>
 
-        {ACCOUNTS_ENABLED ? <Group title="Account" footer="Planning as a guest. Your schedule is stored on this phone.">
-          <Row label="Account settings" value="Guest" onPress={() => router.push('/account?section=manage')} />
-          <Row label="Log in or sign up" onPress={() => router.push('/auth')} />
-          <Row label="Share your schedule" value="Preview" onPress={() => router.push('/share-schedule')} last />
+        {ACCOUNTS_ENABLED ? <Group title="Account" footer={email ? undefined : 'Planning as a guest. Your schedule is stored on this phone.'}>
+          {email !== null
+            ? <Row label="Account settings" value={email || 'Apple ID'} onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
+            : <Row label="Log in or sign up" value="Guest" onPress={() => router.push('/auth')} last={!SHARING_ENABLED} />}
+          {SHARING_ENABLED ? <Row label="Share your schedule" value="Preview" onPress={() => router.push('/share-schedule')} last /> : null}
         </Group> : null}
 
         <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
