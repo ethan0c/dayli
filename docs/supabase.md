@@ -27,3 +27,13 @@ Sign-in is Google and email only (founder's call, Oct 19, 2026). App Store rule 
 ## Not done yet
 - Server-side import quota: `/api/extract` is still open. With accounts in place, the next step is to require a Supabase session (anonymous sign-in for guests) and count imports per user per month, checking Plus through RevenueCat's REST API.
 - Live multi-device sync (deletes don't propagate between phones; the backup only adds).
+
+## Import limits (server side, Oct 20, 2026)
+`/api/extract` now enforces the free plan itself (`apps/web/lib/import-access.ts`). App imports carry the Supabase session (guests get a silent anonymous one that never shows as an account) and the RevenueCat app user id; Plus (`semli_pro` via RevenueCat's REST API) is unlimited, everyone else gets 3 a month counted in `import_usage`, and a failed read refunds. The website demo has no session: 5 previews a day per hashed IP (`demo_usage`). With no Supabase env on the server, nothing is limited (local development).
+
+Setup:
+1. Run `supabase/migrations/20261020000000_import_quota.sql`.
+2. Authentication → Sign In / Providers → turn on **Allow anonymous sign-ins**.
+3. On the web host (Vercel), set `SUPABASE_URL`, `SUPABASE_KEY` (the publishable key) and `REVENUECAT_SECRET_KEY` (RevenueCat → Project settings → API keys → secret key, server only). Redeploy.
+
+Checks: a free guest's 4th import shows the paywall even after a reinstall; a Plus user is never counted; a failed read doesn't use an import; the site demo stops after 5 a day.
