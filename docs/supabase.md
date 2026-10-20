@@ -17,7 +17,9 @@ Sign-in is Apple (native iOS), Google and email. Apple is offered on welcome, lo
 
 ## Sign in with Apple (Oct 20, 2026)
 
-Live check on Oct 20: the project’s public `/auth/v1/settings` reports Apple disabled and Google enabled. Apple provider activation is still required.
+Verification on Oct 20: all 220 tests, mobile lint and TypeScript checks pass. A fresh unsigned iOS Debug simulator build succeeded for arm64 and x86_64 with Apple Authentication included; generated entitlements contain `com.apple.developer.applesignin = [Default]`.
+
+Live recheck on Oct 20 after setup: the project’s public `/auth/v1/settings` reports both Apple and Google enabled. The developer reports the Apple setup complete; the public endpoint does not expose the configured client IDs. Paywall visual verification is pending because Simulator UI automation rejected clicks (`noWindowsAvailable`).
 
 Before testing a release build:
 1. Apple Developer → Certificates, Identifiers & Profiles → Identifiers → `app.semli.mobile`: enable **Sign in with Apple** for this App ID and regenerate the provisioning profile if needed. EAS capability syncing can manage this when building with the account.
@@ -25,7 +27,7 @@ Before testing a release build:
 3. Make a **new native build** (`npx expo run:ios` or `npx eas-cli@latest build --platform ios --profile development` from `apps/mobile`). A Metro reload or OTA update cannot add Apple Authentication or the entitlement. `app.json` contains `ios.usesAppleSignIn` and the module's config plugin.
 4. Test on an iPhone with an Apple ID, including **Hide My Email**, cancellation, subsequent login (Apple only supplies the name once), logout and backup restore. Native compilation and mocked auth tests do not verify the live provider configuration.
 
-Apple capability/provider activation and a real-device sign-in still need to be verified before submission. Also verify [Apple's token-revocation requirement](https://developer.apple.com/documentation/technotes/tn3194-handling-account-deletions-and-revoking-tokens-for-sign-in-with-apple) when deleting an Apple-linked account: the existing `delete_account()` removes Supabase data, but does not call Apple's revocation API. That requires server-side Apple credentials and a separate revocation integration; never put those credentials in the app.
+Supabase Apple provider activation is verified. A signed build and real-device sign-in still need to be verified before submission. Also verify [Apple's token-revocation requirement](https://developer.apple.com/documentation/technotes/tn3194-handling-account-deletions-and-revoking-tokens-for-sign-in-with-apple) when deleting an Apple-linked account: the existing `delete_account()` removes Supabase data, but does not call Apple's revocation API. That requires server-side Apple credentials and a separate revocation integration; never put those credentials in the app.
 
 ## Device checks
 - [ ] Email sign-up → code → signed in; wrong or expired code; resend after 60 s; login; wrong password; forgot password → code → new password.
