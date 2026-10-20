@@ -6,6 +6,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_API_URL } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import { realRecords } from '@/lib/planner-preview';
 import { DEFAULT_REMINDERS, type ReminderPrefs } from '@/lib/reminder-plan';
 import { plannerLoadFailed, plannerStorage } from '@/lib/storage';
@@ -193,6 +194,7 @@ export const useStore = create<State>()(
         if (!it) return;
         const done = !it.done;
         set({ items: { ...get().items, [id]: { ...it, done, completedAt: done ? nowIso() : null } } });
+        track('item_completion_changed', { item_kind: it.kind, category: it.category, completed: done });
       },
 
       updateItem: (id, patch) => {
@@ -212,6 +214,7 @@ export const useStore = create<State>()(
         delete items[id];
         const b = batch('Deleted ' + before.title, [{ op: 'delete', before, after: null }]);
         set({ items, batches: [b, ...get().batches], toast: { message: `Deleted ${before.title}.`, batchId: b.id } });
+        track('item_deleted', { deletion_scope: 'single', item_count: 1 });
       },
 
       removeItems: (ids, label) => {
@@ -226,6 +229,7 @@ export const useStore = create<State>()(
         if (changes.length === 0) return;
         const b = batch(label, changes);
         set({ items, batches: [b, ...get().batches], toast: { message: `${label}.`, batchId: b.id } });
+        track('item_deleted', { deletion_scope: 'multiple', item_count: changes.length });
       },
 
       removeCourse: (courseId) => {
@@ -241,6 +245,7 @@ export const useStore = create<State>()(
         const name = course.code ?? course.title;
         const b: Batch = { ...batch(`Removed ${name} · ${changes.length} ${changes.length === 1 ? 'thing' : 'things'}`, changes), removedCourses: [course] };
         set({ items, courses: get().courses.filter((k) => k.id !== courseId), batches: [b, ...get().batches], toast: { message: `${b.label}.`, batchId: b.id } });
+        if (changes.length) track('item_deleted', { deletion_scope: 'course', item_count: changes.length });
       },
 
       removeEmployer: (employer, scope, today) => {
@@ -256,6 +261,7 @@ export const useStore = create<State>()(
         const gone = get().schedules.filter((sch) => sch.employer.trim().toLowerCase() === key && (scope === 'all' || sch.coversTo >= today));
         const b: Batch = { ...batch(`Removed ${employer} · ${changes.length} ${changes.length === 1 ? 'shift' : 'shifts'}`, changes), removedSchedules: gone };
         set({ items, schedules: get().schedules.filter((sch) => !gone.includes(sch)), batches: [b, ...get().batches], toast: { message: `${b.label}.`, batchId: b.id } });
+        if (changes.length) track('item_deleted', { deletion_scope: 'employer', item_count: changes.length });
       },
 
       addItem: (fields) => {

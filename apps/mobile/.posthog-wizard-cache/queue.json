@@ -1,0 +1,331 @@
+{
+  "version": 1,
+  "runId": "aba4aed9-919c-49f5-85b9-9499e9faafc9",
+  "tasks": [
+    {
+      "id": "b3aa93a4-1b61-4c61-bf64-3238acb0c080",
+      "type": "warehouse",
+      "status": "running",
+      "dependsOn": [
+        "4b060516-0167-4587-958d-4a4b27287f6d",
+        "76ed5e32-8099-4b17-b96a-38560ad3b042",
+        "26ad36d4-b10c-43dc-83ac-cc4f59868457",
+        "cca451e3-5327-461f-857d-d5ee6a8be0c0",
+        "ec34ce30-e888-4687-9dc5-b497020ccf8a",
+        "35628353-877c-4b00-adcd-eaa98f2e5c67",
+        "1685f974-8c1f-46a8-a397-64d04ef4832a",
+        "e71e393c-eb77-49c0-ac72-c1c9cf4815ca",
+        "9e71e3f7-f862-4a75-b85b-d8c2ed5e1413"
+      ],
+      "inputs": {
+        "sources": [
+          {
+            "kind": "Expo",
+            "label": "Expo (EAS)",
+            "mode": "in-cli",
+            "matchedSignal": "found `expo` in package.json"
+          },
+          {
+            "kind": "Resend",
+            "label": "Resend",
+            "mode": "in-cli",
+            "matchedSignal": "found `RESEND_API_KEY` in `.env`"
+          },
+          {
+            "kind": "RevenueCat",
+            "label": "RevenueCat",
+            "mode": "in-cli",
+            "matchedSignal": "found `react-native-purchases` in package.json"
+          }
+        ]
+      },
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "optional": true,
+      "createdAt": "2026-10-20T16:03:31.487Z",
+      "startedAt": "2026-10-20T16:10:21.590Z"
+    },
+    {
+      "id": "4b060516-0167-4587-958d-4a4b27287f6d",
+      "type": "install",
+      "label": "Add PostHog SDK",
+      "status": "done",
+      "dependsOn": [],
+      "inputs": {},
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "createdAt": "2026-10-20T16:03:38.644Z",
+      "startedAt": "2026-10-20T16:03:53.223Z",
+      "handoff": {
+        "goals": "Install the React Native PostHog SDK and its required peer dependency with the project's package manager, unless they were already installed.",
+        "did": "No dependency files were changed. `package.json` already declares `posthog-react-native` at `^4.81.2` and its required peer `react-native-svg` at `15.16.0`, so an install command was not needed. There is no server-side event-sending code indicated by this mobile package manifest, so no server SDK was added.",
+        "forNextAgent": "Import the client as `posthog-react-native`. The package manager detector found no lockfile and recommends npm if a later task needs to install another dependency. PostHog SDK and SVG peer are already declared in `package.json`.",
+        "filesTouched": [],
+        "evidence": "Read `package.json` and confirmed both `posthog-react-native` and `react-native-svg` are present in `dependencies`. `detect_package_manager` reported no lockfile and a fallback recommendation of npm.",
+        "assumptions": "Assumed this Expo/React Native mobile package has no server-side event emitter based on the package manifest and task scope.",
+        "conflict": "None.",
+        "reportSection": ""
+      },
+      "finishedAt": "2026-10-20T16:04:04.323Z"
+    },
+    {
+      "id": "76ed5e32-8099-4b17-b96a-38560ad3b042",
+      "type": "init",
+      "label": "Initialize PostHog",
+      "status": "done",
+      "dependsOn": [],
+      "inputs": {},
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "createdAt": "2026-10-20T16:03:38.646Z",
+      "startedAt": "2026-10-20T16:03:53.226Z",
+      "handoff": {
+        "goals": "Initialize PostHog once for this Expo/React Native app, set its public environment values through wizard tools, and document the variables for developers.",
+        "did": "Updated `src/lib/analytics.ts` to export the sole `posthog` singleton, constructed from `EXPO_PUBLIC_POSTHOG_KEY` and `EXPO_PUBLIC_POSTHOG_HOST`. It captures app lifecycle events and makes missing configuration fail loudly in development while production remains a no-op. Existing `track` and `screen` helpers now use this singleton, preserving their event contract. Updated `src/app/_layout.tsx` to mount `PostHogProvider` at the Expo Router root with that exact singleton, so future React call sites can use `usePostHog()` and non-React code continues to import the helpers/singleton. Created `.env.example` with blank documentation entries for both public environment keys. Set the actual configured public token and host in `.env` using the wizard environment tool.",
+        "forNextAgent": "Use the shared client consistently: React components below the root may call `usePostHog()`; existing non-React instrumentation should continue to use `track`/`screen` from `@/lib/analytics` (or import its exported `posthog` singleton when needed). Do not create a second PostHog instance. There is no browser CSP in this native/Expo initialization scope, so no CSP directives were touched.",
+        "filesTouched": [
+          "src/lib/analytics.ts",
+          "src/app/_layout.tsx",
+          ".env.example",
+          ".env"
+        ],
+        "evidence": "Read the final analytics module and verified it exports one `posthog` instance and routes helper calls through it. Grep confirmed the root layout imports that client and passes it to `PostHogProvider`. `check_env_keys` confirmed both EXPO_PUBLIC_POSTHOG_KEY and EXPO_PUBLIC_POSTHOG_HOST are present in `.env`. No build, lint, or tests were run as instructed.",
+        "assumptions": "Assumed Expo injects EXPO_PUBLIC_ variables during each development/release build as configured by the project convention. The already-declared `posthog-react-native` and `react-native-svg` dependencies were left unchanged.",
+        "conflict": "None.",
+        "reportSection": ""
+      },
+      "finishedAt": "2026-10-20T16:04:45.816Z"
+    },
+    {
+      "id": "26ad36d4-b10c-43dc-83ac-cc4f59868457",
+      "type": "identify",
+      "label": "Add user identification",
+      "status": "done",
+      "dependsOn": [
+        "4b060516-0167-4587-958d-4a4b27287f6d",
+        "76ed5e32-8099-4b17-b96a-38560ad3b042"
+      ],
+      "inputs": {},
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "createdAt": "2026-10-20T16:03:41.184Z",
+      "startedAt": "2026-10-20T16:04:47.286Z",
+      "handoff": {
+        "goals": "Wire stable client-side user identification at authentication boundaries so PostHog events and future PostHog error captures are attributed to the signed-in user, and clear identity on logout.",
+        "did": "Edited `src/lib/auth-client.ts`. The shared `signedIn()` boundary now reads the authenticated Supabase session and identifies the shared PostHog singleton with `session.user.id`, the stable Supabase UUID. Email and optional full name are sent only as person properties. Identification happens before cloud restoration, so captures and errors during the restore inherit the identity. Successful `signOut()` now calls `posthog.reset()` before purchase logout and local account-state cleanup, keeping the next user anonymous until their own login. This feeds person-level attribution for all existing `track`/`screen` calls and later PostHog error instrumentation through the singleton.",
+        "forNextAgent": "Use the existing shared `posthog` singleton or `track`/`screen` helpers. No further per-event or per-screen identity calls are needed: the React Native SDK persists the Supabase-ID identity after successful login/signup/verification/OAuth completion, and reset clears it on logout. Any future PostHog exception capture after these boundaries will inherit the correct distinct ID.",
+        "filesTouched": [
+          "src/lib/auth-client.ts"
+        ],
+        "evidence": "Read the final `src/lib/auth-client.ts` after editing and verified `posthog.identify(user.id, ...)` occurs in the common successful sign-in boundary before `restoreFromCloud()`, and `posthog.reset()` occurs after successful Supabase sign-out. No builds, linters, or tests were run per task instruction.",
+        "assumptions": "Assumed Supabase has persisted the session by the time each successful authentication method reaches the shared `signedIn()` function; this is consistent with the existing auth flow and its session retrieval use. The installed PostHog React Native SDK persists identified state between app launches.",
+        "conflict": "",
+        "reportSection": ""
+      },
+      "finishedAt": "2026-10-20T16:05:34.515Z"
+    },
+    {
+      "id": "cca451e3-5327-461f-857d-d5ee6a8be0c0",
+      "type": "error-tracking",
+      "label": "Enable error tracking",
+      "status": "done",
+      "dependsOn": [
+        "4b060516-0167-4587-958d-4a4b27287f6d",
+        "76ed5e32-8099-4b17-b96a-38560ad3b042"
+      ],
+      "inputs": {},
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "createdAt": "2026-10-20T16:03:41.185Z",
+      "startedAt": "2026-10-20T16:04:47.288Z",
+      "handoff": {
+        "goals": "Configure the React Native PostHog SDK in one global location so uncaught application errors reach PostHog.",
+        "did": "Updated `src/lib/analytics.ts`, the existing sole PostHog client singleton, to enable SDK error tracking autocapture for `uncaughtExceptions` and `unhandledRejections`. This feeds PostHog Error Tracking with unhandled JavaScript failures without scattering manual exception capture calls or adding another client instance.",
+        "forNextAgent": "The shared PostHog singleton now has global JavaScript exception autocapture configured. The app already has an Expo Router error boundary and Sentry reporting; neither was modified. Native crash capture was not enabled because the optional native plugin is not part of this instrument-only task.",
+        "filesTouched": [
+          "src/lib/analytics.ts"
+        ],
+        "evidence": "Re-read `src/lib/analytics.ts` after the targeted edit and verified `errorTracking.autocapture.uncaughtExceptions` and `unhandledRejections` are both set to `true` on the initialized singleton. Per instructions, no build, lint, tests, app run, or dependency installation was performed.",
+        "assumptions": "Assumed the installed `posthog-react-native` version from the upstream handoff (^4.81.2) supports the documented errorTracking autocapture configuration.",
+        "conflict": "None.",
+        "reportSection": ""
+      },
+      "finishedAt": "2026-10-20T16:05:11.098Z"
+    },
+    {
+      "id": "ec34ce30-e888-4687-9dc5-b497020ccf8a",
+      "type": "capture",
+      "label": "Instrument key events",
+      "status": "done",
+      "dependsOn": [
+        "26ad36d4-b10c-43dc-83ac-cc4f59868457"
+      ],
+      "inputs": {},
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "createdAt": "2026-10-20T16:03:43.138Z",
+      "startedAt": "2026-10-20T16:05:36.089Z",
+      "handoff": {
+        "goals": "Decide which meaningful React Native app actions still need PostHog capture, instrument them at their real action boundaries, and record the resulting event contract.",
+        "did": "Created `.posthog-wizard-cache/.posthog-events.json` with five newly instrumented events: `manual_item_created`, `item_completion_changed`, `item_deleted`, `auth_completed`, and `account_signed_out`. Extended `src/lib/analytics.ts` so the shared `track` helper accepts those event names. In `src/app/create.tsx`, added `manual_item_created` after a valid manual item is persisted, with only item kind, category, timed state, and urgent state. In `src/store/index.ts`, added shared-client captures after completion-state changes and successful single, multi-item, course, and employer item deletions; properties contain only completion state, categorical scope, and counts. In `src/lib/auth-client.ts`, captured `auth_completed` immediately after the existing successful Supabase-ID identify call, and `account_signed_out` before the existing PostHog reset. This feeds activation, retention, and account-churn analysis without sending titles, notes, employer names, email addresses, or other PII in event properties.",
+        "forNextAgent": "Identity is already established by `signedIn()` and persisted by the React Native SDK, so all new captures are plain shared-client calls and inherit the correct Supabase UUID. `account_signed_out` is deliberately emitted before `posthog.reset()`. Existing analytics already covered onboarding, imports, reviews, purchases, reminders, and Canvas sync, so those were left unchanged rather than duplicated.",
+        "filesTouched": [
+          ".posthog-wizard-cache/.posthog-events.json",
+          "src/lib/analytics.ts",
+          "src/app/create.tsx",
+          "src/store/index.ts",
+          "src/lib/auth-client.ts"
+        ],
+        "evidence": "Read each edited file immediately before editing, then reread the final sections. Final grep confirmed every new event is both included in the `AnalyticsEvent` union and captured at its intended action boundary. No build, linter, or tests were run, as instructed.",
+        "assumptions": "Assumed the prior identify handoff remains accurate: the singleton retains the authenticated Supabase UUID after successful identity establishment, and therefore plain calls through `track` are correctly attributed. Assumed planner store mutation methods are invoked from real user-action paths, as evidenced by their existing UI call sites.",
+        "conflict": "None.",
+        "reportSection": ""
+      },
+      "finishedAt": "2026-10-20T16:06:54.017Z"
+    },
+    {
+      "id": "35628353-877c-4b00-adcd-eaa98f2e5c67",
+      "type": "ai-observability",
+      "label": "Assess AI observability",
+      "status": "not needed",
+      "dependsOn": [
+        "ec34ce30-e888-4687-9dc5-b497020ccf8a"
+      ],
+      "inputs": {},
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "optional": true,
+      "createdAt": "2026-10-20T16:03:45.154Z",
+      "startedAt": "2026-10-20T16:06:56.376Z",
+      "skipReason": "agent-not-needed",
+      "notNeededReason": "not-applicable",
+      "handoff": {
+        "goals": "Add PostHog AI Observability to existing LLM calls in the mobile project, using the appropriate supported instrumentation variant without adding dependencies or invoking models.",
+        "did": "Read the upstream workflow context, React Native integration rules, package manifest, and all relevant client-side request paths. The project has no LLM/provider SDK or direct model invocation. Its only AI-adjacent path is the generic extraction request: `AddScreen.run()` and onboarding's `OwnStep.run()` call `requestImport()`, which calls `requestExtraction()` in `src/lib/api.ts` and POSTs user input to an externally implemented `/api/extract` endpoint. That endpoint response exposes neither the model/provider, model name, token usage, nor generation content. Loaded and reviewed the `ai-observability-manual-capture` fallback skill; manual capture cannot truthfully construct a `$ai_generation` event from this client boundary without inventing server-owned provider/model metadata or duplicating/misrepresenting the generation. No project source, dependency manifest, or environment file was changed.",
+        "forNextAgent": "AI Observability must be implemented where `/api/extract` actually invokes its provider SDK, outside this mobile project. Select the provider/framework-specific skill from the server call site; if no supported wrapper applies, use manual capture there with the actual provider, model, response usage, latency, and generation input/output. The concrete end-user path to exercise it is Add tab → enter a message or select an image/PDF → submit → `components/AddScreen.tsx` `run()` → `src/lib/import-auth.ts` `requestImport()` → `src/lib/api.ts` `requestExtraction()` → `POST /api/extract`; onboarding has the parallel path in `src/app/onboarding.tsx` `OwnStep.run()`. Delivery is unverified because no LLM request was run. Privacy mode: no AI Observability client or privacy-mode setting exists in this mobile app, so there is no effective setting or mobile file/line to edit. At the server integration point, default the new Node client to `privacyMode: false` unless an established redaction/privacy requirement says otherwise; this captures prompt and completion content. Enable privacy mode before sending content that must not be stored in PostHog; it excludes SDK-captured `$ai_input` and `$ai_output_choices`, not arbitrary custom properties or prior events. See https://posthog.com/docs/ai-observability/privacy-mode.",
+        "filesTouched": [],
+        "evidence": "`package.json` contains `posthog-react-native` but no LLM, agent-framework, or server PostHog package. Searches across `src` found no direct provider SDK or completion/generation call; they found the `/api/extract` fetch boundary only. Read `src/lib/api.ts`, `src/lib/import-auth.ts`, `src/lib/capture-input.ts`, `src/components/AddScreen.tsx`, and the onboarding call path. The extraction request contains client input/context, while the typed `ExtractResponse` consumed by the client has no provider/model/token/usage metadata. No build, test, package install, or model call was run.",
+        "assumptions": "The external `/api/extract` service is the location of the actual LLM generation, as indicated by the product's extraction UI and comments. Its implementation and provider are unavailable inside this task's permitted project directory, so they were not inspected.",
+        "conflict": "The mobile client invokes an opaque extraction API but has no direct LLM SDK/provider metadata; adding a client-side `$ai_generation` would invent server-owned generation data, so instrumentation is deferred to the service implementation.",
+        "reportSection": ""
+      },
+      "finishedAt": "2026-10-20T16:07:45.735Z"
+    },
+    {
+      "id": "1685f974-8c1f-46a8-a397-64d04ef4832a",
+      "type": "dashboard",
+      "label": "Build product insights",
+      "status": "done",
+      "dependsOn": [
+        "ec34ce30-e888-4687-9dc5-b497020ccf8a"
+      ],
+      "inputs": {},
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "createdAt": "2026-10-20T16:03:45.155Z",
+      "startedAt": "2026-10-20T16:06:56.378Z",
+      "handoff": {
+        "goals": "Create a starter PostHog dashboard with several insights built from the mobile integration's instrumented events, and hand off its URL.",
+        "did": "Created the PostHog dashboard `Analytics basics (wizard)` (ID 2235469) and attached five `wizard`-tagged saved insights: `Authentication to first item (wizard)` (ordered `auth_completed` → `manual_item_created` funnel), `Manual items created (wizard)`, `Item completion changes (wizard)`, `Items deleted (wizard)`, and `Account sign-outs (wizard)` (30-day daily trends). These provide activation, engagement, completion, deletion, and account-exit views from the events instrumented in the prior capture step. No project files were edited.",
+        "forNextAgent": "Dashboard URL for the report: https://us.posthog.com/project/676569/dashboard/2235469. All five insights are attached and saved. Their verification queries returned no captured event data / zero-valued daily rows, which is expected for this newly instrumented integration; definitions will populate automatically after app usage.",
+        "filesTouched": [],
+        "evidence": "`dashboard-create` returned dashboard ID 2235469 and the full dashboard URL. Five `insight-create` calls each returned a saved insight with `dashboards: [2235469]` and an attached dashboard tile. `insight-query` successfully executed each saved definition; the activation funnel had no rows and the four event trends returned zero-valued daily rows for the last 30 days.",
+        "assumptions": "Assumed the prior capture handoff's event contract is authoritative and that the new event data has not yet reached PostHog, based on the verification outputs.",
+        "conflict": "",
+        "reportSection": "## Starter analytics dashboard\n\nCreated [Analytics basics (wizard)](https://us.posthog.com/project/676569/dashboard/2235469) with five wizard-tagged insights:\n\n- Authentication-to-first-item conversion funnel\n- Daily manual-item creation\n- Daily completion-state changes\n- Daily item deletions\n- Daily account sign-outs\n\nThe dashboard is live and its definitions successfully execute. It currently has no observed event volume, as expected for newly added instrumentation; charts will populate automatically as users generate events."
+      },
+      "finishedAt": "2026-10-20T16:07:40.219Z"
+    },
+    {
+      "id": "e71e393c-eb77-49c0-ac72-c1c9cf4815ca",
+      "type": "logs",
+      "label": "Configure log capture",
+      "status": "done",
+      "dependsOn": [
+        "35628353-877c-4b00-adcd-eaa98f2e5c67"
+      ],
+      "inputs": {},
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "optional": true,
+      "createdAt": "2026-10-20T16:03:46.783Z",
+      "startedAt": "2026-10-20T16:07:47.773Z",
+      "handoff": {
+        "goals": "Configure PostHog log capture for the supported Expo/React Native runtime using the documented SDK-native implementation, without exporting pre-existing application logs.",
+        "did": "Installed and followed the `logs-react-native` skill, including its React Native reference. Updated `src/lib/analytics.ts` to enable the PostHog SDK `logs` resource with service name `dayli-mobile` and a development/production environment label, and added the dedicated `posthogLogs` wrapper around the already-shared PostHog singleton. This wrapper is the sole exporter path added by this task and feeds the PostHog Logs service. Updated `src/app/_layout.tsx` to emit the intentionally added `app_ready` INFO record once fonts and persisted state make the app ready. Updated `src/lib/errors.ts` to emit the intentionally added `operation_failed` ERROR record at the existing deduplicated failure boundary, containing only the allowlisted operation, error name, and error-code presence—not an exception message, stack, user content, request body, or secret. Existing console and Sentry output remain unchanged and are not exported.",
+        "forNextAgent": "No package installation or manifest/lockfile update is required: the existing `posthog-react-native@^4.81.2` exceeds the log API minimum version (4.44.0). The configuration reuses `EXPO_PUBLIC_POSTHOG_KEY` and `EXPO_PUBLIC_POSTHOG_HOST`; no environment files were changed. To verify delivery, launch the app through to a hydrated screen and search PostHog Logs for service.name `dayli-mobile` and INFO body `app_ready`; trigger any handled failure path to find ERROR body `operation_failed`. Logs are buffered and delivery is unverified until observed in PostHog. Only records added by this task are exported. If broader capture is explicitly wanted later, add a one-line `posthogLogs.info('existing_log_name', attributes)` beside a selected existing `console.info` call (rather than attaching an exporter to console globally), preserving the deliberate allowlist.",
+        "filesTouched": [
+          "src/lib/analytics.ts",
+          "src/app/_layout.tsx",
+          "src/lib/errors.ts"
+        ],
+        "evidence": "Read the installed React Native logs skill and platform reference, which specifies `logs` SDK options and `posthog.logger` rather than an OTLP exporter. Verified `package.json` already contains `posthog-react-native@^4.81.2`. Final reads and searches confirm exactly one SDK log configuration, a dedicated wrapper using `posthog.logger.info/error`, and only the new `app_ready` and `operation_failed` exporter callsites. No build, lint, or runtime delivery test was run because this environment provides no command runner and dependency/build work is reserved for review.",
+        "assumptions": "Assumed the prior initialization handoff remains correct: Expo embeds both configured public PostHog variables and the shared singleton is initialized for normal builds. Assumed the existing static `operation` labels are non-PII, consistent with their current error-reporting use.",
+        "conflict": "",
+        "reportSection": ""
+      },
+      "finishedAt": "2026-10-20T16:08:30.856Z"
+    },
+    {
+      "id": "9e71e3f7-f862-4a75-b85b-d8c2ed5e1413",
+      "type": "review",
+      "label": "Review integration",
+      "status": "done",
+      "dependsOn": [
+        "4b060516-0167-4587-958d-4a4b27287f6d",
+        "76ed5e32-8099-4b17-b96a-38560ad3b042",
+        "26ad36d4-b10c-43dc-83ac-cc4f59868457",
+        "ec34ce30-e888-4687-9dc5-b497020ccf8a",
+        "cca451e3-5327-461f-857d-d5ee6a8be0c0",
+        "35628353-877c-4b00-adcd-eaa98f2e5c67",
+        "e71e393c-eb77-49c0-ac72-c1c9cf4815ca"
+      ],
+      "inputs": {},
+      "attempts": 1,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "createdAt": "2026-10-20T16:03:50.066Z",
+      "startedAt": "2026-10-20T16:08:33.361Z",
+      "handoff": {
+        "goals": "Install all declared PostHog integration dependencies, verify the Expo/React Native project with its defined typecheck and lint commands, and strictly review the upstream PostHog changeset for minimality, unrelated changes, codebase patterns, and framework-reference shape without changing the analytics contract.",
+        "did": "Ran the detected npm install once; all 984 declared packages were already resolved, including posthog-react-native and react-native-svg, and no dependency version or manifest change was needed. Reviewed every upstream changeset source/config artifact plus representative neighboring event, env, provider, error-boundary, and UI-caller patterns. Applied 3 targeted fixes: (1, example-shape/runtime correctness) restored the configured public PostHog token and host in `.env` because the scoped safe check showed they were absent; this keeps the singleton active and feeds all product analytics, Error Tracking, and Logs work; (2, example-shape/framework correctness) changed missing-config development handling in `src/lib/analytics.ts` from throwing to `console.error`, preserving the required loud diagnostic while allowing the app to boot with analytics as a no-op when config is unavailable; (3, minimality) removed two comments in `src/lib/analytics.ts` and `src/lib/errors.ts` that narrated that logging had been newly added, leaving the logger and sanitized `operation_failed` boundary unchanged. No event names, event properties, person properties, or firing locations changed. Review dimensions: Minimal passes after removing change-narration comments; Unrelated passes because all retained edits are PostHog wiring/instrumentation only; Codebase patterns pass because the singleton uses the project’s existing `process.env.EXPO_PUBLIC_*` convention, event callsites use the existing shared `track` helper, and logs use the existing central error boundary; Example shapes pass because there is one guarded client, the Expo Router root conditionally mounts `PostHogProvider`, lifecycle/error/log options are on that client, identity uses the stable Supabase user ID with PII only as person properties, and logout captures before reset. `.env.example` safely documents both public key names, confirmed by the env tool.",
+        "forNextAgent": "The integration installs, typechecks, and lints cleanly. Use the existing analytics contract and shared singleton; do not create another client or alter the five new event definitions. The actual `.env` now contains both configured public PostHog values, while `.env.example` documents both names. No build script exists, so `npm run typecheck` was the compile verification. Runtime event delivery was not exercised, as expected for this review step.",
+        "filesTouched": [
+          "src/lib/analytics.ts",
+          "src/lib/errors.ts",
+          ".env"
+        ],
+        "evidence": "`npm install` completed successfully and reported the dependency tree up to date. Both the initial and post-fix `npm run typecheck` (`tsc --noEmit`) exited cleanly. Both the initial and post-fix `npm run lint` (`expo lint`) exited cleanly, with Expo confirming `.env` was loaded and both PostHog keys exported. A final scoped `check_env_keys` confirmed `EXPO_PUBLIC_POSTHOG_KEY` and `EXPO_PUBLIC_POSTHOG_HOST` are present in `.env`; the template check confirmed both key names are documented in `.env.example`. Caller searches showed the changed store actions are invoked by real plan/today/detail UI paths and auth sign-out is invoked by the account screen.",
+        "assumptions": "Assumed Expo’s established `EXPO_PUBLIC_*` build-time environment convention continues to apply to development and release builds. Did not exercise the native app or independently confirm network delivery, which is outside this verification step.",
+        "conflict": "npm emitted engine warnings because Node 25.6.0 is outside Expo/React Native’s declared supported ranges, but installation, typecheck, and lint all completed successfully.",
+        "reportSection": ""
+      },
+      "finishedAt": "2026-10-20T16:10:18.956Z"
+    },
+    {
+      "id": "a857175d-ec1d-47bd-b97b-10ecf8a9a892",
+      "type": "report",
+      "label": "Publish setup report",
+      "status": "pending",
+      "dependsOn": [
+        "1685f974-8c1f-46a8-a397-64d04ef4832a",
+        "9e71e3f7-f862-4a75-b85b-d8c2ed5e1413",
+        "b3aa93a4-1b61-4c61-bf64-3238acb0c080"
+      ],
+      "inputs": {},
+      "attempts": 0,
+      "maxAttempts": 2,
+      "enqueuedBy": "orchestrator",
+      "createdAt": "2026-10-20T16:03:52.158Z"
+    }
+  ]
+}

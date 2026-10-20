@@ -1,5 +1,7 @@
 import { errorDiagnostic } from '@dayli/core';
 
+import { posthogLogs } from '@/lib/analytics';
+
 const reported = new WeakSet<object>();
 
 /** Log once at the failure boundary. Only sanitized, allowlisted diagnostics leave this function. */
@@ -10,8 +12,12 @@ export function reportError(operation: string, error: unknown): void {
       reported.add(error);
     }
     const details = errorDiagnostic(error);
-    // console.error/warn open native LogBox for handled failures in development.
     console.info('[Semli error]', { operation, ...details });
+    posthogLogs.error('operation_failed', {
+      operation,
+      error_name: details.name,
+      has_error_code: Boolean(details.code),
+    });
     if (process.env.EXPO_PUBLIC_SENTRY_DSN) {
       void import('@sentry/react-native').then(({ captureException }) => {
         const safe = new Error(details.message);

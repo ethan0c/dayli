@@ -8,6 +8,7 @@ import { Platform } from 'react-native';
 import { ACCOUNTS_ENABLED, AuthUnavailableError, unavailableClient, type AuthClient, type SignInResult } from './auth';
 import { restoreFromCloud } from './cloud';
 import { reportError } from './errors';
+import { posthog, track } from './analytics';
 import { supabase } from './supabase';
 import { useStore } from '../store';
 
@@ -16,8 +17,19 @@ WebBrowser.maybeCompleteAuthSession();
 /** Only Google uses a redirect; email confirmation and reset use emailed codes. */
 const callbackUrl = () => Linking.createURL('auth/callback');
 
-/** Every sign-in ends here: pull the backed-up plan into this phone. */
+/** Every sign-in ends here: establish analytics identity before restoring the backed-up plan. */
 async function signedIn(): Promise<SignInResult> {
+  const { data: { session } } = await supabase!.auth.getSession();
+  const user = session?.user;
+  if (user && !user.is_anonymous) {
+    const fullName = user.user_metadata.full_name;
+    posthog?.identify(user.id, {
+      ...(user.email ? { email: user.email } : {}),
+      ...(typeof fullName === 'string' ? { name: fullName } : {}),
+    });
+    track('auth_completed');
+  }
+
   const { restored } = await restoreFromCloud().catch((error: unknown) => {
     reportError('cloud.restore_after_sign_in', error);
     const { settings, setSettings } = useStore.getState();
@@ -145,6 +157,8 @@ const supabaseClient: AuthClient = {
   async signOut() {
     const { error } = await supabase!.auth.signOut({ scope: 'local' });
     if (error) throw error;
+    track('account_signed_out');
+    posthog?.reset();
     await Purchases.logOut().catch((error: unknown) => reportError('purchases.log_out', error));
     const { settings, setSettings } = useStore.getState();
     setSettings({ cloud: { ...settings.cloud, backedUpAt: null, error: null } });

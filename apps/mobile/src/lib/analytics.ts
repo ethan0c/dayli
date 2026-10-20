@@ -2,16 +2,35 @@ import { PostHog } from 'posthog-react-native';
 
 /**
  * Product analytics. Events carry counts and kinds, never titles or content.
- * Without EXPO_PUBLIC_POSTHOG_KEY nothing leaves the device; in development the
- * event is logged so the funnel can be checked by eye.
+ * Expo embeds EXPO_PUBLIC_ variables at build time.
  */
-const KEY = process.env.EXPO_PUBLIC_POSTHOG_KEY;
-const HOST = process.env.EXPO_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com';
+const projectToken = process.env.EXPO_PUBLIC_POSTHOG_KEY;
+const host = process.env.EXPO_PUBLIC_POSTHOG_HOST;
 
-let client: PostHog | null = null;
-if (KEY) {
-  client = new PostHog(KEY, { host: HOST, captureAppLifecycleEvents: true });
+if (!projectToken && __DEV__) {
+  console.error('EXPO_PUBLIC_POSTHOG_KEY variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once EXPO_PUBLIC_POSTHOG_KEY is configured');
 }
+
+if (!host && __DEV__) {
+  console.error('EXPO_PUBLIC_POSTHOG_HOST variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once EXPO_PUBLIC_POSTHOG_HOST is configured');
+}
+
+export const posthog: PostHog | null = projectToken && host
+  ? new PostHog(projectToken, {
+    host,
+    captureAppLifecycleEvents: true,
+    logs: {
+      serviceName: 'dayli-mobile',
+      environment: __DEV__ ? 'development' : 'production',
+    },
+    errorTracking: {
+      autocapture: {
+        uncaughtExceptions: true,
+        unhandledRejections: true,
+      },
+    },
+  })
+  : null;
 
 export type AnalyticsEvent =
   | 'onboarding_step'
@@ -28,16 +47,30 @@ export type AnalyticsEvent =
   | 'reminders_changed'
   | 'briefing_changed'
   | 'canvas_synced'
-  | 'canvas_sync_failed';
+  | 'canvas_sync_failed'
+  | 'manual_item_created'
+  | 'item_completion_changed'
+  | 'item_deleted'
+  | 'auth_completed'
+  | 'account_signed_out';
 
 export function track(event: AnalyticsEvent, properties: Record<string, string | number | boolean | null> = {}): void {
-  if (client) {
-    void client.capture(event, properties);
+  if (posthog) {
+    void posthog.capture(event, properties);
   } else if (__DEV__) {
     console.log(`[analytics] ${event}`, properties);
   }
 }
 
 export function screen(name: string): void {
-  if (client) void client.screen(name);
+  if (posthog) void posthog.screen(name);
 }
+
+export const posthogLogs = {
+  info(message: string, attributes: Record<string, string | number | boolean> = {}): void {
+    posthog?.logger.info(message, attributes);
+  },
+  error(message: string, attributes: Record<string, string | number | boolean> = {}): void {
+    posthog?.logger.error(message, attributes);
+  },
+};

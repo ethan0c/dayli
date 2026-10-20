@@ -53,7 +53,14 @@
         }
       ],
       "expo-localization",
-      "@sentry/react-native/expo",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "organization": "semli",
+          "project": "semli-mobile"
+        }
+      ],
       [
         "expo-media-library",
         {

@@ -11,6 +11,7 @@ import { Press } from '@/components/Press';
 import { Segmented } from '@/components/Segmented';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
+import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
 import { usePlusAccess } from '@/lib/plus-access';
 import { buildManualItem, defaultManualTimes, type ManualDraft } from '@/lib/manual-item';
@@ -56,6 +57,12 @@ export default function CreateScreen() {
     saving.current = true;
     const store = useStore.getState();
     const id = store.addItem(result.item);
+    track('manual_item_created', {
+      item_kind: result.item.kind,
+      category: result.item.category,
+      has_time: !!result.item.start,
+      urgent: !!result.item.urgent,
+    });
     store.showToast(`Added ${result.item.title}.`, useStore.getState().items[id]?.batchId ?? undefined);
     feedback('success');
     router.back();

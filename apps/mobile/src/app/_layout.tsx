@@ -2,11 +2,13 @@ import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { AppState, Appearance, LogBox } from 'react-native';
+import { PostHogProvider } from 'posthog-react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
+import * as Application from 'expo-application';
 import { palettes } from '@dayli/tokens';
 
 import { syncRingingAlarms } from '@/lib/alarms';
@@ -25,6 +27,7 @@ import { PurchasesProvider } from '@/providers/PurchasesProvider';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { useStore } from '@/store';
 import { mobileFonts, useTheme } from '@/theme';
+import { posthog, posthogLogs } from '@/lib/analytics';
 
 // NativeTabs sends PRELOAD and ROUTE_NAMES_CHANGED actions the stack has no handler for; the
 // warnings are noise (nothing is lost) and their toast sits at the bottom of every dev recording.
@@ -37,7 +40,20 @@ export { AppErrorBoundary as ErrorBoundary };
 export const unstable_settings = { screenErrorBoundary: AppErrorBoundary };
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
-Sentry.init({ dsn: SENTRY_DSN, enabled: !!SENTRY_DSN, tracesSampleRate: 0.2, sendDefaultPii: false });
+Sentry.init({
+  dsn: SENTRY_DSN,
+  enabled: !!SENTRY_DSN,
+  environment: __DEV__ ? 'development' : 'production',
+  // Matches the name the Expo plugin uploads source maps and dSYMs under, so frames resolve.
+  release: `${Application.applicationId}@${Application.nativeApplicationVersion}+${Application.nativeBuildVersion}`,
+  dist: Application.nativeBuildVersion ?? undefined,
+  tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+  sendDefaultPii: false,
+});
+
+function AnalyticsRoot({ children }: { children: ReactNode }) {
+  return posthog ? <PostHogProvider client={posthog}>{children}</PostHogProvider> : <>{children}</>;
+}
 
 function RootLayout() {
   // Names match packages/tokens fontFamily.
@@ -72,7 +88,9 @@ function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
+    if (!ready) return;
+    posthogLogs.info('app_ready', { app_state: 'hydrated' });
+    SplashScreen.hideAsync();
   }, [ready]);
 
   // Development: a command file in Documents seeds a state for screenshots (see lib/dev.ts).
@@ -136,6 +154,7 @@ function RootLayout() {
   const theme = dark ? DarkTheme : DefaultTheme;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+    <AnalyticsRoot>
     <PurchasesProvider>
       <CanvasAutoSync />
       <CloudBackup />
@@ -181,6 +200,7 @@ function RootLayout() {
         <StatusBar style={photoPaywall || dark ? 'light' : 'dark'} hidden={false} />
       </ThemeProvider>
     </PurchasesProvider>
+    </AnalyticsRoot>
     </GestureHandlerRootView>
   );
 }

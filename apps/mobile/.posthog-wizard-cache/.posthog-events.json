@@ -1,0 +1,27 @@
+[
+  {
+    "event": "manual_item_created",
+    "description": "A valid manually entered to-do or event is saved to the plan.",
+    "file": "src/app/create.tsx"
+  },
+  {
+    "event": "item_completion_changed",
+    "description": "A user marks a planned item complete or incomplete from any app surface.",
+    "file": "src/store/index.ts"
+  },
+  {
+    "event": "item_deleted",
+    "description": "A user removes one or more planned items.",
+    "file": "src/store/index.ts"
+  },
+  {
+    "event": "auth_completed",
+    "description": "An authenticated session is established successfully across email, OAuth, and verification flows.",
+    "file": "src/lib/auth-client.ts"
+  },
+  {
+    "event": "account_signed_out",
+    "description": "An authenticated user successfully signs out before their analytics identity is reset.",
+    "file": "src/lib/auth-client.ts"
+  }
+]
