@@ -126,7 +126,7 @@ Paywall fix (Oct 20, 2026): the cover and You → Semli Plus now explicitly use 
 ### 3.1 Technical (done or one-click)
 - Done: canonicals, sitemap, robots, Organization/SoftwareApplication/FAQ/Breadcrumb structured data, per-page social previews, three intent pages, Urbanist via `next/font`.
 - To do (you): **Google Search Console** → add `semli.app` (DNS verification at your registrar) → submit `https://semli.app/sitemap.xml`. **Bing Webmaster Tools**: import from Search Console, one click. Check Core Web Vitals after deploy; the site is static and should be green.
-- Deploy the site (Vercel is the path of least resistance for Next.js; add `ANTHROPIC_API_KEY` as a server env var there).
+- Deploy the site (Vercel is the path of least resistance for Next.js; add `ANTHROPIC_API_KEY` as a server env var there). `SUPABASE_URL` and `SUPABASE_KEY` also feed the waitlist; add `TESTFLIGHT_URL` the day the public link exists and `semli.app/beta` switches from the waitlist to TestFlight.
 
 ### 3.2 Queries to own (validate volumes in Search Console and Keyword Planner before investing)
 Tier 1, already have pages: *syllabus to calendar*, *assignment tracker app*, *work and school schedule planner*.

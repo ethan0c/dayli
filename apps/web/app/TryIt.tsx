@@ -147,7 +147,7 @@ export function TryIt() {
     <section className={`try${busy ? ' busy' : ''}`} id="try" aria-labelledby="try-title">
       <div>
         <h2 id="try-title" className="section-title">Try it with your week.</h2>
-        <p className="lede">Paste a message, or drop in a screenshot or a syllabus. You’ll see what Semli would add. No account needed.</p>
+        <p className="lede">Paste a message or upload a screenshot or syllabus PDF. Preview the dates and times Semli finds. No account needed.</p>
         <form
           onSubmit={submit}
           className={`try-box${drag ? ' drag' : ''}`}
@@ -227,7 +227,7 @@ export function TryIt() {
         ) : !result ? (
           <>
             <div className="try-found">What Semli would add</div>
-            <p className="try-empty">Your week shows up here as a chart, the way the app shows it. Anything without a time gets a question instead of a guess.</p>
+            <p className="try-empty">See the dates and times from your upload here, with missing details marked for you to check.</p>
           </>
         ) : (
           <div className="rise" key={`${result.found} ${result.big}`}>
@@ -246,7 +246,7 @@ export function TryIt() {
                 ))}
               </div>
             ) : null}
-            <p className="try-caption">A preview only. Nothing you paste here is stored. In the app, you check every date before it’s added.</p>
+            <p className="try-caption">This is a preview, not a saved plan. In the app, you review the details before adding them.</p>
           </div>
         )}
       </div>

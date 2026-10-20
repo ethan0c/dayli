@@ -59,7 +59,7 @@ export function Waitlist({ compact = false }: { compact?: boolean }) {
   if (done) {
     return (
       <p className={styles.waitlistDone} role="status">
-        You’re on the list. The TestFlight link comes the day the beta opens.
+        You’re on the list. We’ll email your TestFlight invitation when the beta opens.
       </p>
     );
   }
@@ -73,7 +73,7 @@ export function Waitlist({ compact = false }: { compact?: boolean }) {
         type="email"
         inputMode="email"
         autoComplete="email"
-        placeholder="you@school.edu"
+        placeholder="you@example.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         disabled={busy}
@@ -84,7 +84,7 @@ export function Waitlist({ compact = false }: { compact?: boolean }) {
         {busy ? 'Adding you…' : 'Get the TestFlight link'}
       </button>
       {error ? <p id="beta-error" className={styles.waitlistError} role="alert">{error}</p> : null}
-      {!compact && !error ? <p className={styles.waitlistNote}>200 spots. The real app, the real trial, nothing to set up first.</p> : null}
+      {!compact && !error ? <p className={styles.waitlistNote}>We’ll email you when testing opens. Any email address works.</p> : null}
     </form>
   );
 }

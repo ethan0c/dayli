@@ -37,6 +37,7 @@ Supabase Apple provider activation is verified. A signed build and real-device s
 - [ ] Sign up on a fresh install, enter the code, quit before onboarding; fresh install → log in → onboarding runs (name filled in), not an empty planner. The row carries `onboarded`; rows saved before Oct 20, 2026 count as finished only when they hold a plan.
 - [ ] Sign up, never enter the code, then log in → a fresh code is sent and the code screen opens. Sign up with an email that already has an account → "Log in instead", no code screen.
 - [ ] Log out keeps the plan; delete account removes the row and the auth user, keeps the plan on the phone.
+- [ ] Apply `20261020100000_waitlist.sql`: the site's beta waitlist and `/beta` click log, written through `join_waitlist` and `log_beta_click` with the publishable key; nothing reads them from the site.
 - [ ] Plus bought as a guest carries over on sign-in (RevenueCat alias); Plus restores on a new phone after login.
 
 ## Not done yet

@@ -8,7 +8,7 @@ export const SITE_NAME = 'Semli';
 /** The App Store record (not live yet); the listing name is "Semli: AI Student Planner". */
 export const APP_STORE_ID = '6824600264';
 export const APP_STORE_URL = 'https://apps.apple.com/us/app/semli-ai-student-planner/id6824600264';
-/** Flip when the App Store listing goes live; until then "Get the app" scrolls to the demo. */
+/** Flip when the App Store listing goes live; until then app links lead to the beta waitlist. */
 export const APP_STORE_LIVE = false;
 export const SUPPORT_EMAIL = 'hello@semli.app';
 
@@ -17,7 +17,7 @@ export const KEYWORDS = ['student planner', 'daily planner for college students'
 
 export const TAGLINE = 'The daily planner for college students.';
 export const DESCRIPTION =
-  'Drop in a syllabus, a work schedule, or a message, and Semli tells you what matters today.';
+  'Turn syllabi, work schedules, and messages into one plan for your classes, shifts, and deadlines. See what matters today with Semli.';
 
 /**
  * Semli Plus. Semester uses the store's six-month term. Student pricing is on the honor system:

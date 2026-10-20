@@ -36,8 +36,8 @@ export function SiteFooter() {
       <div className="foot-grid">
         <div className="foot-brand">
           <Wordmark width={76} />
-          <p>Built for working students first.</p>
-          <p className="foot-note">Nothing you paste on this site is stored. It is only used to show you the result.</p>
+          <p>A little less juggling between work and school.</p>
+          <p className="foot-note">Try a schedule here. Keep your plan in the iPhone app.</p>
         </div>
         {COLUMNS.map((col) => (
           <div key={col.title} className="foot-col">
@@ -54,7 +54,7 @@ export function SiteFooter() {
       </div>
       <div className="foot-base">
         <span>© 2026 Semli</span>
-        <span>iPhone and web. No Android for now.</span>
+        <span>Built for iPhone. Try it on the web.</span>
         <SoundToggle />
       </div>
     </footer>
