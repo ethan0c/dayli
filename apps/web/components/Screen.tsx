@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import type { ShotName } from './Shot';
+import { SCREENS, type ShotName } from './screens';
 
 /** The capture's size on disk (public/screens, see its README). */
 const SHOT = { width: 660, height: 1434 };
@@ -16,10 +16,9 @@ export function Screen({ name, width = 320, ratio = 660 / 900, label, priority, 
   return (
     <div className={`screen ${className ?? ''}`.trim()} role="img" aria-label={label} style={{ width, maxWidth: '100%', aspectRatio: `${ratio}` }}>
       <Image
-        src={`/screens/${name}.png`}
+        src={SCREENS[name]}
         alt=""
-        width={SHOT.width}
-        height={SHOT.height}
+        placeholder="blur"
         priority={priority}
         sizes={`${width}px`}
         style={{ display: 'block', width: '100%', height: 'auto', marginTop: `${(-STATUS_BAR / SHOT.width) * 100}%` }}

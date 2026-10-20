@@ -27,7 +27,7 @@ export function PlanCards() {
   return (
     <section className="plans" aria-label="Choose between Semli Free and Plus">
       <div className="plan-grid">
-        <article className="plan" aria-labelledby="free-title">
+        <article className="plan" aria-labelledby="free-title" data-reveal>
           <header className="plan-heading">
             <p className="plan-label">Semli</p>
             <h2 id="free-title">Free</h2>
@@ -41,7 +41,7 @@ export function PlanCards() {
           </div>
         </article>
 
-        <article className="plan featured" data-semli-theme="dark" aria-labelledby="plus-title">
+        <article className="plan featured" data-semli-theme="dark" aria-labelledby="plus-title" data-reveal style={{ '--i': 1 } as React.CSSProperties}>
           <div className="paywall-photo" aria-hidden="true">
             <Image src="/photos/plus-fireworks.jpg" alt="" fill sizes="(max-width: 480px) 100vw, 440px" quality={85} />
           </div>

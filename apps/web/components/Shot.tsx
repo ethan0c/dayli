@@ -1,10 +1,8 @@
 import Image from 'next/image';
 import { PhoneFrame } from './PhoneFrame';
+import { SCREENS, type ShotName } from './screens';
 
-export type ShotName = 'today' | 'add' | 'review' | 'item' | 'plan' | 'today-mon-hours' | 'review-update' | 'school' | 'paywall';
-
-/** The capture's size on disk (public/screens, see its README). */
-const SHOT = { width: 660, height: 1434 };
+export type { ShotName };
 
 /**
  * A real screenshot of the app inside the iPhone frame. The capture fills the
@@ -17,10 +15,9 @@ export function Shot({ name, width = 300, label, priority, className }: { name: 
   return (
     <PhoneFrame width={width} label={label} priority={priority} className={className}>
       <Image
-        src={`/screens/${name}.png`}
+        src={SCREENS[name]}
         alt=""
-        width={SHOT.width}
-        height={SHOT.height}
+        placeholder="blur"
         priority={priority}
         sizes={`${screenPx}px`}
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}

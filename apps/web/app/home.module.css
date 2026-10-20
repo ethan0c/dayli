@@ -12,6 +12,57 @@
   --inset: 8px;
 }
 
+/* The hero arrives in order: photo, then each line of copy one stagger apart, then the phone
+   rising from the card edge. All on the tokens; reduced motion collapses it to a fade. */
+@keyframes heroRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes heroPhone {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes heroPhotoIn {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .heroPhoto {
+    animation: heroPhotoIn calc(var(--dur-slow) * 2) var(--ease) both;
+  }
+  .heroCopy > * {
+    animation: heroRise var(--dur-slow) var(--ease) both;
+    animation-delay: calc(var(--dur-base) + var(--i, 0) * var(--stagger) * 2);
+  }
+  .heroCopy > :nth-child(1) { --i: 0; }
+  .heroCopy > :nth-child(2) { --i: 1; }
+  .heroCopy > :nth-child(3) { --i: 2; }
+  .heroCopy > :nth-child(4) { --i: 3; }
+  .heroCopy > :nth-child(5) { --i: 4; }
+  .heroShot {
+    animation: heroPhone calc(var(--dur-slow) * 1.5) var(--ease) both;
+    animation-delay: calc(var(--dur-base) + 5 * var(--stagger) * 2);
+  }
+}
+
 /* Hero: a card under the floating header. Golden light from the park photo behind centered
    copy, fading down into grey so the real Today screen below sits on solid ground. */
 .hero {

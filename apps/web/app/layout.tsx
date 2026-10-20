@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Newsreader } from 'next/font/google';
+import { RevealObserver } from '@/components/Reveal';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { DESCRIPTION, KEYWORDS, SITE_URL, SUPPORT_EMAIL, TAGLINE } from '@/lib/site';
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       </head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
+        <RevealObserver />
         <div className="wrap">
           <SiteHeader />
           {children}

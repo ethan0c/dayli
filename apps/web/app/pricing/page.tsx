@@ -83,7 +83,7 @@ export default function PricingPage() {
 
       <PlanCards />
 
-      <section className="cmp" aria-label="Free versus Plus">
+      <section className="cmp" aria-label="Free versus Plus" data-reveal>
         <h2>Free and Plus, compared</h2>
         <table>
           <thead>
@@ -109,7 +109,7 @@ export default function PricingPage() {
         </table>
       </section>
 
-      <section className="faq" aria-label="Pricing questions">
+      <section className="faq" aria-label="Pricing questions" data-reveal>
         <h2>Questions</h2>
         <div className="faq-list">
           {FAQS.map((f) => (
