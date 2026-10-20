@@ -10,6 +10,7 @@ Robinhood's 2024 identity is the reference: neutrals first, one accent used spar
 - Color only when it means something: terracotta is behind or in conflict, green is ahead, amber is "Semli needs something from you".
 - Pills act, rectangles hold. Every action is fully round; rows, cards, fields and composers keep corners.
 - Planner screens use plain rows, with no decorative cards or icon tiles. Photography belongs on moment days and showcase pages; the Plus welcome and guide can use small accent icon badges.
+- Marketing surfaces (the site, the paywall, the App Store screenshots, the header and search card, the emails) may be more playful than planner screens: a site photo under a scrim, soft lavender paper, one accent word per headline, always bold and large enough to read over the background. The in-app rules above still hold on Today, Plan, School and every row. Decided Oct 20, 2026.
 
 ## Brand
 - Mark: two dots (big = today, small accent = next), ratio 240 : 102 on a fixed diagonal. `design/icon-b-dots.svg`.
@@ -27,7 +28,7 @@ Meaning: filled terracotta pill for due today / overdue; terracotta text on a gr
 ## Type
 Geist carries product text: normal / Regular 400 for all large headings, the one big number, section titles and text; Medium 500 for pills and the primary label; and SemiBold 600 for emphasis. All display tokens share `largeHeadingWeight` in the tokens package; large headings use these tokens rather than local font-family or bold overrides. Onboarding follows this same normal-weight rule. The separate outlined wordmark uses Onest SemiBold. Tabular numerals wherever a number can change. Sentence case always.
 
-Newsreader Regular is the marketing voice, decided Oct 20, 2026. It appears only through `displaySerif` (34 / 40) on lines that speak to the student: the paywall tagline, the Plus welcome, the auth welcome and the two dark onboarding showcases. On the site it is the `.serif` class on the hero, pricing and closing headlines. It never carries a number, a row, a form heading, a question step or a section title; if every heading were serif, none would be special.
+Newsreader Regular is the marketing voice, decided Oct 20, 2026. It appears only through `displaySerif` (34 / 40) on lines that speak to the student: the paywall tagline, the Plus welcome, the auth welcome and the two dark onboarding showcases. On the site it is the `.serif` class on the hero, pricing and closing headlines. It was tried on the App Store captions on Oct 20, 2026 and rejected; store captions are Geist SemiBold with one lavender accent word (`design/render-screenshots.py`). It never carries a number, a row, a form heading, a question step or a section title; if every heading were serif, none would be special.
 
 | Token | Size / line | Weight | Use |
 |---|---|---|---|
