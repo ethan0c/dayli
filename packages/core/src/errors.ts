@@ -15,8 +15,8 @@ export function redactDiagnosticText(text: string): string {
 export function errorDiagnostic(error: unknown) {
   const record = error && typeof error === 'object' ? error as Record<string, unknown> : {};
   const name = typeof record.name === 'string' && /^[\w.]{1,80}$/.test(record.name) ? record.name : 'Error';
-  const code = typeof record.code === 'string' && /^(?:[A-Za-z][\w.-]{0,79}|\d{1,3})$/.test(record.code) ? record.code
-    : typeof record.code === 'number' && Math.abs(record.code) < 1000 ? String(record.code) : undefined;
+  const code = typeof record.code === 'string' && /^(?:[A-Za-z][\w.-]{0,79}|\d{1,5})$/.test(record.code) ? record.code
+    : typeof record.code === 'number' && Math.abs(record.code) < 100000 ? String(record.code) : undefined;
   const status = typeof record.status === 'number' ? record.status : typeof record.statusCode === 'number' ? record.statusCode : undefined;
   const rawMessage = typeof record.message === 'string' ? record.message : typeof error === 'string' ? error : 'No error message provided';
   const position = rawMessage.match(/(?:position \d+|line \d+ column \d+)/)?.[0];

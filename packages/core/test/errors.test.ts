@@ -23,5 +23,6 @@ describe('safe error diagnostics', () => {
     const error: Record<string, unknown> = { code: '123456', statusCode: 503, message: 'Service unavailable' };
     error.cause = error;
     expect(errorDiagnostic(error)).toMatchObject({ code: undefined, status: 503, message: 'Service unavailable' });
+    expect(errorDiagnostic({ code: '42883', message: 'function does not exist' }).code).toBe('42883');
   });
 });
