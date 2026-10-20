@@ -8,7 +8,7 @@ import { useStore } from '../store';
 export function usePlusAccess() {
   const { refreshCustomerInfo, presentPaywall } = usePurchases();
 
-  async function requirePlus(reason: 'quota' | 'schedule_update') {
+  async function requirePlus(reason: 'quota' | 'schedule_update' | 'canvas') {
     const info = await refreshCustomerInfo();
     if (hasSemliPro(info)) return true;
     track('paywall_shown', { reason });

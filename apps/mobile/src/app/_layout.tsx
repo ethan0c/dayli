@@ -9,6 +9,7 @@ import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
 
 import { syncRingingAlarms } from '@/lib/alarms';
+import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { devCommand } from '@/lib/dev';
 import { sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
@@ -87,6 +88,7 @@ function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <PurchasesProvider>
+      <CanvasAutoSync />
       <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
         <Stack
           screenOptions={{

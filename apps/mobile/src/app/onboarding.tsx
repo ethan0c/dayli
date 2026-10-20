@@ -26,7 +26,9 @@ import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/maj
 import { requestNotifications, syncReminders } from "@/lib/notifications";
 import { usePlusAccess } from "@/lib/plus-access";
 import { purchaseErrorMessage } from "@/lib/revenuecat";
-import { useStore } from "@/store";
+import { syncCanvas } from "@/lib/canvas-sync";
+import { normalizeFeedUrl, CANVAS_MESSAGES } from "@/lib/canvas";
+import { useStore, type Lms } from "@/store";
 import { palettes } from "@dayli/tokens";
 
 import { SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
@@ -36,8 +38,20 @@ import { SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
  * three one-tap questions → the demo → your own import → the review sheet (the aha)
  * → reminders priming → the paywall after value → Today.
  */
-const STEPS = ["role", "major", "week", "demo", "own", "heads-up", "plus"] as const;
+const STEPS = ["role", "major", "week", "lms", "demo", "own", "canvas", "heads-up", "plus"] as const;
 type Step = (typeof STEPS)[number];
+/** The progress bar: Canvas connect takes the own-import slot, so both paths fill the same bars. */
+const BARS = STEPS.filter((s) => s !== "canvas");
+
+/** Only Canvas syncs today; the other answers tell us which feed to support next. */
+const PLATFORMS: { id: Lms; label: string; hint?: string }[] = [
+  { id: "canvas", label: "Canvas", hint: "Due dates sync on their own" },
+  { id: "blackboard", label: "Blackboard" },
+  { id: "brightspace", label: "Brightspace (D2L)" },
+  { id: "moodle", label: "Moodle" },
+  { id: "classroom", label: "Google Classroom" },
+  { id: "other", label: "Something else, or not sure" },
+];
 
 type Picked = { input: Parameters<typeof requestExtraction>[1]["input"]; source: string } | null;
 
@@ -78,6 +92,7 @@ export default function OnboardingScreen() {
   const [role, setRole] = useState<Role>(settings.isStudent ? "both" : "working");
   const [major, setMajor] = useState<string | null>(settings.major);
   const [kinds, setKinds] = useState<string[]>(settings.weekKinds);
+  const [lms, setLms] = useState<Lms | null>(settings.lms);
   const [usedSample, setUsedSample] = useState(false);
   const student = role !== "working";
   const profile = profileFor(major, student);
@@ -101,7 +116,7 @@ export default function OnboardingScreen() {
   const [seenImportDone, setSeenImportDone] = useState(importDone);
   if (importDone !== seenImportDone) {
     setSeenImportDone(importDone);
-    if (importDone && step === "own") setStep("heads-up");
+    if (importDone && (step === "own" || step === "canvas")) setStep("heads-up");
   }
 
   const saveProfile = () =>
@@ -115,7 +130,7 @@ export default function OnboardingScreen() {
     router.replace("/");
   };
 
-  const progress = STEPS.indexOf(step);
+  const progress = BARS.indexOf(step === "canvas" ? "own" : step);
   // Watch it work and the heads-up are showcase pages: dark, ready for a full-bleed photo.
   const showcase = step === "demo" || step === "heads-up" || step === "plus";
   const bg = showcase ? palettes.dark.canvas : c.canvas;
@@ -138,7 +153,7 @@ export default function OnboardingScreen() {
           </Animated.View>
         ) : null}
         <View style={styles.progress}>
-          {STEPS.map((s, i) => (
+          {BARS.map((s, i) => (
             <Segment key={s} on={i <= progress} fill={barOn} track={barOff} />
           ))}
         </View>
@@ -191,11 +206,30 @@ export default function OnboardingScreen() {
           }}
           onNext={() => {
             saveProfile();
-            go("demo");
+            go(student ? "lms" : "demo");
           }}
         />
       )}
-      {step === "demo" && <DemoStep key={profile.id} profile={profile} onNext={() => go("own")} />}
+      {step === "lms" && (
+        <OneTapStep title="Where do your assignments live?" subtitle="If it’s Canvas, Semli can keep your due dates in sync.">
+          {PLATFORMS.map((p) => (
+            <Choice
+              key={p.id}
+              label={p.label}
+              hint={p.hint}
+              on={lms === p.id}
+              onPress={() => {
+                setLms(p.id);
+                setSettings({ lms: p.id });
+                track("onboarding_step", { step: "lms", lms: p.id });
+                go("demo");
+              }}
+            />
+          ))}
+        </OneTapStep>
+      )}
+      {step === "demo" && <DemoStep key={profile.id} profile={profile} onNext={() => go(student && lms === "canvas" ? "canvas" : "own")} />}
+      {step === "canvas" && <CanvasStep onConnected={() => go("heads-up")} onInstead={() => go("own")} />}
       {step === "own" && (
         <OwnStep
           onSample={() => {
@@ -536,6 +570,95 @@ function OwnStep({ onSample }: { onSample: () => void }) {
       <View style={[styles.footer, { alignItems: "center" }]}>
         <Press haptic="select" accessibilityRole="button" disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center" }}>
           <T token="subhead" color={c.inkSecondary}>Explore my preview first</T>
+        </Press>
+      </View>
+    </ScrollView>
+  );
+}
+
+/* ---------- Canvas: the feed link is their first real import ---------- */
+
+function CanvasStep({ onConnected, onInstead }: { onConnected: () => void; onInstead: () => void }) {
+  const { c } = useTheme();
+  const [link, setLink] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [added, setAdded] = useState<number | null>(null);
+
+  const connect = async () => {
+    const url = normalizeFeedUrl(link);
+    if (!url) {
+      feedback("error");
+      setError(CANVAS_MESSAGES.link);
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    const res = await syncCanvas(url);
+    setBusy(false);
+    if (!res.ok) {
+      feedback("error");
+      setError(res.error);
+      track("onboarding_step", { step: "canvas-failed" });
+      return;
+    }
+    feedback("success");
+    track("onboarding_step", { step: "canvas-connected", items: res.total });
+    setAdded(res.total);
+  };
+
+  if (added !== null) {
+    return (
+      <View style={styles.page}>
+        <Animated.View entering={enter.rise} style={styles.titleBlock}>
+          <T token="callout" color={c.inkSecondary}>From Canvas</T>
+          <T token="displayXl" tabular>{`${added} ${added === 1 ? "thing" : "things"}`}</T>
+          <T token="callout" color={c.inkSecondary}>
+            {added > 0 ? "Assignments and due dates are on your calendar. When a professor moves one, Semli moves it too." : "Canvas has nothing upcoming yet. New assignments will show up as your professors post them."}
+          </T>
+        </Animated.View>
+        <View style={styles.footer}>
+          <Button label="Next" onPress={onConnected} />
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <View style={styles.titleBlock}>
+        <T style={styles.h1}>Connect Canvas.</T>
+        <T token="callout" color={c.inkSecondary}>Paste your calendar feed link once. Semli only reads it, and nothing you do here changes Canvas.</T>
+      </View>
+      <View>
+        {["Open Canvas in a browser. A laptop is easiest.", "Go to Calendar, then Calendar feed at the bottom of the sidebar.", "Copy the link and paste it below."].map((line, i) => (
+          <View key={line} style={[styles.choice, { minHeight: 52, borderBottomColor: c.line }]}>
+            <T token="headline" tabular style={{ width: 18 }}>{String(i + 1)}</T>
+            <T token="body" style={{ flex: 1 }}>{line}</T>
+          </View>
+        ))}
+      </View>
+      <TextInput
+        value={link}
+        onChangeText={(v) => { setLink(v); setError(null); }}
+        placeholder="https://…/feeds/calendars/…"
+        placeholderTextColor={c.inkTertiary}
+        autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType="url"
+        editable={!busy}
+        style={[styles.input, textStyle("body", c.inkPrimary), { backgroundColor: c.row }]}
+      />
+      {error ? (
+        <Animated.View entering={enter.drop} exiting={exit.fade} accessibilityRole="alert" style={styles.status}>
+          <Icon name="alert" size={16} color={c.conflict} />
+          <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{error}</T>
+        </Animated.View>
+      ) : null}
+      <View style={[styles.footer, { alignItems: "center" }]}>
+        <Button label={busy ? "Reading Canvas…" : "Connect Canvas"} disabled={busy || !link.trim()} onPress={() => void connect()} />
+        <Press haptic="select" accessibilityRole="button" disabled={busy} onPress={onInstead} style={{ minHeight: 44, justifyContent: "center" }}>
+          <T token="subhead" color={c.inkSecondary}>Use a screenshot or syllabus instead</T>
         </Press>
       </View>
     </ScrollView>

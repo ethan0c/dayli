@@ -84,6 +84,8 @@ export const Item = z.object({
   timeFlexibility: z.enum(['fixed', 'flexible']).optional(),
   /** Chosen by the user, never inferred from an imported title. */
   urgent: z.boolean().optional(),
+  /** A synced source's own id ("canvas:event-assignment-123"), so a resync updates instead of duplicating. */
+  externalId: z.string().nullable().optional(),
   notes: z.string().nullable(),
   createdAt: z.string(),
 });

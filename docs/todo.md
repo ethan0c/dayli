@@ -92,7 +92,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 - Schedule sharing direction: a named, private read-only link that friends or parents can open in a browser without installing Semli. Show a useful message preview (owner and date range); allow hiding titles or sharing school/work only, and let the owner revoke access. A live view should show when it last updated. Image/PDF export can be a fallback; links are not implemented yet.
 - Streaming "Found so far" while reading (Capture board).
 - Keeping the real screenshot for the import screen (it shows the sample image).
-- Canvas sync, iCloud backup, the share extension.
+- iCloud backup, the share extension.
 
 **Auth frontend and sharing**
 - `/auth` is the new-install welcome using the original Onest wordmark and welcome copy, with Continue with Google, Sign up with email, Log in and Continue as a guest. Guest continues to the role question in `/onboarding`; existing onboarded planners still open their tabs normally. You → Log in or sign up opens the same flow.
@@ -128,6 +128,14 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 **Verify on a device**
 - The `search` role tab, swipe actions under the gesture root view, the glass circles, the share sheet for export and .ics, the 15-week series default in a real syllabus.
+
+**Canvas sync (no backend)**
+- Built Oct 19, 2026 on the Canvas calendar feed link (`lib/canvas.ts`, `lib/canvas-sync.ts`, You → Canvas, a row on Add). Matched by Canvas UID (`Item.externalId`); moved dates update, done stays done, upcoming items that leave the feed are removed, an empty or failed feed changes nothing. Each sync is one undoable batch.
+- Onboarding asks students where assignments live (Canvas, Blackboard, Brightspace, Moodle, Google Classroom, other; stored as `settings.lms`). Canvas students connect in place of the own-import step; the fallback is the screenshot/syllabus import.
+- The first sync is free (the onboarding value moment); auto-sync and Sync now need `semli_pro`.
+- [ ] Connect a real student's feed on a device: UTC vs TZID times, all-day assignments, course matching against an imported syllabus, a reset feed link.
+- [ ] Update the pricing and SEO pages once verified ("coming soon" today).
+- [ ] Blackboard, Brightspace and Moodle also publish iCal feeds; add them in the order the `lms` answers say.
 
 **Urgent items and ringing alarms**
 - Events and to-dos have an explicit Urgent switch in Create and item details, with an Urgent label in lists and the hour view. Imports never infer urgency. Existing saved items remain compatible.

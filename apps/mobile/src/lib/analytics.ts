@@ -25,7 +25,9 @@ export type AnalyticsEvent =
   | 'purchase_restored'
   | 'reminders_permission'
   | 'reminders_changed'
-  | 'briefing_changed';
+  | 'briefing_changed'
+  | 'canvas_synced'
+  | 'canvas_sync_failed';
 
 export function track(event: AnalyticsEvent, properties: Record<string, string | number | boolean | null> = {}): void {
   if (client) {

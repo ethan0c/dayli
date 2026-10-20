@@ -71,6 +71,19 @@ interface Settings {
   onboardingImportDone: boolean;
   /** Active free trial, for the day-5 reminder. */
   trial: { endsAt: string; label: string } | null;
+  /** Where assignments live, asked in onboarding. Only Canvas syncs today; the rest is demand data. */
+  lms: Lms | null;
+  /** Canvas calendar feed sync. The link is the only credential; it stays on this phone. */
+  canvas: CanvasSettings;
+}
+
+export type Lms = 'canvas' | 'blackboard' | 'brightspace' | 'moodle' | 'classroom' | 'other';
+
+export interface CanvasSettings {
+  feedUrl: string | null;
+  lastSyncedAt: string | null;
+  /** The last failure, shown on the Canvas screen; cleared by the next good sync. */
+  lastError: string | null;
 }
 
 /** AI imports used this calendar month (free tier allows a few). */
@@ -117,7 +130,7 @@ interface State {
   /** Quit a job: upcoming shifts only, or everything including past shifts and the schedules. */
   removeEmployer: (employer: string, scope: 'upcoming' | 'all', today: string) => void;
   addItem: (item: Omit<Item, 'id' | 'createdAt' | 'batchId'>) => string;
-  applyPlan: (plan: CommitPlan, label: string, extra?: { source?: string; course?: Course }) => string;
+  applyPlan: (plan: CommitPlan, label: string, extra?: { source?: string; course?: Course; courses?: Course[] }) => string;
   undoBatch: (id: string) => void;
 
   clearAll: () => void;
@@ -140,7 +153,7 @@ export const useStore = create<State>()(
       suggestionDismissals: { date: '', ids: [] },
       captureDraft: '',
       selectedPlanDate: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null },
+      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null } },
       usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),
@@ -287,9 +300,10 @@ export const useStore = create<State>()(
               },
             ]
           : get().schedules;
-        const courses = extra?.course
-          ? [...get().courses, { ...extra.course, batchId: b.id, color: COURSE_TINTS[get().courses.length % COURSE_TINTS.length] }]
-          : get().courses;
+        const courses = [...get().courses];
+        for (const k of [...(extra?.course ? [extra.course] : []), ...(extra?.courses ?? [])]) {
+          courses.push({ ...k, batchId: b.id, color: COURSE_TINTS[courses.length % COURSE_TINTS.length] });
+        }
         b.source = source;
         set({ items, schedules, courses, batches: [b, ...get().batches], pending: null });
         return b.id;

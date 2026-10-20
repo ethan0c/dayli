@@ -57,6 +57,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 
         <Group title="Preferences">
           <Row label="Reminders" value={settings.reminders.enabled ? (settings.reminders.briefing ? 'On, with briefing' : 'On') : 'Off'} onPress={() => router.push('/settings/reminders')} />
+          <Row label="Canvas" value={settings.canvas.feedUrl ? (settings.canvas.lastError ? 'Needs a look' : 'Syncing') : 'Off'} onPress={() => router.push('/settings/canvas')} />
           <Row label="Appearance" value={APPEARANCE_LABEL[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
           <ToggleRow label="Sounds" value={settings.sounds} onChange={(sounds) => { setSettings({ sounds }); feedback('select'); }} />
           <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />

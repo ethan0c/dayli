@@ -1,0 +1,146 @@
+import { diffDays, formatTime, localParts, monthDay, relativeDay } from '@dayli/core';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
+
+import { ListRow } from '@/components/Controls';
+import { Icon } from '@/components/Icon';
+import { FieldRow, Group, Row } from '@/components/Settings';
+import { Button } from '@/components/Sheet';
+import { T } from '@/components/Text';
+import { CANVAS_MESSAGES, normalizeFeedUrl } from '@/lib/canvas';
+import { syncCanvas } from '@/lib/canvas-sync';
+import { feedback } from '@/lib/feedback';
+import { enter, exit, layout } from '@/lib/motion';
+import { useNow } from '@/lib/now';
+import { usePlusAccess } from '@/lib/plus-access';
+import { purchaseErrorMessage } from '@/lib/revenuecat';
+import { usePurchases } from '@/providers/PurchasesProvider';
+import { useItemList, useStore } from '@/store';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
+
+/**
+ * Canvas through its calendar feed link. The fallback for a school that hides the feed is the
+ * import that already exists: a screenshot of the Canvas to-do list, or the syllabus PDF.
+ */
+export default function CanvasScreen() {
+  const { c } = useTheme();
+  const now = useNow();
+  const canvas = useStore((s) => s.settings.canvas);
+  const setSettings = useStore((s) => s.setSettings);
+  const { requirePlus } = usePlusAccess();
+  const { isPro } = usePurchases();
+  const synced = useItemList().filter((i) => i.externalId?.startsWith('canvas:')).length;
+  const [link, setLink] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const connected = !!canvas.feedUrl;
+
+  const connect = async () => {
+    const url = normalizeFeedUrl(link);
+    if (!url) { feedback('error'); setError(CANVAS_MESSAGES.link); return; }
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await syncCanvas(url);
+      if (!res.ok) { feedback('error'); setError(res.error); return; }
+      feedback('ready');
+      setLink('');
+    } catch (failure) {
+      setError(purchaseErrorMessage(failure));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // The first sync is free; later ones are Plus.
+  const syncNow = async () => {
+    setBusy(true);
+    try {
+      if (!(await requirePlus('canvas'))) return;
+      await syncCanvas();
+    } catch (failure) {
+      useStore.getState().setSettings({ canvas: { ...useStore.getState().settings.canvas, lastError: purchaseErrorMessage(failure) } });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const disconnect = () => {
+    feedback('tap');
+    setSettings({ canvas: { feedUrl: null, lastSyncedAt: null, lastError: null } });
+    useStore.getState().showToast('Canvas disconnected. Your Canvas items stay in your plan.');
+  };
+
+  const syncedLabel = (() => {
+    if (busy) return 'Syncing…';
+    if (!canvas.lastSyncedAt) return 'Not synced yet';
+    const at = localParts(new Date(canvas.lastSyncedAt));
+    const day = Math.abs(diffDays(at.date, now.date)) <= 1 ? relativeDay(now.date, at.date) : monthDay(at.date);
+    return `Synced ${day.toLowerCase()}, ${formatTime(at.time)}`;
+  })();
+
+  const fallback = (
+    <Group title="Can’t find the feed?" footer="Some schools hide Calendar feed. These work everywhere and count as an import.">
+      <ListRow leading={<Icon name="image" size={20} color={c.inkPrimary} />} title="Screenshot your Canvas to-do list"
+        sub="Semli reads the due dates from it" onPress={() => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } })} />
+      <ListRow leading={<Icon name="file" size={20} color={c.inkPrimary} />} title="Upload the syllabus PDF"
+        sub="The whole term from the file in Canvas" last onPress={() => router.navigate({ pathname: '/add', params: { source: 'file', at: String(Date.now()) } })} />
+    </Group>
+  );
+
+  return (
+    <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="automatic">
+      {connected ? (
+        <Animated.View key="on" layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.stack}>
+          <View style={styles.top}>
+            <T token="callout" color={c.inkSecondary}>{syncedLabel}</T>
+            <T token="displayXl" tabular>{`${synced} from Canvas`}</T>
+            <T token="body" color={c.inkSecondary} style={styles.line}>{isPro
+              ? 'When a professor moves a due date, it moves here too. Done stays done.'
+              : 'Your Canvas due dates are in. Keeping them in sync when professors change them is part of Semli Plus.'}</T>
+          </View>
+          {canvas.lastError ? (
+            <View accessibilityRole="alert" style={styles.status}>
+              <Icon name="alert" size={16} color={c.conflict} />
+              <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{canvas.lastError}</T>
+            </View>
+          ) : null}
+          <Group footer="Disconnecting keeps everything already in your plan.">
+            <Row label={isPro ? 'Sync now' : 'Keep it in sync with Plus'} onPress={busy ? undefined : () => void syncNow()} />
+            <Row label="Disconnect" destructive onPress={disconnect} last />
+          </Group>
+          {canvas.lastError ? fallback : null}
+        </Animated.View>
+      ) : (
+        <Animated.View key="off" layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.stack}>
+          <View style={styles.top}>
+            <T token="display" accessibilityRole="header">Canvas, kept in sync.</T>
+            <T token="body" color={c.inkSecondary} style={styles.line}>Assignments and due dates come in on their own, and move when your professor changes them.</T>
+          </View>
+          <Group title="Paste your calendar feed link"
+            footer="On the Canvas website, open Calendar, choose Calendar feed at the bottom of the sidebar, and copy the link. It only lets Semli read your calendar.">
+            <FieldRow label="Feed link" value={link} onChange={(v) => { setLink(v); setError(null); }} placeholder="https://…/feeds/calendars/…" last />
+          </Group>
+          {error ? (
+            <Animated.View entering={enter.drop} exiting={exit.fade} accessibilityRole="alert" style={styles.status}>
+              <Icon name="alert" size={16} color={c.conflict} />
+              <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{error}</T>
+            </Animated.View>
+          ) : null}
+          <Button label={busy ? 'Connecting…' : 'Connect Canvas'} disabled={busy || !link.trim()} onPress={() => void connect()} />
+          {fallback}
+        </Animated.View>
+      )}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 48 },
+  stack: { gap: 22 },
+  top: { gap: 2 },
+  line: { paddingTop: 6 },
+  status: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
+});
