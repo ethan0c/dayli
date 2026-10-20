@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { CommitPlan } from '@dayli/core';
 import type { Course, Extraction, Item, ScheduleVersion } from '@dayli/schema';
 import { COURSE_TINTS, type TintName } from '@dayli/tokens';
@@ -9,6 +8,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { DEFAULT_API_URL } from '@/lib/api';
 import { realRecords } from '@/lib/planner-preview';
 import { DEFAULT_REMINDERS, type ReminderPrefs } from '@/lib/reminder-plan';
+import { plannerLoadFailed, plannerStorage } from '@/lib/storage';
 
 export interface Change {
   op: 'create' | 'update' | 'delete';
@@ -332,13 +332,16 @@ export const useStore = create<State>()(
     }),
     {
       name: 'semli',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => plannerStorage),
       partialize: (s) => ({ items: s.items, courses: s.courses, schedules: s.schedules, batches: s.batches, settings: s.settings, usage: s.usage, taskWorkDates: s.taskWorkDates, suggestionDismissals: s.suggestionDismissals }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<State>;
         return { ...current, ...p, settings: { ...current.settings, ...(p.settings ?? {}) } };
       },
-      onRehydrateStorage: () => (state) => state?.setHydrated(),
+      onRehydrateStorage: () => (state, error) => {
+        if (error) plannerLoadFailed(error);
+        else state?.setHydrated();
+      },
     },
   ),
 );

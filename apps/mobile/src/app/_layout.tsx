@@ -9,8 +9,10 @@ import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
 
 import { syncRingingAlarms } from '@/lib/alarms';
-import { AppErrorBoundary } from '@/components/AppErrorBoundary';
+import { AppErrorBoundary, RecoveryScreen } from '@/components/AppErrorBoundary';
+import { StorageWarning } from '@/components/StorageWarning';
 import { reportError } from '@/lib/errors';
+import { useStorageStatus } from '@/lib/storage';
 import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
 import { devCommand } from '@/lib/dev';
@@ -40,6 +42,7 @@ function RootLayout() {
     'Geist-SemiBold': require('../../assets/fonts/Geist-SemiBold.ttf'),
   });
   const hydrated = useStore((s) => s.hydrated);
+  const loadFailed = useStorageStatus((s) => s.loadFailed);
   const onboarded = useStore((s) => s.settings.onboarded);
   const appearance = useStore((s) => s.settings.appearance);
   const { c, dark } = useTheme();
@@ -89,6 +92,7 @@ function RootLayout() {
     Appearance.setColorScheme(appearance === 'system' ? 'unspecified' : appearance);
   }, [appearance]);
 
+  if (loadFailed) return <RecoveryScreen title="We couldn’t open your saved plan." message="Please try again. If this keeps happening, close and reopen Semli. Your saved data hasn’t been replaced." onRetry={() => useStore.persist.rehydrate()} />;
   if (!ready) return null;
 
   const theme = dark ? DarkTheme : DefaultTheme;
@@ -98,6 +102,7 @@ function RootLayout() {
       <CanvasAutoSync />
       <CloudBackup />
       <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
+        <StorageWarning />
         <Stack
           screenOptions={{
             // Sheet screens (review, create, item) declare headerShown below; a full-screen cover
