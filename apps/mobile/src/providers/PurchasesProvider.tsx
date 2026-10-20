@@ -5,7 +5,7 @@ import Purchases, { type CustomerInfo, type PurchasesOffering, type PurchasesOff
 import RevenueCatUI from 'react-native-purchases-ui';
 
 import { customerCenterEnabled, hasSemliPro, initializePurchases, offeringFor, purchaseErrorMessage, purchasesUnavailableReason, SubscriptionError } from '@/lib/revenuecat';
-import { useSession } from '@/lib/supabase';
+import { accountOf, useSession } from '@/lib/supabase';
 import { useStore } from '@/store';
 import { requestPaywall } from '@/lib/paywall-request';
 import { withErrorLogging } from '@/lib/errors';
@@ -40,7 +40,8 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const operationInProgress = useRef(false);
-  const userId = useSession((st) => st.session?.user.id);
+  // Guests keep RevenueCat's own anonymous id, so a purchase made as a guest carries over on sign-up.
+  const userId = useSession((st) => accountOf(st.session)?.user.id);
 
   const updateCustomerInfo = useCallback((info: CustomerInfo) => {
     // A slower initial request must not overwrite a newer purchase/listener update.

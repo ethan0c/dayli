@@ -43,7 +43,11 @@ vi.mock('expo-linking', () => ({ createURL: (path: string) => `semli://${path}` 
 vi.mock('expo-router', () => ({ router: mocks.router }));
 vi.mock('expo-web-browser', () => mocks.browser);
 vi.mock('react-native-purchases', () => ({ default: mocks.purchases }));
-vi.mock('./supabase', () => ({ supabase: mocks.supabase, useSession: mocks.session }));
+vi.mock('./supabase', () => ({
+  supabase: mocks.supabase,
+  useSession: mocks.session,
+  accountOf: (session: { user?: { is_anonymous?: boolean } } | null) => (session && !session.user?.is_anonymous ? session : null),
+}));
 vi.mock('../store', () => ({ useStore: mocks.store }));
 
 const DEFAULTS = () => ({

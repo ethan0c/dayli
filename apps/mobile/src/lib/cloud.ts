@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { mergeSnapshot, snapshotOf, type Snapshot } from './cloud-snapshot';
 import { reportError } from './errors';
-import { supabase, useSession } from './supabase';
+import { accountOf, supabase, useSession } from './supabase';
 import { useStore } from '../store';
 
 /*
@@ -17,7 +17,7 @@ export async function restoreFromCloud(): Promise<{ restored: boolean }> {
   // Read the session directly: right after sign-in the listener may not have run yet.
   const { data: auth } = await supabase.auth.getSession();
   useSession.setState({ session: auth.session, ready: true });
-  const userId = auth.session?.user.id;
+  const userId = accountOf(auth.session)?.user.id;
   if (!userId) return { restored: false };
   const { data, error } = await supabase.from('plans').select('data').eq('user_id', userId).maybeSingle();
   if (error) throw error;
@@ -30,7 +30,7 @@ export async function restoreFromCloud(): Promise<{ restored: boolean }> {
 let lastSaved = '';
 
 export async function saveToCloud(force = false): Promise<void> {
-  const userId = useSession.getState().session?.user.id;
+  const userId = accountOf(useSession.getState().session)?.user.id;
   if (!supabase || !userId) return;
   const snapshot = snapshotOf(useStore.getState());
   const json = JSON.stringify(snapshot);
@@ -47,7 +47,7 @@ const BACKUP_FAILED = 'Couldn’t back up. We’ll try again after your next cha
 
 /** While signed in, save a few seconds after the plan changes. Failures wait for the next change. */
 export function CloudBackup() {
-  const userId = useSession((s) => s.session?.user.id);
+  const userId = useSession((s) => accountOf(s.session)?.user.id);
   useEffect(() => {
     if (!userId) return;
     lastSaved = '';

@@ -11,7 +11,7 @@ import { authErrorMessage } from '@/lib/auth';
 import { authClient } from '@/lib/auth-client';
 import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
-import { useSession } from '@/lib/supabase';
+import { accountOf, useSession } from '@/lib/supabase';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -19,7 +19,7 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
 export default function AccountScreen() {
   const { c } = useTheme();
   const now = useNow();
-  const session = useSession((s) => s.session);
+  const session = useSession((s) => accountOf(s.session));
   const cloud = useStore((s) => s.settings.cloud);
   const [deleting, setDeleting] = useState(false);
   const [busy, setBusy] = useState(false);

@@ -9,7 +9,7 @@ import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
 import { ACCOUNTS_ENABLED, SHARING_ENABLED } from '@/lib/auth';
-import { useSession } from '@/lib/supabase';
+import { accountOf, useSession } from '@/lib/supabase';
 import { feedback } from '@/lib/feedback';
 import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
 import { profileFor } from '@/lib/majors';
@@ -29,7 +29,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const { isPro, customerInfo, loading, busy, manageSubscription } = usePurchases();
   const settings = useStore((s) => s.settings);
   /** null for a guest. */
-  const email = useSession((s) => (s.session ? s.session.user.email ?? '' : null));
+  const email = useSession((s) => { const account = accountOf(s.session); return account ? account.user.email ?? '' : null; });
   const setSettings = useStore((s) => s.setSettings);
   const usage = useStore((s) => s.usage);
   const month = new Date().toISOString().slice(0, 7);

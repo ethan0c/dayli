@@ -21,6 +21,9 @@ export const supabase = URL && KEY
     })
   : null;
 
+/** A real account's session; a guest's silent anonymous session (used only for import limits) is not one. */
+export const accountOf = (session: Session | null): Session | null => (session && !session.user.is_anonymous ? session : null);
+
 /** The signed-in session, or null for a guest. `ready` once the stored session has been read. */
 export const useSession = create<{ session: Session | null; ready: boolean }>(() => ({ session: null, ready: !supabase }));
 

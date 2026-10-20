@@ -7,14 +7,14 @@ import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { authErrorMessage, validateAuthForm } from '@/lib/auth';
 import { authClient, leaveAuth } from '@/lib/auth-client';
-import { useSession } from '@/lib/supabase';
+import { accountOf, useSession } from '@/lib/supabase';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 /** After the reset code: the person is signed in, so they only choose the new password. */
 export default function ResetPasswordScreen() {
   const { c } = useTheme();
-  const signedIn = useSession((s) => !!s.session);
+  const signedIn = useSession((s) => !!accountOf(s.session));
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);

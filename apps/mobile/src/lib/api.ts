@@ -3,12 +3,12 @@ import { reportError } from './errors';
 
 export const DEFAULT_API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
-export async function requestExtraction(apiUrl: string, req: ExtractRequest): Promise<ExtractResponse> {
+export async function requestExtraction(apiUrl: string, req: ExtractRequest, headers: Record<string, string> = {}): Promise<ExtractResponse> {
   let res: Response;
   try {
     res = await fetch(`${apiUrl.replace(/\/$/, '')}/api/extract`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...headers },
       body: JSON.stringify(req),
     });
   } catch (error) {

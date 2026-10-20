@@ -12,7 +12,7 @@ import { RecentShots } from '@/components/RecentShots';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
 import { track } from '@/lib/analytics';
-import { requestExtraction } from '@/lib/api';
+import { requestImport } from '@/lib/import-auth';
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from '@/lib/capture-input';
 import { feedback } from '@/lib/feedback';
 import { reportError } from '@/lib/errors';
@@ -31,7 +31,7 @@ export function AddScreen() {
   const { c } = useTheme();
   const now = useNow();
   const params = useLocalSearchParams<{ source?: string; at?: string }>();
-  const { requireImportAccess } = usePlusAccess();
+  const { requireImportAccess, requirePlus } = usePlusAccess();
   const importing = useRef(false);
   const [text, setText] = useState(() => useStore.getState().captureDraft);
   const [busy, setBusy] = useState<string | null>(null);
@@ -58,7 +58,10 @@ export function AddScreen() {
         setError(purchaseErrorMessage(failure));
         return;
       }
-      const res = await requestExtraction(apiUrl, { input, context: extractionContext() });
+      const req = { input, context: extractionContext() };
+      let res = await requestImport(apiUrl, req);
+      // The server's count wins over this phone's (a reinstall resets the local one).
+      if (!res.ok && res.error === IMPORT_MESSAGES.quota && (await requirePlus('quota'))) res = await requestImport(apiUrl, req);
       if (!res.ok) {
         track('import_failed', { kind: input.kind });
         setError(res.error);

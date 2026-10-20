@@ -18,6 +18,8 @@ import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
 import { track } from "@/lib/analytics";
 import { requestExtraction } from "@/lib/api";
+import { requestImport } from "@/lib/import-auth";
+import { IMPORT_MESSAGES } from "@dayli/schema";
 import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/lib/capture-input";
 import { devStep } from "@/lib/dev";
 import { feedback } from "@/lib/feedback";
@@ -462,7 +464,7 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
 
 function OwnStep({ onSample }: { onSample: () => void }) {
   const { c } = useTheme();
-  const { requireImportAccess } = usePlusAccess();
+  const { requireImportAccess, requirePlus } = usePlusAccess();
   const importing = useRef(false);
   const apiUrl = useStore((s) => s.settings.apiUrl);
   const setPending = useStore((s) => s.setPending);
@@ -484,7 +486,9 @@ function OwnStep({ onSample }: { onSample: () => void }) {
         setError(purchaseErrorMessage(failure));
         return;
       }
-      const res = await requestExtraction(apiUrl, { input, context: extractionContext() });
+      const req = { input, context: extractionContext() };
+      let res = await requestImport(apiUrl, req);
+      if (!res.ok && res.error === IMPORT_MESSAGES.quota && (await requirePlus("quota"))) res = await requestImport(apiUrl, req);
       if (!res.ok) {
         track("import_failed", { kind: input.kind, where: "onboarding" });
         setError(res.error);
