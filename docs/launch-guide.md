@@ -56,7 +56,7 @@ The current, complete version is [app-store-connect.md](app-store-connect.md); t
 
 ### 1.5 TestFlight
 - **Internal testers** (up to 100 App Store Connect users, no review): you, Rico, a couple of friends. Builds appear within minutes.
-- **External testers** (up to 10,000, via a public link): the 50 beta students. The first external build goes through *Beta App Review* (usually under a day). Create a group "Beta Oct 2026", enable the public link, cap at 200, and put the link on a short page or QR.
+- **External testers:** two separate groups and invite links. "Survey" uses `https://testflight.apple.com/join/vG3RD6EJ`, capped at 60 for the 58 survey respondents; use it only in survey emails. "Beta" uses `https://testflight.apple.com/join/j15Rp5m4`, capped at 200 for public recruiting through `semli.app/beta`, posts, and QR codes. The first external build goes through *Beta App Review* and must be available to both groups before their invites can be used.
 - What to Test notes (shown in TestFlight): "Add a syllabus or a screenshot of your work schedule, then check Today. Reminders and the 7-day trial are real; sandbox purchases don't charge you."
 - TestFlight builds use the **sandbox** store: testers see a sandbox sign-in when buying. Tell them it is normal.
 

@@ -26,24 +26,24 @@ Everything else is free: TestFlight public link, waitlist on semli.app, Reddit, 
 ## 3. One-time setup, about four hours
 
 1. **Waitlist on semli.app.** Done: one field in the hero and a `#beta` section, "Get the TestFlight link". Rows land in the `waitlist` table (migration `20261020100000_waitlist.sql`; the site needs `SUPABASE_URL` and `SUPABASE_KEY`, which it already has for imports). The count is the number in every post: `select count(*) from waitlist`.
-2. **Public TestFlight link.** Group "Beta Oct 2026", public link, cap 200. `semli.app/beta` is live and goes to the waitlist until `TESTFLIGHT_URL` is set on Vercel, then to TestFlight. `?r=name` on it names the creator or ambassador; clicks go to `beta_clicks` and a signup keeps the tag, so `select ref, count(*) from waitlist group by ref` is the leaderboard.
+2. **Separate TestFlight links.** Two external groups: "Survey", `https://testflight.apple.com/join/vG3RD6EJ`, cap 60 for the 58 survey respondents, used only in survey emails; "Beta", `https://testflight.apple.com/join/j15Rp5m4`, cap 200 for public recruiting, the value of `TESTFLIGHT_URL`. The Survey group does not use any of the public Beta group's 200 spots. "Team" is the internal group. `semli.app/beta` is live and goes to the waitlist until `TESTFLIGHT_URL` is set on Vercel, then to TestFlight. `?r=name` on it names the creator or ambassador; clicks go to `beta_clicks` and a signup keeps the tag, so `select ref, count(*) from waitlist group by ref` is the leaderboard.
 3. **Eight faceless clips, made from the simulator.** Done: `design/clips/out/` holds them, 1080×1920, captions and an end card, no voice. Shifts, syllabus, update, today, plan, ask (the review's question for the shift with no time), switch (the two-minute setup, for the MyStudyLife angle) and free (the paywall's always-free line). Each fades in from black and carries a quiet lo-fi bed from `design/clips/music.py`, a placeholder: before posting, swap it for a licensed track (`compose.py --music track.mp3`) or render with `--no-music` and add a sound inside TikTok or Instagram, which their feeds reward. Re-record with `design/clips/record.sh` and re-caption with `design/clips/compose.py`; the demo runs by itself, no taps.
 4. **A brand TikTok and Instagram account**, not a personal one. Schedule all eight clips through the built-in schedulers, one a week. After this step the video channel costs zero hours until January.
 5. **Product Hunt coming-soon page.** Collects followers for the public release. Zero effort afterwards.
-6. **The founder post, written once.** "I surveyed more than 50 students; 83% had missed an assignment because it got buried, so I built a planner that reads the syllabus. Beta open, 200 spots, here is what is not built yet." Screenshot of Today. Reused across subreddits with the first paragraph adjusted.
+6. **The founder post, written once.** "I surveyed more than 50 students, and 83% said they'd missed or nearly missed an assignment because it got buried somewhere. That helped me decide what to build: a planner that takes dates from your syllabi and work schedules. I'm looking for people to try it on iPhone. There are 200 beta spots." Screenshot of Today. Use the full draft in [beta-copy.md](beta-copy.md), including its current limitations, and adjust the first paragraph for each subreddit.
 
 ## 4. Where the 50 testers come from, online
 
 In order of expected yield.
 
-0. **The 66 survey respondents.** They answered in Jan to Mar 2026, 83% said they had missed an assignment, and their emails are in the original form responses (stripped from the PDF in the repo; keep it that way). One email, from you, the week the public TestFlight link clears: "You took my survey in the spring. I built the thing. 200 beta spots, here is the link." Expect 15 to 25 installs from this alone, and they are the warmest testers you will ever have. Send it before any Reddit post.
+0. **The survey respondents.** They answered in Jan to Mar 2026, 83% said they had missed or nearly missed an assignment, and about 60 of their emails are already in the `waitlist` table (added from the form responses; the PDF in the repo stays stripped). Tag them `ref = 'survey'` and leave them out of the public waitlist count, since they didn't sign up on the site. One email, from you, the week the public TestFlight link clears: "Earlier this year, you filled out my survey about keeping track of classes and work. I've been working on an app called Semli since then, and it's ready for you to try. Here's your iPhone invite." Use the full email in [beta-copy.md](beta-copy.md). Expect 15 to 25 installs from this alone, and they are the warmest testers you will ever have. Send it before any Reddit post.
 1. **Creators (two in November).** Each video with a beta link in bio should bring 10 to 30 installs. This is the main channel, and it is the one that needs no founder face or time beyond two DMs and one payment.
 2. **Reddit founder posts**, one per subreddit, ever: r/StudentNurse, r/college, r/GetStudying, r/sideproject, r/iosapps. Post Tuesday evening, reply to every comment for 48 hours. Thirty minutes to post, an hour of replies spread over two days.
 3. **Discord.** The large study servers (Study Together, nursing student servers) have a self-promo or feedback channel. One post each, same text, with the clip attached. Read the rules first.
 4. **Competitor refugees.** MyStudyLife sits at 1.6 stars right now. Answer "what should I switch to" threads on r/college and r/StudentNurse with a real answer and one line about the beta. This is the ongoing Reddit work, 20 minutes a week.
 5. **Referral with no cash.** A tester who brings three friends gets a one-time App Store offer code for a free semester of Plus, sent after the purchase test window closes.
 
-Scarcity that is true: the TestFlight cap is 200. Say "200 beta spots" everywhere and post the count as it fills.
+The public Beta group's cap is 200. Say "200 beta spots" in public outreach and post that group's remaining spots as it fills. Survey emails use the separate Survey invite (cap 60 for 58 respondents); don't use the public group's scarcity line there.
 
 ## 5. The weekly three hours, Nov through Dec
 
@@ -61,7 +61,7 @@ The clips post themselves. If a week only has 90 minutes, do Monday and the repl
 
 The two weeks before classes are when students buy a semester plan, at every campus, not just yours. Everything in November and December is building the list for this.
 
-- Jan 5: the two January creator videos go live. One email to the waitlist: "Semester starts next week, set it up in two minutes."
+- Jan 5: the two January creator videos go live. One email to the waitlist: "Classes start next week. If you have your new syllabi or work schedule, you can add them to Semli and start planning your week."
 - Jan 5: public release and Product Hunt launch, if the purchase test passed.
 - Jan 11: flyers and stickers go up on campus, the two ambassadors start, with the semester plan as the ask.
 - Second email to the waitlist on day one of classes.

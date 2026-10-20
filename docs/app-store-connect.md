@@ -242,13 +242,13 @@ Agreements: the **Paid Applications** agreement must be signed (Business → Agr
 
 | Field | Value |
 |---|---|
-| Beta App Description | `The daily planner for college students. Drop in a syllabus or a screenshot of your work schedule and Semli reads the dates.` |
+| Beta App Description | `Keep classes, shifts, and deadlines in one place. Add a syllabus or a screenshot of your work schedule, check the dates Semli finds, and save them to your calendar.` |
 | Feedback email | `hello@semli.app` |
 | Marketing URL / Privacy Policy URL | `https://semli.app`, `https://semli.app/privacy` |
-| What to Test | `Add a syllabus or a screenshot of your work schedule, then check Today. Try Canvas (You → Canvas) if your school uses it. Reminders and the 7-day trial are real; sandbox purchases don't charge you. Log in or sign up is optional and backs up your plan.` |
+| What to Test | `Try adding one of your own syllabi or work schedules. Check the dates Semli finds before saving, then open Today to see your plan. If your school uses Canvas, try connecting it under You → Canvas. Set a reminder and see whether it arrives when you expect. You can also try Plus and restore purchases; TestFlight purchases won't charge you. You don't need an account to get started, but signing up lets you back up your plan. If a date is wrong, something breaks, or you're unsure what to do next, please send feedback through TestFlight or email hello@semli.app.` |
 | Beta App Review contact | **you** |
 | Export compliance | "No" to non-exempt encryption; `ITSAppUsesNonExemptEncryption = false` is in `app.json` |
-| Groups | Internal: you and Rico. External: "Beta Oct 2026", public link, cap 200 |
+| Groups | Internal: "Team" (you and Rico). External: "Survey", [survey invite](https://testflight.apple.com/join/vG3RD6EJ), cap 60 for 58 survey respondents; "Beta", [public beta invite](https://testflight.apple.com/join/j15Rp5m4), cap 200. Separate links and caps; `semli.app/beta` routes public outreach to Beta. |
 
 ## 8. Before you press Submit
 

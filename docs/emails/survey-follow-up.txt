@@ -1,22 +1,24 @@
+INTERNAL NOTE: These emails go to the 58 survey respondents. Use the Survey group's TestFlight link (60-person cap) below. The separate public Beta group has a 200-person cap and uses https://testflight.apple.com/join/j15Rp5m4 via semli.app/beta. The survey invite is usable once its group is accepting testers.
+
 WINNER EMAIL
 
-Subject: You won our $40 Amazon gift card giveaway
+Subject: You won the survey's $40 Amazon gift card
 
 Hi [First name],
 
-You took our student planning survey back in the spring, and I have some good news—you won the $40 Amazon gift card!
-
-Thanks for taking the time to share your experience. Your feedback helped shape Semli, the planner I’ve been building for college students.
+Thanks for filling out my student planning survey earlier this year. Your name came up in the drawing for the $40 Amazon gift card!
 
 Here’s your gift card:
 
 Claim code: XXXX-XXXXXX-XXXX
 Redeem it on Amazon: https://amazon.com/redeem
 
-Semli turns syllabi, work schedules, and messages into a plan for your week. If you’re curious, the iPhone beta opens soon with 200 spots. You can join the waitlist here:
-https://semli.app/beta?r=survey
+I've also been working on the planner I asked about in the survey. It's called Semli. You add a syllabus or work schedule, check the dates it finds, and save them to one calendar.
 
-Thanks again, and enjoy the gift card!
+If you'd like to see how it turned out, I've set up a separate iPhone testing group for everyone who answered the survey. Here's your invite for when testing opens:
+https://testflight.apple.com/join/vG3RD6EJ
+
+Thanks again for your help. Enjoy the gift card!
 
 [Your name]
 Semli · hello@semli.app
@@ -25,18 +27,18 @@ Semli · hello@semli.app
 
 EMAIL TO OTHER SURVEY RESPONDENTS
 
-Subject: Thanks for helping shape Semli
+Subject: A quick update on the student planning survey
 
 Hi [First name],
 
-A quick update since you took our student planning survey in the spring: the $40 Amazon gift card winner has been drawn, and their gift card is on its way.
+Thanks again for filling out my student planning survey earlier this year. I've picked the $40 Amazon gift card winner and sent them their code.
 
-I also wanted to share what I’ve been building with your feedback. It’s called Semli—a planner that turns syllabi, work schedules, and messages into one place to see what’s coming up.
+I also wanted to show you what I've been working on since then. It's called Semli, an iPhone planner that takes dates from your syllabi, work schedules, and messages. You check what it finds before adding anything to your calendar.
 
-The iPhone beta opens soon with 200 spots. If you’d like to try it, you can join the waitlist here:
-https://semli.app/beta?r=survey
+I've set up a separate iPhone testing group for everyone who answered the survey. If you'd like to give it a try, here's your invite for when testing opens:
+https://testflight.apple.com/join/vG3RD6EJ
 
-Thanks for helping me get it this far.
+And if there's something you were hoping it would do, feel free to reply. I'd like to hear it.
 
 [Your name]
 Semli · hello@semli.app

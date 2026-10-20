@@ -10,7 +10,8 @@ Everything the campaign needs to have ready, with where it lives. Make these onc
 |---|---|---|
 | App Store record, every field | App Store Connect, from [app-store-connect.md](app-store-connect.md) | Pasted and saved, screenshots uploaded for 6.9 and 6.3 inch |
 | Store screenshots, header, search card | `design/screenshots/out`, `6.3-inch`, `header` | Uploaded |
-| TestFlight public link, cap 200, behind `semli.app/beta?r=name` | App Store Connect, `apps/web/app/beta/route.ts` | A tap on the link from a phone installs the build and PostHog logs the `r` tag |
+| TestFlight Survey link, cap 60 for 58 respondents | [Survey invite](https://testflight.apple.com/join/vG3RD6EJ), survey emails only | The invite accepts testers and installs the build from an iPhone |
+| Separate TestFlight Beta link, cap 200, behind `semli.app/beta?r=name` | [Public Beta invite](https://testflight.apple.com/join/j15Rp5m4), `apps/web/app/beta/route.ts` | A tap on the link from a phone installs the build and PostHog logs the `r` tag |
 | Waitlist on semli.app | Live | A signup lands in the Supabase `waitlist` table with its `r` tag |
 | Eight faceless clips from the simulator | `design/clips/` | Eight MP4s, captions burned in, scheduled on the brand accounts |
 | Brand TikTok and Instagram accounts | Not personal; bio link `semli.app/beta` | Clips scheduled one a week through December |
@@ -55,7 +56,8 @@ One person runs this. The toolkit is the rating prompt in the app, App Store Con
 
 ### Oct 27 to Nov 2: the beta is reachable
 
-- [ ] External TestFlight group "Beta Oct 2026", public link, cap 200, Beta App Review passed.
+- [ ] External TestFlight group "Survey", separate invite link, cap 60 for 58 respondents, reviewed build available.
+- [ ] External TestFlight group "Beta", public link, cap 200, Beta App Review passed.
 - [ ] `semli.app/beta` redirects to the public link and logs `r` to PostHog.
 - [ ] Eight clips rendered from the simulator, captioned, scheduled weekly on both brand accounts.
 - [ ] Founder post written and saved. Survey email drafted.
