@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { IMPORT_MESSAGES } from '@dayli/schema';
+import { rpc, supabaseEnv } from './supabase';
 
 /*
  * Who may spend an import. The app sends its Supabase session (guests have an anonymous
@@ -17,22 +18,6 @@ export type Access =
   | { ok: false; status: 401 | 402 | 429; error: string };
 
 const free = async () => {};
-
-function env() {
-  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_KEY;
-  return url && key ? { url: url.replace(/\/$/, ''), key } : null;
-}
-
-async function rpc(base: { url: string; key: string }, name: string, body: object, token?: string): Promise<unknown> {
-  const res = await fetch(`${base.url}/rest/v1/rpc/${name}`, {
-    method: 'POST',
-    headers: { apikey: base.key, authorization: `Bearer ${token ?? base.key}`, 'content-type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`rpc ${name} ${res.status}`);
-  return res.status === 204 ? null : res.json();
-}
 
 /** RevenueCat is the source of truth for Plus; the secret key never leaves the server. */
 async function hasPlus(appUserId: string | null): Promise<boolean> {
@@ -52,7 +37,7 @@ function clientIp(request: Request): string {
 }
 
 export async function checkImportAccess(request: Request): Promise<Access> {
-  const base = env();
+  const base = supabaseEnv();
   if (!base) return { ok: true, refund: free };
 
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '') || null;
