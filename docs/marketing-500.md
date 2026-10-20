@@ -21,6 +21,8 @@ One honest note on timing: a beta that runs Nov to Dec hits finals and the break
 
 Apple Search Ads are out of this budget. Start them from the first subscription revenue, at public release, exact match on competitor terms.
 
+TikTok and Instagram ads are out too, decided Oct 20, 2026. Before the App Store listing is live they can only point at a TestFlight link, which asks a stranger to install a second app first. In January, if the purchase test passed, boost whichever organic clip or creator video already performed best (Spark Ads on TikTok), funded from revenue like Search Ads. Never run a cold ad with new creative.
+
 Everything else is free: TestFlight public link, waitlist on semli.app, Reddit, Discord, Product Hunt coming-soon page, App Store offer codes, a brand TikTok account with scheduled posts.
 
 ## 3. One-time setup, about four hours
