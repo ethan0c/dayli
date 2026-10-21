@@ -13,16 +13,13 @@
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  max-width: 100%;
+  /* Clip full-bleed sections without creating another vertical scroll container. */
+  overflow-x: clip;
 }
 html {
   scroll-behavior: smooth;
-}
-/* No rubber-band past the top or bottom: the floating bar and the hero's sky stay pinned to the edge.
-   On the root only: body is a scroll container here (overflow-x above), and on it this rule would
-   stop the wheel from ever reaching the page. */
-html {
+  /* Keep the viewport edges pinned without interfering with scroll chaining in the body. */
   overscroll-behavior-y: none;
 }
 /* Our photos, captures and codes are not for saving: no dragging them out, no long-press save on

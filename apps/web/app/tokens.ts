@@ -104,5 +104,6 @@ const block = (vars: Record<string, string>) =>
 export const TOKENS_CSS = [
   `:root{${block({ ...colorVars(sitePalettes.light), ...brandVars, ...heroVars, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
   `@media (prefers-color-scheme: dark){:root{${block(colorVars(sitePalettes.dark))};color-scheme:dark}}`,
+  `[data-semli-theme="light"]{${block(colorVars(sitePalettes.light))};color-scheme:light}`,
   `[data-semli-theme="dark"]{${block(colorVars(sitePalettes.dark))};color-scheme:dark}`,
 ].join('\n');

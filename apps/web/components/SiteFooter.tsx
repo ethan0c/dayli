@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { SUPPORT_EMAIL } from '@/lib/site';
 import { Wordmark } from '@/app/Wordmark';
-import { SoundToggle } from '@/components/SoundToggle';
 
 const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -54,8 +53,7 @@ export function SiteFooter() {
       </div>
       <div className="foot-base">
         <span>© 2026 Semli</span>
-        <span>Built for iPhone. Try it on the web.</span>
-        <SoundToggle />
+        <span>Built by <a href="https://ocelabs.xyz">OCELabs</a>.</span>
       </div>
     </footer>
   );

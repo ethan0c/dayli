@@ -104,8 +104,8 @@ export default function Home() {
         </div>
         <div className={styles.heroShot}>
           <Shot name="today" width={440} priority label="Today: 34 minutes until Stats lecture ends, a full day on one bar, then the list with one overlap" />
-          {/* Desktop only: what Semli does on the left, the way to get it on the right. */}
-          <div className={styles.heroCards}>
+          {/* Desktop only: product cards on the left stay light to match the phone capture. */}
+          <div className={styles.heroCards} data-semli-theme="light">
             <a className={styles.heroCard} href="#term-title" aria-label="Syllabus imports: STAT 200, 8 dates over the semester, three of them exams">
               <div className={styles.cardBig}>8 dates</div>
               <div className={styles.cardSub}>STAT 200 · 3 exams, 5 due dates</div>
