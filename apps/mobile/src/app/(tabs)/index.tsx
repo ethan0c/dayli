@@ -1,4 +1,4 @@
-import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary } from '@dayli/core';
+import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, movableOverlap, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary } from '@dayli/core';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -8,6 +8,7 @@ import { GroupLabel, IconButton, ListRow, SectionTitle, TextButton } from '@/com
 import { DayBar } from '@/components/DayBar';
 import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { HourView } from '@/components/HourView';
+import { FirstOverlap } from '@/components/FirstOverlap';
 import { ItemRow } from '@/components/ItemRow';
 import { PhotoHeader } from '@/components/PhotoHeader';
 import { T } from '@/components/Text';
@@ -45,6 +46,7 @@ export default function TodayScreen() {
   const planTasks = useStore((s) => s.planTasks);
   const unplanTask = useStore((s) => s.unplanTask);
   const dismissSuggestion = useStore((s) => s.dismissSuggestion);
+  const overlapSeen = useStore((s) => s.settings.firsts.overlap);
   const [overdueExpanded, setOverdueExpanded] = useState(false);
   const [completedExpanded, setCompletedExpanded] = useState(false);
 
@@ -56,6 +58,8 @@ export default function TodayScreen() {
     && !suggestions.some((suggestion) => suggestion.item.id === item.id)).slice(0, 5), [items, now.date, suggestions]);
   const weekAhead = useMemo(() => items.filter((item) => item.date >= addDays(now.date, -1) && diffDays(now.date, item.date) <= 7), [items, now.date]);
   const conflictSet = useMemo(() => conflictIds(weekAhead), [weekAhead]);
+  // Explained once, the first time an overlap Semli could resolve shows up in the person's own plan.
+  const firstOverlap = useMemo(() => (overlapSeen ? null : movableOverlap(items, now)), [overlapSeen, items, now]);
   const conflictsToday = useMemo(() => findConflicts(weekAhead).filter((k) => items.find((i) => i.id === k.a)?.date === now.date).length, [weekAhead, items, now.date]);
   const nextWeekPending = schedules.length > 0 && pendingDates(schedules, addDays(now.date, 1), addDays(now.date, 7)).length > 0;
   const isSample = items.some((item) => item.sourceId === SAMPLE_SOURCE);
@@ -152,6 +156,12 @@ export default function TodayScreen() {
             {moment.action ? <TextButton label={moment.action.label} onPress={() => router.push(moment.action!.href as '/plan')} /> : null}
           </View>
         </View>
+      ) : null}
+
+      {firstOverlap ? (
+        <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.section}>
+          <FirstOverlap overlap={firstOverlap} today={now.date} />
+        </Animated.View>
       ) : null}
 
       <Animated.View layout={layout} style={styles.section}>
