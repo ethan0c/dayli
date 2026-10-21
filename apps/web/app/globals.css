@@ -113,10 +113,25 @@ textarea {
   justify-content: space-between;
   gap: 24px;
 }
+/* The bar's own ink, registered so the home page can fade it from white over the sky to page ink. */
+@property --bar-ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #000;
+}
+@property --bar-ink-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #000;
+}
+.topbar {
+  --bar-ink: var(--ink);
+  --bar-ink-2: var(--ink-2);
+}
 .wm-link {
   text-decoration: none;
   display: inline-flex;
-  color: var(--ink);
+  color: var(--bar-ink);
 }
 .nav {
   display: flex;
@@ -125,7 +140,7 @@ textarea {
 }
 .nav > a:not(.btn) {
   text-decoration: none;
-  color: var(--ink-2);
+  color: var(--bar-ink-2);
   font-size: var(--type-body-size);
   line-height: 40px;
   font-weight: var(--type-headline-weight);
@@ -133,7 +148,7 @@ textarea {
 }
 .nav > a:not(.btn):hover,
 .nav > a[aria-current='page'] {
-  color: var(--ink);
+  color: var(--bar-ink);
 }
 .nav .btn {
   height: 38px;
@@ -1479,6 +1494,24 @@ textarea {
       animation-timeline: scroll(root);
       animation-range: 0 64px;
     }
+    /* Over the home hero's dusk sky the wordmark and links start white, then take the page's ink. */
+    .topbar.over-hero {
+      animation:
+        nav-settle linear both,
+        hero-ink linear both;
+      animation-timeline: scroll(root), scroll(root);
+      animation-range: 0 64px;
+    }
+  }
+}
+@keyframes hero-ink {
+  from {
+    --bar-ink: #ffffff;
+    --bar-ink-2: rgba(255, 255, 255, 0.86);
+  }
+  to {
+    --bar-ink: var(--ink);
+    --bar-ink-2: var(--ink-2);
   }
 }
 /* At the top the bar is clear glass over the hero's sky; it turns to paper as the page scrolls under it. */

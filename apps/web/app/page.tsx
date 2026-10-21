@@ -180,7 +180,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className={`${styles.band} ${styles.soft} ${styles.plans}`} aria-labelledby="price-title">
+      <section className={`${styles.band} ${styles.photoBand} ${styles.plans}`} aria-labelledby="price-title">
+        <div className={styles.bandPhoto} aria-hidden>
+          <Image src={table} alt="" fill placeholder="blur" sizes="100vw" />
+        </div>
         <div className={styles.plansHead} data-reveal>
           <h2 id="price-title" className="section-title">Start free. Add more with Plus.</h2>
           <p className="lede">Everything you need to plan the week is free. Plus is for when you import a lot.</p>
@@ -212,7 +215,10 @@ export default function Home() {
       </section>
 
       {/* The close and the beta are one panel: the last line, then the one thing to do. */}
-      <section id={APP_STORE_LIVE ? undefined : 'beta'} className={`${styles.band} ${styles.soft} ${styles.closing}`} aria-labelledby="final-title">
+      <section id={APP_STORE_LIVE ? undefined : 'beta'} className={`${styles.band} ${styles.photoBand} ${styles.closing}`} aria-labelledby="final-title">
+        <div className={styles.bandPhoto} aria-hidden>
+          <Image src={campus} alt="" fill placeholder="blur" sizes="100vw" />
+        </div>
         <h2 id="final-title" className="section-title serif" data-reveal>One less thing to keep in your head.</h2>
         {APP_STORE_LIVE ? (
           <div className={styles.ctas} data-reveal style={stagger(1)}>

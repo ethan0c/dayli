@@ -8,7 +8,7 @@ import { APP_STORE_LIVE, APP_STORE_URL } from '@/lib/site';
 export function SiteHeader() {
   const path = usePathname();
   return (
-    <header className="topbar">
+    <header className={path === '/' ? 'topbar over-hero' : 'topbar'}>
       <div className="topbar-in">
         <Link href="/" className="wm-link" aria-label="Semli home">
           <Wordmark width={76} />

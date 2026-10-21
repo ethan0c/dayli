@@ -64,13 +64,14 @@
   object-fit: cover;
   object-position: 50% 42%;
 }
-/* A thin veil so ink reads on the brightest pink, fading to paper where the phone stands. */
+/* A dusk veil so white copy reads on the pale pink, fading to paper where the phone stands. */
 .heroPhoto::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--canvas) var(--hero-veil-top), transparent) 0%, color-mix(in srgb, var(--canvas) var(--hero-veil-mid), transparent) 55%, var(--canvas) 100%);
+  background: linear-gradient(180deg, rgba(28, 18, 40, 0.34) 0%, rgba(28, 18, 40, 0.4) 50%, var(--canvas) 100%);
 }
+/* White copy on the sky, the accent word in the pale lavender. */
 .heroCopy {
   display: flex;
   flex-direction: column;
@@ -78,6 +79,9 @@
   width: 100%;
   min-width: 0;
   max-width: 780px;
+  --ink: #ffffff;
+  --accent-ink: #dcd4fb;
+  color: var(--ink);
 }
 .heroCopy h1 {
   font-size: clamp(44px, 6vw, 80px);
@@ -93,7 +97,7 @@
   font-size: 19px;
   line-height: 28px;
   color: var(--ink);
-  opacity: 0.8;
+  opacity: 0.88;
   max-width: 44ch;
 }
 .heroCopy :global(.btn) {
@@ -137,6 +141,30 @@
 /* Grey: the app's row surface as the one panel colour */
 .soft {
   background: var(--row);
+}
+/* A photo under a dusk scrim, white copy on it; cards and fields on the panel keep their own paper. */
+.photoBand {
+  background: var(--row);
+  --ink: #ffffff;
+  --ink-2: rgba(255, 255, 255, 0.82);
+  --ink-3: rgba(255, 255, 255, 0.66);
+  --accent-ink: #dcd4fb;
+  color: var(--ink);
+}
+.bandPhoto {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+.bandPhoto img {
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+.bandPhoto::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 18, 40, 0.58);
 }
 
 /* Proof: a fan of students, then three survey numbers on paper, ink only */
@@ -261,7 +289,14 @@
   flex-direction: column;
   padding: 32px;
   border-radius: 24px;
-  background: var(--surface);
+  background: #ffffff;
+  --ink: #222320;
+  --ink-2: #686963;
+  --accent-ink: #7057bd;
+  color: var(--ink);
+}
+.planCard :global(.btn.accent) {
+  color: #ffffff;
 }
 .planName {
   font-size: var(--type-headline-size);
@@ -293,9 +328,12 @@
   list-style: none;
   border-top: 1px solid var(--line);
 }
+.planList {
+  border-top-color: #e5e4de;
+}
 .planList li {
   padding: 14px 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid #e5e4de;
   font-size: 15px;
   line-height: 22px;
 }
@@ -338,6 +376,18 @@
 }
 .closingBeta .waitlistInput {
   border-color: transparent;
+  background: #ffffff;
+  color: #222320;
+}
+.closingBeta .waitlistInput::placeholder {
+  color: #686963;
+}
+.closingBeta :global(.btn) {
+  background: #ffffff;
+  color: #1c1b21;
+}
+.closingBeta .waitlistError {
+  color: #ffd9d5;
 }
 .closingBeta .waitlistNote,
 .closingBeta .waitlistError {

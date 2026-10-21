@@ -8,8 +8,8 @@ The five editorial photos are Unsplash photos under the [Unsplash License](https
 | hero-golden.jpg | Home "See the week at a glance" row, under the week card (since Oct 21) | Vadim Fomenok | https://unsplash.com/photos/JhLASVqq1Jg |
 | library.jpg | Home "Your syllabus, laid out" row, under the term card (since Oct 21) | Johan Mouchet | https://unsplash.com/photos/PjpRF0LhBB8 |
 | cafe-shift.jpg | Home "Your work schedule, updated" row, under the changes card (since Oct 21) | Long Chung | https://unsplash.com/photos/barista-working-behind-a-coffee-counter-H7PLuaYW6UQ |
-| campus.jpg | Unused since Oct 21 (the beta card is a grey panel now) | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |
-| table.jpg | Unused since Oct 21 (pricing is Free and Plus cards now) | Alexis Brown | https://unsplash.com/photos/omeaHbEFlN4 |
+| campus.jpg | Home closing panel with the beta waitlist, and one of the five student photos over the survey numbers | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |
+| table.jpg | Home Free and Plus panel, under the cards (since Oct 21) | Alexis Brown | https://unsplash.com/photos/omeaHbEFlN4 |
 | sky.jpg | Home hero, the pink and blue clouds edge to edge behind the headline (3,000 × 4,000, downloaded Oct 21, 2026) | Skyler Smith | https://unsplash.com/photos/pink-and-blue-clouds-in-the-sky-lrPrDZm46Ns |
 | plus-fireworks.jpg | Plus pricing panel, matching the app paywall | Existing app asset | `apps/mobile/assets/showcase/plus.jpg` |
 
