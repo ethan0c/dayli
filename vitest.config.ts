@@ -15,7 +15,8 @@ const appAlias: Plugin = {
 
 export default defineConfig({
   plugins: [appAlias],
-  test: { setupFiles: ['./vitest.setup.ts'] },
+  // Absolute, so a run started inside a package (packages/core) still finds it.
+  test: { setupFiles: [resolve(__dirname, 'vitest.setup.ts')] },
   // These tests exercise plain TypeScript across both apps. Avoid loading the
   // native app's Expo tsconfig while Vite transforms its shared API client.
   esbuild: { tsconfigRaw: '{"compilerOptions":{"target":"ES2020"}}' },

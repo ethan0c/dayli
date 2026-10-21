@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: eas/checkout
       - uses: eas/install_node_modules
-      # Steps start in the repo root or in apps/mobile depending on how the project was uploaded.
+      # Steps start in apps/mobile; the `cd ../..` makes each one run from the repo root.
       - name: Typecheck
         run: |
           [ -d apps/mobile ] || cd ../..
@@ -32,7 +32,7 @@ jobs:
       - name: Test
         run: |
           [ -d apps/mobile ] || cd ../..
-          cd packages/core && npx vitest run
+          npx vitest run
 
   fingerprint:
     name: Fingerprint

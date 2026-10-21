@@ -48,7 +48,7 @@ Commit first: the workflow runs on what you upload, so loose edits ship too. The
 npx eas-cli@latest workflow:run .eas/workflows/release.yml -F message="What changed"
 ```
 
-[release.yml](.eas/workflows/release.yml) runs typecheck, lint and the core tests, then compares the app's native fingerprint with existing production builds:
+[release.yml](.eas/workflows/release.yml) runs typecheck, lint and the whole test suite, then compares the app's native fingerprint with existing production builds:
 
 - **Only JS or images changed:** publishes an over-the-air update to the `production` channel. Phones pick it up in the background and run it on the next launch. Nothing goes through App Store review.
 - **Native side changed** (a new native module, a config plugin, `app.json`, the Expo SDK): makes a new production build and sends it to App Store Connect. It lands in TestFlight; releasing it to the App Store is still done by hand in App Store Connect.
