@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import { GroupLabel, ListRow } from '@/components/Controls';
+import { Icon, type IconKey } from '@/components/Icon';
 import { NativeToggle } from '@/components/Native';
 import { T } from '@/components/Text';
 import { textStyle, useTheme } from '@/theme';
@@ -22,13 +23,16 @@ export function Group({ title, label, footer, children }: { title?: string; labe
   );
 }
 
-export function Row({ label, value, onPress, selected, destructive, last }: {
+export function Row({ label, value, onPress, selected, destructive, last, icon }: {
   label: string; value?: string; onPress?: () => void; selected?: boolean; destructive?: boolean; last?: boolean;
+  /** An ink glyph before the label, no tile. Every row in a group has one or none does. */
+  icon?: IconKey;
 }) {
   const { c } = useTheme();
   return (
     <ListRow
       title={label}
+      leading={icon ? <Icon name={icon} size={20} color={c.inkPrimary} /> : undefined}
       onPress={onPress}
       last={last}
       destructive={destructive}
@@ -43,8 +47,9 @@ export function Row({ label, value, onPress, selected, destructive, last }: {
   );
 }
 
-export function ToggleRow({ label, value, onChange, last }: { label: string; value: boolean; onChange: (v: boolean) => void; last?: boolean }) {
-  return <ListRow title={label} last={last} chevron={false} trailing={<NativeToggle value={value} onChange={onChange} label={label} />} />;
+export function ToggleRow({ label, value, onChange, last, icon }: { label: string; value: boolean; onChange: (v: boolean) => void; last?: boolean; icon?: IconKey }) {
+  const { c } = useTheme();
+  return <ListRow title={label} last={last} chevron={false} leading={icon ? <Icon name={icon} size={20} color={c.inkPrimary} /> : undefined} trailing={<NativeToggle value={value} onChange={onChange} label={label} />} />;
 }
 
 /** A labelled one-line field inside a settings group. */

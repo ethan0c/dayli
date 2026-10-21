@@ -28,7 +28,11 @@ export type IconKey =
   | 'appearance'
   | 'list'
   | 'search'
-  | 'chart';
+  | 'chart'
+  | 'globe'
+  | 'mail'
+  | 'star'
+  | 'lock';
 
 type El = { d: string } | { rect: [number, number, number, number, number] } | { circle: [number, number, number] };
 
@@ -72,6 +76,10 @@ const GLYPHS: Record<IconKey, El[]> = {
   list: [{ d: 'M4 7h16M4 12h16M4 17h10' }],
   search: [{ circle: [11, 11, 7] }, { d: 'm20 20-3.5-3.5' }],
   chart: [{ d: 'M5 20V10M12 20V4M19 20v-7' }],
+  globe: [{ circle: [12, 12, 9] }, { d: 'M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18' }],
+  mail: [{ rect: [3, 5, 18, 14, 2] }, { d: 'm3 7 9 6 9-6' }],
+  star: [{ d: 'M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z' }],
+  lock: [{ rect: [4, 11, 16, 10, 2] }, { d: 'M8 11V7a4 4 0 0 1 8 0v4' }],
 };
 
 export function Icon({

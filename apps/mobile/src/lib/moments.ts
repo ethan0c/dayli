@@ -1,4 +1,4 @@
-import { addDays, diffDays } from '@dayli/core';
+import { addDays, assessment, diffDays } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 
 export interface Break {
@@ -30,8 +30,9 @@ const PHOTOS = {
 };
 
 /**
- * A moment is a day that matters more than the list: a break coming up, a week of finals,
- * the last exam done. Only one shows, and only when there is one. Ordinary days have none.
+ * A moment is a day that matters more than the list: a break coming up, the first day of term,
+ * a week of finals, the last exam done, the first quiet day after exams. Only one shows, and
+ * only when there is one. Ordinary days have none.
  */
 export function momentFor(items: Item[], breaks: Break[], today: string): Moment | null {
   const open = items.filter((i) => !i.done);
@@ -47,6 +48,28 @@ export function momentFor(items: Item[], breaks: Break[], today: string): Moment
       line: landing.length ? `${landing.length} ${landing.length === 1 ? 'deadline lands' : 'deadlines land'} that week.` : 'Nothing lands that week. Enjoy it.',
       action: landing.length ? { label: 'Start them before', spread: landing.map((i) => i.id), until: soonBreak.start } : undefined,
       image: PHOTOS.break,
+    };
+  }
+  // The first day of term: no repeating class has met before today, at least two exist, and they
+  // were added days ahead. A syllabus imported mid-term starts its classes on the day it is read,
+  // which looks the same apart from that.
+  const firstMeeting = new Map<string, string>();
+  let addedAhead = true;
+  for (const i of items) {
+    if (i.kind !== 'event' || i.category !== 'school' || !i.seriesId) continue;
+    const seen = firstMeeting.get(i.seriesId);
+    if (!seen || i.date < seen) firstMeeting.set(i.seriesId, i.date);
+    if (diffDays(i.createdAt.slice(0, 10), today) < 3) addedAhead = false;
+  }
+  const classesToday = items.filter((i) => i.kind === 'event' && i.category === 'school' && i.seriesId && i.date === today);
+  const startedEarlier = [...firstMeeting.values()].some((d) => d < today);
+  if (classesToday.length && firstMeeting.size >= 2 && !startedEarlier && addedAhead) {
+    const due = open.filter((i) => i.isDeadline && i.date >= today).length;
+    return {
+      lead: 'Term starts',
+      big: 'Today',
+      line: `${classesToday.length} ${classesToday.length === 1 ? 'class' : 'classes'} today${due ? ` · ${due} ${due === 1 ? 'deadline' : 'deadlines'} on the calendar so far` : ''}.`,
+      image: PHOTOS.heavy,
     };
   }
   // A dense week of deadlines ahead reads as finals.
@@ -70,6 +93,12 @@ export function momentFor(items: Item[], breaks: Break[], today: string): Moment
   if (doneToday > 0 && left === 0) {
     return { lead: 'Deadlines left this week', big: '0', line: `${doneToday === 1 ? 'The last one' : `${doneToday} of them`} done today.`, image: PHOTOS.done };
   }
-  void addDays;
+  // The first quiet day after exams: two or more in the last three days, none in the next two weeks.
+  const exams = items.filter((i) => i.isDeadline && assessment(i.title) === 'exam');
+  const behind = exams.filter((i) => i.date < today && diffDays(i.date, today) <= 3).length;
+  const ahead = exams.some((i) => !i.done && i.date >= today && i.date <= addDays(today, 14));
+  if (behind >= 2 && !ahead) {
+    return { lead: 'Exams behind you', big: `${behind}`, line: 'Nothing big for two weeks. Take the evening.', image: PHOTOS.done };
+  }
   return null;
 }

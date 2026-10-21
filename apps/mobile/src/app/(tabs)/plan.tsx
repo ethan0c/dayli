@@ -6,6 +6,7 @@ import { PanResponder, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CategoryDot, IconButton, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
+import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { TimeField } from '@/components/Native';
 import { PlanMonthCalendar, PlanMonthTitle, TodayPill } from '@/components/PlanCalendar';
@@ -220,7 +221,10 @@ export default function PlanScreen() {
             </Animated.View>
           )) : (
             <Animated.View key={selected} entering={enter.fade} exiting={exit.fade}>
-              <T token="body" style={{ paddingTop: 4 }}>Nothing on yet.</T>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+                <Icon name="calendar" size={24} color={c.inkTertiary} />
+                <T token="body">Nothing on yet.</T>
+              </View>
               <T token="callout" color={c.inkSecondary} style={{ paddingTop: 2 }}>
                 {nextDeadline ? `${diffDays(selected, nextDeadline.date) === 1 ? 'The day before' : 'Two days before'} ${nextDeadline.title}. A good one to study.` : 'Free all day.'}
               </T>

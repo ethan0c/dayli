@@ -56,40 +56,40 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
       <View style={styles.body}>
 
         <Group title="Profile">
-          <Row label="Name" value={settings.name.trim() || 'Add your name'} onPress={() => router.push('/settings/name')} />
-          {settings.isStudent ? <Row label="Studying" value={profileFor(settings.major, true).label} onPress={() => router.push('/settings/major')} last /> : null}
+          <Row label="Name" icon="user" value={settings.name.trim() || 'Add your name'} onPress={() => router.push('/settings/name')} />
+          {settings.isStudent ? <Row label="Studying" icon="school" value={profileFor(settings.major, true).label} onPress={() => router.push('/settings/major')} last /> : null}
         </Group>
 
         <Group title="Preferences">
-          <Row label="Reminders" value={settings.reminders.enabled ? (settings.reminders.briefing ? 'On, with briefing' : 'On') : 'Off'} onPress={() => router.push('/settings/reminders')} />
-          <Row label="Canvas" value={settings.canvas.feedUrl ? (settings.canvas.lastError ? 'Needs a look' : 'Syncing') : 'Off'} onPress={() => router.push('/settings/canvas')} />
-          <Row label="Region" value={regionName(settings.region ?? deviceRegion())} onPress={() => router.push('/settings/region')} />
-          <Row label="Appearance" value={APPEARANCE_LABEL[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
-          <ToggleRow label="Sounds" value={settings.sounds} onChange={(sounds) => { setSettings({ sounds }); feedback('select'); }} />
-          <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
+          <Row label="Reminders" icon="bell" value={settings.reminders.enabled ? (settings.reminders.briefing ? 'On, with briefing' : 'On') : 'Off'} onPress={() => router.push('/settings/reminders')} />
+          <Row label="Canvas" icon="book" value={settings.canvas.feedUrl ? (settings.canvas.lastError ? 'Needs a look' : 'Syncing') : 'Off'} onPress={() => router.push('/settings/canvas')} />
+          <Row label="Region" icon="globe" value={regionName(settings.region ?? deviceRegion())} onPress={() => router.push('/settings/region')} />
+          <Row label="Appearance" icon="appearance" value={APPEARANCE_LABEL[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
+          <ToggleRow label="Sounds" icon="volume" value={settings.sounds} onChange={(sounds) => { setSettings({ sounds }); feedback('select'); }} />
+          <ToggleRow label="Haptics" icon="vibrate" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
         </Group>
 
         {ACCOUNTS_ENABLED ? <Group title="Account" footer={email ? undefined : 'Planning as a guest. Your schedule is stored on this phone.'}>
           {email !== null
-            ? <Row label="Account settings" value={email || 'Signed in'} onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
-            : <Row label="Log in or sign up" value="Guest" onPress={() => router.push('/auth')} last={!SHARING_ENABLED} />}
-          {SHARING_ENABLED ? <Row label="Share your schedule" value="Preview" onPress={() => router.push('/share-schedule')} last /> : null}
+            ? <Row label="Account settings" icon="lock" value={email || 'Signed in'} onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
+            : <Row label="Log in or sign up" icon="lock" value="Guest" onPress={() => router.push('/auth')} last={!SHARING_ENABLED} />}
+          {SHARING_ENABLED ? <Row label="Share your schedule" icon="share" value="Preview" onPress={() => router.push('/share-schedule')} last /> : null}
         </Group> : null}
 
         <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
-          <Row label="Your plan" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
-          <Row label="Manage subscription" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
+          <Row label="Your plan" icon="sparkle" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
+          <Row label="Manage subscription" icon="calendar" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
             if (customerCenterEnabled || customerInfo?.managementURL) void manageSubscription().catch(() => router.push('/settings/plan'));
             else router.push('/settings/plan');
           }} />
         </Group>
 
         <Group title="Your stuff" footer={linkNote ?? undefined}>
-          <Row label="What Semli can do" value={`${canDo.filter((t) => t.done).length} of ${canDo.length} tried`} onPress={() => router.push('/settings/can-do')} />
-          <Row label="Your data" value={email !== null ? 'Backed up' : 'On this phone'} onPress={() => router.push('/settings/data')} />
-          <Row label="Help and feedback" value={SUPPORT_EMAIL} onPress={() => void open(LINKS.support, 'Email us at ' + SUPPORT_EMAIL + '.')} />
-          <Row label="Rate Semli" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} last={!__DEV__} />
-          {__DEV__ ? <Row label="Semli server" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last /> : null}
+          <Row label="What Semli can do" icon="list" value={`${canDo.filter((t) => t.done).length} of ${canDo.length} tried`} onPress={() => router.push('/settings/can-do')} />
+          <Row label="Your data" icon="file" value={email !== null ? 'Backed up' : 'On this phone'} onPress={() => router.push('/settings/data')} />
+          <Row label="Help and feedback" icon="mail" value={SUPPORT_EMAIL} onPress={() => void open(LINKS.support, 'Email us at ' + SUPPORT_EMAIL + '.')} />
+          <Row label="Rate Semli" icon="star" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} last={!__DEV__} />
+          {__DEV__ ? <Row label="Semli server" icon="chart" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last /> : null}
         </Group>
 
         <View style={styles.about}>

@@ -48,9 +48,10 @@ From `packages/tokens/src/motion.ts`:
 5. **Revealed content drops in.** Expand/collapse content uses `enter.drop` / `exit.fade`; the chevron rotates on `springs.snappy`.
 6. **Every wait has a skeleton** shaped like the result. Spinners only inside a button that is busy.
 7. **Numbers that change roll.** Use `Ticker` for counts, times, and prices that update while visible. Always tabular.
-8. **One haptic per meaning**, through `feedback()`. Tap for presses that navigate, select for choosing, complete/uncomplete for checks, success for a confirmed save, remove for deletions, undo for undo, warning and error for their messages. Never two haptics for one gesture.
-9. **Navigation is native.** Detail screens push with the system header and back chevron. Capture, Create, and Review are full-screen covers with an X on the left of the system header. No half sheets for primary flows.
-10. **Reduce Motion is automatic.** Reanimated jumps springs and layout animations to their end state when the system setting is on; do not add manual checks, and do not add motion that only works with it off.
+8. **A check-off lands before the row leaves.** On Today a checked row stays in place for two `slow` durations so the tick is seen filling, then sinks out (`exit.sink`) and drops into Completed (`enter.drop`). The last open one plays `success` instead of `complete`.
+9. **One haptic per meaning**, through `feedback()`. Tap for presses that navigate, select for choosing, complete/uncomplete for checks, success for a confirmed save, remove for deletions, undo for undo, warning and error for their messages. Never two haptics for one gesture.
+10. **Navigation is native.** Detail screens push with the system header and back chevron. Capture, Create, and Review are full-screen covers with an X on the left of the system header. No half sheets for primary flows.
+11. **Reduce Motion is automatic.** Reanimated jumps springs and layout animations to their end state when the system setting is on; do not add manual checks, and do not add motion that only works with it off.
 
 ## 4. Checklist for a new screen
 

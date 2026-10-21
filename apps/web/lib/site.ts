@@ -3,7 +3,8 @@
  * Prices mirror docs/pricing-and-positioning.md; change them in both places.
  */
 
-export const SITE_URL = 'https://semli.app';
+/** The address Vercel serves (the apex 308s here); canonicals, sitemap and structured data must match it. */
+export const SITE_URL = 'https://www.semli.app';
 export const SITE_NAME = 'Semli';
 /** The App Store record (not live yet); the listing name is "Semli: AI Student Planner". */
 export const APP_STORE_ID = '6824600264';

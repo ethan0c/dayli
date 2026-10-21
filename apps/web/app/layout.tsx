@@ -36,12 +36,26 @@ export const viewport: Viewport = {
 const JSON_LD = {
   '@context': 'https://schema.org',
   '@graph': [
-    { '@type': 'Organization', '@id': `${SITE_URL}/#org`, name: 'Semli', url: SITE_URL, logo: `${SITE_URL}/icon.png`, email: SUPPORT_EMAIL },
-    { '@type': 'WebSite', '@id': `${SITE_URL}/#site`, url: SITE_URL, name: 'Semli', publisher: { '@id': `${SITE_URL}/#org` } },
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#org`,
+      name: 'Semli',
+      url: SITE_URL,
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon.png`, width: 512, height: 512 },
+      email: SUPPORT_EMAIL,
+      description: DESCRIPTION,
+      ...(APP_STORE_LIVE ? { sameAs: [APP_STORE_URL] } : {}),
+    },
+    /** alternateName gives Google the site name for the result header; it was guessing "semli.app". */
+    { '@type': 'WebSite', '@id': `${SITE_URL}/#site`, url: SITE_URL, name: 'Semli', alternateName: ['Semli planner', 'semli.app'], publisher: { '@id': `${SITE_URL}/#org` } },
     {
       '@type': 'SoftwareApplication',
       '@id': `${SITE_URL}/#app`,
       name: 'Semli',
+      alternateName: 'Semli: AI Student Planner',
+      /** Search folds "semli" into an unrelated family planner; say plainly which app this is. */
+      disambiguatingDescription: 'Semli is a daily planner for college students who juggle classes, shifts and deadlines. It is not a family or care-coordination planner.',
+      publisher: { '@id': `${SITE_URL}/#org` },
       applicationCategory: 'ProductivityApplication',
       operatingSystem: 'iOS',
       description: DESCRIPTION,

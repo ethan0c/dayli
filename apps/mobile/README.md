@@ -16,7 +16,9 @@ npm run ios --workspace mobile
 
 Start the website/API in a separate terminal with `npm run dev:web`, after configuring its environment. Set `EXPO_PUBLIC_API_URL` in the mobile environment to that server. The simulator can use `http://localhost:3000`; a physical iPhone needs your computer's LAN address. Debug builds also expose **You → Semli server** to change it.
 
-For subsequent sessions, `npm run dev:mobile` starts Metro for the installed development client. Rebuild after changes to native dependencies, plugins, splash configuration, or Swift modules. Expo Go cannot run the complete app.
+For subsequent sessions, `npm run dev:mobile` starts Metro for the installed development client. Rebuild with `npm run ios --workspace mobile` after changes to native dependencies, plugins, splash configuration, or Swift modules: it regenerates `ios/` when the native fingerprint changed, which plain `npx expo run:ios` does not. Expo Go cannot run the complete app.
+
+The iOS command uses macOS `lockf` to allow only one local build command per checkout, including native regeneration. If it reports `.expo/ios-build.lock: already locked`, stop the earlier `npm run ios` session first (it may still be serving Metro). The lock releases automatically when that command exits; leave the lock file in place. Builds started directly in Xcode or with `npx expo run:ios` bypass this guard: stop or finish those before running the npm command. If Xcode reports `build.db: database is locked`, stop the overlapping builds and retry a single build. The Sentry and Expo Dev Launcher script dependency warnings are separate from this error.
 
 ## EAS development builds
 

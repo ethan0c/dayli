@@ -10,14 +10,15 @@ import { SwipeRow } from '@/components/SwipeRow';
 import { T } from '@/components/Text';
 import { springs } from '@/lib/motion';
 import { courseTint, useStore } from '@/store';
-import { useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date' | 'urgent'> & { courseId?: string | null; employer?: string | null };
 type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: string; onPress?: () => void; onToggle?: () => void; onDelete?: () => void; last?: boolean };
 
 /**
  * One agenda row: a check (to-dos) or a category dot (events), the title with its context,
- * and a status pill on the right that is the only colored thing on the row.
+ * and a status pill on the right. A class's rows carry its tint as a short bar in the left
+ * margin, so a week reads by course at a glance.
  * Swipe right to complete a to-do, left to delete, when the handlers are given.
  */
 export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onDelete, last }: Props) {
@@ -31,6 +32,8 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
   const where = course?.code ?? item.employer ?? (item.category === 'school' ? 'Coursework' : item.category === 'work' ? 'Work' : 'Personal');
   const sub = [where, conflict ? 'Overlaps something else' : null, planned ? 'Working on it today' : null].filter(Boolean).join(' · ');
   return (
+    <View>
+    {course ? <View style={[styles.courseBar, { backgroundColor: tint, opacity: item.done ? 0.35 : 1 }]} /> : null}
     <SwipeRow onDelete={onDelete} onComplete={!isEvent ? onToggle : undefined} completed={item.done}>
     <View style={[styles.row, { backgroundColor: c.canvas }, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
       {!isEvent ? (
@@ -52,6 +55,7 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
       </Pressable>
     </View>
     </SwipeRow>
+    </View>
   );
 }
 
@@ -77,6 +81,8 @@ export function Check({ done }: { done: boolean }) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64 },
+  // Centred in the screen gutter, outside the swipeable so it is not clipped.
+  courseBar: { position: 'absolute', left: -SCREEN_GUTTER / 2 - 1.5, top: 16, bottom: 16, width: 3, borderRadius: 1.5 },
   checkTarget: { width: 22, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   main: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
   text: { flex: 1, minWidth: 0, gap: 2 },
