@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from '@dayli/schema';
-import { deadlineReason, deadlineWindow, featuredCommitment, nowSummary, overdueTasks, startTodaySuggestions, todayItems, tomorrowSummary } from '../src/today';
+import { countdownLine, deadlineReason, deadlineWindow, featuredCommitment, nowSummary, overdueTasks, startTodaySuggestions, todayItems, tomorrowSummary } from '../src/today';
 
 const date = '2026-10-19';
 const now = { date, time: '10:00' };
@@ -146,5 +146,18 @@ describe('tomorrow peek', () => {
     expect(tomorrowSummary([], { date, time: '18:00' })).toBe('Tomorrow has no plans yet.');
     const items = ['a', 'b', 'c', 'd'].map((id) => item({ id, date: '2026-10-20' }));
     expect(tomorrowSummary(items, { date, time: '18:00' })).toContain('+1 more');
+  });
+});
+
+describe('countdown line', () => {
+  const lecture = { title: 'Stats lecture', start: '09:00', end: '10:15' };
+  it('finishes the number as a sentence', () => {
+    expect(countdownLine(lecture, 'ends')).toBe('until Stats lecture ends · 10:15 am');
+    expect(countdownLine({ title: 'Bio lecture', start: '10:30', end: '11:45' }, 'next')).toBe('until Bio lecture · 10:30 am');
+    expect(countdownLine(lecture, 'now')).toBe('Stats lecture · 9–10:15 am');
+  });
+  it('drops a time it does not have', () => {
+    expect(countdownLine({ title: 'Shift', start: '16:00', end: null }, 'ends')).toBe('until Shift ends');
+    expect(countdownLine({ title: 'Dentist', start: '16:00', end: null }, 'now')).toBe('Dentist · 4:00 pm');
   });
 });

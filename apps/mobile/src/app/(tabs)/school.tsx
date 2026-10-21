@@ -65,7 +65,9 @@ export default function SchoolScreen() {
   const big = !next ? 'Clear' : days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days} days`;
   const when = next ? [days < 7 ? weekdayShort(next.date) : monthDay(next.date), next.start ? formatTime(next.start, true) : null].filter(Boolean).join(' ') : '';
   const nextCourse = next ? courses.find((k) => k.id === next.courseId) : undefined;
-  const nextDueLabel = days > 1 ? 'Next assignment due in' : 'Next assignment due';
+  // "3 days" then "until Stats exam 2 · Fri 9 am"; on the day itself, "Today" then "Stats exam 2 is due · 9 am".
+  const dueLine = next ? (days > 1 ? `until ${next.title} · ${when}` : `${next.title} is due${next.start ? ` · ${formatTime(next.start, true)}` : ''}`) : '';
+  const dueWhere = nextCourse ? `${nextCourse.code ?? nextCourse.title}${days > 1 ? ' · Next deadline' : ''}` : days > 1 ? 'Next deadline' : null;
 
   const keepUpToDate = (
     <View style={styles.section}>
@@ -78,7 +80,7 @@ export default function SchoolScreen() {
   if (courses.length === 0) {
     return (
       <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-        <TabHeader date={now.date} label="Your semester" title="School"
+        <TabHeader date={now.date} title="School" size="title"
           details={<T token="callout" color={c.inkSecondary}>Add a syllabus and the whole term lands here.</T>} />
         {keepUpToDate}
       </ScrollView>
@@ -87,13 +89,13 @@ export default function SchoolScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
-      <TabHeader date={now.date} label={next ? nextDueLabel : 'All caught up'} title={big}
+      <TabHeader date={now.date} title={big}
         onPress={next ? () => router.push(`/item/${next.id}`) : undefined}
-        accessibilityLabel={next ? `${nextDueLabel} ${big.toLowerCase()}, ${next.title}, ${when}` : undefined}
+        accessibilityLabel={next ? `${big} ${dueLine}` : undefined}
         details={next ? (
           <>
-            <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{`${next.title} · ${when}`}</T>
-            {nextCourse ? <T token="callout" color={c.inkSecondary}>{nextCourse.code ?? nextCourse.title}</T> : null}
+            <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{dueLine}</T>
+            {dueWhere ? <T token="callout" color={c.inkSecondary}>{dueWhere}</T> : null}
           </>
         ) : (
           <T token="callout" color={c.inkSecondary}>No upcoming deadlines.</T>

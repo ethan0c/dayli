@@ -1,5 +1,5 @@
 import type { Item } from '@dayli/schema';
-import { addDays, dayNumber, diffDays, formatTime, monthDay, toMinutes } from './dates';
+import { addDays, dayNumber, diffDays, formatRange, formatTime, monthDay, toMinutes } from './dates';
 import { intervalOf, overlap, union } from './intervals';
 
 export type LocalNow = { date: string; time: string };
@@ -47,6 +47,19 @@ export function featuredCommitment(items: Item[], now: LocalNow): { item: Item; 
 }
 
 /** Includes overnight events from yesterday; tasks and events without known ends never imply "ongoing". */
+/** Where Today's countdown stands: running out on what is on now, counting to what is next, or neither. */
+export type CountdownState = 'ends' | 'next' | 'now';
+
+/**
+ * The sentence under Today's big number, which finishes it: "34m" then "until Stats lecture
+ * ends · 10:15 am". `now` has no number, so the line is the item and its time.
+ */
+export function countdownLine(item: Pick<Item, 'title' | 'start' | 'end'>, state: CountdownState): string {
+  if (state === 'ends') return `until ${item.title} ends${item.end ? ` · ${formatTime(item.end)}` : ''}`;
+  if (state === 'next') return `until ${item.title}${item.start ? ` · ${formatTime(item.start)}` : ''}`;
+  return `${item.title}${item.start ? ` · ${item.end ? formatRange(item.start, item.end) : formatTime(item.start)}` : ''}`;
+}
+
 export function nowSummary(items: Item[], now: LocalNow): string {
   const { current, next } = eventsAround(items, now);
   if (current.length) {

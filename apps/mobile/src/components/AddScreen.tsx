@@ -18,7 +18,6 @@ import { InputError, extractionContext, pickImageInput, pickPdfInput } from '@/l
 import { feedback } from '@/lib/feedback';
 import { reportError } from '@/lib/errors';
 import { usePlusAccess } from '@/lib/plus-access';
-import { useNow } from '@/lib/now';
 import { VOICE_AVAILABLE, useVoiceCapture } from '@/lib/voice';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { useStore } from '@/store';
@@ -31,7 +30,6 @@ import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
  */
 export function AddScreen() {
   const { c } = useTheme();
-  const now = useNow();
   const params = useLocalSearchParams<{ source?: string; at?: string }>();
   const { requireImportAccess, requirePlus } = usePlusAccess();
   const importing = useRef(false);
@@ -143,7 +141,7 @@ export function AddScreen() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }}
       keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="never">
-      <TabHeader date={now.date} label="What’s coming up?" title="Add"
+      <TabHeader title="Add" size="title"
         details={<T token="callout" color={c.inkSecondary}>Type it, paste it, or drop in a screenshot. You review everything before it’s added.</T>} />
       <View style={styles.body}>
         {busy ? <Reading source={busy === 'Message' ? 'your message' : busy === 'Voice' ? 'your voice note' : busy} chart={/\.pdf$/i.test(busy) ? 'term' : 'week'} /> : null}

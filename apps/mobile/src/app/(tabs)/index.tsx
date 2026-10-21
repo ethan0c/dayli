@@ -1,4 +1,4 @@
-import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, monthDay, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong } from '@dayli/core';
+import { addDays, conflictIds, countdownLine, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, type CountdownState } from '@dayli/core';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -12,6 +12,7 @@ import { HourView } from '@/components/HourView';
 import { TodayFirst } from '@/components/Firsts';
 import { ItemRow } from '@/components/ItemRow';
 import { PhotoHeader } from '@/components/PhotoHeader';
+import { SkyHeader } from '@/components/SkyHeader';
 import { T } from '@/components/Text';
 import { Ticker } from '@/components/Ticker';
 import { TabHeader } from '@/components/TabHeader';
@@ -77,18 +78,18 @@ export default function TodayScreen() {
 
   // The one big number: minutes until the next commitment, or until the current one ends.
   const nowMin = toMinutes(now.time);
-  let timingLabel: string | null = null;
+  let state: CountdownState | null = null;
   let big: string | null = null;
   if (featured?.start) {
     if (ongoing && featured.end) {
-      timingLabel = 'Ends in';
+      state = 'ends';
       big = countdown(toMinutes(featured.end) - nowMin + (toMinutes(featured.end) < toMinutes(featured.start) ? 1440 : 0));
     } else if (!ongoing) {
       const dayGap = diffDays(now.date, featured.date);
-      timingLabel = 'Next in';
+      state = 'next';
       big = countdown(toMinutes(featured.start) - nowMin + dayGap * 1440);
     } else {
-      timingLabel = 'Happening now';
+      state = 'now';
     }
   }
   const featuredWhere = featured ? [featured.employer ?? courses.find((k) => k.id === featured.courseId)?.code, featured.category === 'school' ? 'Coursework' : featured.category === 'work' ? 'Work' : 'Personal'].filter(Boolean).join(' · ') : '';
@@ -109,7 +110,8 @@ export default function TodayScreen() {
     </ScrollView>
   );
 
-  const nextTitle = featured ? `${featured.title}${featured.start ? ` · ${featured.end ? formatRange(featured.start, featured.end) : formatTime(featured.start)}` : ''}` : null;
+  // The number first, then the sentence that finishes it.
+  const line = featured && state ? countdownLine(featured, state) : featured?.title ?? null;
   const hours = todayView === 'hours';
   const viewToggle = (
     <Animated.View key={hours ? 'list' : 'chart'} entering={enter.fade} exiting={exit.fade}>
@@ -134,17 +136,16 @@ export default function TodayScreen() {
             {moment.action ? <TextButton label={moment.action.label} onPress={() => router.push(moment.action!.href as '/plan')} /> : null}
           </View>
         </View>
-      ) : null}
+      ) : <SkyHeader time={now.time} />}
 
-      <TabHeader date={now.date} label={timingLabel ?? 'Your day'} title={featured ? 'Now' : 'Clear'} inset={!moment}
-        context={moment ? <T token="callout" color={c.inkSecondary} numberOfLines={1}>{`${weekdayLong(now.date)}, ${monthDay(now.date)} · ${(timingLabel ?? 'Your day').toLowerCase()}`}</T> : undefined}
+      <TabHeader date={now.date} title={featured ? 'Now' : 'Clear'} inset={!moment}
         value={moment ? (big ? <Ticker value={big} token="display" /> : <T token="display" accessibilityRole="header">{featured ? 'Now' : 'Clear'}</T>)
           : big ? <Ticker value={big} token="displayXl" /> : undefined}
         trailing={moment ? undefined : viewToggle}
         onPress={featured ? () => router.push(`/item/${featured.id}`) : undefined}
-        accessibilityLabel={featured ? `${timingLabel ?? 'Now'} ${big ?? ''}, ${nextTitle}` : undefined}
+        accessibilityLabel={featured ? [big, line].filter(Boolean).join(' ') : undefined}
         details={featured ? <>
-          <T token="body" style={moment ? undefined : { fontSize: 18, lineHeight: 26 }}>{nextTitle}</T>
+          <T token="body" style={moment ? undefined : { fontSize: 18, lineHeight: 26 }}>{line}</T>
           {featuredWhere && !moment ? <T token="callout" color={c.inkSecondary}>{featuredWhere}</T> : null}
         </> : <T token="callout" color={c.inkSecondary}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>} />
 

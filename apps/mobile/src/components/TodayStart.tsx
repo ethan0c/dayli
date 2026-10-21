@@ -25,7 +25,7 @@ export function TodayStart({ date, tab = 'Today', header }: { date: string; tab?
   };
   return (
     <View>
-      {header ?? <TabHeader date={date} label="Your week starts here" title={tab}
+      {header ?? <TabHeader date={date} title={tab} size="title"
         details={<T token="callout" color={c.inkSecondary}>Add one thing and {tab} fills in. Everything is checked with you first.</T>} />}
 
       <View style={styles.section}>

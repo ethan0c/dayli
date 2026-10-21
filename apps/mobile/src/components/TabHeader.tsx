@@ -6,12 +6,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { T } from '@/components/Text';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
-/** The same date, label, and large-value positions on every main tab. */
-export function TabHeader({ date, label, context, title, value, details, trailing, onPress, accessibilityLabel, inset = true }: {
-  date: string;
-  label: string;
+/**
+ * The top of every main tab: at most one small line above the big value, and the meaning under
+ * it. Planner tabs pass `date` for that line; You and Add pass none. `size` keeps 56 for numbers
+ * and countdowns and gives word titles 34 (docs/headers.md).
+ */
+export function TabHeader({ date, context, title, size = 'number', value, details, trailing, onPress, accessibilityLabel, inset = true }: {
+  date?: string;
   context?: ReactNode;
   title?: string;
+  size?: 'number' | 'title';
   value?: ReactNode;
   details?: ReactNode;
   trailing?: ReactNode;
@@ -21,21 +25,19 @@ export function TabHeader({ date, label, context, title, value, details, trailin
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  const dateLabel = `${weekdayLong(date)}, ${monthDay(date)}`;
+  const dateLabel = date ? `${weekdayLong(date)}, ${monthDay(date)}` : null;
+  const line = context ?? (dateLabel ? <T token="callout" color={c.inkSecondary} numberOfLines={1}>{dateLabel}</T> : null);
   const content = (
     <>
-      {context ?? <View style={styles.labels}>
-        <T token="callout" color={c.inkSecondary}>{dateLabel}</T>
-        <T token="callout" color={c.inkSecondary} numberOfLines={1}>{label}</T>
-      </View>}
-      {value ?? <T token="displayXl" accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{title}</T>}
+      {line ? <View style={styles.line}>{line}</View> : null}
+      {value ?? <T token={size === 'number' ? 'displayXl' : 'display'} accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{title}</T>}
       {details ? <View style={styles.details}>{details}</View> : null}
     </>
   );
   return (
     <View style={[styles.root, { paddingTop: inset ? insets.top + 20 : 8 }]}>
       {onPress ? (
-        <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel ? `${dateLabel}, ${accessibilityLabel}` : undefined} onPress={onPress}
+        <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel ? [dateLabel, accessibilityLabel].filter(Boolean).join(', ') : undefined} onPress={onPress}
           style={({ pressed }) => [styles.content, { opacity: pressed ? 0.7 : 1 }]}>
           {content}
         </Pressable>
@@ -48,7 +50,7 @@ export function TabHeader({ date, label, context, title, value, details, trailin
 const styles = StyleSheet.create({
   root: { paddingHorizontal: SCREEN_GUTTER, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   content: { flex: 1, minWidth: 0, gap: 6 },
-  labels: { minHeight: 44, gap: 2 },
+  line: { minHeight: 44, justifyContent: 'center' },
   details: { paddingTop: 6, gap: 4 },
   trailing: { paddingTop: 2, flexShrink: 0 },
 });

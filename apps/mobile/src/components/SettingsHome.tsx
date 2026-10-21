@@ -16,7 +16,6 @@ import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
 import { deviceRegion, regionName } from '@/lib/locale';
 import { profileFor } from '@/lib/majors';
 import { useCanDo } from '@/lib/can-do';
-import { useNow } from '@/lib/now';
 import { freeImportAllowance } from '@/lib/plans';
 import { PRO_ENTITLEMENT, customerCenterEnabled } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
@@ -28,7 +27,6 @@ const APPEARANCE_LABEL = { system: 'Match iPhone', light: 'Light', dark: 'Dark' 
 /** Profile and preferences, shared by the You tab and /settings. */
 export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const { c } = useTheme();
-  const now = useNow();
   const { isPro, customerInfo, loading, busy, manageSubscription } = usePurchases();
   const settings = useStore((s) => s.settings);
   /** null for a guest. */
@@ -53,7 +51,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: inTab ? NAV_INSET : 48 }} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior={inTab ? 'never' : 'automatic'}>
-      <TabHeader date={now.date} label="Profile and preferences" title="You" inset={inTab}
+      <TabHeader title="You" size="title" inset={inTab}
         details={<View style={{ alignSelf: 'flex-start' }}>{loading && !customerInfo ? <Skeleton width={132} height={28} round={14} /> : <StatusPill label={plan.label} tone={plan.tone} tabular={false} />}</View>} />
       <View style={styles.body}>
 
