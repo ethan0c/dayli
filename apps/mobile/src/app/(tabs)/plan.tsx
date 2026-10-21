@@ -18,6 +18,7 @@ import { SHARING_ENABLED } from '@/lib/auth';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
+import { defaultTimes } from '@/lib/times';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
 
@@ -35,7 +36,8 @@ function eventEnd(item: Item): string {
 }
 
 /** A work shift with no time yet: the row that asks for one. */
-const isUntimedShift = (item: Item) => item.kind === 'event' && item.category === 'work' && !item.start;
+/** Any event that came in without a time; Plan asks for it in place, as the review promised. */
+const isUntimedEvent = (item: Item) => item.kind === 'event' && !item.start;
 
 export default function PlanScreen() {
   const { c } = useTheme();
@@ -91,7 +93,7 @@ export default function PlanScreen() {
       return { id: i.id, start: i.start!, end, tone: i.done || past ? 'green' as const : weekConflicts.has(i.id) ? 'red' as const : 'ink' as const };
     });
     const marks = list.filter((i) => i.isDeadline && i.start).map((i) => ({ id: i.id, time: i.start!, kind: 'ring' as const, tone: date === now.date && !i.done ? 'red' as const : 'ink' as const }));
-    return { date, blocks, marks, unknown: list.some(isUntimedShift) };
+    return { date, blocks, marks, unknown: list.some(isUntimedEvent) };
   }), [week, weekItems, weekConflicts, now.date, nowMin]);
 
   const dayItems = useMemo(() => {
@@ -145,8 +147,8 @@ export default function PlanScreen() {
     const copy = sameAs(it);
     return (
       <View style={[styles.shift, { borderBottomColor: c.line }]}>
-        <ListRow title={it.title} sub={it.start ? where(it) : `${it.employer ?? 'Work'} · No time yet, so no reminder`} chevron={false} last
-          leading={<View style={styles.lead}><CategoryDot color={c.category.work.ink} /></View>}
+        <ListRow title={it.title} sub={it.start ? where(it) : `${where(it)} · No time yet, so no reminder`} chevron={false} last
+          leading={<View style={styles.lead}><CategoryDot color={c.category[it.category].ink} /></View>}
           trailing={it.start ? <StatusPill label={formatTime(it.start)} /> : <StatusPill label="Add a time" tone="amber" tabular={false} />}
           onPress={() => router.push(`/item/${it.id}`)} />
         <View style={styles.timeRow}>
@@ -154,7 +156,7 @@ export default function PlanScreen() {
             <TimeField date={it.date} time={it.start} onChange={(start) => updateItem(it.id, { start })} />
           ) : (
             <Press accessibilityRole="button" accessibilityLabel={it.start ? `Start time, ${formatTime(it.start)}` : 'Start time, not set'} haptic="select"
-              onPress={() => setTiming((t) => ({ ...t, [it.id]: { ...t[it.id], start: true } }))} style={[styles.timePill, { backgroundColor: c.row }]}>
+              onPress={() => { if (!it.start) updateItem(it.id, defaultTimes(it, copy)); setTiming((t) => ({ ...t, [it.id]: { ...t[it.id], start: true } })); }} style={[styles.timePill, { backgroundColor: c.row }]}>
               <T token="subhead" tabular>{it.start ? formatTime(it.start) : 'Start'}</T>
             </Press>
           )}
@@ -162,7 +164,7 @@ export default function PlanScreen() {
             <TimeField date={it.date} time={it.end} onChange={(end) => updateItem(it.id, { end })} />
           ) : (
             <Press accessibilityRole="button" accessibilityLabel={it.end ? `End time, ${formatTime(it.end)}` : 'End time, not set'} haptic="select"
-              onPress={() => setTiming((t) => ({ ...t, [it.id]: { ...t[it.id], end: true } }))} style={[styles.timePill, { backgroundColor: c.row }]}>
+              onPress={() => { if (!it.start || !it.end) updateItem(it.id, defaultTimes(it, copy)); setTiming((t) => ({ ...t, [it.id]: { ...t[it.id], end: true } })); }} style={[styles.timePill, { backgroundColor: c.row }]}>
               <T token="subhead" tabular>{it.end ? formatTime(it.end) : 'End'}</T>
             </Press>
           )}
@@ -192,7 +194,7 @@ export default function PlanScreen() {
               : relativeDay(now.date, selected)} />
           {dayItems.length ? dayItems.map((it) => (
             <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
-              {isUntimedShift(it) || timing[it.id] ? renderShift(it) : (
+              {isUntimedEvent(it) || timing[it.id] ? renderShift(it) : (
                 <ItemRow item={it} today={now.date} conflict={conflicts.has(it.id)}
                   onPress={() => router.push(`/item/${it.id}`)}
                   onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); toggleDone(it.id); }}

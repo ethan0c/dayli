@@ -15,6 +15,7 @@ import { Press } from '@/components/Press';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
+import { defaultTimes } from '@/lib/times';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { usePlusAccess } from '@/lib/plus-access';
@@ -200,7 +201,7 @@ export default function ItemScreen() {
               </T>
             </Pressable>
           ) : (
-            <Press accessibilityRole="button" accessibilityLabel="Add a time" haptic="select" onPress={() => setEditing(editing === 'time' ? null : 'time')} style={[styles.addTime, { backgroundColor: c.row }]}>
+            <Press accessibilityRole="button" accessibilityLabel="Add a time" haptic="select" onPress={() => { updateItem(item.id, defaultTimes(item)); setEditing('time'); }} style={[styles.addTime, { backgroundColor: c.row }]}>
               <T token="subhead">Add a time</T>
             </Press>
           )}
