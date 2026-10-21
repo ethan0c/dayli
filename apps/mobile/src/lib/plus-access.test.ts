@@ -4,7 +4,8 @@ import { usePlusAccess as createAccess } from './plus-access';
 
 const mocks = vi.hoisted(() => ({
   refreshCustomerInfo: vi.fn(), presentPaywall: vi.fn(), track: vi.fn(),
-  usage: { month: '2026-10', imports: 0 },
+  // A phone past its first thirty days, on the monthly allowance.
+  usage: { month: '2026-10', imports: 0, firstImportAt: '2026-08-01T00:00:00Z', total: 9 },
 }));
 vi.mock('./analytics', () => ({ track: mocks.track }));
 vi.mock('./revenuecat', () => ({ hasSemliPro: (info: { active?: boolean }) => info.active === true }));
@@ -15,7 +16,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.useFakeTimers();
   vi.setSystemTime(new Date('2026-10-19T12:00:00Z'));
-  mocks.usage = { month: '2026-10', imports: 0 };
+  mocks.usage = { month: '2026-10', imports: 0, firstImportAt: '2026-08-01T00:00:00Z', total: 9 };
   mocks.refreshCustomerInfo.mockResolvedValue({ active: false });
   mocks.presentPaywall.mockResolvedValue(false);
 });

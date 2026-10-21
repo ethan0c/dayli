@@ -219,7 +219,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
         </T>
         {onContinueFree ? (
           <Pressable accessibilityRole="button" disabled={busy} onPress={onContinueFree} style={styles.textBtn}>
-            <T token="subhead" color={c.inkSecondary}>{`Continue free${freeImportsLeft !== undefined ? ` · ${freeImportsLeft} ${freeImportsLeft === 1 ? 'import' : 'imports'} left this month` : ' · 3 imports a month'}`}</T>
+            <T token="subhead" color={c.inkSecondary}>{`Continue free${freeImportsLeft !== undefined ? ` · ${freeImportsLeft} free ${freeImportsLeft === 1 ? 'import' : 'imports'} left` : ' · 5 imports to start, then 3 a month'}`}</T>
           </Pressable>
         ) : null}
         {!unavailableReason && (error || !offering) ? (
