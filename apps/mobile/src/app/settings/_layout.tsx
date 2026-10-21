@@ -29,6 +29,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="reminders" options={{ title: 'Reminders' }} />
       <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
       <Stack.Screen name="major" options={{ title: 'Field of study' }} />
+      <Stack.Screen name="region" options={{ title: 'Region' }} />
       <Stack.Screen name="plan" options={{ title: 'Semli Plus', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' }, contentStyle: { backgroundColor: palettes.dark.canvas }, headerTintColor: palettes.dark.inkPrimary, headerTitleStyle: { fontFamily: mobileFonts.medium, color: palettes.dark.inkPrimary, fontSize: 16 } }} />
       <Stack.Screen name="canvas" options={{ title: 'Canvas' }} />
       <Stack.Screen name="data" options={{ title: 'Your data' }} />

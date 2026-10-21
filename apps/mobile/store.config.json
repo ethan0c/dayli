@@ -1,0 +1,109 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "copyright": "2026 Chibudom Onyejesi",
+    "categories": [
+      "PRODUCTIVITY",
+      "EDUCATION"
+    ],
+    "info": {
+      "en-US": {
+        "title": "Semli: AI Student Planner",
+        "subtitle": "Syllabus, shifts & deadlines",
+        "description": "Semli is the daily planner for college students who also have a job, a life, and no time to type their schedule into a calendar.\n\nSend Semli what you already have. A syllabus PDF, a screenshot of your work schedule, a photo of a printed shift sheet, a message from the group chat. Semli reads the dates, times, exams and due dates and lays them out on your week. You check what it found before anything is saved, and every import can be undone.\n\nToday, at a glance\nOne screen with what’s next, a countdown to it, and the day as a bar. Due dates in red, done in green. Nothing to scroll through.\n\nThe week as a chart\nClasses, shifts and study time on one timeline. Overlaps show in red before they become a problem, and Semli suggests a free slot for anything you can move.\n\nA syllabus becomes the term\nUpload the PDF and every exam, reading and assignment lands on your calendar. Use Canvas? Paste your Canvas calendar feed once and assignments come in on their own.\n\nNew work schedule? Only the changes\nSend next week’s schedule and Semli compares it with the shifts you already have: what moved, what’s new, what was dropped. Keep anything with one tap.\n\nReminders that match your day\nA heads-up before classes and shifts, the day before a due date, and one morning note with what’s on. Quiet at night. Mark anything urgent and it rings like an alarm.\n\nFree, forever\nThe calendar, to-dos, reminders and 3 AI imports a month are free, with no time limit.\n\nSemli Plus\nUnlimited imports, Canvas kept in sync, schedule-change comparisons and suggested times for overlaps. Student pricing is on the honor system: $4.99 a month, $14.99 every 6 months, or $29.99 a year, with a 7-day free trial. Regular pricing is $7.99, $24.99 and $49.99.\n\nPrivate by default\nYour plan lives on your phone. Files you import are read by our AI provider and not stored. An account is optional; it backs up your plan so a new phone can restore it.\n\nSemli is built for students in nursing, engineering, business and every other major that mixes lectures, labs, clinicals and part-time work. iPhone only for now.\n\nSubscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage or cancel in your Apple ID settings. Terms: https://semli.app/terms. Privacy: https://semli.app/privacy.",
+        "keywords": [
+          "college",
+          "schedule",
+          "assignment",
+          "tracker",
+          "class",
+          "work",
+          "semester",
+          "homework",
+          "calendar",
+          "nursing",
+          "organizer",
+          "canvas"
+        ],
+        "releaseNotes": "First release. Syllabus and work-schedule import, Canvas sync, reminders, and the week as a chart.",
+        "promoText": "Drop in a syllabus or a screenshot of your work schedule. Semli reads the dates and tells you what matters today. Free to start.",
+        "marketingUrl": "https://semli.app",
+        "supportUrl": "https://semli.app/contact",
+        "privacyPolicyUrl": "https://semli.app/privacy"
+      },
+      "en-GB": {
+        "title": "Semli: AI Student Planner",
+        "subtitle": "Timetable, shifts & deadlines",
+        "description": "Semli is the daily planner for university students who also have a job, a life, and no time to type their timetable into a calendar.\n\nSend Semli what you already have. A module handbook PDF, a screenshot of your rota, a photo of a printed shift sheet, a message from the group chat. Semli reads the dates, times, exams and deadlines and lays them out on your week. You check what it found before anything is saved, and every import can be undone.\n\nToday, at a glance\nOne screen with what's next, a countdown to it, and the day as a bar. Deadlines in red, done in green. Nothing to scroll through.\n\nThe week as a chart\nLectures, seminars, shifts and study time on one timeline. Clashes show in red before they become a problem, and Semli suggests a free slot for anything you can move.\n\nA module guide becomes the term\nUpload the PDF and every exam, reading and assignment lands on your calendar. Dates like 4/11 are read the UK way. Use Canvas? Paste your Canvas calendar feed once and assignments come in on their own.\n\nNew rota? Only the changes\nSend next week's rota and Semli compares it with the shifts you already have: what moved, what's new, what was dropped. Keep anything with one tap.\n\nReminders that match your day\nA heads-up before lectures and shifts, the day before a deadline, and one morning note with what's on. Quiet at night. Mark anything urgent and it rings like an alarm.\n\nFree, for good\nThe calendar, to-dos, reminders and 3 AI imports a month are free, with no time limit.\n\nSemli Plus\nUnlimited imports, Canvas kept in sync, rota-change comparisons and suggested times for clashes. Student pricing is on the honour system, with a 7-day free trial.\n\nPrivate by default\nYour plan lives on your phone. Files you import are read by our AI provider and not stored. An account is optional; it backs up your plan so a new phone can restore it.\n\nSemli is built for students in nursing, engineering, business and every other course that mixes lectures, labs, placements and part-time work. iPhone only for now.\n\nSubscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage or cancel in your Apple ID settings. Terms: https://semli.app/terms. Privacy: https://semli.app/privacy.",
+        "keywords": [
+          "uni",
+          "university",
+          "rota",
+          "module",
+          "assignment",
+          "tracker",
+          "lecture",
+          "work",
+          "term",
+          "homework",
+          "calendar",
+          "nursing",
+          "organiser"
+        ],
+        "releaseNotes": "First release. Syllabus and work-schedule import, Canvas sync, reminders, and the week as a chart.",
+        "promoText": "Drop in a module guide or a screenshot of your rota. Semli reads the dates and tells you what matters today. Free to start.",
+        "marketingUrl": "https://semli.app",
+        "supportUrl": "https://semli.app/contact",
+        "privacyPolicyUrl": "https://semli.app/privacy"
+      },
+      "en-AU": {
+        "title": "Semli: AI Student Planner",
+        "subtitle": "Timetable, shifts & deadlines",
+        "description": "Semli is the daily planner for university students who also have a job, a life, and no time to type their timetable into a calendar.\n\nSend Semli what you already have. A unit outline PDF, a screenshot of your roster, a photo of a printed shift sheet, a message from the group chat. Semli reads the dates, times, exams and deadlines and lays them out on your week. You check what it found before anything is saved, and every import can be undone.\n\nToday, at a glance\nOne screen with what's next, a countdown to it, and the day as a bar. Deadlines in red, done in green. Nothing to scroll through.\n\nThe week as a chart\nLectures, seminars, shifts and study time on one timeline. Clashes show in red before they become a problem, and Semli suggests a free slot for anything you can move.\n\nA unit outline becomes the semester\nUpload the PDF and every exam, reading and assignment lands on your calendar. Dates like 4/11 are read the Australian way. Use Canvas? Paste your Canvas calendar feed once and assignments come in on their own.\n\nNew roster? Only the changes\nSend next week's roster and Semli compares it with the shifts you already have: what moved, what's new, what was dropped. Keep anything with one tap.\n\nReminders that match your day\nA heads-up before lectures and shifts, the day before a deadline, and one morning note with what's on. Quiet at night. Mark anything urgent and it rings like an alarm.\n\nFree, for good\nThe calendar, to-dos, reminders and 3 AI imports a month are free, with no time limit.\n\nSemli Plus\nUnlimited imports, Canvas kept in sync, roster-change comparisons and suggested times for clashes. Student pricing is on the honour system, with a 7-day free trial.\n\nPrivate by default\nYour plan lives on your phone. Files you import are read by our AI provider and not stored. An account is optional; it backs up your plan so a new phone can restore it.\n\nSemli is built for students in nursing, engineering, business and every other degree that mixes lectures, labs, placements, pracs and part-time work. iPhone only for now.\n\nSubscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage or cancel in your Apple ID settings. Terms: https://semli.app/terms. Privacy: https://semli.app/privacy.",
+        "keywords": [
+          "uni",
+          "university",
+          "roster",
+          "unit",
+          "assignment",
+          "tracker",
+          "lecture",
+          "work",
+          "semester",
+          "calendar",
+          "nursing",
+          "organiser"
+        ],
+        "releaseNotes": "First release. Syllabus and work-schedule import, Canvas sync, reminders, and the week as a chart.",
+        "promoText": "Drop in a unit outline or a screenshot of your roster. Semli reads the dates and tells you what matters today. Free to start.",
+        "marketingUrl": "https://semli.app",
+        "supportUrl": "https://semli.app/contact",
+        "privacyPolicyUrl": "https://semli.app/privacy"
+      },
+      "en-CA": {
+        "title": "Semli: AI Student Planner",
+        "subtitle": "Syllabus, shifts & deadlines",
+        "description": "Semli is the daily planner for college and university students who also have a job, a life, and no time to type their schedule into a calendar.\n\nSend Semli what you already have. A syllabus or course outline PDF, a screenshot of your work schedule, a photo of a printed shift sheet, a message from the group chat. Semli reads the dates, times, exams and due dates and lays them out on your week. You check what it found before anything is saved, and every import can be undone.\n\nToday, at a glance\nOne screen with what’s next, a countdown to it, and the day as a bar. Due dates in red, done in green. Nothing to scroll through.\n\nThe week as a chart\nClasses, shifts and study time on one timeline. Overlaps show in red before they become a problem, and Semli suggests a free slot for anything you can move.\n\nA course outline becomes the term\nUpload the PDF and every exam, reading and assignment lands on your calendar. Use Canvas? Paste your Canvas calendar feed once and assignments come in on their own.\n\nNew work schedule? Only the changes\nSend next week’s schedule and Semli compares it with the shifts you already have: what moved, what’s new, what was dropped. Keep anything with one tap.\n\nReminders that match your day\nA heads-up before classes and shifts, the day before a due date, and one morning note with what’s on. Quiet at night. Mark anything urgent and it rings like an alarm.\n\nFree, for good\nThe calendar, to-dos, reminders and 3 AI imports a month are free, with no time limit.\n\nSemli Plus\nUnlimited imports, Canvas kept in sync, schedule-change comparisons and suggested times for overlaps. Student pricing is on the honour system, with a 7-day free trial.\n\nPrivate by default\nYour plan lives on your phone. Files you import are read by our AI provider and not stored. An account is optional; it backs up your plan so a new phone can restore it.\n\nSemli is built for students in nursing, engineering, business and every other program that mixes lectures, labs, clinicals and part-time work. iPhone only for now.\n\nSubscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage or cancel in your Apple ID settings. Terms: https://semli.app/terms. Privacy: https://semli.app/privacy.",
+        "keywords": [
+          "college",
+          "university",
+          "schedule",
+          "assignment",
+          "tracker",
+          "class",
+          "work",
+          "semester",
+          "homework",
+          "calendar",
+          "nursing",
+          "canvas"
+        ],
+        "releaseNotes": "First release. Syllabus and work-schedule import, Canvas sync, reminders, and the week as a chart.",
+        "promoText": "Drop in a syllabus or a screenshot of your work schedule. Semli reads the dates and tells you what matters today. Free to start.",
+        "marketingUrl": "https://semli.app",
+        "supportUrl": "https://semli.app/contact",
+        "privacyPolicyUrl": "https://semli.app/privacy"
+      }
+    }
+  }
+}

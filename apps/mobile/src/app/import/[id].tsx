@@ -1,4 +1,4 @@
-import { formatTime, localParts, monthDay, weekdayShort } from '@dayli/core';
+import { dateLocale, formatTime, localParts, monthDay, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -19,14 +19,15 @@ const SAMPLE_SHOT = require('../../../assets/showcase/demo.jpg');
 
 const isShot = (source: string | null | undefined) => /^(screenshot|photo)$/i.test(source ?? '');
 
-/** "Oct 19 to 25", "Oct 29 to Nov 2", "Oct 19". */
+/** "Oct 19 to 25", "Oct 29 to Nov 2", "Oct 19"; "19 to 25 Oct" where the day comes first. */
 function span(dates: string[]): string | null {
   const sorted = [...dates].sort();
   const from = sorted[0];
   const to = sorted[sorted.length - 1];
   if (!from || !to) return null;
   if (from === to) return monthDay(from);
-  return from.slice(0, 7) === to.slice(0, 7) ? `${monthDay(from)} to ${Number(to.slice(-2))}` : `${monthDay(from)} to ${monthDay(to)}`;
+  if (from.slice(0, 7) !== to.slice(0, 7)) return `${monthDay(from)} to ${monthDay(to)}`;
+  return dateLocale().dayFirst ? `${Number(from.slice(-2))} to ${monthDay(to)}` : `${monthDay(from)} to ${Number(to.slice(-2))}`;
 }
 
 /** What one change did, as a row: the day and title on the left, the time or state on the right. */

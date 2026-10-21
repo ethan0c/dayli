@@ -1,4 +1,4 @@
-import { eventLanes, formatRange, formatTime, toMinutes } from '@dayli/core';
+import { dateLocale, eventLanes, formatHour, formatRange, formatTime, toMinutes } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -24,7 +24,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
   const y = (t: string) => ((toMinutes(t) - fromHour * 60) / 60) * PX_PER_HOUR;
   const nowMin = toMinutes(now.time);
   const nowY = ((nowMin - fromHour * 60) / 60) * PX_PER_HOUR;
-  const label = (h: number) => (h === 12 ? 'Noon' : h === 0 || h === 24 ? '12' : h === fromHour || h === 8 ? `${h % 12 || 12} ${h < 12 ? 'am' : 'pm'}` : h > 12 ? `${h - 12}` : `${h}`);
+  const label = (h: number) => !dateLocale().hour12 ? formatHour(h) : (h === 12 ? 'Noon' : h === 0 || h === 24 ? '12' : h === fromHour || h === 8 ? `${h % 12 || 12} ${h < 12 ? 'am' : 'pm'}` : h > 12 ? `${h - 12}` : `${h}`);
 
   return (
     <View style={{ height, position: 'relative' }}>

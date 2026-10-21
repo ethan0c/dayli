@@ -950,6 +950,89 @@
     }
   },
   {
+    "id": "text-uk-day-first",
+    "format": "natural-language",
+    "provenance": "synthetic",
+    "source": "Hand-authored regression case; not a real user message.",
+    "notes": "uk-day-first: en-GB reads 4/11 as 4 November, not April 11; 14:00 is 24-hour.",
+    "input": {
+      "kind": "text",
+      "text": "History seminar presentation on 4/11 at 14:00, essay due 24/10."
+    },
+    "context": {
+      "today": "2026-10-19",
+      "timezone": "Europe/London",
+      "locale": "en-GB",
+      "region": "GB",
+      "courses": [],
+      "employers": []
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {},
+      "items": [
+        {
+          "match": "seminar|presentation",
+          "date": "2026-11-04",
+          "start": "14:00",
+          "category": "school",
+          "end": null
+        },
+        {
+          "match": "essay",
+          "date": "2026-10-24",
+          "start": null,
+          "end": null,
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true
+        }
+      ]
+    }
+  },
+  {
+    "id": "text-de-day-first",
+    "format": "natural-language",
+    "provenance": "synthetic",
+    "source": "Hand-authored regression case; not a real user message.",
+    "notes": "de-day-first: de-DE reads 3.11. and 5/11 as November; English message, German conventions.",
+    "input": {
+      "kind": "text",
+      "text": "Tutorial for Analysis I on 3.11. from 10:15 to 11:45, problem sheet due 5/11."
+    },
+    "context": {
+      "today": "2026-10-19",
+      "timezone": "Europe/Berlin",
+      "locale": "de-DE",
+      "region": "DE",
+      "courses": [],
+      "employers": []
+    },
+    "expected": {
+      "complete": true,
+      "metadata": {},
+      "items": [
+        {
+          "match": "tutorial|analysis",
+          "date": "2026-11-03",
+          "start": "10:15",
+          "end": "11:45",
+          "kind": "event",
+          "category": "school"
+        },
+        {
+          "match": "sheet|problem",
+          "date": "2026-11-05",
+          "kind": "task",
+          "category": "school",
+          "is_deadline": true,
+          "start": null,
+          "end": null
+        }
+      ]
+    }
+  },
+  {
     "id": "image-7shifts-split",
     "provenance": "public",
     "source": "https://kb.7shifts.com/hc/en-us/articles/4417513470099-How-to-Print-a-Schedule",

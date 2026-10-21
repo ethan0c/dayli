@@ -1,4 +1,5 @@
-import { formatRange, formatTime } from './dates';
+import { formatRange, formatTime, monthDay } from './dates';
+import { dateLocale } from './locale';
 
 /**
  * Cues: the days and times a person mentions while they talk or type, found by rule so they can
@@ -24,7 +25,6 @@ const RELATIVE: [RegExp, string][] = [
 const MONTH = '(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?';
 const DATE = new RegExp(`\\b${MONTH}\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b|\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?${MONTH}|\\bthe\\s+(\\d{1,2})(?:st|nd|rd|th)\\b|\\b(\\d{1,2})/(\\d{1,2})\\b`, 'gi');
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-const SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, noon: 12, midnight: 0 };
 const HOUR = '(\\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|noon|midnight)';
@@ -101,10 +101,14 @@ function cuesIn(text: string): Cue[] {
   }
   for (const m of text.matchAll(DATE)) {
     const month = (m[1] ?? m[4] ?? '').toLowerCase().slice(0, 3);
-    const day = Number(m[2] ?? m[3] ?? m[5] ?? m[7]);
-    const mm = m[6] ? Number(m[6]) : MONTHS.indexOf(month) + 1;
+    // 10/24 is October in the US; 24/10 is October where the day comes first.
+    const [first, second] = [Number(m[6]), Number(m[7])];
+    const numeric = !!m[6];
+    const day = numeric ? (dateLocale().dayFirst ? first : second) : Number(m[2] ?? m[3] ?? m[5]);
+    const mm = numeric ? (dateLocale().dayFirst ? second : first) : MONTHS.indexOf(month) + 1;
     if (!day || day > 31) continue;
-    push('date', m, mm >= 1 && mm <= 12 ? `${SHORT[mm - 1]} ${day}` : `The ${day}${day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th'}`);
+    if (numeric && (mm < 1 || mm > 12)) continue;
+    push('date', m, mm >= 1 && mm <= 12 ? monthDay(`2000-${String(mm).padStart(2, '0')}-${String(day).padStart(2, '0')}`) : `The ${day}${day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th'}`);
   }
   for (const [re, label] of WEEKDAYS) {
     const m = new RegExp(re.source, 'gi');

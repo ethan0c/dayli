@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, type ReactNode } from 'react';
 import { AppState, Appearance, LogBox } from 'react-native';
+import { I18nProvider } from '@lingui/react';
 import { PostHogProvider } from 'posthog-react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { addDays, localParts } from '@dayli/core';
@@ -19,6 +20,8 @@ import { useStorageStatus } from '@/lib/storage';
 import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
 import { devClock, devCommand, setDevAutoConfirm } from '@/lib/dev';
+import { i18n } from '@/lib/i18n';
+import { useDateLocaleSync } from '@/lib/locale';
 import { setDevTime } from '@/lib/now';
 import { hideSplash } from '@/lib/splash';
 import { sampleScheduleExtraction, sampleScheduleUpdate, sampleSyllabusExtraction, sampleWeek } from '@/store/sample';
@@ -74,6 +77,7 @@ function RootLayout() {
   const pathname = usePathname();
   const photoPaywall = pathname === '/paywall' || pathname === '/settings/plan';
   const ready = (fontsLoaded || !!fontError) && hydrated;
+  useDateLocaleSync(hydrated);
   useEffect(() => { if (fontError) reportError('fonts.load', fontError); }, [fontError]);
   useReminderSync();
   const alarmItems = useStore((s) => s.items);
@@ -162,6 +166,7 @@ function RootLayout() {
   const theme = dark ? DarkTheme : DefaultTheme;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+    <I18nProvider i18n={i18n}>
     <AnalyticsRoot>
     <PurchasesProvider>
       <CanvasAutoSync />
@@ -210,6 +215,7 @@ function RootLayout() {
       </ThemeProvider>
     </PurchasesProvider>
     </AnalyticsRoot>
+    </I18nProvider>
     </GestureHandlerRootView>
   );
 }

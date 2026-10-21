@@ -1,4 +1,4 @@
-import { WEEKDAYS, diffDays, formatTime, isLocalDate, monthDay, weekdayOf, weekdayShort } from '@dayli/core';
+import { WEEKDAYS, dateLocale, diffDays, formatTime, isLocalDate, monthDay, weekdayOf, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
@@ -24,7 +24,7 @@ const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'Ju
 /** "October 12" for a local date. */
 function longMonthDay(date: string): string {
   const [, m, d] = date.split('-').map(Number);
-  return `${MONTHS_LONG[m! - 1]} ${d}`;
+  return dateLocale().dayFirst ? `${d} ${MONTHS_LONG[m! - 1]}` : `${MONTHS_LONG[m! - 1]} ${d}`;
 }
 
 /** "9:00" without its period. */
@@ -37,6 +37,7 @@ const period = (t: string) => (Number(t.split(':')[0]) >= 12 ? 'pm' : 'am');
 /** "9:00 – 10:15 am", "11:30 am – 1:00 pm". */
 function meetingTime(start: string, end: string | null): string {
   if (!end) return formatTime(start);
+  if (!dateLocale().hour12) return `${formatTime(start)} – ${formatTime(end)}`;
   return period(start) === period(end) ? `${clock(start)} – ${clock(end)} ${period(end)}` : `${formatTime(start)} – ${formatTime(end)}`;
 }
 

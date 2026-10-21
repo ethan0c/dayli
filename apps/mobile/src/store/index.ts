@@ -1,4 +1,4 @@
-import type { CommitPlan } from '@dayli/core';
+import type { CommitPlan, TermSystem } from '@dayli/core';
 import type { ImportUsage } from '@/lib/plans';
 import type { Course, Extraction, Item, ScheduleVersion } from '@dayli/schema';
 import { COURSE_TINTS, type TintName } from '@dayli/tokens';
@@ -73,6 +73,10 @@ interface Settings {
   onboardingImportDone: boolean;
   /** Active free trial, for the day-5 reminder. */
   trial: { endsAt: string; label: string } | null;
+  /** Where the person studies, for the term calendar and numeric dates; null follows the phone. */
+  region: string | null;
+  /** Semesters or quarters, asked only where both are common (US, Canada). */
+  termSystem: TermSystem;
   /** Where assignments live, asked in onboarding. Only Canvas syncs today; the rest is demand data. */
   lms: Lms | null;
   /** Account backup status, for You → Account. Nothing here is synced. */
@@ -150,7 +154,7 @@ interface State {
   clearAll: (scope: 'plan' | 'everything') => void;
 }
 
-const DEFAULT_SETTINGS: Settings = { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null }, firsts: { overlap: false, urgent: false, canvas: false, reimport: false, hours: false } };
+const DEFAULT_SETTINGS: Settings = { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, region: null, termSystem: 'semester', lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null }, firsts: { overlap: false, urgent: false, canvas: false, reimport: false, hours: false } };
 
 export const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 const nowIso = () => new Date().toISOString();

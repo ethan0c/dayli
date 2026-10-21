@@ -118,6 +118,10 @@ export const ExtractContext = z.object({
   name: z.string().optional(),
   today: LocalDate,
   timezone: z.string(),
+  /** BCP 47 tag of the device, e.g. "en-GB". Older builds and the web demo may omit it. */
+  locale: z.string().max(35).optional(),
+  /** ISO 3166 region the person studies or works in, e.g. "GB". */
+  region: z.string().regex(/^[A-Z]{2}$/).optional(),
   courses: z.array(z.object({ code: z.string().nullable(), title: z.string() })),
   employers: z.array(z.string()),
 });

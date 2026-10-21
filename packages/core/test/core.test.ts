@@ -1,19 +1,29 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import type { Extraction, Item } from '@dayli/schema';
 import {
   addDays,
   diffSchedule,
   findConflicts,
   findOverloads,
+  dateLocaleFrom,
+  formatHour,
   formatRange,
   formatTime,
+  fullDate,
   isLocalDate,
+  monthDay,
   pendingDates,
   planCommit,
   relativeDay,
   toDrafts,
   weekOf,
-  weekdayOf,, typicalTermEnd } from '../src';
+  resetDateLocale,
+  setDateLocale,
+  typicalTermEnd,
+  weekdayOf,
+} from '../src';
+
+afterEach(() => resetDateLocale());
 
 function item(p: Partial<Item> & Pick<Item, 'id' | 'date'>): Item {
   return {
@@ -186,12 +196,55 @@ describe('drafts and commit planning', () => {
 
 describe('typical term end', () => {
   it('ends a fall class in mid-December, spring in mid-May, summer in early August', () => {
-    expect(typicalTermEnd('2026-08-24')).toEqual({ date: '2026-12-11', term: 'fall' });
-    expect(typicalTermEnd('2027-01-19')).toEqual({ date: '2027-05-14', term: 'spring' });
-    expect(typicalTermEnd('2027-06-01')).toEqual({ date: '2027-08-06', term: 'summer' });
+    expect(typicalTermEnd('2026-08-24')).toEqual({ date: '2026-12-11', term: 'fall', name: 'fall semester' });
+    expect(typicalTermEnd('2027-01-19')).toEqual({ date: '2027-05-14', term: 'spring', name: 'spring semester' });
+    expect(typicalTermEnd('2027-06-01')).toEqual({ date: '2027-08-06', term: 'summer', name: 'summer session' });
   });
   it('gives a class that starts late in a term the next one', () => {
-    expect(typicalTermEnd('2026-11-20')).toEqual({ date: '2027-05-14', term: 'spring' });
-    expect(typicalTermEnd('2026-12-20')).toEqual({ date: '2027-05-14', term: 'spring' });
+    expect(typicalTermEnd('2026-11-20')).toMatchObject({ date: '2027-05-14', term: 'spring' });
+    expect(typicalTermEnd('2026-12-20')).toMatchObject({ date: '2027-05-14', term: 'spring' });
+  });
+  it('follows the region the person is in', () => {
+    expect(typicalTermEnd('2026-09-28', 'GB')).toEqual({ date: '2026-12-11', term: 'autumn', name: 'autumn term' });
+    expect(typicalTermEnd('2027-01-11', 'GB')).toMatchObject({ date: '2027-03-26', name: 'spring term' });
+    expect(typicalTermEnd('2027-03-01', 'AU')).toMatchObject({ date: '2027-06-04', name: 'semester 1' });
+    expect(typicalTermEnd('2026-10-12', 'DE')).toMatchObject({ date: '2027-02-12', name: 'winter semester' });
+    expect(typicalTermEnd('2026-09-01', 'SE')).toMatchObject({ date: '2027-01-15', name: 'autumn semester' });
+    expect(typicalTermEnd('2027-04-08', 'JP')).toMatchObject({ date: '2027-07-30', name: 'spring semester' });
+    expect(typicalTermEnd('2026-09-08', 'CA')).toMatchObject({ date: '2026-12-04', name: 'fall term' });
+  });
+  it('uses quarters where the person chose them, and the US calendar where none is known', () => {
+    expect(typicalTermEnd('2027-01-04', 'US', 'quarter')).toMatchObject({ date: '2027-03-19', name: 'winter quarter' });
+    expect(typicalTermEnd('2026-09-28', 'US', 'quarter')).toMatchObject({ date: '2026-12-11', name: 'fall quarter' });
+    expect(typicalTermEnd('2026-08-24', 'BR')).toEqual(typicalTermEnd('2026-08-24', 'US'));
+  });
+  it('reads the region set for the app', () => {
+    setDateLocale({ region: 'AU' });
+    expect(typicalTermEnd('2026-07-20').name).toBe('semester 2');
+  });
+});
+
+describe('date locale', () => {
+  it('reads a device locale', () => {
+    expect(dateLocaleFrom({ locale: 'en-GB', region: 'GB', hour12: false })).toEqual({ locale: 'en-GB', region: 'GB', hour12: false, dayFirst: true, termSystem: 'semester' });
+    expect(dateLocaleFrom({ locale: 'de-DE' })).toMatchObject({ region: 'DE', hour12: false, dayFirst: true });
+    expect(dateLocaleFrom({ locale: 'en-US' })).toMatchObject({ region: 'US', hour12: true, dayFirst: false });
+    expect(dateLocaleFrom({ locale: 'ja-JP' })).toMatchObject({ region: 'JP', dayFirst: false });
+    expect(dateLocaleFrom({ locale: 'en' }).region).toBe('US');
+  });
+  it('formats on a 24-hour clock', () => {
+    setDateLocale({ hour12: false });
+    expect(formatTime('16:00')).toBe('16:00');
+    expect(formatTime('09:30', true)).toBe('09:30');
+    expect(formatRange('16:00', '22:00')).toBe('16:00–22:00');
+    expect(formatHour(8)).toBe('08');
+  });
+  it('puts the day first where the region does', () => {
+    expect(monthDay('2026-10-24')).toBe('Oct 24');
+    expect(fullDate('2026-10-24')).toBe('Oct 24, 2026');
+    expect(formatHour(16)).toBe('4 pm');
+    setDateLocale({ dayFirst: true });
+    expect(monthDay('2026-10-24')).toBe('24 Oct');
+    expect(fullDate('2026-10-24')).toBe('24 Oct 2026');
   });
 });

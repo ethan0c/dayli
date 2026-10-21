@@ -176,7 +176,7 @@ export function TryIt({ qr }: { qr: Qr }) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           input,
-          context: { today, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, courses: [], employers: [] },
+          context: { today, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, locale: navigator.language, courses: [], employers: [] },
         } satisfies ExtractRequest),
       });
       let body: unknown;

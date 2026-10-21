@@ -1,0 +1,28 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-10-21 08:20-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: pseudo-LOCALE\n"
+
+#: src/app/settings/region.tsx:35
+msgid "Match iPhone, {phoneName}"
+msgstr ""
+
+#: src/app/settings/region.tsx:16
+msgid "Quarters"
+msgstr ""
+
+#: src/app/settings/region.tsx:15
+msgid "Semesters"
+msgstr ""
+
+#: src/app/settings/region.tsx:34
+msgid "When a syllabus doesn't say when classes end, Semli guesses the {term}: {ends}. It also reads dates like 4/11 the way they're written here."
+msgstr ""
+
+#: src/app/settings/region.tsx:41
+msgid "Your school runs on"
+msgstr ""

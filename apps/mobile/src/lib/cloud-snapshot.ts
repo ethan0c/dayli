@@ -9,7 +9,7 @@ type State = ReturnType<typeof useStore.getState>;
 type Settings = State['settings'];
 
 /** Settings that describe the person, not this phone. */
-const PERSONAL = ['name', 'isStudent', 'major', 'weekKinds', 'lms', 'canvas', 'reminders', 'breaks', 'planIntent'] as const;
+const PERSONAL = ['name', 'isStudent', 'major', 'weekKinds', 'lms', 'canvas', 'reminders', 'breaks', 'planIntent', 'region', 'termSystem'] as const;
 
 export interface Snapshot {
   version: 1;

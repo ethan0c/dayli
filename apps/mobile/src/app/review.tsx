@@ -1,5 +1,5 @@
 import {
-  WEEKDAYS, conflictIds, formatTime, isLocalDate, localParts, monthDay, planCommit, toDrafts, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort,
+  WEEKDAYS, conflictIds, dateLocale, formatTime, isLocalDate, localParts, monthDay, planCommit, toDrafts, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort,
   type CommitPlan, type DatedDraft, type Draft,
  typicalTermEnd,
 } from '@dayli/core';
@@ -431,7 +431,7 @@ export default function ReviewScreen() {
     const finalExam = exams.filter((e) => e.date >= s.first.date).at(-1);
     const suggested = finalExam
       ? { date: finalExam.date, label: `${monthDay(finalExam.date)} · ${/final/i.test(finalExam.title) ? 'The final' : 'The last exam'}` }
-      : { date: s.first.seriesUntil ?? s.last.date, label: `${monthDay(s.first.seriesUntil ?? s.last.date)} · Typical ${typicalTermEnd(s.first.date).term} semester end` };
+      : { date: s.first.seriesUntil ?? s.last.date, label: `${monthDay(s.first.seriesUntil ?? s.last.date)} · Typical ${typicalTermEnd(s.first.date).name} end` };
     const when = s.first.start && s.first.end ? `${s.weekdays} ${longRange(s.first.start, s.first.end)}` : s.weekdays;
     const unknown = s.first.seriesEndUnknown;
     return (
@@ -608,6 +608,7 @@ function dayNum(date: string): string {
 function longRange(start: string, end: string): string {
   const a = formatTime(start);
   const b = formatTime(end);
+  if (!dateLocale().hour12) return `${a} – ${b}`;
   return a.slice(-2) === b.slice(-2) ? `${a.slice(0, -3)} – ${b}` : `${a} – ${b}`;
 }
 

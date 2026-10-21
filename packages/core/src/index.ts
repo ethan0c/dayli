@@ -1,3 +1,4 @@
+export * from './locale';
 export * from './dates';
 export * from './intervals';
 export * from './diff';

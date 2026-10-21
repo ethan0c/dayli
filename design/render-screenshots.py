@@ -14,6 +14,12 @@ the type clears 3.5:1. Decided Oct 20, 2026; a serif caption was tried the same 
     python3 design/render-screenshots.py                 # all, default layout
     python3 design/render-screenshots.py today-mon plan  # a subset, by raw name
     python3 design/render-screenshots.py --layout center --out /tmp/x today-mon
+    python3 design/render-screenshots.py --locale en-GB  # UK captions, into screenshots/en-GB
+
+A storefront locale swaps the captions below and reads its captures from raw/<locale>/ when
+that folder exists, so dates and clocks in the phone match the storefront. Capture them with the
+simulator in that region: `xcrun simctl launch booted app.semli.mobile -AppleLanguages "(en-GB)"
+-AppleLocale en_GB` (24-hour time and day-first dates follow). en-US and en-CA use the defaults.
 
 Needs Pillow (`pip3 install pillow`).
 """
@@ -111,6 +117,24 @@ SHOTS: list[tuple[str, str, str, str]] = [
     ("add", "Type it or ~screenshot~ it.", "Semli reads work schedules, syllabi, and messages from class.", "paper"),
     ("item", "Every detail ~one tap~ away.", "Time, course, reminder, and the overlap, with a way out.", "golden"),
 ]
+
+# Per storefront: only the captions that change. Local words, same accent and line lengths.
+LOCALE_CAPTIONS: dict[str, dict[str, tuple[str, str]]] = {
+    "en-GB": {
+        "school": ("A term in ~two minutes~.", "Drop in a module guide. Semli reads every exam and deadline."),
+        "review-update": ("~Screenshot~ your rota.", "New, moved, and dropped shifts, before anything is saved."),
+        "plan": ("Uni and work in ~one week~.", "Green is done, red is a clash, a ring is an exam."),
+        "today-mon-hours": ("~Hour by hour~.", "Shifts, lectures, and clashes in red, on one timeline."),
+        "add": ("Type it or ~screenshot~ it.", "Semli reads rotas, module guides, and messages from your course."),
+    },
+    "en-AU": {
+        "school": ("A semester in ~two minutes~.", "Drop in a unit outline. Semli reads every exam and due date."),
+        "review-update": ("~Screenshot~ your roster.", "New, moved, and dropped shifts, before anything is saved."),
+        "plan": ("Uni and work in ~one week~.", "Green is done, red is a clash, a ring is an exam."),
+        "today-mon-hours": ("~Hour by hour~.", "Shifts, lectures, and clashes in red, on one timeline."),
+        "add": ("Type it or ~screenshot~ it.", "Semli reads rosters, unit outlines, and messages from your course."),
+    },
+}
 
 
 def font(size: int, weight: str = "Regular") -> ImageFont.FreeTypeFont:
@@ -347,8 +371,8 @@ def fix_grey_band(capture: Image.Image) -> Image.Image:
     return img
 
 
-def render(name: str, title: str, sub: str, bg: str, index: int, L: Layout, out_dir: Path, wordmark: bool) -> Path:
-    capture = Image.open(RAW / f"{name}.png")
+def render(name: str, title: str, sub: str, bg: str, index: int, L: Layout, out_dir: Path, wordmark: bool, raw: Path = RAW) -> Path:
+    capture = Image.open(raw / f"{name}.png")
     if capture.size != (1320, 2868):
         raise SystemExit(f"{name}.png is {capture.size}, expected 1320x2868 (iPhone 17 Pro Max simulator)")
     if name == "paywall":
@@ -467,6 +491,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--header", action="store_true", help="render the product page header (3840x1646) and the search results card (3840x2560) instead of screenshots")
     ap.add_argument("--bg", choices=sorted(BACKGROUNDS), help="force one background for every shot (default: each shot's own)")
+    ap.add_argument("--locale", choices=["en-US", "en-CA", *sorted(LOCALE_CAPTIONS)], default="en-US", help="storefront captions; non-US output goes to <out>/<locale>")
     ap.add_argument("--canvas", help="WIDTHxHEIGHT of the output, default 1320x2868 (6.9-inch); e.g. 2007x2853 for the foldable's inner display")
     args = ap.parse_args()
     L = LAYOUTS[args.layout]
@@ -478,13 +503,17 @@ def main() -> None:
     if args.canvas:
         global W, H
         W, H = (int(v) for v in args.canvas.lower().split("x"))
+    captions = LOCALE_CAPTIONS.get(args.locale, {})
+    out_dir = args.out / args.locale if args.locale != "en-US" else args.out
     for i, (name, title, sub, bg) in enumerate(SHOTS, start=1):
         if args.names and name not in args.names:
             continue
-        if not (RAW / f"{name}.png").exists():
+        raw = RAW / args.locale if (RAW / args.locale / f"{name}.png").exists() else RAW
+        if not (raw / f"{name}.png").exists():
             print(f"skip {name}: no raw capture")
             continue
-        print(render(name, title, sub, args.bg or bg, i, L, args.out, wordmark=(i == 1)))
+        title, sub = captions.get(name, (title, sub))
+        print(render(name, title, sub, args.bg or bg, i, L, out_dir, wordmark=(i == 1), raw=raw))
 
 
 if __name__ == "__main__":

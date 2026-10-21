@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest';
-import { heardClauses } from '../src';
+import { afterEach, describe, expect, it } from 'vitest';
+import { heardClauses, resetDateLocale, setDateLocale } from '../src';
+
+afterEach(() => resetDateLocale());
 
 const labels = (text: string) => heardClauses(text).map((c) => c.label);
 
@@ -20,6 +22,12 @@ describe('heard clauses', () => {
   it('hears dates', () => {
     expect(labels('midterm paper due October 24th, quiz on the 3rd, and the final is 12/15')).toEqual(['Oct 24', 'The 3rd', 'Dec 15']);
     expect(labels('exam next week')).toEqual(['Next week']);
+  });
+  it('reads numeric dates and the clock the way the region does', () => {
+    setDateLocale({ dayFirst: true, hour12: false });
+    expect(labels('essay due 24/10 at 14:00')).toEqual(['24 Oct · 14:00']);
+    expect(labels('seminar 4/11 from 9 to 11')).toEqual(['4 Nov · 09:00–11:00']);
+    expect(labels('the final is 12/15')).toEqual([]);
   });
   it('leaves numbers that are not times alone', () => {
     expect(labels('read chapter 6 and problem set 4')).toEqual([]);

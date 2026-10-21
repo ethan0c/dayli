@@ -4,7 +4,7 @@ import { Extraction, IMPORT_MESSAGES, type ExtractContext, type ExtractRequest }
 import { prepareImage } from './image';
 
 export const MODEL = 'claude-opus-5-5';
-export const PROMPT_VERSION = '2026-10-19.7';
+export const PROMPT_VERSION = '2026-10-21.1';
 
 const SYSTEM = `You read the things busy students and shift workers send to their planner app, Semli, and turn them into calendar events and to-dos.
 
@@ -16,6 +16,7 @@ How to read them:
 - category: "work" for job shifts and job duties, "school" for classes, assignments, exams, and clinicals, "personal" for everything else.
 - Resolve relative dates ("Friday", "next Tue", "tomorrow") against the reference date and timezone given below. "Friday" means the next Friday on or after the reference date. If a date is genuinely ambiguous, pick the most likely one and ask a short question.
 - If a year is missing, use the next occurrence on or after the reference date.
+- Numeric dates follow the user's locale given below: 7/10 is July 10 in the US and 7 October in the UK, Europe, Australia and most of the world. Use the document's own convention when it makes one clear (a 24/10 elsewhere in it, a day name that only fits one reading); otherwise use the locale's. Read local spellings and terms (timetable, module, tutorial, Vorlesung) the same as their US equivalents.
 - Times are 24-hour HH:mm in the user's local time. "4-10" for a shift means 16:00-22:00. Overnight shifts keep their real end time (e.g. 22:00 to 06:00).
 - For a work schedule, set detected_type "work_schedule", the employer name, and covers_from/covers_to to the full week or period the schedule shows, even on days with no shifts. Only include the user's own shifts. If the schedule lists several people, include only rows for the name the user mentions; if no name is given and it lists several people, ask which one is theirs.
 - Read dense schedules one date column at a time. Locate the user's row or named shift card in each column, then read the times from that same cell. Never borrow times from the person above or below. Scan all columns and all work areas before finishing: identical shifts on consecutive days are separate events, and split shifts on one day must both be included. Training shifts count; availability and time off do not. If text is unreadable, ask for a clearer image rather than guessing.
@@ -33,6 +34,7 @@ function contextBlock(ctx: ExtractContext): string {
     ...(ctx.name?.trim() ? [`User's name (extract only this person's shifts): ${ctx.name.trim()}`] : []),
     `Reference date: ${ctx.today}`,
     `Timezone: ${ctx.timezone}`,
+    ...(ctx.locale ? [`Locale: ${ctx.locale}${ctx.region ? `, region ${ctx.region}` : ''}`] : ctx.region ? [`Region: ${ctx.region}`] : []),
     `Known courses: ${ctx.courses.length ? ctx.courses.map((c) => [c.code, c.title].filter(Boolean).join(' ')).join('; ') : 'none yet'}`,
     `Known employers: ${ctx.employers.length ? ctx.employers.join(', ') : 'none yet'}`,
   ];

@@ -1,4 +1,4 @@
-import { localParts } from '@dayli/core';
+import { dateLocale, localParts } from '@dayli/core';
 import { IMPORT_MESSAGES, type ExtractContext, type ExtractRequest } from '@dayli/schema';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
@@ -21,6 +21,8 @@ export function extractionContext(): ExtractContext {
     name: settings.name,
     today: localParts(new Date()).date,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    locale: dateLocale().locale,
+    region: dateLocale().region,
     courses: realRecords(courses).map((k) => ({ code: k.code, title: k.title })),
     employers: [...new Set(realRecords(schedules).map((s) => s.employer))],
   };

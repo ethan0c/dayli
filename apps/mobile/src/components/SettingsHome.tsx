@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { fullDate, localParts } from '@dayli/core';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -12,6 +13,7 @@ import { ACCOUNTS_ENABLED, SHARING_ENABLED } from '@/lib/auth';
 import { accountOf, useSession } from '@/lib/supabase';
 import { feedback } from '@/lib/feedback';
 import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
+import { deviceRegion, regionName } from '@/lib/locale';
 import { profileFor } from '@/lib/majors';
 import { useCanDo } from '@/lib/can-do';
 import { useNow } from '@/lib/now';
@@ -63,6 +65,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         <Group title="Preferences">
           <Row label="Reminders" value={settings.reminders.enabled ? (settings.reminders.briefing ? 'On, with briefing' : 'On') : 'Off'} onPress={() => router.push('/settings/reminders')} />
           <Row label="Canvas" value={settings.canvas.feedUrl ? (settings.canvas.lastError ? 'Needs a look' : 'Syncing') : 'Off'} onPress={() => router.push('/settings/canvas')} />
+          <Row label="Region" value={regionName(settings.region ?? deviceRegion())} onPress={() => router.push('/settings/region')} />
           <Row label="Appearance" value={APPEARANCE_LABEL[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
           <ToggleRow label="Sounds" value={settings.sounds} onChange={(sounds) => { setSettings({ sounds }); feedback('select'); }} />
           <ToggleRow label="Haptics" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
@@ -76,7 +79,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         </Group> : null}
 
         <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
-          <Row label="Your plan" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
+          <Row label="Your plan" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
           <Row label="Manage subscription" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
             if (customerCenterEnabled || customerInfo?.managementURL) void manageSubscription().catch(() => router.push('/settings/plan'));
             else router.push('/settings/plan');

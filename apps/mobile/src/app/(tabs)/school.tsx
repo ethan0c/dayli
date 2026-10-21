@@ -32,9 +32,9 @@ function meetingPattern(events: Item[]): string | null {
 function weekLabels(today: string): string[] {
   let month = '';
   return [0, 7, 14, 21].map((n) => {
-    const [m, d] = monthDay(addDays(today, n)).split(' ');
-    const label = m === month ? d! : `${m} ${d}`;
-    month = m!;
+    const date = addDays(today, n);
+    const label = date.slice(5, 7) === month ? String(Number(date.slice(-2))) : monthDay(date);
+    month = date.slice(5, 7);
     return label;
   });
 }

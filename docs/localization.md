@@ -1,6 +1,17 @@
 # Localization: the markets, the order, the tooling
 
-Status: plan, Oct 21, 2026. Nothing here is built. Semli ships in US English only, with US semesters, a US-dollar paywall, and Canvas as the LMS. Roughly 400 user-facing strings in the app (`<T>` text plus labels, subtitles and placeholders), no i18n library, `expo-localization` installed but unused, three `toLocaleDateString()` calls, and `formatTime` hard-coded to am/pm.
+Status: Oct 21, 2026. **Step 1 is built; Step 2's code is built, its store work is not.** The app's words are still US English only, with a US-dollar paywall and Canvas as the only LMS sync.
+
+What exists now:
+- `packages/core/src/locale.ts`: one `DateLocale` (locale, region, 12/24-hour clock, day-first, semester/quarter) that `formatTime`, `formatRange`, `formatHour`, `monthDay`, `fullDate`, `typicalTermEnd` and the cue parser read. US defaults, so tests and US behaviour are unchanged.
+- `typicalTermEnd(start, region, system)` with calendars for every Tier A, B and C country (teaching end, as the Friday on or before a date), US and Canadian quarters, and a `name` for the review sheet ("autumn term", "semester 1", "winter semester").
+- `apps/mobile/src/lib/locale.ts`: the device's `expo-localization` locale, region and clock, with You → Region on top (region list, semesters or quarters for the US and Canada). Synced into core from the root layout; PostHog person properties `locale`, `region`, `clock`, `term_system`. Region and term system back up with the account.
+- `ExtractContext.locale`/`region` (optional, so older builds still validate), a numeric-date rule in the prompt (`PROMPT_VERSION 2026-10-21.1`), and two eval cases, `text-uk-day-first` and `text-de-day-first`; both pass live (Oct 21).
+- Lingui 6 wired (`lingui.config.ts`, `babel.config.js`, `src/lib/i18n.ts`, `I18nProvider`), catalogs in `apps/mobile/src/locales`, compiled to TypeScript (`npm run i18n --workspace mobile`). `EXPO_PUBLIC_PSEUDO=1` in a dev build shows `pseudo-LOCALE`. Only the Region screen uses `t` so far; every other string is still hard-coded, which the pseudo-locale makes visible.
+- `apps/mobile/store.config.json` (EAS Metadata): en-US as in `app-store-connect.md`, plus en-GB, en-AU and en-CA with local words and spelling and no dollar prices. Not pushed. Ireland and Singapore show en-GB, New Zealand en-AU; Apple has no separate English for them.
+- `design/render-screenshots.py --locale en-GB|en-AU|en-CA`: local captions, captures from `raw/<locale>/` when they exist.
+
+Still to do for Step 2: local prices in App Store Connect, en-GB and en-AU raw captures, `eas metadata:push` once the US listing is live, and Moodle and Blackboard feeds.
 
 ## 0. The honest premise
 

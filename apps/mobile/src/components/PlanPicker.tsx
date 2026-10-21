@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { fullDate, localParts } from '@dayli/core';
 import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
@@ -119,7 +120,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           <T token="callout" color={c.inkSecondary}>Semli <T token="callout" color={c.accentInk}>Plus</T> · Active</T>
           <T token="displayXl" color={c.inkPrimary}>Unlimited</T>
           <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
-            {entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${new Date(entitlement.expirationDate).toLocaleDateString()}.` : 'Every syllabus, schedule and screenshot read for you.'}
+            {entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}.` : 'Every syllabus, schedule and screenshot read for you.'}
           </T>
         </View>
         <PlusFeatures c={c} />

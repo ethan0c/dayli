@@ -1,4 +1,4 @@
-import { WEEKDAYS, conflictIds, diffDays, isFlexibleEvent, isLocalDate, isLocalTime, monthDay, relativeDay, todayItems, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort } from '@dayli/core';
+import { WEEKDAYS, conflictIds, dateLocale, diffDays, fullDate, isFlexibleEvent, isLocalDate, isLocalTime, localParts, monthDay, relativeDay, todayItems, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort } from '@dayli/core';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -37,15 +37,16 @@ function gap(now: { date: string; time: string }, date: string, time: string | n
 /** "October 19" for a local date. */
 function longMonthDay(date: string): string {
   const [, m, d] = date.split('-').map(Number);
-  return `${MONTHS_LONG[m! - 1]} ${d}`;
+  return dateLocale().dayFirst ? `${d} ${MONTHS_LONG[m! - 1]}` : `${MONTHS_LONG[m! - 1]} ${d}`;
 }
 
-/** "9:00" without its period. */
+/** "9:00" without its period; "21:00" on a 24-hour clock. */
 function clock(t: string): string {
+  if (!dateLocale().hour12) return t;
   const [h, m] = t.split(':').map(Number);
   return `${h! % 12 === 0 ? 12 : h! % 12}:${String(m).padStart(2, '0')}`;
 }
-const period = (t: string) => (Number(t.split(':')[0]) >= 12 ? 'pm' : 'am');
+const period = (t: string) => (!dateLocale().hour12 ? '' : Number(t.split(':')[0]) >= 12 ? 'pm' : 'am');
 
 /** "a screenshot", "a photo", "syllabus.pdf": where an import came from, in a sentence. */
 function sourceName(sourceId: string): string {
@@ -118,7 +119,7 @@ export default function ItemScreen() {
   const sameWeek = items.filter((it) => it.id !== item.id && !it.done && it.date >= now.date && diffDays(now.date, it.date) <= 7
     && ((item.employer && it.employer === item.employer) || (item.courseId && it.courseId === item.courseId))).slice(0, 4);
   const endsNextDay = item.start && item.end && item.end < item.start;
-  const timeLabel = item.start ? `${clock(item.start)}${item.end ? ` to ${clock(item.end)}` : ''} ${period(item.end ?? item.start)}` : null;
+  const timeLabel = item.start ? `${clock(item.start)}${item.end ? ` to ${clock(item.end)}` : ''} ${period(item.end ?? item.start)}`.trim() : null;
 
   // The series this occurrence belongs to, when it repeats.
   const series = item.seriesId ? items.filter((it) => it.seriesId === item.seriesId) : [];
@@ -197,7 +198,7 @@ export default function ItemScreen() {
               onPress={() => { feedback('select'); setEditing(editing === 'time' ? null : 'time'); }} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
               <T token="displayXl" tabular style={styles.time}>
                 {clock(item.start)}{item.end ? <T token="displayXl" color={c.inkSecondary} style={styles.time}> – </T> : null}{item.end ? clock(item.end) : ''}
-                <T token="title" color={c.inkSecondary} style={{ fontSize: 20 }}> {period(item.end ?? item.start)}{endsNextDay ? ', next day' : ''}</T>
+                <T token="title" color={c.inkSecondary} style={{ fontSize: 20 }}> {[period(item.end ?? item.start), endsNextDay ? 'next day' : ''].filter(Boolean).join(', ')}</T>
               </T>
             </Pressable>
           ) : (
@@ -291,7 +292,7 @@ export default function ItemScreen() {
           )}
         </View>
 
-        {item.done && item.completedAt ? <T token="caption" color={c.inkSecondary}>Done {new Date(item.completedAt).toLocaleDateString()}</T> : null}
+        {item.done && item.completedAt ? <T token="caption" color={c.inkSecondary}>Done {fullDate(localParts(new Date(item.completedAt)).date)}</T> : null}
 
         {sameWeek.length ? (
           <View>
