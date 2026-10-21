@@ -63,10 +63,10 @@ const SYL_MARKS = [
   { left: 17, kind: 'ring' as const },
   { left: 31, kind: 'dot' as const },
   { left: 44, kind: 'dot' as const },
-  { left: 58, kind: 'ring' as const },
+  { left: 58, kind: 'target' as const },
   { left: 73, kind: 'dot' as const },
   { left: 85, kind: 'dot' as const },
-  { left: 100, kind: 'ring' as const },
+  { left: 100, kind: 'target' as const },
 ];
 const SYL_MONTHS = [{ label: 'Sep', left: 0 }, { label: 'Oct', left: 27 }, { label: 'Nov', left: 56 }, { label: 'Dec', left: 86 }];
 /** A stagger index for siblings revealing together; globals.css multiplies it by the stagger token. */

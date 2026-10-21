@@ -1,4 +1,4 @@
-import { WEEKDAYS, dateLocale, diffDays, formatTime, isLocalDate, monthDay, weekdayOf, weekdayShort } from '@dayli/core';
+import { WEEKDAYS, assessment, dateLocale, diffDays, formatTime, isLocalDate, monthDay, weekdayOf, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
@@ -10,16 +10,15 @@ import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { DateField } from '@/components/Native';
 import { Sheet } from '@/components/Sheet';
-import { ChartKey } from '@/components/ChartMark';
-import { TermLine, termKey, type TermMark } from '@/components/TermLine';
+import { ChartKey, markKey, shapeFor } from '@/components/ChartMark';
+import { TermLine, type TermMark } from '@/components/TermLine';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
-import { useCourseList, useItemList, useStore } from '@/store';
+import { courseTint, useCourseList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
-const EXAM = /exam|quiz|midterm|final|test\b/i;
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 /** "October 12" for a local date. */
@@ -68,6 +67,7 @@ export default function CourseScreen() {
   const now = useNow();
   const { id } = useLocalSearchParams<{ id: string }>();
   const courses = useCourseList();
+  const allCourses = useStore((s) => s.courses);
   const items = useItemList();
   const batches = useStore((s) => s.batches);
   const toggleDone = useStore((s) => s.toggleDone);
@@ -97,7 +97,7 @@ export default function CourseScreen() {
   }
 
   const name = course.code ?? course.title;
-  const tint = c.tint[course.color ?? 'lavender'].ink;
+  const tint = c.tint[courseTint(allCourses, course.id) ?? 'lavender'].ink;
 
   // The one big number: days until the next undone deadline.
   const deadlines = all.filter((it) => it.isDeadline);
@@ -135,11 +135,11 @@ export default function CourseScreen() {
   const showTerm = all.length >= 2 && from && to && from !== to;
   const toGo = deadlines.filter((it) => !it.done).length;
   const marks: TermMark[] = deadlines.map((it) => {
-    const ring = EXAM.test(it.title);
+    const test = assessment(it.title);
     return {
-      id: it.id, date: it.date, kind: ring ? 'ring' : 'dot',
+      id: it.id, date: it.date, kind: shapeFor(test),
       tone: it.done ? 'green' : it.date === now.date ? 'red' : 'ink',
-      label: ring ? (it.title.length <= 10 ? it.title : 'Exam') : undefined,
+      label: test ? (it.title.length <= 10 ? it.title : test === 'exam' ? 'Exam' : 'Quiz') : undefined,
     };
   });
 
@@ -198,7 +198,7 @@ export default function CourseScreen() {
             <View accessible accessibilityRole="image" accessibilityLabel={`This term from ${longMonthDay(from)} to ${longMonthDay(to)}: ${deadlines.map((it) => `${it.title} ${monthDay(it.date)}${it.done ? ' done' : ''}`).join(', ') || 'no deadlines'}.`}>
               <TermLine from={from} to={to} marks={marks} today={now.date} scale="months" />
             </View>
-            <ChartKey entries={termKey(marks, c)} style={{ paddingTop: 12 }} />
+            <ChartKey entries={markKey(marks, c)} style={{ paddingTop: 12 }} />
           </View>
         ) : null}
 

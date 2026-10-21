@@ -1,19 +1,19 @@
 import { dayNumber } from '@dayli/core';
 import { chart } from '@dayli/tokens';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { keyOf, Mark, NowLine, type KeyEntry } from '@/components/ChartMark';
+import { Mark, NowLine, type MarkShape } from '@/components/ChartMark';
 import { T } from '@/components/Text';
 import { useTheme } from '@/theme';
 
 export type TermMark = {
   id: string;
   date: string;
-  /** A ring is an exam; a dot is a due date. */
-  kind: 'ring' | 'dot';
+  /** A dot is a due date, a ring a quiz, a target an exam (`shapeFor`). */
+  kind: MarkShape;
   tone?: 'ink' | 'red' | 'green';
-  /** Shown under the line for the few that matter (exams). */
+  /** Shown under the line for the few that matter (tests). */
   label?: string;
 };
 
@@ -23,10 +23,14 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  * A span of time as one line with marks on it: the term in the syllabus review, the next
  * four weeks on School. Month or week labels above, a hairline for today, labels below.
  */
-export function TermLine({ from, to, marks, today, scale = 'months', weekLabels, labels = true }: {
+export function TermLine({ from, to, marks, today, scale = 'months', weekLabels, labels = true, selected, onPick }: {
   from: string; to: string; marks: TermMark[]; today?: string; scale?: 'months' | 'weeks' | 'none'; weekLabels?: string[];
   /** The row under the line with "today" and the labelled marks; off for a compact strip. */
   labels?: boolean;
+  /** The picked mark, drawn with a focus ring. */
+  selected?: string;
+  /** Makes the line tappable: a tap picks the nearest mark within reach, or nothing (null). */
+  onPick?: (id: string | null) => void;
 }) {
   const { c } = useTheme();
   const [width, setWidth] = useState(0);
@@ -38,8 +42,14 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
   // Dots first, rings over them, red over ink: the mark that matters most is the one you see.
   const ordered = [...marks].sort((x, y) => rank(x) - rank(y));
   const shown = placeLabels(marks.filter((m) => m.label).map((m) => ({ id: m.id, p: pct(m.date), label: m.label! })), showToday && pct(today!) < 8, width - INSET * 2);
-  return (
-    <View style={{ gap: 8 }} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+  // Marks are 8 to 12 points, too small to hit; a tap anywhere on the line takes the nearest one.
+  const pick = (x: number) => {
+    const plot = width - INSET * 2;
+    const nearest = marks.map((m) => ({ id: m.id, d: Math.abs(INSET + (pct(m.date) / 100) * plot - x) })).sort((p, q) => p.d - q.d)[0];
+    onPick!(nearest && nearest.d <= REACH ? nearest.id : null);
+  };
+  const body = (
+    <View style={{ gap: 8 }} pointerEvents={onPick ? 'none' : 'auto'}>
       {scale === 'months' ? (
         <View style={styles.scale}>
           {monthSpans(from, to).map((m) => (
@@ -57,7 +67,7 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
       <View style={[styles.track, { backgroundColor: c.row }]} accessible accessibilityRole="image" accessibilityLabel={describe(marks, from, to)}>
         <View style={styles.plot} pointerEvents="none">
           {showToday ? <NowLine at={{ x: pct(today!) }} color={c.inkPrimary} /> : null}
-          {ordered.map((m) => <Mark key={m.id} at={{ x: pct(m.date) }} kind={m.kind} color={tones[m.tone ?? 'ink']} />)}
+          {ordered.map((m) => <Mark key={m.id} at={{ x: pct(m.date) }} kind={m.kind} color={tones[m.tone ?? 'ink']} selected={m.id === selected} />)}
         </View>
       </View>
       {labels && (shown.length || showToday) ? (
@@ -71,7 +81,16 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
       ) : null}
     </View>
   );
+  return onPick ? (
+    <Pressable onLayout={(e) => setWidth(e.nativeEvent.layout.width)} hitSlop={{ top: 11, bottom: 11 }} accessible={false}
+      onPress={(e) => pick(e.nativeEvent.locationX)}>
+      {body}
+    </Pressable>
+  ) : <View onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>{body}</View>;
 }
+
+/** How far from a mark a tap still picks it. */
+const REACH = 22;
 
 /** Half the largest mark: the plot sits this far inside the line, so no mark hangs off an end. */
 const INSET = chart.ring / 2;
@@ -81,24 +100,14 @@ const LABEL = 72;
 const MONTH = 26;
 
 function describe(marks: TermMark[], from: string, to: string): string {
-  const exams = marks.filter((m) => m.kind === 'ring').length;
-  const due = marks.length - exams;
-  const parts = [exams ? `${exams} ${exams === 1 ? 'exam' : 'exams'}` : '', due ? `${due} ${due === 1 ? 'due date' : 'due dates'}` : ''].filter(Boolean);
-  return `${parts.join(' and ') || 'Nothing'} between ${from} and ${to}`;
-}
-
-/** The key for a term line: only the marks it shows, in the order a reader meets them. */
-export function termKey(marks: TermMark[], c: { chartBooked: string; conflict: string; added: string }): KeyEntry[] {
-  return keyOf([
-    marks.some((m) => m.kind === 'dot' && (m.tone ?? 'ink') === 'ink') && { glyph: 'dot', color: c.chartBooked, label: 'Due' },
-    marks.some((m) => m.kind === 'ring' && (m.tone ?? 'ink') === 'ink') && { glyph: 'ring', color: c.chartBooked, label: 'Exam' },
-    marks.some((m) => m.tone === 'red') && { glyph: marks.find((m) => m.tone === 'red')!.kind, color: c.conflict, label: 'Due today' },
-    marks.some((m) => m.tone === 'green') && { glyph: 'dot', color: c.added, label: 'Done' },
-  ]);
+  const n = (kind: MarkShape) => marks.filter((m) => m.kind === kind).length;
+  const parts = [[n('target'), 'exam', 'exams'], [n('ring'), 'quiz', 'quizzes'], [n('dot'), 'due date', 'due dates']] as const;
+  const said = parts.filter(([k]) => k).map(([k, one, many]) => `${k} ${k === 1 ? one : many}`);
+  return `${said.length > 1 ? `${said.slice(0, -1).join(', ')} and ${said.at(-1)}` : said[0] ?? 'Nothing'} between ${from} and ${to}`;
 }
 
 function rank(m: TermMark): number {
-  return (m.kind === 'ring' ? 2 : 0) + (m.tone === 'red' ? 1 : 0);
+  return { dot: 0, ring: 2, target: 4 }[m.kind] + (m.tone === 'red' ? 1 : 0);
 }
 
 /**

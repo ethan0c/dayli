@@ -51,7 +51,8 @@ export default function TodayScreen() {
   const unplanTask = useStore((s) => s.unplanTask);
   const dismissSuggestion = useStore((s) => s.dismissSuggestion);
   const [overdueExpanded, setOverdueExpanded] = useState(false);
-  const [completedExpanded, setCompletedExpanded] = useState(false);
+  // Open by default: seeing the green tick land is the reward for checking something off.
+  const [completedExpanded, setCompletedExpanded] = useState(true);
 
   const todays = useMemo(() => todayItems(items, now.date, workDates), [items, now.date, workDates]);
   const overdue = useMemo(() => overdueTasks(items, now.date, workDates), [items, now.date, workDates]);
@@ -174,12 +175,17 @@ export default function TodayScreen() {
           return (
             <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
               <ItemRow item={item} today={now.date} planned={planned} conflict={conflictSet.has(item.id)} last={i === openItems.length - 1 && !completed.length}
-                onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback(item.done ? 'uncomplete' : 'complete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
+                onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback(openItems.length === 1 ? 'success' : 'complete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
               {planned ? <View style={styles.inlineAction}><TextButton label="Not today after all" tone="muted" onPress={() => unplanTask(item.id)} accessibilityLabel={`Remove ${item.title} from today's work plan`} /></View> : null}
             </Animated.View>
           );
         })}
-        {openItems.length === 0 ? <T token="callout" color={c.inkSecondary} style={{ paddingVertical: 10 }}>{completed.length ? 'Everything on your list is done.' : 'Nothing on your list today.'}</T> : null}
+        {openItems.length === 0 && completed.length ? (
+          <Animated.View entering={enter.fade} style={{ paddingVertical: 10, gap: 2 }}>
+            <T token="headline" color={c.inkPrimary}>That’s everything for today.</T>
+            <T token="callout" color={c.inkSecondary}>{completed.length === 1 ? 'One thing done.' : `All ${completed.length} done.`} Nice work.</T>
+          </Animated.View>
+        ) : openItems.length === 0 ? <T token="callout" color={c.inkSecondary} style={{ paddingVertical: 10 }}>Nothing on your list today.</T> : null}
         {completed.length ? (
           <>
             <Pressable accessibilityRole="button" accessibilityState={{ expanded: completedExpanded }} onPress={() => setCompletedExpanded((o) => !o)} style={styles.disclosure}>

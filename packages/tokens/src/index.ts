@@ -143,11 +143,11 @@ export const radius = { chip: 999, row: 14, card: 16, sheet: 28, pill: 999 } as 
 /**
  * Chart geometry, shared by every timeline in the app and the site mockups. A mark is
  * centred on its value, never offset from it: `track` is the line's thickness, `dot` a due
- * date, `ring` a quiz (with `ringStroke`; `targetDot` is the centre that makes it an exam), `halo` the canvas cut-out around both, `now` the now hairline that overhangs the track
+ * date, `ring` a quiz (with `ringStroke`; `targetDot` is the centre that makes it an exam), `halo` the canvas cut-out around both, `focusGap` the space inside a picked mark's ink focus ring, `now` the now hairline that overhangs the track
  * by `nowOverhang` on each side (`nowColumnOverhang` past a week column), `nowDot` the dot
  * at its start in the hour view, `labelGap` the least space between two labels under a line.
  */
-export const chart = { track: 6, column: 6, dot: 8, ring: 12, ringStroke: 2, targetDot: 4, halo: 1.5, now: 1.5, nowOverhang: 5, nowColumnOverhang: 2, nowDot: 7, labelGap: 8 } as const;
+export const chart = { track: 6, column: 6, dot: 8, ring: 12, ringStroke: 2, targetDot: 4, halo: 1.5, focusGap: 2, now: 1.5, nowOverhang: 5, nowColumnOverhang: 2, nowDot: 7, labelGap: 8 } as const;
 
 /**
  * Geist, one face, four weights (apps/mobile/assets/fonts, OFL). Regular carries

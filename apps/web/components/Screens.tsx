@@ -203,10 +203,10 @@ const SYL_MARKS = [
   { left: 17, kind: 'ring' as const },
   { left: 31, kind: 'dot' as const },
   { left: 44, kind: 'dot' as const },
-  { left: 58, kind: 'ring' as const },
+  { left: 58, kind: 'target' as const },
   { left: 73, kind: 'dot' as const },
   { left: 85, kind: 'dot' as const },
-  { left: 100, kind: 'ring' as const },
+  { left: 100, kind: 'target' as const },
 ];
 
 /** Syllabus review: the term as one line, the class pattern that asks "Until when?". */

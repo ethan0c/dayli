@@ -31,13 +31,14 @@ function anchor(at: At): ViewStyle {
  * sits on by a thin canvas halo, so a dot on a block of its own colour, or two marks a day
  * apart, still read as separate marks; a ring's hollow is the canvas too.
  */
-export function Mark({ at, kind, color }: { at: At; kind: MarkShape; color: string }) {
+export function Mark({ at, kind, color, selected }: { at: At; kind: MarkShape; color: string; /** Picked: an ink focus ring around the halo. */ selected?: boolean }) {
   const { c } = useTheme();
   const size = kind === 'dot' ? chart.dot : chart.ring;
-  const outer = size + chart.halo * 2;
+  const outer = size + (selected ? (chart.focusGap + chart.now) * 2 : chart.halo * 2);
   return (
     <View pointerEvents="none" style={anchor(at)}>
-      <View style={{ position: 'absolute', left: -outer / 2, top: -outer / 2, width: outer, height: outer, borderRadius: outer / 2, backgroundColor: c.canvas, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={[{ position: 'absolute', left: -outer / 2, top: -outer / 2, width: outer, height: outer, borderRadius: outer / 2, backgroundColor: c.canvas, alignItems: 'center', justifyContent: 'center' },
+        selected ? { borderWidth: chart.now, borderColor: c.inkPrimary } : null]}>
         <View style={[
           { width: size, height: size, borderRadius: size / 2 },
           kind === 'dot' ? { backgroundColor: color } : { borderWidth: chart.ringStroke, borderColor: color, backgroundColor: c.canvas, alignItems: 'center', justifyContent: 'center' },

@@ -259,7 +259,7 @@
   height: 12px;
   margin: -6px 0 0 -6px;
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--canvas);
   border: 2px solid var(--chart-booked);
 }
 .trackUnknown {
@@ -342,8 +342,18 @@
   height: 12px;
   margin-left: -6px;
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--canvas);
   border: 2px solid var(--ink);
+}
+/* An exam: the quiz ring with a centre, as in the app's `target` mark. */
+.termTarget {
+  background: radial-gradient(circle, var(--ink) 2px, var(--canvas) 2.5px);
+}
+/* The canvas halo that cuts every chart mark out of what it sits on. */
+.termDot,
+.termRing,
+.weekRing {
+  box-shadow: 0 0 0 1.5px var(--canvas);
 }
 .termTick {
   position: absolute;

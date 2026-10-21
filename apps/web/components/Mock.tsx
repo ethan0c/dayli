@@ -134,9 +134,9 @@ export function WeekChart({ days, height = 88, style, label }: { days: Day[]; he
   );
 }
 
-export type TermMark = { left: number; kind: 'dot' | 'ring' | 'tick'; tone?: 'ink' | 'red' };
+export type TermMark = { left: number; kind: 'dot' | 'ring' | 'target' | 'tick'; tone?: 'ink' | 'red' };
 
-/** The term as one line: month labels above, dots for due dates, rings for exams. */
+/** The term as one line: month labels above, dots for due dates, rings for quizzes, targets for exams. */
 export function TermLine({ months, marks, style, label }: { months?: { label: string; left: number }[]; marks: TermMark[]; style?: CSSProperties; label?: string }) {
   return (
     <div style={style} role={label ? 'img' : undefined} aria-label={label}>
@@ -151,7 +151,7 @@ export function TermLine({ months, marks, style, label }: { months?: { label: st
       ) : null}
       <div className={m.term}>
         {marks.map((k, i) => (
-          <span key={i} className={k.kind === 'ring' ? m.termRing : k.kind === 'tick' ? m.termTick : `${m.termDot} ${k.tone === 'red' ? m.termDotRed : ''}`.trim()} style={{ left: `${k.left}%`, '--i': i } as CSSProperties} />
+          <span key={i} className={k.kind === 'ring' ? m.termRing : k.kind === 'target' ? `${m.termRing} ${m.termTarget}` : k.kind === 'tick' ? m.termTick : `${m.termDot} ${k.tone === 'red' ? m.termDotRed : ''}`.trim()} style={{ left: `${k.left}%`, '--i': i } as CSSProperties} />
         ))}
       </div>
     </div>

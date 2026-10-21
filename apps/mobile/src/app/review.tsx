@@ -1,5 +1,5 @@
 import {
-  WEEKDAYS, conflictIds, dateLocale, formatTime, isLocalDate, localParts, monthDay, planCommit, toDrafts, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort,
+  WEEKDAYS, assessment, conflictIds, dateLocale, formatTime, isLocalDate, localParts, monthDay, planCommit, toDrafts, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort,
   type CommitPlan, type DatedDraft, type Draft,
  typicalTermEnd,
 } from '@dayli/core';
@@ -15,8 +15,8 @@ import { DateField, TimeField } from '@/components/Native';
 import { Press } from '@/components/Press';
 import { ReviewDisclosure, ReviewGlyph, ReviewPickerSlot, ReviewPill, ReviewPillRow, ReviewRow } from '@/components/ReviewRow';
 import { Button, Sheet } from '@/components/Sheet';
-import { ChartKey, keyOf } from '@/components/ChartMark';
-import { TermLine, termKey, type TermMark } from '@/components/TermLine';
+import { ChartKey, keyOf, markKey, shapeFor } from '@/components/ChartMark';
+import { TermLine, type TermMark } from '@/components/TermLine';
 import { T } from '@/components/Text';
 import { WeekChart, compactRange, type WeekBlock, type WeekDay } from '@/components/WeekChart';
 import { track } from '@/lib/analytics';
@@ -36,7 +36,6 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
  * input get rows, nothing blocks the confirm, and everything is undoable from the toast.
  */
 
-const EXAM = /exam|quiz|midterm|final|test\b/i;
 
 type SeriesEnd = { mode: 'suggested' | 'pick'; date: string };
 
@@ -149,7 +148,7 @@ export default function ReviewScreen() {
   const total = plan.create.length + plan.update.length + plan.remove.length;
 
   const nonSeries = included.filter((d) => !d.seriesId);
-  const exams = nonSeries.filter((d) => d.isDeadline && EXAM.test(d.title));
+  const exams = nonSeries.filter((d) => d.isDeadline && assessment(d.title));
   const series = groupSeries(effective);
   const firstDate = included.map((d) => d.date).sort()[0];
   const lastDate = included.map((d) => d.date).sort().at(-1);
@@ -367,8 +366,8 @@ export default function ReviewScreen() {
   const chartCaption = 'Each bar is 6 am to midnight. Tap a day to change it.';
 
   const marks: TermMark[] = nonSeries.map((d) => {
-    const exam = exams.includes(d);
-    return { id: d.key, date: d.date, kind: exam ? 'ring' : 'dot', label: exam ? (d.title.length <= 10 ? d.title : 'Exam') : undefined };
+    const test = exams.includes(d) ? assessment(d.title) : null;
+    return { id: d.key, date: d.date, kind: shapeFor(test), label: test ? (d.title.length <= 10 ? d.title : test === 'exam' ? 'Exam' : 'Quiz') : undefined };
   });
 
   // ---- Rows ------------------------------------------------------------------------
@@ -535,7 +534,7 @@ export default function ReviewScreen() {
         {!isSchedule && firstDate && lastDate && included.length >= 2 ? (
           <View style={styles.chart}>
             <TermLine from={firstDate} to={lastDate} marks={marks} today={today} scale="months" />
-            <ChartKey entries={termKey(marks, c)} />
+            <ChartKey entries={markKey(marks, c)} />
           </View>
         ) : null}
 
@@ -580,7 +579,7 @@ function groupSeries(drafts: Draft[]): Series[] {
 /** The default term end for each open-ended series: the last exam if there is one, else the fifteen-week guess. */
 function suggestSeriesEnds(drafts: Draft[]): Record<string, SeriesEnd> {
   const out: Record<string, SeriesEnd> = {};
-  const lastExam = drafts.filter((d) => !d.seriesId && d.isDeadline && isLocalDate(d.date) && EXAM.test(d.title)).map((d) => d.date!).sort().at(-1);
+  const lastExam = drafts.filter((d) => !d.seriesId && d.isDeadline && isLocalDate(d.date) && assessment(d.title) === 'exam').map((d) => d.date!).sort().at(-1);
   for (const d of drafts) {
     if (!d.seriesId || !d.seriesEndUnknown || out[d.seriesId]) continue;
     const date = lastExam && d.date && lastExam >= d.date ? lastExam : d.seriesUntil;

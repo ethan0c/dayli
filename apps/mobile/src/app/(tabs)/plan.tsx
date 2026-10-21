@@ -1,4 +1,4 @@
-import { addDays, conflictIds, diffDays, formatTime, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf } from '@dayli/core';
+import { addDays, assessment, conflictIds, diffDays, formatTime, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
@@ -13,7 +13,7 @@ import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
-import { ChartKey, keyOf } from '@/components/ChartMark';
+import { ChartKey, keyOf, markKey, shapeFor } from '@/components/ChartMark';
 import { WeekChart, type WeekDay } from '@/components/WeekChart';
 import { SHARING_ENABLED } from '@/lib/auth';
 import { feedback } from '@/lib/feedback';
@@ -101,7 +101,7 @@ export default function PlanScreen() {
       const past = date < now.date || (date === now.date && toMinutes(end) <= nowMin);
       return { id: i.id, start: i.start!, end, tone: i.done || past ? 'green' as const : weekConflicts.has(i.id) ? 'red' as const : 'ink' as const };
     });
-    const marks = list.filter((i) => i.isDeadline && i.start).map((i) => ({ id: i.id, time: i.start!, kind: 'ring' as const, tone: date === now.date && !i.done ? 'red' as const : 'ink' as const }));
+    const marks = list.filter((i) => i.isDeadline && i.start).map((i) => ({ id: i.id, time: i.start!, kind: shapeFor(assessment(i.title)), tone: date === now.date && !i.done ? 'red' as const : 'ink' as const }));
     return { date, blocks, marks, unknown: list.some(isUntimedEvent) };
   }), [week, weekItems, weekConflicts, now.date, nowMin]);
 
@@ -198,8 +198,7 @@ export default function PlanScreen() {
           <ChartKey entries={keyOf([
             days.some((d) => d.blocks.some((b) => b.tone === 'green')) && { glyph: 'block', color: c.added, label: 'Done' },
             days.some((d) => d.blocks.some((b) => b.tone === 'red')) && { glyph: 'block', color: c.conflict, label: 'Overlap' },
-            days.some((d) => d.marks?.some((m) => m.tone !== 'red')) && { glyph: 'ring', color: c.chartBooked, label: 'Deadline' },
-            days.some((d) => d.marks?.some((m) => m.tone === 'red')) && { glyph: 'ring', color: c.conflict, label: 'Due today' },
+            ...markKey(days.flatMap((d) => d.marks ?? []), c),
             days.some((d) => d.unknown) && { glyph: 'outline', color: c.changed, label: 'Needs a time' },
           ])} />
           {legendSeen ? null : <T token="caption" color={c.inkSecondary}>Swipe for next week.</T>}

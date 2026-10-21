@@ -1,22 +1,25 @@
-import { WEEKDAYS, addDays, diffDays, formatTime, monthDay, weekdayOf, weekdayShort } from '@dayli/core';
+import { WEEKDAYS, addDays, assessment, diffDays, formatTime, monthDay, weekdayOf, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
-import { CategoryDot, GroupLabel, ListRow, SectionTitle, StatusPill, itemStatus } from '@/components/Controls';
+import { CategoryDot, GroupLabel, ListRow, SectionTitle, StatusPill, TextButton, itemStatus } from '@/components/Controls';
+import { ItemRow } from '@/components/ItemRow';
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
-import { ChartKey } from '@/components/ChartMark';
-import { TermLine, termKey, type TermMark } from '@/components/TermLine';
+import { ChartKey, markKey, shapeFor } from '@/components/ChartMark';
+import { TermLine, type TermMark } from '@/components/TermLine';
+import { feedback } from '@/lib/feedback';
+import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
-import { useCourseList, useItemList, type StoredCourse } from '@/store';
+import { courseTint, useCourseList, useItemList, useStore, type StoredCourse } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
 
 /** Four weeks from today, the span of the deadline map. */
 const MAP_DAYS = 28;
-const EXAM = /exam|quiz|midterm|final|test\b/i;
 
 /** "Mon, Wed 9 am" from a course's repeating events, or null when it has none. */
 function meetingPattern(events: Item[]): string | null {
@@ -44,6 +47,8 @@ export default function SchoolScreen() {
   const { c } = useTheme();
   const now = useNow();
   const courses = useCourseList();
+  // Tints count from the full stored list, as every row does, so a course keeps one colour everywhere.
+  const allCourses = useStore((s) => s.courses);
   const items = useItemList();
 
   const byCourse = useMemo(() => {
@@ -57,13 +62,19 @@ export default function SchoolScreen() {
   const next = deadlines[0];
   const inMap = deadlines.filter((i) => diffDays(now.date, i.date) < MAP_DAYS);
   const marksFor = (courseId: string): TermMark[] => inMap.filter((i) => i.courseId === courseId).map((i) => ({
-    id: i.id, date: i.date, kind: EXAM.test(i.title) ? 'ring' : 'dot', tone: i.date === now.date ? 'red' : 'ink',
+    id: i.id, date: i.date, kind: shapeFor(assessment(i.title)), tone: i.date === now.date ? 'red' : 'ink',
   }));
   const mapEnd = addDays(now.date, MAP_DAYS - 1);
+  // A tapped mark's id, 'all' for the whole list, or nothing. A picked item that gets done or deleted drops out.
+  const [focus, setFocus] = useState<string | 'all' | null>(null);
+  const picked = focus && focus !== 'all' ? inMap.find((i) => i.id === focus) : undefined;
+  const shown = focus === 'all' ? inMap : picked ? [picked] : [];
+  const toggleDone = useStore((s) => s.toggleDone);
+  const removeItem = useStore((s) => s.removeItem);
   const labels = weekLabels(now.date);
 
   const capture = (source: 'file' | 'image') => router.navigate({ pathname: '/add', params: { source, at: String(Date.now()) } });
-  const tintOf = (course: StoredCourse) => c.tint[course.color ?? 'lavender'].ink;
+  const tintOf = (course: StoredCourse) => c.tint[courseTint(allCourses, course.id) ?? 'lavender'].ink;
 
   const days = next ? diffDays(now.date, next.date) : 0;
   const big = !next ? 'Clear' : days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days} days`;
@@ -106,7 +117,13 @@ export default function SchoolScreen() {
         )} />
 
       <View style={styles.section}>
-        <SectionTitle title="Next four weeks" detail={`${inMap.length} due`} />
+        <View style={styles.mapHead}>
+          <T token="title" accessibilityRole="header" style={{ flexShrink: 1 }}>Next four weeks</T>
+          {inMap.length ? (
+            <TextButton label={focus === 'all' ? 'Hide' : `${inMap.length} due`} accessibilityLabel={focus === 'all' ? 'Hide the list' : `Show the ${inMap.length} things due`}
+              onPress={() => setFocus(focus === 'all' ? null : 'all')} />
+          ) : <T token="caption" color={c.inkSecondary}>Nothing due</T>}
+        </View>
         <View style={styles.map} accessible accessibilityRole="image" accessibilityLabel={`Deadline map, one strip per course over the next four weeks. ${courses.map((k) => {
           const due = inMap.filter((i) => i.courseId === k.id);
           return `${k.code ?? k.title}: ${due.length ? due.map((i) => `${i.title} ${monthDay(i.date)}`).join(', ') : 'nothing due'}.`;
@@ -126,13 +143,23 @@ export default function SchoolScreen() {
                   <T token="subhead" numberOfLines={1} style={{ fontSize: 12, lineHeight: 16, flexShrink: 1 }}>{course.code ?? course.title}</T>
                 </View>
                 <View style={styles.track}>
-                  <TermLine from={now.date} to={mapEnd} marks={marks} today={now.date} scale="none" labels={false} />
+                  <TermLine from={now.date} to={mapEnd} marks={marks} today={now.date} scale="none" labels={false}
+                    selected={picked?.id} onPick={(id) => { if (id && id !== picked?.id) feedback('select'); setFocus(id && id !== picked?.id ? id : null); }} />
                 </View>
               </View>
             );
           })}
-          <ChartKey entries={termKey(courses.flatMap((k) => marksFor(k.id)), c)} style={{ paddingLeft: 66, paddingTop: 4 }} />
+          <ChartKey entries={markKey(courses.flatMap((k) => marksFor(k.id)), c)} style={{ paddingLeft: 66, paddingTop: 4 }} />
         </View>
+        {/* What a tapped mark is, or everything due when "N due" is open. */}
+        {shown.map((it, i) => (
+          <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
+            <ItemRow item={it} today={now.date} last={i === shown.length - 1}
+              onPress={() => router.push(`/item/${it.id}`)}
+              onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); toggleDone(it.id); }}
+              onDelete={() => removeItem(it.id)} />
+          </Animated.View>
+        ))}
       </View>
 
       <View style={[styles.section, { paddingTop: 24 }]}>
@@ -161,7 +188,8 @@ export default function SchoolScreen() {
 
 const styles = StyleSheet.create({
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
-  map: { paddingTop: 10, gap: 10 },
+  mapHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  map: { paddingTop: 10, paddingBottom: 6, gap: 10 },
   mapRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   mapLabel: { width: 56, flexDirection: 'row', alignItems: 'center', gap: 6 },
   weekLabel: { flex: 1, fontSize: 11, lineHeight: 14 },

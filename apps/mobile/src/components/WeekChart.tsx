@@ -7,7 +7,7 @@ import { chart } from '@dayli/tokens';
 
 import { springs } from '@/lib/motion';
 
-import { clampY, Mark, NowLine } from '@/components/ChartMark';
+import { clampY, Mark, NowLine, type MarkShape } from '@/components/ChartMark';
 import { T } from '@/components/Text';
 import { useTheme } from '@/theme';
 
@@ -28,8 +28,8 @@ export type WeekBlock = {
 export type WeekMark = {
   id: string;
   time: string;
-  /** A ring is an exam or deadline; a dot is a due date. */
-  kind: 'ring' | 'dot';
+  /** A dot is a due date, a ring a quiz, a target an exam (`shapeFor`). */
+  kind: MarkShape;
   tone?: 'ink' | 'red';
 };
 
