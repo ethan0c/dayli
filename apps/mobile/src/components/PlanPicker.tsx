@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { fullDate, localParts } from '@dayli/core';
+import { dateLocale, fullDate, localParts } from '@dayli/core';
 import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
@@ -36,12 +36,15 @@ function trialDays(pack: PurchasesPackage | null | undefined): number | null {
   return unit === 'day' ? n : unit === 'week' ? n * 7 : unit === 'month' ? n * 30 : null;
 }
 
-function symbolOf(pack: PurchasesPackage): string {
-  return pack.product.priceString.replace(/[\d.,\s]/g, '') || '$';
-}
-
+/** "$2.50 / mo", "4,16 € / mo", "¥117 / mo": StoreKit's own formatting for the storefront. */
 function perMonth(pack: PurchasesPackage, months: number): string {
-  return `${symbolOf(pack)}${(pack.product.price / months).toFixed(2)} / mo`;
+  const { pricePerMonthString, price, currencyCode } = pack.product;
+  if (pricePerMonthString) return `${pricePerMonthString} / mo`;
+  try {
+    return `${new Intl.NumberFormat(dateLocale().locale, { style: 'currency', currency: currencyCode }).format(price / months)} / mo`;
+  } catch {
+    return `${pack.product.priceString} / ${months} mo`;
+  }
 }
 
 /** Shared purchase controls for the photographic onboarding, settings and gated paywalls. */

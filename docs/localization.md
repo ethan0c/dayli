@@ -11,7 +11,9 @@ What exists now:
 - `apps/mobile/store.config.json` (EAS Metadata): en-US as in `app-store-connect.md`, plus en-GB, en-AU and en-CA with local words and spelling and no dollar prices. Not pushed. Ireland and Singapore show en-GB, New Zealand en-AU; Apple has no separate English for them.
 - `design/render-screenshots.py --locale en-GB|en-AU|en-CA`: local captions, captures from `raw/<locale>/` when they exist.
 
-Still to do for Step 2: local prices in App Store Connect, en-GB and en-AU raw captures, `eas metadata:push` once the US listing is live, and Moodle and Blackboard feeds.
+Prices: Apple's automatic equalization is set for all 175 storefronts from the US entries (Oct 21); the paywall shows StoreKit's own `priceString` and `pricePerMonthString`, so every currency formats correctly. Override a storefront by hand only if its conversion lags the US.
+
+Still to do for Step 2: en-GB and en-AU raw captures, `eas metadata:push` once the US listing is live, and Moodle and Blackboard feeds.
 
 ## 0. The honest premise
 
