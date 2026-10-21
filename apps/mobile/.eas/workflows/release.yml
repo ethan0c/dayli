@@ -1,0 +1,76 @@
+name: Release
+
+# Run by hand from apps/mobile:
+#   npx eas-cli@latest workflow:run .eas/workflows/release.yml -F message="Spread a heavy week"
+# Checks first. Then, if the native side matches a production build already made, the JS goes out
+# as an over-the-air update; if it changed (a new native module, a plugin, app.json), a new build
+# is made and sent to App Store Connect for TestFlight and review.
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        type: string
+        required: true
+        description: 'What changed, in a line'
+
+jobs:
+  checks:
+    name: Typecheck, lint and test
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      # Steps start in the repo root or in apps/mobile depending on how the project was uploaded.
+      - name: Typecheck
+        run: |
+          [ -d apps/mobile ] || cd ../..
+          (cd packages/core && npx tsc --noEmit)
+          (cd apps/mobile && npx tsc --noEmit)
+      - name: Lint
+        run: |
+          [ -d apps/mobile ] || cd ../..
+          cd apps/mobile && npx expo lint
+      - name: Test
+        run: |
+          [ -d apps/mobile ] || cd ../..
+          cd packages/core && npx vitest run
+
+  fingerprint:
+    name: Fingerprint
+    needs: [checks]
+    type: fingerprint
+    environment: production
+
+  get_ios_build:
+    name: Find a matching build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
+      profile: production
+
+  build_ios:
+    name: Build iOS
+    needs: [get_ios_build]
+    if: ${{ !needs.get_ios_build.outputs.build_id }}
+    type: build
+    params:
+      platform: ios
+      profile: production
+
+  submit_ios:
+    name: Send to App Store Connect
+    needs: [build_ios]
+    type: submit
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+
+  publish_ios_update:
+    name: Publish update
+    needs: [get_ios_build]
+    if: ${{ needs.get_ios_build.outputs.build_id }}
+    type: update
+    environment: production
+    params:
+      channel: production
+      platform: ios
+      message: ${{ inputs.message }}

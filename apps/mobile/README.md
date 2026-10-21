@@ -38,6 +38,21 @@ npx expo start --dev-client
 
 Cloud builds need their own EAS environment variables; follow the [environment guide](../../docs/env.md). The [App Store Connect guide](../../docs/app-store-connect.md#8-before-you-press-submit) covers signing and submission.
 
+## Releasing
+
+Commit first: the workflow runs on what you upload, so loose edits ship too. Then, from `apps/mobile`:
+
+```bash
+npx eas-cli@latest workflow:run .eas/workflows/release.yml -F message="What changed"
+```
+
+[release.yml](.eas/workflows/release.yml) runs typecheck, lint and the core tests, then compares the app's native fingerprint with existing production builds:
+
+- **Only JS or images changed:** publishes an over-the-air update to the `production` channel. Phones pick it up in the background and run it on the next launch. Nothing goes through App Store review.
+- **Native side changed** (a new native module, a config plugin, `app.json`, the Expo SDK): makes a new production build and sends it to App Store Connect. It lands in TestFlight; releasing it to the App Store is still done by hand in App Store Connect.
+
+The runtime version comes from the fingerprint, so an update only reaches builds it can run on. A bad update can be rolled back with `npx eas-cli@latest update:rollback`. Watch runs at expo.dev under the project's Workflows tab.
+
 ## Configuration and source
 
 The [.env.example](.env.example) lists the API URL, Supabase publishable keys, RevenueCat public SDK key, and optional PostHog/Sentry configuration. Accounts activate when Supabase is configured. Store offerings and the `semli_pro` entitlement must match RevenueCat; see the [offerings brief](../../docs/revenuecat-offerings-brief.md).
