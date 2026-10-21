@@ -8,11 +8,13 @@ import { ListRow, StatusPill, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { Group, Row } from '@/components/Settings';
 import { T } from '@/components/Text';
+import { backUpNow } from '@/lib/cloud';
 import { buildBackup, buildIcs, shareText } from '@/lib/export';
 import { friendlyError } from '@/lib/errors';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
+import { accountOf, useSession } from '@/lib/supabase';
 import { useCourseList, useItemList, useScheduleList, useStore, type Batch } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -39,6 +41,9 @@ export default function DataScreen() {
   const undoBatch = useStore((s) => s.undoBatch);
   const clearAll = useStore((s) => s.clearAll);
   const setSettings = useStore((s) => s.setSettings);
+  const canvasConnected = useStore((s) => !!s.settings.canvas.feedUrl);
+  // Signed in, the account keeps the setup answers and only the plan is cleared; a guest starts over.
+  const signedIn = useSession((s) => !!accountOf(s.session));
   const [confirm, setConfirm] = useState(false);
   const [allChanges, setAllChanges] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -62,6 +67,15 @@ export default function DataScreen() {
     }
   };
   const exportPlan = () => share('semli-plan.json', buildBackup({ items, courses, schedules, exportedAt: new Date().toISOString() }), 'application/json');
+  const clear = () => {
+    clearAll(signedIn ? 'plan' : 'everything');
+    setConfirm(false);
+    if (signedIn) backUpNow();
+    else router.dismissTo('/');
+  };
+  const clearWarning = signedIn
+    ? `Clear your plan? Every item, class, shift and break you added is erased here and from your account’s backup. Your answers from setup stay.${canvasConnected ? ' Canvas stays connected, so its due dates come back on the next sync.' : ''} This cannot be undone.`
+    : 'Clear everything? Your plan and your answers from setup, like your name and what you study, are erased and Semli starts over from the welcome screen. As a guest there’s no backup, so this cannot be undone.';
   const exportCalendar = () => share('semli.ics', buildIcs(items, courses), 'text/calendar');
 
   const whenLabel = (b: Batch) => {
@@ -85,7 +99,7 @@ export default function DataScreen() {
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
       <View style={styles.top}>
-        <T token="callout" color={c.inkSecondary}>On this phone, nowhere else</T>
+        <T token="callout" color={c.inkSecondary}>{signedIn ? 'On this phone, backed up to your account' : 'On this phone, nowhere else'}</T>
         <T token="displayXl" tabular>{`${items.length} ${items.length === 1 ? 'thing' : 'things'}`}</T>
         <T token="body" style={styles.line}>{summary}</T>
       </View>
@@ -113,17 +127,17 @@ export default function DataScreen() {
         )}
       </Group>
 
-      <Group title="Start again" footer="Nothing here leaves the phone unless you export it.">
+      <Group title="Start again" footer={signedIn ? 'Your account backs up this phone, so clearing here clears the backup too.' : 'Nothing here leaves the phone unless you export it.'}>
         <Row label="Replay the intro" value="Keeps everything" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} />
         {confirm ? (
           <Animated.View entering={enter.drop} exiting={exit.fade} style={styles.confirm} accessibilityRole="alert">
-            <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>Clear everything? This cannot be undone.</T>
+            <T token="callout" color={c.inkSecondary} style={{ flexBasis: '100%' }}>{clearWarning}</T>
             <TextButton label="Export first" onPress={() => void exportPlan()} />
             <TextButton label="Keep" tone="muted" onPress={() => setConfirm(false)} />
-            <TextButton label="Clear" tone="danger" haptic="warning" onPress={() => { clearAll(); setConfirm(false); }} />
+            <TextButton label="Clear" tone="danger" haptic="warning" onPress={clear} />
           </Animated.View>
         ) : (
-          <Row label="Clear everything" destructive onPress={() => { feedback('tap'); setConfirm(true); }} last />
+          <Row label={signedIn ? 'Clear my plan' : 'Clear everything'} destructive onPress={() => { feedback('tap'); setConfirm(true); }} last />
         )}
       </Group>
     </ScrollView>
