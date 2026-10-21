@@ -1,6 +1,6 @@
 import type { Item } from '@dayli/schema';
 import { describe, expect, it } from 'vitest';
-import { eventLanes, isFlexibleEvent, suggestReschedule } from '../src';
+import { eventLanes, isFlexibleEvent, movableOverlap, suggestReschedule } from '../src';
 
 const now = { date: '2026-10-19', time: '10:00' };
 const make = (patch: Partial<Item>): Item => ({
@@ -102,5 +102,22 @@ describe('hourly layout', () => {
     const lanes = eventLanes([shift, study, third, next]);
     expect(lanes.get('third')).toEqual({ lane: 2, lanes: 3 });
     expect(lanes.get('next')).toEqual({ lane: 0, lanes: 1 });
+  });
+});
+
+describe('the first movable overlap', () => {
+  it('names the flexible event and what it clashes with, soonest first', () => {
+    const later = make({ id: 'gym', title: 'Gym', category: 'personal', date: '2026-10-21', start: '16:30', end: '17:30' });
+    const laterShift = make({ id: 'shift2', title: 'Café shift', category: 'work', date: '2026-10-21', start: '16:00', end: '22:00', employer: 'Campus Café' });
+    expect(movableOverlap([laterShift, later, shift, study], now)).toEqual({ flexible: study, other: shift });
+    expect(movableOverlap([laterShift, later], now)).toEqual({ flexible: later, other: laterShift });
+  });
+  it('ignores overlaps between fixed plans, past ones, and ones over a week out', () => {
+    const lecture = make({ id: 'lecture', title: 'Stats lecture', start: '16:30', end: '17:30' });
+    expect(movableOverlap([shift, lecture], now)).toBeNull();
+    expect(movableOverlap([shift, study], { date: now.date, time: '19:30' })).toBeNull();
+    const farShift = { ...shift, id: 'far-shift', date: '2026-10-28' };
+    const farStudy = { ...study, id: 'far-study', date: '2026-10-28' };
+    expect(movableOverlap([farShift, farStudy], now)).toBeNull();
   });
 });

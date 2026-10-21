@@ -51,6 +51,32 @@ export function suggestReschedule(item: Item, items: Item[], now: { date: string
   return null;
 }
 
+export type MovableOverlap = { flexible: Item; other: Item };
+
+/**
+ * The soonest overlap Semli could resolve: an upcoming flexible event that clashes with another,
+ * looking up to a week ahead. Null when every overlap is between fixed plans or already started.
+ */
+export function movableOverlap(items: Item[], now: { date: string; time: string }): MovableOverlap | null {
+  const current = dayNumber(now.date) * 1440 + toMinutes(now.time);
+  const horizon = current + 7 * 1440;
+  const byId = new Map(items.map((item) => [item.id, item]));
+  let best: MovableOverlap | null = null;
+  let bestStart = Infinity;
+  for (const pair of findConflicts(items)) {
+    for (const [id, otherId] of [[pair.a, pair.b], [pair.b, pair.a]] as const) {
+      const item = byId.get(id);
+      const other = byId.get(otherId);
+      if (!item || !other || !isFlexibleEvent(item)) continue;
+      const start = intervalOf(item)?.start ?? -Infinity;
+      if (start <= current || start > horizon || start >= bestStart) continue;
+      best = { flexible: item, other };
+      bestStart = start;
+    }
+  }
+  return best;
+}
+
 /** Separate columns for connected overlapping events, including nested events. */
 export function eventLanes(items: Item[]): Map<string, { lane: number; lanes: number }> {
   const timed = items.filter((item) => item.kind === 'event').map((item) => ({ item, iv: intervalOf(item) }))

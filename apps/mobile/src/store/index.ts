@@ -78,6 +78,11 @@ interface Settings {
   cloud: { backedUpAt: string | null; error: string | null };
   /** Canvas calendar feed sync. The link is the only credential; it stays on this phone. */
   canvas: CanvasSettings;
+  /**
+   * Things Semli explains once, the first time they happen in a person's own plan, instead of
+   * in a tour. True once the note was seen; a guest's Clear everything resets them.
+   */
+  firsts: { overlap: boolean };
 }
 
 export type Lms = 'canvas' | 'blackboard' | 'brightspace' | 'moodle' | 'classroom' | 'other';
@@ -144,7 +149,7 @@ interface State {
   clearAll: (scope: 'plan' | 'everything') => void;
 }
 
-const DEFAULT_SETTINGS: Settings = { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null } };
+const DEFAULT_SETTINGS: Settings = { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null }, firsts: { overlap: false } };
 
 export const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 const nowIso = () => new Date().toISOString();
