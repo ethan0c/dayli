@@ -1,3 +1,4 @@
+import { Reveal } from '@/components/Reveal';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -109,49 +110,49 @@ export default function Home() {
       <TryIt qr={GET_APP_QR} />
 
       <section className={styles.proof} aria-label="What students told us">
-        <div className={styles.faces} aria-hidden data-reveal>
+        <Reveal className={styles.faces} aria-hidden>
           {FACES.map((photo, i) => (
             <div key={i} className={styles.face} style={{ '--r': `${(i - 2) * 4}deg`, '--y': `${Math.abs(i - 2) * 10}px` } as React.CSSProperties}>
               <Image src={photo} alt="" fill placeholder="blur" sizes="120px" />
             </div>
           ))}
-        </div>
-        <p className={styles.bandEyebrow} data-reveal>What students told us</p>
+        </Reveal>
+        <Reveal as="p" className={styles.bandEyebrow}>What students told us</Reveal>
         <div className={styles.stats}>
           {PROOF.map((p, i) => (
-            <div key={p.n} className={styles.stat} data-reveal style={stagger(i)}>
+            <Reveal key={p.n} className={styles.stat} style={stagger(i)}>
               <div className={styles.statN}><CountUp value={p.n} /></div>
               <p>{p.q}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
-        <p className={styles.source} data-reveal>From a survey of more than 50 college students, spring 2026.</p>
+        <Reveal as="p" className={styles.source}>From a survey of more than 50 college students, spring 2026.</Reveal>
       </section>
 
       <section className={styles.feature} aria-labelledby="week-title">
-        <div className={styles.featureCopy} data-reveal>
+        <Reveal className={styles.featureCopy}>
           <p className="eyebrow">Your whole week</p>
           <h2 id="week-title" className="section-title">See the week at a glance.</h2>
           <p className="lede">See where classes, shifts, and deadlines fit together. Plan the week, look at today by the hour, and spot overlaps in red.</p>
           <Link className="textlink" href="/work-and-school-schedule-planner">Work and school in one plan</Link>
-        </div>
-        <div className={styles.single} data-reveal style={stagger(1)}>
+        </Reveal>
+        <Reveal className={styles.single} style={stagger(1)}>
           <FeatureCard photo={heroGolden} position="62% 40%" label="This week: 31 things and 30 work hours, as seven day bars">
             <div className={styles.cardBig}>31 things</div>
             <div className={styles.cardSub}>30 work hours · 1 overlap</div>
             <WeekChart days={PLAN_WEEK} height={64} style={{ marginTop: 12 }} />
           </FeatureCard>
-        </div>
+        </Reveal>
       </section>
 
       <section className={`${styles.feature} ${styles.flip}`} aria-labelledby="diff-title">
-        <div className={styles.featureCopy} data-reveal>
+        <Reveal className={styles.featureCopy}>
           <p className="eyebrow">For your work week</p>
           <h2 id="diff-title" className="section-title">Your work schedule, updated.</h2>
           <p className="lede">With Plus, compare an updated schedule with the shifts already in your plan. See what’s new, moved, or removed, then choose which changes to keep.</p>
           <Link className="textlink" href="/pricing">What Plus adds</Link>
-        </div>
-        <div className={styles.single} data-reveal style={stagger(1)}>
+        </Reveal>
+        <Reveal className={styles.single} style={stagger(1)}>
           <FeatureCard photo={cafeShift} position="72% center" hang="left" label="Compared with what you have: 3 changes, one new shift, one moved, one dropped">
             <div className={styles.cardBig}>3 changes</div>
             <div className={styles.cardSub}>Campus Café · next week</div>
@@ -161,57 +162,57 @@ export default function Home() {
               <Row lead="dot" title="Sun 25 · 11–5" strike muted trailing={<Pill tone="red">Dropped</Pill>} last />
             </div>
           </FeatureCard>
-        </div>
+        </Reveal>
       </section>
 
       <section className={styles.feature} aria-labelledby="term-title">
-        <div className={styles.featureCopy} data-reveal>
+        <Reveal className={styles.featureCopy}>
           <p className="eyebrow">For your semester</p>
           <h2 id="term-title" className="section-title">Your syllabus, laid out for the semester.</h2>
           <p className="lede">Bring class times, exams, and assignment dates out of the PDF and into your plan. Connect Canvas for assignments, with Plus to keep due dates in sync.</p>
           <Link className="textlink" href="/syllabus-to-calendar">How syllabus imports work</Link>
-        </div>
-        <div className={styles.single} data-reveal style={stagger(1)}>
+        </Reveal>
+        <Reveal className={styles.single} style={stagger(1)}>
           <FeatureCard photo={library} position="50% 55%" label="STAT 200 from the syllabus: 8 dates over the semester, three of them exams">
             <div className={styles.cardBig}>8 dates</div>
             <div className={styles.cardSub}>STAT 200 · 3 exams, 5 due dates</div>
             <TermLine months={SYL_MONTHS} marks={SYL_MARKS} style={{ marginTop: 14 }} />
           </FeatureCard>
-        </div>
+        </Reveal>
       </section>
 
       <section className={`${styles.band} ${styles.photoBand} ${styles.plans}`} aria-labelledby="price-title">
         <div className={styles.bandPhoto} aria-hidden>
           <Image src={table} alt="" fill placeholder="blur" sizes="100vw" />
         </div>
-        <div className={styles.plansHead} data-reveal>
+        <Reveal className={styles.plansHead}>
           <h2 id="price-title" className="section-title">Start free. Add more with Plus.</h2>
           <p className="lede">Everything you need to plan the week is free. Plus is for when you import a lot.</p>
-        </div>
+        </Reveal>
         <div className={styles.planCards}>
-          <div className={styles.planCard} data-reveal>
+          <Reveal className={styles.planCard}>
             <h3 className={styles.planName}>Free</h3>
             <p className={styles.planPrice}>$0</p>
             <p className={styles.planNote}>No time limit. No account needed.</p>
             <ul className={styles.planList}>{FREE.map((f) => <li key={f}>{f}</li>)}</ul>
-          </div>
-          <div className={styles.planCard} data-reveal style={stagger(1)}>
+          </Reveal>
+          <Reveal className={styles.planCard} style={stagger(1)}>
             <h3 className={styles.planName}>Plus</h3>
             <p className={styles.planPrice}>{fromMonthly}<span> a month</span></p>
             <p className={styles.planNote}>For students, billed yearly. Or {money(plan('semester').student)} every six months.</p>
             <ul className={styles.planList}>{PLUS.map((f) => <li key={f}>{f}</li>)}</ul>
             <Link className={`btn accent ${styles.planBtn}`} href="/pricing">See pricing</Link>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <section className={`faq ${styles.faq}`} aria-labelledby="home-faq-title">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd(FAQS)) }} />
-        <div data-reveal>
+        <Reveal>
           <h2 id="home-faq-title">Common questions.</h2>
           <Link className="textlink" href="/privacy">Read our privacy policy</Link>
-        </div>
-        <div className="faq-list" data-reveal style={stagger(1)}>{FAQS.map(({ q, a }) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
+        </Reveal>
+        <Reveal className="faq-list" style={stagger(1)}>{FAQS.map(({ q, a }) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</Reveal>
       </section>
 
       {/* The close and the beta are one panel: the last line, then the one thing to do. */}
@@ -219,16 +220,16 @@ export default function Home() {
         <div className={styles.bandPhoto} aria-hidden>
           <Image src={campus} alt="" fill placeholder="blur" sizes="100vw" />
         </div>
-        <h2 id="final-title" className="section-title serif" data-reveal>One less thing to keep in your head.</h2>
+        <Reveal as="h2" id="final-title" className="section-title serif">One less thing to keep in your head.</Reveal>
         {APP_STORE_LIVE ? (
-          <div className={styles.ctas} data-reveal style={stagger(1)}>
+          <Reveal className={styles.ctas} style={stagger(1)}>
             <GetApp className="btn accent" />
-          </div>
+          </Reveal>
         ) : (
-          <div className={styles.closingBeta} data-reveal style={stagger(1)}>
+          <Reveal className={styles.closingBeta} style={stagger(1)}>
             <p className="lede">The iPhone beta opens soon. Join the first 200 testers on TestFlight, try it with your week, and send feedback directly to the developer.</p>
             <Waitlist />
-          </div>
+          </Reveal>
         )}
       </section>
     </main>

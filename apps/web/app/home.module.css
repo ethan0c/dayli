@@ -71,7 +71,7 @@
   inset: 0;
   background: linear-gradient(180deg, rgba(28, 18, 40, 0.34) 0%, rgba(28, 18, 40, 0.4) 50%, var(--canvas) 100%);
 }
-/* White copy on the sky, the accent word in the pale lavender. */
+/* White copy on the sky, the accent word in the links' purple. */
 .heroCopy {
   display: flex;
   flex-direction: column;
@@ -80,7 +80,6 @@
   min-width: 0;
   max-width: 780px;
   --ink: #ffffff;
-  --accent-ink: #dcd4fb;
   color: var(--ink);
 }
 .heroCopy h1 {

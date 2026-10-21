@@ -55,24 +55,24 @@ export function GetAppDialog({ open, onClose, qr }: { open: boolean; onClose: ()
             <div className="getapp-sub">{APP_STORE_LIVE ? 'AI student planner · Free' : 'AI student planner · iPhone beta'}</div>
           </div>
         </div>
-        <p className="getapp-kicker">You’ve reached the preview limit.</p>
+        <p className="getapp-kicker">You’ve used your free website previews.</p>
         <h2 id="getapp-title" className="getapp-title">
-          {APP_STORE_LIVE ? <>Keep planning in the <span className="getapp-word">app</span>.</> : <>Join the <span className="getapp-word">iPhone beta</span>.</>}
+          {APP_STORE_LIVE ? <>Keep planning in the <span className="getapp-word">app</span>.</> : <>Get early access to <span className="getapp-word">Semli</span>.</>}
         </h2>
         <p className="getapp-text">
           {APP_STORE_LIVE
             ? 'Turn syllabi, work schedules, and messages into one plan. Review the dates, then add them alongside your classes and shifts.'
-            : 'Keep classes, shifts, and deadlines in one plan. Join the waitlist and we’ll email you when the beta opens.'}
+            : 'The iPhone app is coming soon. Join the beta waitlist and we’ll email you when it’s ready to try.'}
         </p>
         <a className="btn getapp-btn" href={GET_APP_HREF}>
-          {APP_STORE_LIVE ? 'Get the iPhone app' : 'Join the waitlist'}
+          {APP_STORE_LIVE ? 'Get the iPhone app' : 'Join the beta waitlist'}
         </a>
       </div>
       <div className="getapp-qr">
         <div className="getapp-code">
           <QrCode qr={qr} label={APP_STORE_LIVE ? 'QR code to get the iPhone app' : 'QR code to join the iPhone beta waitlist'} />
         </div>
-        <span>{APP_STORE_LIVE ? 'Scan with your iPhone to get the app' : 'Scan with your iPhone to join the waitlist'}</span>
+        <span>{APP_STORE_LIVE ? 'Scan with your iPhone to get the app' : 'Scan to join the beta waitlist'}</span>
       </div>
     </dialog>
   );

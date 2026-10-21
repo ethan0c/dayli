@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Wordmark } from '@/app/Wordmark';
 import { APP_STORE_LIVE, APP_STORE_URL } from '@/lib/site';
 
 export function SiteHeader() {
   const path = usePathname();
+  const overHero = useOverHero(path === '/');
   return (
-    <header className={path === '/' ? 'topbar over-hero' : 'topbar'}>
+    <header className={overHero ? 'topbar over-hero' : 'topbar'}>
       <div className="topbar-in">
         <Link href="/" className="wm-link" aria-label="Semli home">
           <Wordmark width={76} />
@@ -33,4 +35,28 @@ export function SiteHeader() {
       </div>
     </header>
   );
+}
+
+/** True while the bar sits over the home hero's sky, so its wordmark and links go white. */
+function useOverHero(home: boolean) {
+  const [over, setOver] = useState(true);
+  useEffect(() => {
+    if (!home) return;
+    // The sky photo is the hero's first child; below its middle the veil fades to paper.
+    const sky = document.querySelector('[aria-labelledby="home-title"]')?.firstElementChild;
+    if (!sky) return;
+    const update = () => {
+      const r = sky.getBoundingClientRect();
+      setOver(r.top + r.height / 2 > (document.querySelector('.topbar')?.clientHeight ?? 64));
+    };
+    const first = requestAnimationFrame(update);
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      cancelAnimationFrame(first);
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [home]);
+  return home && over;
 }

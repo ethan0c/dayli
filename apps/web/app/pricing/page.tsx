@@ -1,3 +1,4 @@
+import { Reveal } from '@/components/Reveal';
 import type { Metadata } from 'next';
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata, type Faq } from '@/lib/seo';
 import { FREE_IMPORTS_PER_MONTH, SUPPORT_EMAIL, TRIAL_DAYS, money, plan } from '@/lib/site';
@@ -85,7 +86,7 @@ export default function PricingPage() {
 
       <PlanCards />
 
-      <section className="cmp" aria-label="Free versus Plus" data-reveal>
+      <Reveal as="section" className="cmp" aria-label="Free versus Plus">
         <h2>Free and Plus, compared</h2>
         <table>
           <thead>
@@ -109,10 +110,10 @@ export default function PricingPage() {
             ))}
           </tbody>
         </table>
-      </section>
+      </Reveal>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd('/pricing', 'Pricing')) }} />
-      <section className="faq" aria-label="Pricing questions" data-reveal>
+      <Reveal as="section" className="faq" aria-label="Pricing questions">
         {/* Answers with links stay on the page but out of the structured data, which takes plain text. */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd(FAQS.filter((f): f is Faq => typeof f.a === 'string'))) }} />
         <h2>Questions</h2>
@@ -124,7 +125,7 @@ export default function PricingPage() {
             </details>
           ))}
         </div>
-      </section>
+      </Reveal>
     </main>
   );
 }
