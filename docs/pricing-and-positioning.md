@@ -73,7 +73,7 @@ Plus includes unlimited AI imports, work-schedule update comparisons, suggested 
 | Feature | Access and enforcement |
 |---|---|
 | Calendar, Today, Plan, courses, to-dos, repeating events, reminders, manual edits, export and Undo | Free; no subscription check |
-| Text, voice, screenshot, camera and PDF imports, including syllabi | Five successful reads in the 30 days after the first one, then three per UTC month (`lib/plans.ts`). Add and onboarding share `usePlusAccess`; imports beyond the allowance require the active RevenueCat `semli_pro` entitlement. Failed/empty reads do not count. Cancelling review still counts a successful read. |
+| Text, voice, screenshot, camera and PDF imports, including syllabi | Five successful reads in the 30 days after the first one, then three per UTC month (`lib/plans.ts`). Add and onboarding share `usePlusAccess`; imports beyond the allowance require the active RevenueCat `semli_plus` entitlement. Failed/empty reads do not count. Cancelling review still counts a successful read. |
 | Updating an existing work schedule | Review shows a preview; committing a comparison requires Plus. A first schedule or a new week without existing shifts uses the normal import allowance. Manual shift edits remain free. Cancelling the paywall preserves the pending review. |
 | Overlap detection and named warnings | Free on both events, including the detail graph and agenda. |
 | Suggested rescheduling | Plus; active entitlement checked again before applying. Fixed times stay fixed by default. A suggestion moves only the selected occurrence and is undoable. |

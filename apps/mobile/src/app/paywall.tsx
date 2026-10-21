@@ -8,10 +8,10 @@ import { usePurchases } from '@/providers/PurchasesProvider';
 
 /** The caller's import/review remains mounted underneath this cover. */
 export default function PaywallScreen() {
-  const { isPro, busy } = usePurchases();
+  const { isPlus, busy } = usePurchases();
   const navigation = useNavigation();
-  const unlocked = useRef(isPro);
-  useEffect(() => { unlocked.current = isPro; }, [isPro]);
+  const unlocked = useRef(isPlus);
+  useEffect(() => { unlocked.current = isPlus; }, [isPlus]);
   usePreventRemove(busy);
   useEffect(() => {
     const unsubscribe = navigation.addListener('removed', () => finishPaywall(unlocked.current));

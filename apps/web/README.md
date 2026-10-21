@@ -22,7 +22,7 @@ All variables in [.env.example](.env.example) belong on the server. See the [env
 | --- | --- |
 | `ANTHROPIC_API_KEY` | Reads text, images, and PDFs through `/api/extract` |
 | `SUPABASE_URL`, `SUPABASE_KEY` | Import quotas, demo limits, beta waitlist, and referral tracking; use the publishable key |
-| `REVENUECAT_SECRET_KEY` | Verifies `semli_pro` entitlement for unlimited Plus imports |
+| `REVENUECAT_SECRET_KEY` | Verifies `semli_plus` entitlement for unlimited Plus imports |
 | `TESTFLIGHT_URL` | Optional destination for `/beta`; leave unset until the invite is available |
 
 Use the same Supabase project as the mobile app and apply [the migrations](../../supabase/migrations) in filename order. Without Supabase, local imports bypass server quotas; the waitlist needs Supabase. Configure Supabase, anonymous sign-ins, and RevenueCat verification before serving production app imports.

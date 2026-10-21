@@ -42,7 +42,7 @@ Every product gets a **7-day free trial** (introductory offer, "free", 7 days, o
 
 ## 2. RevenueCat
 
-1. **Entitlement**: identifier `semli_pro` (keep this exact id; the app checks it), display name "Semli Plus". Attach all six App Store products to it.
+1. **Entitlement**: identifier `semli_plus` (keep this exact id; the app checks it), display name "Semli Plus". Attach all six App Store products to it.
 2. Import the six App Store products into the catalog (App Store Connect integration or manual).
 3. Create **two offerings**:
    - `student`: packages `$rc_monthly` → `semli_plus_monthly_student`, `$rc_six_month` → `semli_plus_semester_student`, `$rc_annual` → `semli_plus_yearly_student`. **Make this the current offering.**
@@ -58,7 +58,7 @@ Every product gets a **7-day free trial** (introductory offer, "free", 7 days, o
 From a development build on a phone with the sandbox account:
 - `Purchases.getOfferings()` returns `current.identifier === 'student'` and `all.regular` exists, each with monthly, sixMonth, and annual packages.
 - Each package's `product.introPrice` shows a 7-day free trial.
-- Buying `semli_plus_semester_student` activates the `semli_pro` entitlement; restore on a second install recovers it.
+- Buying `semli_plus_semester_student` activates the `semli_plus` entitlement; restore on a second install recovers it.
 
 Questions: the only decision worth a call is the 6-month semester term. If we prefer 3 months, change the duration on the two semester products and nothing else.
 
@@ -68,7 +68,7 @@ Questions: the only decision worth a call is the 6-month semester term. If we pr
 > Rico, RevenueCat and the App Store app record are set up. Three things left, all in docs/revenuecat-offerings-brief.md in the repo:
 >
 > 1. App Store Connect → Subscriptions: the group is there (called "plus", rename to "Semli Plus"). Create the six products with the exact IDs in the brief, 1-week free intro offer on each, ranking as listed. Reference name, product ID and duration are the only fields the first screen asks for.
-> 2. RevenueCat → Entitlements: `semli_pro`, attach all six. Offerings: `student` (current) and `regular`, standard package types monthly / six_month / annual.
+> 2. RevenueCat → Entitlements: `semli_plus`, attach all six. Offerings: `student` (current) and `regular`, standard package types monthly / six_month / annual.
 > 3. Test Store: mirror both offerings so dev builds show real prices.
 >
 > IDs are read by the app character for character. Don't make a lifetime product or a default offering. Ping me when the products show "Ready to Submit" and I'll do a sandbox purchase.

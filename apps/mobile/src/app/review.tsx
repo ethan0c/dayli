@@ -58,7 +58,7 @@ export default function ReviewScreen() {
   const leaving = useRef(false);
   const confirming = useRef(false);
   const { requirePlus } = usePlusAccess();
-  const { isPro } = usePurchases();
+  const { isPlus } = usePurchases();
   const [checkingAccess, setCheckingAccess] = useState(false);
   const [accessError, setAccessError] = useState<string | null>(null);
 
@@ -495,10 +495,10 @@ export default function ReviewScreen() {
       title={title}
       onClose={close}
       footer={<>
-        {isUpdate && !isPro && total > 0 ? <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Preview your changes here. Updating an existing schedule is included with Semli Plus.</T> : null}
+        {isUpdate && !isPlus && total > 0 ? <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Preview your changes here. Updating an existing schedule is included with Semli Plus.</T> : null}
         {accessError ? <T token="callout" color={c.conflict} accessibilityRole="alert">{accessError}</T> : null}
         {footerNote ? <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>{footerNote}</T> : null}
-        <Button label={checkingAccess ? 'Checking Plus…' : isUpdate && !isPro && total > 0 ? 'Update with Plus' : cta} disabled={checkingAccess} onPress={total === 0 ? close : () => void confirm()} />
+        <Button label={checkingAccess ? 'Checking Plus…' : isUpdate && !isPlus && total > 0 ? 'Update with Plus' : cta} disabled={checkingAccess} onPress={total === 0 ? close : () => void confirm()} />
       </>}>
       {__DEV__ && devAutoConfirmMs ? <DevAutoConfirm onConfirm={() => void confirm()} /> : null}
       <ScrollView contentContainerStyle={styles.list} keyboardShouldPersistTaps="handled">

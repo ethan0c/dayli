@@ -30,7 +30,7 @@ export default function CanvasScreen() {
   const canvas = useStore((s) => s.settings.canvas);
   const setSettings = useStore((s) => s.setSettings);
   const { requirePlus } = usePlusAccess();
-  const { isPro } = usePurchases();
+  const { isPlus } = usePurchases();
   const synced = useItemList().filter((i) => i.externalId?.startsWith('canvas:')).length;
   const [link, setLink] = useState('');
   const [busy, setBusy] = useState(false);
@@ -97,7 +97,7 @@ export default function CanvasScreen() {
           <View style={styles.top}>
             <T token="callout" color={c.inkSecondary}>{syncedLabel}</T>
             <T token="displayXl" tabular>{`${synced} from Canvas`}</T>
-            <T token="body" color={c.inkSecondary} style={styles.line}>{isPro
+            <T token="body" color={c.inkSecondary} style={styles.line}>{isPlus
               ? 'When a professor moves a due date, it moves here too. Done stays done.'
               : 'Your Canvas due dates are in. Keeping them in sync when professors change them is part of Semli Plus.'}</T>
           </View>
@@ -108,7 +108,7 @@ export default function CanvasScreen() {
             </View>
           ) : null}
           <Group footer="Disconnecting keeps everything already in your plan.">
-            <Row label={isPro ? 'Sync now' : 'Keep it in sync with Plus'} onPress={busy ? undefined : () => void syncNow()} />
+            <Row label={isPlus ? 'Sync now' : 'Keep it in sync with Plus'} onPress={busy ? undefined : () => void syncNow()} />
             <Row label="Disconnect" destructive onPress={disconnect} last />
           </Group>
           {canvas.lastError ? fallback : null}

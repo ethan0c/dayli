@@ -57,7 +57,7 @@ The runtime version comes from the fingerprint, so an update only reaches builds
 
 ## Configuration and source
 
-The [.env.example](.env.example) lists the API URL, Supabase publishable keys, RevenueCat public SDK key, and optional PostHog/Sentry configuration. Accounts activate when Supabase is configured. Store offerings and the `semli_pro` entitlement must match RevenueCat; see the [offerings brief](../../docs/revenuecat-offerings-brief.md).
+The [.env.example](.env.example) lists the API URL, Supabase publishable keys, RevenueCat public SDK key, and optional PostHog/Sentry configuration. Accounts activate when Supabase is configured. Store offerings and the `semli_plus` entitlement must match RevenueCat; see the [offerings brief](../../docs/revenuecat-offerings-brief.md).
 
 | Path | Purpose |
 | --- | --- |

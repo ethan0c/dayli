@@ -98,16 +98,16 @@ describe('RevenueCat initialization', () => {
   });
 });
 
-describe('semli_pro access', () => {
-  it('requires the active semli_pro entitlement, not a product ID, renewal flag, or historical purchase', async () => {
+describe('semli_plus access', () => {
+  it('requires the active semli_plus entitlement, not a product ID, renewal flag, or historical purchase', async () => {
     const { hasSemliPro } = await import('./revenuecat');
     const info = (active: object, all: object = active) => ({ entitlements: { active, all }, activeSubscriptions: ['yearly'] }) as CustomerInfo;
     expect(hasSemliPro(null)).toBe(false);
-    expect(hasSemliPro(info({}, { semli_pro: { isActive: false } }))).toBe(false);
+    expect(hasSemliPro(info({}, { semli_plus: { isActive: false } }))).toBe(false);
     expect(hasSemliPro(info({ yearly: { isActive: true } }))).toBe(false);
-    expect(hasSemliPro(info({ semli_pro: { isActive: false } }))).toBe(false);
-    expect(hasSemliPro(info({ semli_pro: { isActive: true, willRenew: false } }))).toBe(true);
-    expect(hasSemliPro(info({ semli_pro: { isActive: true, expirationDate: null } }))).toBe(true);
+    expect(hasSemliPro(info({ semli_plus: { isActive: false } }))).toBe(false);
+    expect(hasSemliPro(info({ semli_plus: { isActive: true, willRenew: false } }))).toBe(true);
+    expect(hasSemliPro(info({ semli_plus: { isActive: true, expirationDate: null } }))).toBe(true);
   });
 });
 

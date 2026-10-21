@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import Purchases, { LOG_LEVEL, PURCHASES_ERROR_CODE, type CustomerInfo, type PurchasesOffering, type PurchasesOfferings } from 'react-native-purchases';
 import { reportError } from './errors';
 
-export const PRO_ENTITLEMENT = 'semli_pro';
+export const PLUS_ENTITLEMENT = 'semli_plus';
 
 /** Offerings are two price lists for the same plans; see docs/revenuecat-offerings-brief.md. */
 export const STUDENT_OFFERING = 'student';
@@ -52,7 +52,7 @@ export function initializePurchases(): Promise<void> {
 }
 
 export function hasSemliPro(info: CustomerInfo | null): boolean {
-  return info?.entitlements.active[PRO_ENTITLEMENT]?.isActive === true;
+  return info?.entitlements.active[PLUS_ENTITLEMENT]?.isActive === true;
 }
 
 /** Cancellation is expected; only actionable failures need a message. */

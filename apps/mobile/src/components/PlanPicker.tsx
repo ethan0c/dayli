@@ -13,7 +13,7 @@ import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
 import { LINKS, openLink } from '@/lib/links';
-import { PRO_ENTITLEMENT, customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
+import { PLUS_ENTITLEMENT, customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { useTheme, type Palette } from '@/theme';
@@ -53,7 +53,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
 }) {
   const theme = useTheme();
   const c = palette ?? theme.c;
-  const { offering, offerings, customerInfo, isPro, loading, busy, error, unavailableReason, refresh, purchase, restore, manageSubscription } = usePurchases();
+  const { offering, offerings, customerInfo, isPlus, loading, busy, error, unavailableReason, refresh, purchase, restore, manageSubscription } = usePurchases();
   const student = useStore((s) => s.settings.isStudent);
   const setSettings = useStore((s) => s.setSettings);
   const [welcome, setWelcome] = useState<'celebrate' | 'tour' | null>(null);
@@ -69,7 +69,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
   const selected = current?.pack ?? null;
   const days = trialDays(selected);
   const monthly = plans.find((p) => p.key === 'monthly')?.pack ?? null;
-  const entitlement = customerInfo?.entitlements.active[PRO_ENTITLEMENT];
+  const entitlement = customerInfo?.entitlements.active[PLUS_ENTITLEMENT];
 
   const showWelcome = (stage: 'celebrate' | 'tour') => { setWelcome(stage); onWelcome?.(); };
 
@@ -84,7 +84,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
         showWelcome('celebrate');
         feedback('success');
         track('purchase_completed', { term: current.key, student, trial: !!days });
-        const ends = info.entitlements.active[PRO_ENTITLEMENT]?.expirationDate;
+        const ends = info.entitlements.active[PLUS_ENTITLEMENT]?.expirationDate;
         if (days && ends) setSettings({ trial: { endsAt: ends, label: `${selected.product.priceString} ${current.billed}` } });
       } else {
         // Apple sold it; RevenueCat did not map it. Say which, so a screenshot is enough to fix the dashboard.
@@ -120,7 +120,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
   if (welcome) return <PlusWelcome stage={welcome} onTour={() => showWelcome('tour')}
     onDone={() => { if (onComplete) onComplete(); else { setWelcome(null); onWelcome?.(); } }} c={c} />;
 
-  if (isPro && !previewPlans) {
+  if (isPlus && !previewPlans) {
     return (
       <View style={{ gap: 22 }}>
         <View style={{ gap: 2 }}>

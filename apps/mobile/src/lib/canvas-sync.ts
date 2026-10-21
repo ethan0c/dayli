@@ -78,9 +78,9 @@ async function run(feedUrl?: string): Promise<SyncResult> {
  */
 export function CanvasAutoSync() {
   const hydrated = useStore((s) => s.hydrated);
-  const { isPro } = usePurchases();
+  const { isPlus } = usePurchases();
   useEffect(() => {
-    if (!hydrated || !isPro) return;
+    if (!hydrated || !isPlus) return;
     const maybeSync = () => {
       const { feedUrl, lastSyncedAt } = useStore.getState().settings.canvas;
       if (!feedUrl) return;
@@ -90,6 +90,6 @@ export function CanvasAutoSync() {
     maybeSync();
     const subscription = AppState.addEventListener('change', (s) => { if (s === 'active') maybeSync(); });
     return () => subscription.remove();
-  }, [hydrated, isPro]);
+  }, [hydrated, isPlus]);
   return null;
 }

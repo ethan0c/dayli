@@ -60,7 +60,7 @@ describe('import limits', () => {
 
   it('lets Plus through without counting', async () => {
     const fetchMock = vi.fn(async (url: string) => url.includes('/auth/v1/user') ? ok({ id: 'u1' })
-      : url.includes('revenuecat') ? ok({ subscriber: { entitlements: { semli_pro: { expires_date: '2999-01-01T00:00:00Z' } } } })
+      : url.includes('revenuecat') ? ok({ subscriber: { entitlements: { semli_plus: { expires_date: '2999-01-01T00:00:00Z' } } } })
       : ok(false));
     vi.stubGlobal('fetch', fetchMock);
     const res = await POST(withAuth({ authorization: 'Bearer t', 'x-revenuecat-app-user-id': 'u1' }));

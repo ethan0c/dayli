@@ -22,11 +22,11 @@ export function FirstNote({ kind, label, body, detail, action, onAction, dismiss
   kind: FirstKind; label: string; body: string; detail: string; action: string; onAction: () => void; dismiss?: string;
 }) {
   const { c } = useTheme();
-  const { isPro } = usePurchases();
+  const { isPlus } = usePurchases();
   const setSettings = useStore((s) => s.setSettings);
   useEffect(() => { track('first_note', { kind, action: 'shown' }); }, [kind]);
   const seen = (action: 'opened' | 'dismissed') => {
-    track('first_note', { kind, action, pro: isPro });
+    track('first_note', { kind, action, pro: isPlus });
     setSettings({ firsts: { ...useStore.getState().settings.firsts, [kind]: true } });
   };
   return (
@@ -46,13 +46,13 @@ const when = (date: string, today: string) => date === today ? 'today' : diffDay
 
 /** The first overlap Semli could resolve: it keeps the plan that can't move and moves the one that can. */
 export function FirstOverlap({ overlap, today }: { overlap: MovableOverlap; today: string }) {
-  const { isPro } = usePurchases();
+  const { isPlus } = usePurchases();
   const { flexible, other } = overlap;
   const time = flexible.start && flexible.end ? ` (${formatRange(flexible.start, flexible.end)})` : '';
   return (
     <FirstNote kind="overlap" label="Your first overlap"
       body={`${flexible.title} overlaps ${other.title} ${when(flexible.date, today)}${time}.`}
-      detail={isPro
+      detail={isPlus
         ? `Semli marks overlaps red as plans come in, and keeps the one that can’t move. Open this one for a free time for ${flexible.title}; ${other.title} stays where it is.`
         : `Semli marks overlaps red as plans come in, and keeps the one that can’t move. With Plus, it finds a free time for ${flexible.title} and moves it in one tap; ${other.title} stays where it is.`}
       action="See it" onAction={() => router.push(`/item/${flexible.id}`)} />
@@ -61,11 +61,11 @@ export function FirstOverlap({ overlap, today }: { overlap: MovableOverlap; toda
 
 /** The first deadline inside two days: where the Urgent switch is, and what it does. */
 export function FirstUrgent({ item, today }: { item: Item; today: string }) {
-  const { isPro } = usePurchases();
+  const { isPlus } = usePurchases();
   return (
     <FirstNote kind="urgent" label="Due soon"
       body={`${item.title} is due ${when(item.date, today)}.`}
-      detail={isPro
+      detail={isPlus
         ? 'Standard reminders are on their way. For the ones you can’t miss, open it and switch on Urgent: it rings like an alarm, even on silent.'
         : 'Standard reminders are free and on their way. With Plus, an urgent item rings like an alarm, even on silent. Open it and switch on Urgent.'}
       action="Open it" onAction={() => router.push(`/item/${item.id}`)} />

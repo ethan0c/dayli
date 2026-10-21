@@ -14,7 +14,7 @@ export const FREE_IMPORTS_PER_MONTH = 3;
 export const FREE_IMPORTS_TO_START = 5;
 export const START_WINDOW_DAYS = 30;
 export const DEMO_PREVIEWS_PER_DAY = 5;
-const PRO_ENTITLEMENT = 'semli_pro';
+const PLUS_ENTITLEMENT = 'semli_plus';
 
 export type Access =
   | { ok: true; refund: () => Promise<void> }
@@ -31,7 +31,7 @@ async function hasPlus(appUserId: string | null): Promise<boolean> {
   });
   if (!res.ok) return false;
   const data = (await res.json()) as { subscriber?: { entitlements?: Record<string, { expires_date: string | null }> } };
-  const ent = data.subscriber?.entitlements?.[PRO_ENTITLEMENT];
+  const ent = data.subscriber?.entitlements?.[PLUS_ENTITLEMENT];
   return !!ent && (ent.expires_date === null || Date.parse(ent.expires_date) > Date.now());
 }
 

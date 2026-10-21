@@ -17,7 +17,7 @@ interface PurchasesContextValue {
   offering: PurchasesOffering | null;
   /** All offerings, so the paywall can show the other price list for comparison. */
   offerings: PurchasesOfferings | null;
-  isPro: boolean;
+  isPlus: boolean;
   loading: boolean;
   busy: boolean;
   error: string | null;
@@ -174,7 +174,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
   }), [refreshCustomerInfo, run, updateCustomerInfo]);
 
   const value = useMemo<PurchasesContextValue>(() => ({
-    customerInfo, offering, offerings, isPro: hasSemliPro(customerInfo), loading, busy, error,
+    customerInfo, offering, offerings, isPlus: hasSemliPro(customerInfo), loading, busy, error,
     unavailableReason: purchasesUnavailableReason,
     refresh, refreshCustomerInfo, purchase, restore, presentPaywall, manageSubscription,
   }), [customerInfo, offering, offerings, loading, busy, error, refresh, refreshCustomerInfo, purchase, restore, presentPaywall, manageSubscription]);

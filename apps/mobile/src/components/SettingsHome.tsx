@@ -17,7 +17,7 @@ import { deviceRegion, regionName } from '@/lib/locale';
 import { profileFor } from '@/lib/majors';
 import { useCanDo } from '@/lib/can-do';
 import { freeImportAllowance } from '@/lib/plans';
-import { PRO_ENTITLEMENT, customerCenterEnabled } from '@/lib/revenuecat';
+import { PLUS_ENTITLEMENT, customerCenterEnabled } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
@@ -27,7 +27,7 @@ const APPEARANCE_LABEL = { system: 'Match iPhone', light: 'Light', dark: 'Dark' 
 /** Profile and preferences, shared by the You tab and /settings. */
 export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const { c } = useTheme();
-  const { isPro, customerInfo, loading, busy, manageSubscription } = usePurchases();
+  const { isPlus, customerInfo, loading, busy, manageSubscription } = usePurchases();
   const settings = useStore((s) => s.settings);
   /** null for a guest. */
   const email = useSession((s) => { const account = accountOf(s.session); return account ? account.user.email ?? '' : null; });
@@ -41,9 +41,9 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
     feedback('tap');
     setLinkNote((await openLink(url)) ? null : `We couldn't open that. ${fallback}`);
   };
-  const entitlement = customerInfo?.entitlements.active[PRO_ENTITLEMENT];
+  const entitlement = customerInfo?.entitlements.active[PLUS_ENTITLEMENT];
   const trialEnds = settings.trial?.endsAt ? Math.max(0, Math.ceil((new Date(settings.trial.endsAt).getTime() - openedAt) / 86_400_000)) : null;
-  const plan = isPro
+  const plan = isPlus
     ? trialEnds !== null && trialEnds > 0 && entitlement?.periodType === 'TRIAL'
       ? { label: `Plus · Trial, ${trialEnds} ${trialEnds === 1 ? 'day' : 'days'} left`, tone: 'green' as const }
       : { label: 'Plus', tone: 'green' as const }
@@ -77,8 +77,8 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         </Group> : null}
 
         <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
-          <Row label="Your plan" icon="sparkle" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
-          <Row label="Plan status" icon="search" value={isPro ? 'Active' : customerInfo?.activeSubscriptions.length ? 'Needs a look' : 'Free'} onPress={() => router.push('/settings/plan-status')} />
+          <Row label="Your plan" icon="sparkle" value={isPlus ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
+          <Row label="Plan status" icon="search" value={isPlus ? 'Active' : customerInfo?.activeSubscriptions.length ? 'Needs a look' : 'Free'} onPress={() => router.push('/settings/plan-status')} />
           <Row label="Manage subscription" icon="calendar" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
             if (customerCenterEnabled || customerInfo?.managementURL) void manageSubscription().catch(() => router.push('/settings/plan'));
             else router.push('/settings/plan');

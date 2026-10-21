@@ -21,7 +21,7 @@ import { useTheme } from '@/theme';
 export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
   const { c } = useTheme();
   const now = useNow();
-  const { isPro, loading, refreshCustomerInfo, presentPaywall } = usePurchases();
+  const { isPlus, loading, refreshCustomerInfo, presentPaywall } = usePurchases();
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const otherIds = new Set(findConflicts(items).flatMap((pair) => pair.a === item.id ? [pair.b] : pair.b === item.id ? [pair.a] : []));
@@ -30,7 +30,7 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
   const flexible = isFlexibleEvent(item);
   const movable = others.filter(isFlexibleEvent);
   const upcoming = item.start && `${item.date}T${item.start}` > `${now.date}T${now.time}`;
-  const suggestion = isPro ? suggestReschedule(item, items, now) : null;
+  const suggestion = isPlus ? suggestReschedule(item, items, now) : null;
   const suggestedLabel = suggestion ? `${suggestion.date === now.date ? 'Today' : `${weekdayShort(suggestion.date)}, ${monthDay(suggestion.date)}`} · ${formatRange(suggestion.start, suggestion.end)}` : '';
 
   async function openPlus() {
@@ -89,9 +89,9 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
         </>
       ) : !upcoming ? (
         <T token="callout" color={c.inkSecondary}>This event has already started. You can still edit its time above.</T>
-      ) : loading && !isPro ? (
+      ) : loading && !isPlus ? (
         <T token="callout" color={c.inkSecondary}>Checking Plus access…</T>
-      ) : !isPro ? (
+      ) : !isPlus ? (
         <View style={styles.suggestion}>
           <GroupLabel>Semli Plus</GroupLabel>
           <T token="callout" color={c.inkSecondary}>Find a free time for this event around your fixed commitments. Overlap warnings and manual edits are always free.</T>

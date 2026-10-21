@@ -8,13 +8,13 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 ### First: subscriptions and the new welcome
 
-- Built: onboarding, You → Semli Plus, and feature gates share the fireworks photo and purchase controls. A confirmed purchase with an active `semli_pro` entitlement shows a celebration, then a skippable two-step guide. Restore and normal app launches do not replay the celebration. The guide can be reopened from You → Semli Plus.
+- Built: onboarding, You → Semli Plus, and feature gates share the fireworks photo and purchase controls. A confirmed purchase with an active `semli_plus` entitlement shows a celebration, then a skippable two-step guide. Restore and normal app launches do not replay the celebration. The guide can be reopened from You → Semli Plus.
 - [ ] Run real StoreKit sandbox / TestFlight purchases for each term, including eligible trial, ineligible trial, cancel, failed payment, pending approval and an inactive entitlement after a transaction. The welcome must appear only once for a successful new purchase. Development Test Store access is not this verification.
 - [ ] Check the import-quota and schedule-update gates: cancel keeps the pending draft/review; purchase → tour → Continue resumes it; restore returns access without a new-purchase celebration. Test the glass X and Android Back too.
 - [ ] Verify localized prices, total billed for semester/year, student vs regular offerings, introductory-offer eligibility, renewal disclosures and Terms/Privacy links against the actual store confirmation. Intro pricing on a product alone does not prove a returning user is eligible.
 - [ ] In App Store Connect, rename the two six-month products' display names from "Plus Semester" to "Plus 6 months" (student and regular), so the purchase sheet matches the app's "6 months" label and "$14.99 / 6 months" price line (Oct 21). Update `revenuecat-offerings-brief.md` and the RevenueCat package display names to match. Product IDs stay `semli_plus_semester_*`; they are not shown to anyone.
 - [ ] Run `supabase db push` for the Oct 21 migrations (`20261021120000_import_allowance.sql`, `20261021130000_plan_size.sql`) before the next build ships; without the first one, free imports four and five are refused.
-- [ ] Configure production RevenueCat public SDK keys, products and `semli_pro` entitlement for each store. Test expiration, refund, reinstall, Restore purchases and Manage subscription. Confirm Test Store keys are never used in a release build.
+- [ ] Configure production RevenueCat public SDK keys, products and `semli_plus` entitlement for each store. Test expiration, refund, reinstall, Restore purchases and Manage subscription. Confirm Test Store keys are never used in a release build.
 - [ ] Review the trial-reminder lifecycle: record an actual trial rather than assuming any product with an intro offer started one; remove obsolete reminders after cancellation, conversion, restore or a plan change. The paywall now says reminders require notifications to be enabled.
 - [ ] Check the photo paywall and welcome on a small phone, large text, VoiceOver/TalkBack, Reduce Motion and both appearances. Verify image rights/attribution before shipping. Native launch splash remains ink wordmark on white.
 
@@ -132,7 +132,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 **Canvas sync (no backend)**
 - Built Oct 19, 2026 on the Canvas calendar feed link (`lib/canvas.ts`, `lib/canvas-sync.ts`, You → Canvas, a row on Add). Matched by Canvas UID (`Item.externalId`); moved dates update, done stays done, upcoming items that leave the feed are removed, an empty or failed feed changes nothing. Each sync is one undoable batch.
 - Onboarding asks students where assignments live (Canvas, Blackboard, Brightspace, Moodle, Google Classroom, other; stored as `settings.lms`). Canvas students connect in place of the own-import step; the fallback is the screenshot/syllabus import.
-- The first sync is free (the onboarding value moment); auto-sync and Sync now need `semli_pro`.
+- The first sync is free (the onboarding value moment); auto-sync and Sync now need `semli_plus`.
 - [ ] Connect a real student's feed on a device: UTC vs TZID times, all-day assignments, course matching against an imported syllabus, a reset feed link.
 - [ ] Update the pricing and SEO pages once verified ("coming soon" today).
 - [ ] Blackboard, Brightspace and Moodle also publish iCal feeds; add them in the order the `lms` answers say.

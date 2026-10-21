@@ -75,7 +75,7 @@ There are two different App Store Connect keys. Both download **once** as a `.p8
 
 Then in RevenueCat → Project settings → **API keys**: copy the Apple **public** SDK key (`appl_…`) into `apps/mobile/.env` as `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY`. Never commit `.env`; never use an `sk_` secret key in the app.
 
-Sanity check: a sandbox purchase in the dev build shows up in RevenueCat → Customers within a minute, with the `semli_pro` entitlement active.
+Sanity check: a sandbox purchase in the dev build shows up in RevenueCat → Customers within a minute, with the `semli_plus` entitlement active.
 
 ---
 

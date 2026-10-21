@@ -15,7 +15,7 @@ export function RingingAlarmInfo({ timed = true, itemID, draft = false, settings
   timed?: boolean; itemID?: string; draft?: boolean; settings?: boolean;
 }) {
   const { c } = useTheme();
-  const { isPro } = usePurchases();
+  const { isPlus } = usePurchases();
   const { requirePlus } = usePlusAccess();
   const state = useAlarmState();
   const enabled = useStore((s) => !!s.settings.reminders.urgentAlarmsEnabled);
@@ -24,7 +24,7 @@ export function RingingAlarmInfo({ timed = true, itemID, draft = false, settings
   useEffect(() => { void syncRingingAlarms().catch(() => {}); }, []);
   const unavailable = state.syncing || state.authorization === 'checking' || state.authorization === 'unsupported' || state.authorization === 'needs-build';
   const armed = itemID && state.scheduledIDs.includes(itemID);
-  const message = !isPro ? 'Urgent items ring like an alarm, even when Semli is closed. That is part of Semli Plus.'
+  const message = !isPlus ? 'Urgent items ring like an alarm, even when Semli is closed. That is part of Semli Plus.'
     : !timed ? 'Add a time to set a ringing alarm.'
     : state.syncing ? 'Updating ringing alarms…'
     : state.authorization === 'checking' ? 'Checking ringing alarm access…'
@@ -41,7 +41,7 @@ export function RingingAlarmInfo({ timed = true, itemID, draft = false, settings
     if (busy) return;
     setBusy(true); setError(null);
     try {
-      if (!isPro) { await requirePlus('urgent'); return; }
+      if (!isPlus) { await requirePlus('urgent'); return; }
       if (state.error) await syncRingingAlarms();
       else if (state.authorization === 'denied') { if (!(await openSystemSettings())) setError('Open Settings → Semli → Alarms.'); }
       else if (enabled && settings) await disableRingingAlarms();
@@ -53,7 +53,7 @@ export function RingingAlarmInfo({ timed = true, itemID, draft = false, settings
   return <View style={{ gap: 6, paddingVertical: 10 }}>
     <T token="caption" color={c.inkSecondary}>{message}</T>
     {state.error || error ? <T token="caption" color={c.conflict} accessibilityRole="alert">{error ?? state.error}</T> : null}
-    {!isPro ? <TextButton label={busy ? 'One moment…' : 'Get Semli Plus'} onPress={() => void act()} tone="muted" style={{ alignSelf: 'flex-start' }} />
+    {!isPlus ? <TextButton label={busy ? 'One moment…' : 'Get Semli Plus'} onPress={() => void act()} tone="muted" style={{ alignSelf: 'flex-start' }} />
     : !unavailable && timed && (!draft || !enabled || state.authorization !== 'authorized') && (!armed || settings || !enabled) ? <TextButton
       label={busy ? 'One moment…' : state.error ? 'Retry alarm setup' : state.authorization === 'denied' ? 'Open alarm settings' : enabled && settings ? 'Turn off ringing alarms' : enabled ? 'Retry alarm setup' : 'Enable ringing alarms'}
       onPress={() => void act()} tone="muted" style={{ alignSelf: 'flex-start' }} /> : null}
