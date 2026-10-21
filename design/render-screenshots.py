@@ -4,8 +4,9 @@
 Input: design/screenshots/raw/<name>.png, 1320 x 2868 captures from the iPhone 17 Pro Max
 simulator (dev build, light mode, 9:41 status bar; see docs/launch-guide.md, part 2).
 Output: design/screenshots/<nn>-<name>.png at 1320 x 2868, no alpha, ready for the
-6.9-inch slot. EB Garamond caption with one ~accent~ phrase in lavender, Geist Regular subline,
-the site's iPhone frame bleeding off the bottom edge. `--header` makes the product page header
+6.9-inch slot. The wordmark, an EB Garamond caption with one ~accent~ phrase in lavender italic,
+no subline (Oct 21, 2026, after Origin's set), and the site's iPhone frame bleeding off the bottom
+edge. `--layout serif` keeps the earlier version with Geist sublines. `--header` makes the product page header
 and the search results card on the same sky, in the same two faces.
 
 Since Oct 21, 2026 (founder's call, replacing the Oct 20 Geist Bold set): every shot shares one
@@ -46,6 +47,7 @@ PHOTOS = ROOT / "apps" / "web" / "public" / "photos"
 GEIST_VAR = ROOT / "design" / "fonts" / "Geist[wght].ttf"  # variable, for the Bold the app does not ship
 TRACKING = -0.025  # headline letter spacing, as a share of the size; display type reads better tight
 SERIF = ROOT / "design" / "fonts" / "EBGaramond[wght].ttf"  # variable; the app ships only the Regular cut
+SERIF_ITALIC = ROOT / "design" / "fonts" / "EBGaramond-Italic[wght].ttf"  # the accent phrase, store art only
 MIN_CONTRAST = 3.5  # above WCAG AA for large text (3:1); the captions are 156px semibold
 
 W, H = 1320, 2868
@@ -99,6 +101,9 @@ class Layout:
     radius: int = 140
     shadow: int = 44
     frame: bool = True  # the site's photographic iPhone frame; False draws a flat bezel instead
+    subline: bool = True  # False: the caption alone, the way Origin's set reads
+    italic_accent: bool = False  # the accent phrase in EB Garamond Italic as well as lavender
+    wordmark_every: bool = False  # the wordmark above every caption, not only the first
 
 
 LAYOUTS = {
@@ -111,6 +116,9 @@ LAYOUTS = {
     "wide": Layout("wide", "center", PAPER, INK, SECONDARY, title_size=172, title_lead=182, sub_size=80, sub_lead=98, margin=140, device_top=960, screen_w=1320),
     # The default since Oct 21, 2026: the site's h1 (EB Garamond Regular), centered, over the sky.
     "serif": Layout("serif", "center", PAPER, INK, SECONDARY, title_size=150, title_lead=150, serif=True, sub_size=60, sub_lead=76, sub_weight="Regular", margin=104),
+    # Oct 21, 2026 trial after Origin's set: no subline, an italic accent, the wordmark on every
+    # shot, and a narrower phone with more sky around it.
+    "quiet": Layout("quiet", "center", PAPER, INK, SECONDARY, title_size=156, title_lead=156, serif=True, margin=104, subline=False, italic_accent=True, wordmark_every=True, device_top=780, screen_w=1090),
 }
 
 # Order matters: the first three show in search results. Ten, the store's limit, one capability each,
@@ -169,9 +177,9 @@ def draw_tracked(draw: ImageDraw.ImageDraw, x: float, y: float, text: str, f: Im
     return tracked_len(draw, text, f, tracking)
 
 
-def serif(size: int, weight: int = 600) -> ImageFont.FreeTypeFont:
+def serif(size: int, weight: int = 600, italic: bool = False) -> ImageFont.FreeTypeFont:
     """EB Garamond; SemiBold by default so it holds up on photos."""
-    f = ImageFont.truetype(str(SERIF), size)
+    f = ImageFont.truetype(str(SERIF_ITALIC if italic else SERIF), size)
     f.set_variation_by_axes([weight])  # axes: Weight
     return f
 
@@ -308,7 +316,7 @@ def plain(text: str) -> str:
     return text.replace("~", "")
 
 
-def rich_block(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont, x0: int, y: int, width: int, lead: int, color, accent, align: str = "left", canvas_w: int | None = None, tracking: float = TRACKING) -> int:
+def rich_block(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont, x0: int, y: int, width: int, lead: int, color, accent, align: str = "left", canvas_w: int | None = None, tracking: float = TRACKING, accent_font: ImageFont.FreeTypeFont | None = None) -> int:
     """Wraps like `wrap`, then draws word by word, tracked, so the accent words take the accent color."""
     # The accent phrase wraps as one unit, so a break falls before it, never inside it.
     units: list[list[tuple[str, bool]]] = []
@@ -329,11 +337,12 @@ def rich_block(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont, 
     if line:
         lines.append(line)
     space = draw.textlength(" ", font=f) + tracking * f.size
+    af = accent_font or f
     for ln in lines:
-        full = " ".join(t for t, _ in ln)
-        x = x0 if align == "left" else ((canvas_w or W) - tracked_len(draw, full, f, tracking)) / 2
+        line_w = sum(tracked_len(draw, t, af if acc else f, tracking) for t, acc in ln) + space * (len(ln) - 1)
+        x = x0 if align == "left" else ((canvas_w or W) - line_w) / 2
         for i, (t, acc) in enumerate(ln):
-            x += draw_tracked(draw, x, y, t, f, accent if acc else color, tracking) + (space if i < len(ln) - 1 else 0)
+            x += draw_tracked(draw, x, y, t, af if acc else f, accent if acc else color, tracking) + (space if i < len(ln) - 1 else 0)
         y += lead
     return y
 
@@ -467,10 +476,12 @@ def render(name: str, title: str, sub: str, bg: str, index: int, L: Layout, out_
 
     tf = serif(L.title_size, 400) if L.serif else font(L.title_size, L.title_weight)
     accent = DARK_ACCENT if dark else ACCENT
-    y = rich_block(draw, title, tf, L.margin, y, width, L.title_lead, ink_color, accent, L.align, tracking=SERIF_TRACKING if L.serif else TRACKING)
+    af = serif(L.title_size, 400, italic=True) if L.italic_accent else None
+    y = rich_block(draw, title, tf, L.margin, y, width, L.title_lead, ink_color, accent, L.align, tracking=SERIF_TRACKING if L.serif else TRACKING, accent_font=af)
     y += 56 if L.serif else 30  # the serif's descenders need the room
-    sf = font(L.sub_size, L.sub_weight)
-    y = text_block(draw, wrap(draw, sub, sf, width), sf, y, L.sub_lead, secondary, L)
+    if L.subline:
+        sf = font(L.sub_size, L.sub_weight)
+        y = text_block(draw, wrap(draw, sub, sf, width), sf, y, L.sub_lead, secondary, L)
 
     dev = device(capture, L)
     pad = L.shadow * 3
@@ -488,7 +499,6 @@ def render(name: str, title: str, sub: str, bg: str, index: int, L: Layout, out_
 # Safe areas measured from Apple's templates: header 1646 x 661 centered; search 2168 x 1030 centered.
 HEADER_OUT = OUT / "header"
 TAGLINE = "Your week, already ~organized~."
-SEARCH_SUB = "Drop in a syllabus or a work schedule. Semli tells you what matters today."
 
 
 def header_banner(out_dir: Path = HEADER_OUT) -> Path:
@@ -508,7 +518,7 @@ def header_banner(out_dir: Path = HEADER_OUT) -> Path:
     y = (h - block) // 2
     img.paste(mark, ((w - mw) // 2, y), mark)
     y += mark.height + 40
-    rich_block(draw, TAGLINE, tf, 0, y, w, lead, INK, ACCENT, "center", w, tracking=SERIF_TRACKING)
+    rich_block(draw, TAGLINE, tf, 0, y, w, lead, INK, ACCENT, "center", w, tracking=SERIF_TRACKING, accent_font=serif(150, 400, italic=True))
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / f"header-{w}x{h}.png"
     img.save(out, "PNG", optimize=True)
@@ -516,26 +526,25 @@ def header_banner(out_dir: Path = HEADER_OUT) -> Path:
 
 
 def search_card(out_dir: Path = HEADER_OUT) -> Path:
-    """3840 x 2560 search results asset: the screenshots' sky and type. Serif headline in ink with
-    the accent word and a Geist subline on the left, the Today phone on the right, inside the
-    centered 2168 x 1030 safe area."""
+    """3840 x 2560 search results asset: the screenshots' sky and type. The wordmark and the serif
+    headline (italic lavender accent, no subline) on the left, the Today phone on the right, inside
+    the centered 2168 x 1030 safe area."""
     w, h = 3840, 2560
     img = sky(w, h)
     left, text_w = 300, 1680
     tf = serif(232, 400)
     lead = 232
-    sf = font(84, "Regular")
-    img = ensure_light_contrast(img, (left, 300, left + text_w, h - 300), [INK, ACCENT, SECONDARY], "search", whole=True)
+    img = ensure_light_contrast(img, (left, 300, left + text_w, h - 300), [INK, ACCENT], "search", whole=True)
     draw = ImageDraw.Draw(img)
+    mark = Image.open(WORDMARK).convert("RGBA")
+    mw = 420
+    mark = mark.resize((mw, round(mark.height * mw / mark.width)), Image.LANCZOS)
     lines = wrap(draw, plain(TAGLINE), tf, text_w)
-    sub_lines = wrap(draw, SEARCH_SUB, sf, text_w)
-    block = len(lines) * lead + 64 + len(sub_lines) * 108
+    block = mark.height + 72 + len(lines) * lead
     y = (h - block) // 2 - 80
-    y = rich_block(draw, TAGLINE, tf, left, y, text_w, lead, INK, ACCENT, tracking=SERIF_TRACKING)
-    y += 64  # the serif's descenders need the room
-    for line in sub_lines:
-        draw.text((left, y), line, font=sf, fill=SECONDARY)
-        y += 108
+    img.paste(mark, (left, y), mark)
+    y += mark.height + 72
+    rich_block(draw, TAGLINE, tf, left, y, text_w, lead, INK, ACCENT, tracking=SERIF_TRACKING, accent_font=serif(232, 400, italic=True))
     L = Layout("search", "left", PAPER, INK, SECONDARY, screen_w=1180)
     phone = device(Image.open(RAW / "today.png"), L)
     pad = L.shadow * 3
@@ -549,7 +558,7 @@ def search_card(out_dir: Path = HEADER_OUT) -> Path:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("names", nargs="*", help="raw capture names to render (default: all)")
-    ap.add_argument("--layout", choices=sorted(LAYOUTS), default="serif")
+    ap.add_argument("--layout", choices=sorted(LAYOUTS), default="quiet")
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--header", action="store_true", help="render the product page header (3840x1646) and the search results card (3840x2560) instead of screenshots")
     ap.add_argument("--bg", choices=sorted(BACKGROUNDS), default="sky", help="one background for every shot (default: the morning sky)")
@@ -575,7 +584,7 @@ def main() -> None:
             print(f"skip {name}: no raw capture")
             continue
         title, sub = captions.get(name, (title, sub))
-        print(render(name, title, sub, args.bg or bg, i, L, out_dir, wordmark=(i == 1), raw=raw))
+        print(render(name, title, sub, args.bg or bg, i, L, out_dir, wordmark=(i == 1 or L.wordmark_every), raw=raw))
 
 
 if __name__ == "__main__":

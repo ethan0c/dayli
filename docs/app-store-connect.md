@@ -145,7 +145,7 @@ First release. Syllabus and work-schedule import, Canvas sync, reminders, and th
 | 8 | `08-add.png` | Type it or screenshot it |
 | 9 | `09-item.png` | Every detail one tap away (optional) |
 
-The set was rerendered Oct 21, 2026: ten shots on the morning sky with EB Garamond captions, one lavender accent phrase each, captured with the new main-tab headers; the header and search card moved to the same sky and faces. Re-upload all ten, the 6.3-inch copies, the header and the search card. Apple scales the 6.9-inch set to every other iPhone size. The 6.1"/6.3" slot (1206 × 2622) is optional; downscaled copies are in `design/screenshots/6.3-inch/`. The foldable set was dropped. No iPad set (`supportsTablet: false`). App previews (video): none for 1.0.
+The set was rerendered Oct 21, 2026: ten shots on the morning sky with the wordmark and an EB Garamond caption each, no sublines, one accent phrase in lavender italic, captured with the new main-tab headers; the header and search card moved to the same sky and faces. Re-upload all ten, the 6.3-inch copies, the header and the search card. Apple scales the 6.9-inch set to every other iPhone size. The 6.1"/6.3" slot (1206 × 2622) is optional; downscaled copies are in `design/screenshots/6.3-inch/`. The foldable set was dropped. No iPad set (`supportsTablet: false`). App previews (video): none for 1.0.
 
 **Growth & Marketing → Custom Product Pages / Asset Library** (optional, iOS 27): Header `design/screenshots/header/header-3840x1646.png` (wordmark and tagline centered); Search Results `design/screenshots/header/search-3840x2560.png` (tagline and the Today phone). Check both in the Preview tool; the crop differs per device.
 
