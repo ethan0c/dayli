@@ -35,8 +35,8 @@ export function FirstOverlap({ overlap, today }: { overlap: MovableOverlap; toda
       <T token="body">{`${flexible.title} overlaps ${other.title} ${when}${time}.`}</T>
       <T token="callout" color={c.inkSecondary}>
         {isPro
-          ? 'Semli marks overlaps red as plans come in. Open one and it finds a free time for the plan that can move.'
-          : 'Semli marks overlaps red as plans come in. With Plus, it finds a free time for the plan that can move and moves it in one tap.'}
+          ? `Semli marks overlaps red as plans come in, and keeps the one that can’t move. Open this one for a free time for ${flexible.title}; ${other.title} stays where it is.`
+          : `Semli marks overlaps red as plans come in, and keeps the one that can’t move. With Plus, it finds a free time for ${flexible.title} and moves it in one tap; ${other.title} stays where it is.`}
       </T>
       <View style={styles.actions}>
         <TextButton label="See it" onPress={() => { seen('opened'); router.push(`/item/${flexible.id}`); }} accessibilityLabel={`See ${flexible.title}`} />
