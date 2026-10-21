@@ -115,6 +115,16 @@ export default function ReviewScreen() {
   );
   const plan = useMemo(() => buildPlan('new-course'), [buildPlan]);
 
+  // The first comparison is explained once, here, where it is happening (see components/Firsts).
+  const comparing = !!plan?.schedule?.diff && plan.schedule.diff.changed.length + plan.schedule.diff.removed.length + plan.schedule.diff.unchanged.length > 0;
+  const [explainCompare] = useState(() => comparing && !useStore.getState().settings.firsts.reimport);
+  useEffect(() => {
+    if (!explainCompare) return;
+    track('first_note', { kind: 'reimport', action: 'shown' });
+    const { settings, setSettings } = useStore.getState();
+    setSettings({ firsts: { ...settings.firsts, reimport: true } });
+  }, [explainCompare]);
+
   if (!pending || !ex || !plan) return null;
 
   // ---- What kind of review this is ------------------------------------------------
@@ -496,6 +506,7 @@ export default function ReviewScreen() {
           <T token="displayXl" tabular>{big}</T>
           <T token="body" style={styles.line}>{line}</T>
           <T token="callout" color={c.inkSecondary}>{note}</T>
+          {explainCompare ? <T token="callout" color={c.inkSecondary} style={{ paddingTop: 8 }}>Compared, not added twice: Semli matched these with the shifts you already have. Changed ones are marked, unchanged ones stay.</T> : null}
           {total === 0 ? (
             <T token="callout" color={c.inkSecondary} style={{ paddingTop: 8 }}>
               {included.length === 0 ? 'Nothing has a date yet. Add one to bring it in.' : 'Already in your plan. Nothing to add.'}

@@ -82,8 +82,11 @@ interface Settings {
    * Things Semli explains once, the first time they happen in a person's own plan, instead of
    * in a tour. True once the note was seen; a guest's Clear everything resets them.
    */
-  firsts: { overlap: boolean };
+  firsts: Record<FirstKind, boolean>;
 }
+
+/** What Semli explains once: an overlap it can move, a close deadline, Canvas left unconnected, a schedule compared with the last one. */
+export type FirstKind = 'overlap' | 'urgent' | 'canvas' | 'reimport';
 
 export type Lms = 'canvas' | 'blackboard' | 'brightspace' | 'moodle' | 'classroom' | 'other';
 
@@ -149,7 +152,7 @@ interface State {
   clearAll: (scope: 'plan' | 'everything') => void;
 }
 
-const DEFAULT_SETTINGS: Settings = { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null }, firsts: { overlap: false } };
+const DEFAULT_SETTINGS: Settings = { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null }, firsts: { overlap: false, urgent: false, canvas: false, reimport: false } };
 
 export const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 const nowIso = () => new Date().toISOString();
@@ -362,7 +365,8 @@ export const useStore = create<State>()(
       partialize: (s) => ({ items: s.items, courses: s.courses, schedules: s.schedules, batches: s.batches, settings: s.settings, usage: s.usage, taskWorkDates: s.taskWorkDates, suggestionDismissals: s.suggestionDismissals }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<State>;
-        return { ...current, ...p, settings: { ...current.settings, ...(p.settings ?? {}) } };
+        // Nested records gain fields over time; a stored one must not drop the new defaults.
+        return { ...current, ...p, settings: { ...current.settings, ...(p.settings ?? {}), firsts: { ...current.settings.firsts, ...(p.settings?.firsts ?? {}) } } };
       },
       onRehydrateStorage: () => (state, error) => {
         if (error) plannerLoadFailed(error);

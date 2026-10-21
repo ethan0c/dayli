@@ -53,7 +53,8 @@ export type AnalyticsEvent =
   | 'item_deleted'
   | 'auth_completed'
   | 'account_signed_out'
-  | 'first_overlap';
+  | 'first_note'
+  | 'can_do';
 
 export function track(event: AnalyticsEvent, properties: Record<string, string | number | boolean | null> = {}): void {
   if (posthog) {
