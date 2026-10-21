@@ -942,6 +942,10 @@ textarea {
   line-height: 1.02;
   letter-spacing: -0.015em;
 }
+/* The headline's one accent word: Plus, in the link purple, as it is on the Plus card. */
+.pricing-page .accent-word {
+  color: var(--accent-ink);
+}
 .pricing-page .page-head .lede {
   margin-inline: auto;
   max-width: 52ch;
