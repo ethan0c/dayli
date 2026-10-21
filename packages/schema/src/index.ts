@@ -123,15 +123,18 @@ export const ExtractContext = z.object({
 });
 export type ExtractContext = z.infer<typeof ExtractContext>;
 
+/** 20 MB of file as base64, matching the pickers; a bigger body is a mistake or an attack. */
+export const MAX_UPLOAD_BASE64 = 28_000_000;
+
 export const ExtractRequest = z.object({
   input: z.discriminatedUnion('kind', [
     z.object({ kind: z.literal('text'), text: z.string().min(1).max(20_000) }),
     z.object({
       kind: z.literal('image'),
       mediaType: z.enum(['image/png', 'image/jpeg', 'image/webp', 'image/gif']),
-      data: z.string(),
+      data: z.string().min(1).max(MAX_UPLOAD_BASE64),
     }),
-    z.object({ kind: z.literal('pdf'), data: z.string() }),
+    z.object({ kind: z.literal('pdf'), data: z.string().min(1).max(MAX_UPLOAD_BASE64) }),
   ]),
   context: ExtractContext,
 });

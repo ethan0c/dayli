@@ -9,7 +9,10 @@ import { rpc, supabaseEnv } from './supabase';
  * day per hashed IP. Without Supabase configured (local development) nothing is limited.
  */
 
+/** Must match apps/mobile/src/lib/plans.ts; the database takes all three so the two sides cannot drift. */
 export const FREE_IMPORTS_PER_MONTH = 3;
+export const FREE_IMPORTS_TO_START = 5;
+export const START_WINDOW_DAYS = 30;
 export const DEMO_PREVIEWS_PER_DAY = 5;
 const PRO_ENTITLEMENT = 'semli_pro';
 
@@ -32,8 +35,9 @@ async function hasPlus(appUserId: string | null): Promise<boolean> {
   return !!ent && (ent.expires_date === null || Date.parse(ent.expires_date) > Date.now());
 }
 
+/** The platform's own header first: a client can prepend anything to x-forwarded-for. */
 function clientIp(request: Request): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+  return request.headers.get('x-real-ip') || request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 }
 
 export async function checkImportAccess(request: Request): Promise<Access> {
@@ -52,7 +56,7 @@ export async function checkImportAccess(request: Request): Promise<Access> {
 
   if (await hasPlus(request.headers.get('x-revenuecat-app-user-id'))) return { ok: true, refund: free };
 
-  const allowed = await rpc(base, 'claim_import', { p_limit: FREE_IMPORTS_PER_MONTH }, token);
+  const allowed = await rpc(base, 'claim_import', { p_limit: FREE_IMPORTS_PER_MONTH, p_start_limit: FREE_IMPORTS_TO_START, p_start_days: START_WINDOW_DAYS }, token);
   if (allowed !== true) return { ok: false, status: 402, error: IMPORT_MESSAGES.quota };
   return { ok: true, refund: () => rpc(base, 'refund_import', {}, token).then(() => {}, () => {}) };
 }
