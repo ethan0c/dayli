@@ -62,7 +62,7 @@ Calendar, tasks, Today, reminders, repeating classes, manual add, voice capture,
 | **Semester** | **$14.99** / 6 months | $24.99 | $2.50/mo | A semester plus the break; the plan to push in-app |
 | Yearly | **$29.99** | $49.99 | $2.50/mo | Matches Structured's anchor; the plan to push on web |
 
-**Store note (Oct 19, 2026):** Apple has no 4-month auto-renewing term, so the Semester plan is sold as a 6-month subscription at the same price (a semester plus the break; a year is exactly two). Product setup: [revenuecat-offerings-brief.md](revenuecat-offerings-brief.md).
+**Store note (Oct 19, 2026):** Apple has no 4-month auto-renewing term, so the Semester plan is sold as a 6-month subscription at the same price (a semester plus the break; a year is exactly two). **Oct 21:** "Semester" is the plan's name only; every price line in the app and on the site states the term as 6 months ("$14.99 / 6 months", "then $14.99 every 6 months"), because App Review 3.1.2 requires the length of the subscription to be stated plainly and "per semester" is not a length. Product setup: [revenuecat-offerings-brief.md](revenuecat-offerings-brief.md).
 
 Student pricing is on the honor system. The toggle in onboarding says so plainly: we don't check IDs or .edu emails, we trust you, switch it off when you graduate. The regular price exists so the student price reads as a real discount (~40%) and so non-students (parents, grads, shift workers) have a way to pay.
 

@@ -15,7 +15,8 @@ const FREE = [
   'Add or edit items by hand anytime',
   'Optional account with plan backup',
 ];
-const PERIOD: Record<PlanId, string> = { monthly: '/ month', semester: '/ semester', yearly: '/ year' };
+/** The billing term, as the store states it: the semester plan is a six-month subscription. */
+const PERIOD: Record<PlanId, string> = { monthly: '/ month', semester: '/ 6 months', yearly: '/ year' };
 
 /** The app's price-first paywall: photo, hairline plan rows, green student switch, one action. */
 export function PlanCards() {
