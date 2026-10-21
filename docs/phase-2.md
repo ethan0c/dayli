@@ -4,6 +4,17 @@ Status: Oct 20, 2026, audited against `main` through PR #12. Phase 1 is the app 
 
 This doc is the list to pick from once the beta is in hands. Each item says what it is, why it earns a place (the survey, the benchmarks, or a gap the code already has), how big it is, what it waits on, and what number tells you it worked. Items are grouped by what they do for the business, and ordered inside each group by evidence, not by how fun they are to build.
 
+## Dates
+
+Decided Oct 21, 2026. Phase 2 starts **Monday, Nov 16, 2026**: the beta opens the week of Nov 3 (`milestones.md`), the device pass (§0) takes that first week, and two weeks of beta data are what several items below wait on. It ships in two releases, each tied to a date the business already has.
+
+| Release | Build window | Ships | What goes in |
+|---|---|---|---|
+| **2a** | Nov 16 to **Dec 18, 2026** (code freeze; App Review over the holidays, finals keep testers quiet) | With the public release, **Jan 5, 2027** | Only the hours-to-days items that wait on nothing: quarter vs semester (the review-sheet prompt), semester-over prompt, overdue auto-collapse, sample week removal, resume a closed review, extraction fills notes (with an eval run). Store work, not code: the en-GB, en-AU and en-CA listings and screenshots (`localization.md` step 2), since public launch opens every territory. |
+| **2b** | Jan 18 to **Jul 31, 2027** | By **Aug 9, 2027**, ahead of the Aug 15 to Sep 10 fall push | The big items: other LMS feeds (Moodle and Blackboard first, ordered by the `lms` answers per country), widgets, share sheet, share links and referral, web checkout, Siri, first urgent free. Whether a Tier B translation (Germany or the Netherlands) joins 2b depends on how the English listings convert in the UK and Australia (`localization.md` step 3). |
+
+If the Nov 3 beta slips, the Jan 5 release date holds and 2a shrinks; dates do not move to fit features. Re-plan 2b in late January with the first month of public numbers.
+
 Sources: `pricing-and-positioning.md` (the survey, n = 66), `onboarding-research.md` (the benchmarks), `strategy.md` (competitor reviews), `todo.md` (the code's own gaps), `voice-capture.md`.
 
 ## 0. Before any of this: one gate
@@ -27,8 +38,8 @@ Sources: `pricing-and-positioning.md` (the survey, n = 66), `onboarding-research
 |---|---|---|---|---|---|
 | **Extraction fills notes** | Add `notes` to the extraction schema and prompt; a syllabus's "bring a lab coat", "chapters 4–6" land in the item's notes. | Notes render like a markdown file now (PR #9), but imports never fill them. A server change that affects every import, so it ships with the eval set green. | Days + an eval run | Nothing | Share of imported items with notes; review commit rate unchanged. |
 | **Course notes** | A notes page per course, same renderer, stored on the course. | "Like an md file" (founder, Oct 21). Mostly a storage question once item notes exist. | Days | Nothing | Courses with notes after week 2. |
-| **Other LMS feeds** | Blackboard, Brightspace and Moodle also publish iCal feeds. Same sync, a different link page. | 71% Canvas; the rest is 29% of students with nothing to connect. The onboarding `lms` answer says which to build first. | Days each | A real Canvas feed verified on a device | `lms` answer → connected rate, per platform. |
-| **Quarter vs semester** | One onboarding question (or a School setting) so the term-end estimate ends in March/June for quarter schools. | PR #8 guesses US semesters; a quarter school gets the wrong default, visibly. | Hours | Seeing a quarter-school tester | "Until when?" pill accepted vs picked. |
+| **Other LMS feeds** (2b) | Blackboard, Brightspace and Moodle also publish iCal feeds; Moodle and Blackboard are also the UK and Ireland's LMS (`localization.md`). Same sync, a different link page. | 71% Canvas; the rest is 29% of students with nothing to connect. The onboarding `lms` answer says which to build first. | Days each | A real Canvas feed verified on a device | `lms` answer → connected rate, per platform. |
+| **Quarter vs semester** (2a) | The setting and the quarter calendar exist (You → Region, `typicalTermEnd(start, region, system)`, Oct 21). What is left: an "On quarters?" link on the review sheet's term-end row for US and Canadian students, which switches the setting and redoes the guess in place. No onboarding step. | A quarter school gets the wrong default, visibly, and nobody opens You to fix it. | Hours | Seeing a quarter-school tester | "Until when?" pill accepted vs picked. |
 | **Semester-over prompt** | School: "Fall 2026 is over · Remove 4 courses?" | In `todo.md`. The app otherwise carries dead courses into spring. | Hours | Nothing | Courses removed in the first week of a term. |
 | **Overdue auto-collapse** | The "Still open" pile folds after 14 days. | In `todo.md`. A long pile is the thing that makes a planner feel like a debt. | Hours | Nothing | Day-14 retention of people with ≥5 overdue. |
 | **Firsts, reviewed** | Read `first_note {kind, action}` and `can_do {item}`: which notes get "See it" vs "Got it", which rows get tapped. Rewrite or remove the ones nobody opens; add the toast line ("Added 4 things. One overlaps your shift.") if the overlap note is scrolled past. | The firsts replaced a tour on the bet that in-place beats a walkthrough. Data decides. | Hours | Two weeks of beta data | Opened / shown per kind. |
@@ -89,6 +100,8 @@ From `todo.md` and `design-system.md`, still true:
 - The design-system page's "what Semli would add" line and the beta copy's "no two-way sync yet" updated as the items above land.
 
 ## 8. Suggested order
+
+Within the releases in **Dates** above: 2a is the device pass plus the small items it lists; the order below is for 2b.
 
 1. The device pass (§0).
 2. Today widget and Lock Screen widgets. No backend, daily return, and the first thing a new user looks for after setup.
