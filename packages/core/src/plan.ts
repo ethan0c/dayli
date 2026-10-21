@@ -1,4 +1,5 @@
 import type { Extraction, ExtractedItem, IconName, Item } from '@dayli/schema';
+import { assessment } from './assessment';
 import { WEEKDAYS, addDays, dayNumber, isLocalDate, isLocalTime, typicalTermEnd, weekdayOf } from './dates';
 import { diffSchedule, type ScheduleDiff } from './diff';
 
@@ -33,7 +34,7 @@ export const DEFAULT_TERM_DAYS = 105;
 
 export function iconFor(i: Pick<ExtractedItem, 'kind' | 'category' | 'title' | 'is_deadline'>): IconName {
   const t = i.title.toLowerCase();
-  if (/exam|quiz|midterm|final|test\b/.test(t)) return 'exam';
+  if (assessment(i.title)) return 'exam';
   if (/buy|pick up|shop|store|groceries/.test(t)) return 'bag';
   if (/read|chapter|ch\.|study|review/.test(t)) return 'book';
   if (/write|draft|essay|paper|post|care plan/.test(t)) return 'pen';

@@ -1,3 +1,4 @@
+import type { Assessment } from '@dayli/core';
 import { chart } from '@dayli/tokens';
 import { View, type ViewStyle } from 'react-native';
 
@@ -6,6 +7,13 @@ import { useTheme } from '@/theme';
 
 /** Where a mark sits: a percent along a horizontal track, or pixels down a vertical column. */
 export type At = { x: number } | { y: number };
+
+/** A dot is something due, a ring a quiz or test, a ring with a centre (target) an exam. */
+export type MarkShape = 'dot' | 'ring' | 'target';
+
+export function shapeFor(test: Assessment | null): MarkShape {
+  return test === 'exam' ? 'target' : test === 'quiz' ? 'ring' : 'dot';
+}
 
 /**
  * A zero-size anchor at the value itself. Everything drawn on a chart hangs from one of
@@ -19,21 +27,23 @@ function anchor(at: At): ViewStyle {
 }
 
 /**
- * A dot (due date) or ring (exam), centred on its value. Each is cut out of whatever it
+ * A dot (due), ring (quiz) or target (exam), centred on its value. Each is cut out of whatever it
  * sits on by a thin canvas halo, so a dot on a block of its own colour, or two marks a day
  * apart, still read as separate marks; a ring's hollow is the canvas too.
  */
-export function Mark({ at, kind, color }: { at: At; kind: 'dot' | 'ring'; color: string }) {
+export function Mark({ at, kind, color }: { at: At; kind: MarkShape; color: string }) {
   const { c } = useTheme();
-  const size = kind === 'ring' ? chart.ring : chart.dot;
+  const size = kind === 'dot' ? chart.dot : chart.ring;
   const outer = size + chart.halo * 2;
   return (
     <View pointerEvents="none" style={anchor(at)}>
       <View style={{ position: 'absolute', left: -outer / 2, top: -outer / 2, width: outer, height: outer, borderRadius: outer / 2, backgroundColor: c.canvas, alignItems: 'center', justifyContent: 'center' }}>
         <View style={[
           { width: size, height: size, borderRadius: size / 2 },
-          kind === 'ring' ? { borderWidth: chart.ringStroke, borderColor: color, backgroundColor: c.canvas } : { backgroundColor: color },
-        ]} />
+          kind === 'dot' ? { backgroundColor: color } : { borderWidth: chart.ringStroke, borderColor: color, backgroundColor: c.canvas, alignItems: 'center', justifyContent: 'center' },
+        ]}>
+          {kind === 'target' ? <View style={{ width: chart.targetDot, height: chart.targetDot, borderRadius: chart.targetDot / 2, backgroundColor: color }} /> : null}
+        </View>
       </View>
     </View>
   );
@@ -56,8 +66,8 @@ export function NowLine({ at, color }: { at: At; color: string }) {
 }
 
 /** Keeps a column mark inside its column: a 6 am exam sits at the top edge, not above it. */
-export function clampY(y: number, height: number, kind: 'dot' | 'ring'): number {
-  const r = (kind === 'ring' ? chart.ring : chart.dot) / 2;
+export function clampY(y: number, height: number, kind: MarkShape): number {
+  const r = (kind === 'dot' ? chart.dot : chart.ring) / 2;
   return Math.min(height - r, Math.max(r, y));
 }
 
@@ -65,7 +75,7 @@ export type KeyEntry = {
   label: string;
   color: string;
   /** The mark itself: a ring or dot, a filled block, an outlined block (dashed or solid), or the now hairline. */
-  glyph: 'ring' | 'dot' | 'block' | 'dashed' | 'outline' | 'now';
+  glyph: MarkShape | 'block' | 'dashed' | 'outline' | 'now';
 };
 
 /**
@@ -81,7 +91,7 @@ export function ChartKey({ entries, style }: { entries: KeyEntry[]; style?: View
       {entries.map((e) => (
         <View key={e.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <View style={{ width: KEY, height: KEY, alignItems: 'center', justifyContent: 'center' }}>
-            {e.glyph === 'ring' || e.glyph === 'dot'
+            {e.glyph === 'ring' || e.glyph === 'dot' || e.glyph === 'target'
               ? <Mark at={{ y: KEY / 2 }} kind={e.glyph} color={e.color} />
               : e.glyph === 'now'
                 ? <View style={{ width: chart.now, height: KEY, backgroundColor: e.color }} />
@@ -101,4 +111,17 @@ const KEY = chart.ring + chart.halo * 2;
 export function keyOf(entries: (KeyEntry | false | undefined)[]): KeyEntry[] {
   const seen = new Set<string>();
   return entries.filter((e): e is KeyEntry => !!e && !seen.has(e.label) && !!seen.add(e.label));
+}
+
+/** The key for marks on a line or in a column: only the shapes and tones on screen, in reading order. */
+export function markKey(marks: { kind: MarkShape; tone?: string }[], c: { chartBooked: string; conflict: string; added: string }): KeyEntry[] {
+  const plain = (kind: MarkShape) => marks.some((m) => m.kind === kind && (m.tone ?? 'ink') === 'ink');
+  const red = marks.find((m) => m.tone === 'red');
+  return keyOf([
+    plain('dot') && { glyph: 'dot', color: c.chartBooked, label: 'Due' },
+    plain('ring') && { glyph: 'ring', color: c.chartBooked, label: 'Quiz' },
+    plain('target') && { glyph: 'target', color: c.chartBooked, label: 'Exam' },
+    red && { glyph: red.kind, color: c.conflict, label: 'Due today' },
+    marks.some((m) => m.tone === 'green') && { glyph: 'dot', color: c.added, label: 'Done' },
+  ]);
 }
