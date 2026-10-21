@@ -22,7 +22,7 @@ async function signedIn(): Promise<SignInResult> {
   const { data: { session } } = await supabase!.auth.getSession();
   const user = session?.user;
   if (user && !user.is_anonymous) {
-    const fullName = user.user_metadata.full_name;
+    const fullName = user.user_metadata?.full_name;
     posthog?.identify(user.id, {
       ...(user.email ? { email: user.email } : {}),
       ...(typeof fullName === 'string' ? { name: fullName } : {}),
