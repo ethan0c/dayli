@@ -19,9 +19,10 @@ import { useTheme, type Palette } from '@/theme';
 
 /** The three Semli Plus terms. Packages come from RevenueCat; see docs/revenuecat-offerings-brief.md. */
 const TERMS = [
-  { key: 'monthly', label: 'Monthly', period: '/ month', months: 1, pick: (o: PurchasesOffering | null) => o?.monthly ?? null },
-  { key: 'semester', label: 'Semester', period: '/ semester', months: 6, pick: (o: PurchasesOffering | null) => o?.sixMonth ?? null },
-  { key: 'yearly', label: 'Yearly', period: '/ year', months: 12, pick: (o: PurchasesOffering | null) => o?.annual ?? null },
+  { key: 'monthly', label: 'Monthly', period: '/ month', billed: 'a month', months: 1, pick: (o: PurchasesOffering | null) => o?.monthly ?? null },
+  // Apple has no four-month term: the semester plan is a six-month subscription and every price line says so.
+  { key: 'semester', label: 'Semester', period: '/ 6 months', billed: 'every 6 months', months: 6, pick: (o: PurchasesOffering | null) => o?.sixMonth ?? null },
+  { key: 'yearly', label: 'Yearly', period: '/ year', billed: 'a year', months: 12, pick: (o: PurchasesOffering | null) => o?.annual ?? null },
 ] as const;
 
 type TermKey = (typeof TERMS)[number]['key'];
@@ -80,7 +81,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
         feedback('success');
         track('purchase_completed', { term: current.key, student, trial: !!days });
         const ends = info.entitlements.active[PRO_ENTITLEMENT]?.expirationDate;
-        if (days && ends) setSettings({ trial: { endsAt: ends, label: `${selected.product.priceString} ${current.period.replace('/ ', 'per ')}` } });
+        if (days && ends) setSettings({ trial: { endsAt: ends, label: `${selected.product.priceString} ${current.billed}` } });
       } else setNotice('Your purchase finished, but Plus is not active yet. Try Restore, or email hello@semli.app.');
     } catch {
       // The provider exposes actionable failures in `error`.
@@ -193,7 +194,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           {[
             { when: 'Today', what: 'Everything in Plus, free.', color: c.added },
             { when: `Day ${Math.max(1, days - 2)}`, what: 'Trial reminder, if notifications are enabled.', color: c.changed },
-            { when: `Day ${days}`, what: `${selected.product.priceString} ${current.period.replace('/ ', 'per ')}. Cancel before and pay nothing.`, color: c.inkPrimary },
+            { when: `Day ${days}`, what: `${selected.product.priceString} ${current.billed}. Cancel before and pay nothing.`, color: c.inkPrimary },
           ].map((r) => (
             <View key={r.when} style={styles.timelineRow}>
               <View style={[styles.timelineDot, { backgroundColor: r.color }]} />
@@ -215,7 +216,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           <T token="headline" color={c.controlInk}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
         </Press>
         <T token="caption" color={c.inkSecondary} style={styles.center}>
-          {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.period.replace('/ ', 'per ')}. Auto-renews. Cancel any time.` : 'Prices are shown before you confirm.'}
+          {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.billed}. Auto-renews. Cancel any time.` : 'Prices are shown before you confirm.'}
         </T>
         {onContinueFree ? (
           <Pressable accessibilityRole="button" disabled={busy} onPress={onContinueFree} style={styles.textBtn}>
