@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { appIconColors } from '@dayli/tokens';
 import type { Qr } from '@/lib/qr';
 import { MARK, QrCode } from '@/components/QrCode';
 import { APP_STORE_LIVE, APP_STORE_URL } from '@/lib/site';
@@ -12,9 +13,9 @@ export const GET_APP_HREF = APP_STORE_LIVE ? APP_STORE_URL : '/beta?r=demo';
 function AppIcon() {
   return (
     <svg className="getapp-icon" viewBox="0 0 1024 1024" aria-hidden="true">
-      <rect width="1024" height="1024" fill="#1C1B21" />
-      <circle cx={MARK.big.cx} cy={MARK.big.cy} r={MARK.big.r} fill="#FFFFFF" />
-      <circle cx={MARK.small.cx} cy={MARK.small.cy} r={MARK.small.r} fill="#A796F0" />
+      <rect width="1024" height="1024" fill={appIconColors.background} />
+      <circle cx={MARK.big.cx} cy={MARK.big.cy} r={MARK.big.r} fill={appIconColors.foreground} />
+      <circle cx={MARK.small.cx} cy={MARK.small.cy} r={MARK.small.r} fill={appIconColors.accent} />
     </svg>
   );
 }

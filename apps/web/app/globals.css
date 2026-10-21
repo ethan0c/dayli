@@ -1,4 +1,4 @@
-/* Semli web tokens. Mirrors packages/tokens; keep both in step. */
+/* Semli web styles; color values come from the shared tokens. */
 /* Colors, type, motion and radius come from @dayli/tokens through app/tokens.ts (a <style> in layout.tsx).
    This file only consumes those variables; the one thing declared here is the font stack. */
 :root {
@@ -282,7 +282,7 @@ textarea {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 1px 2px rgba(0, 0, 0, 0.1),
-    0 6px 16px rgba(112, 87, 189, 0.24);
+    0 6px 16px color-mix(in srgb, var(--brand-purple) 24%, transparent);
 }
 .btn:disabled {
   opacity: 0.4;
@@ -638,9 +638,9 @@ textarea {
 /* The code stays dark on light in both themes: phone cameras read it best that way. */
 .getapp-code {
   border-radius: 24px;
-  background: #fff;
+  background: var(--white);
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(40, 24, 90, 0.12);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 12px 32px color-mix(in srgb, var(--brand-ink) 12%, transparent);
 }
 .getapp-code svg {
   display: block;
@@ -648,10 +648,10 @@ textarea {
   height: 224px;
 }
 .qr-ink {
-  color: #222320;
+  color: var(--brand-ink);
 }
 .qr-accent {
-  color: #7057bd;
+  color: var(--brand-purple);
 }
 /* On a phone the link is the way in; a code to scan with the same phone is no help. */
 @media (hover: none) and (pointer: coarse), (max-width: 720px) {
@@ -1189,7 +1189,7 @@ textarea {
   width: 27px;
   height: 27px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--white);
 }
 .student input:checked + .sw {
   background: var(--added);

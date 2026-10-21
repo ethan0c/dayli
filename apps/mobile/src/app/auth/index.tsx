@@ -3,7 +3,7 @@ import { Stack, router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { WORDMARK_RATIO, palettes } from '@dayli/tokens';
+import { colors, WORDMARK_RATIO, palettes } from '@dayli/tokens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TextButton } from '@/components/Controls';
@@ -24,7 +24,7 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
 const LOGO = 192;
 /** The native splash draws the wordmark 240 points wide, centred on white (app.json). */
 const SPLASH_LOGO = 240;
-const SPLASH_BG = '#FFFFFF';
+const SPLASH_BG = colors.white;
 
 /**
  * Semli's first screen: one way forward. The account waits until there is a plan worth saving

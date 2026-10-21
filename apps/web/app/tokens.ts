@@ -1,4 +1,4 @@
-import { lavender, motion, palettes, radius, space, typeScale, type Palette } from '@dayli/tokens';
+import { colors, motion, palettes, radius, space, typeScale, type Palette } from '@dayli/tokens';
 
 /**
  * The site's CSS variables, emitted from @dayli/tokens so the web and the app
@@ -47,24 +47,30 @@ function colorVars(p: Palette): Record<string, string> {
  * The site in light mode is white paper and neutral grey, not the app's cream, so the purple
  * reads rich against it (decided Oct 21, 2026; docs/design-system.md). The app is unchanged.
  */
-const siteLight = { '--canvas': '#FFFFFF', '--header': '#FFFFFF', '--row': '#F4F4F5', '--line': '#E7E7EA' };
+export const sitePalettes = {
+  light: { ...palettes.light, canvas: colors.white, header: colors.white, row: colors.siteRow, line: colors.siteLine },
+  dark: palettes.dark,
+};
+
+// Fixed brand colors stay stable on icons, QR codes and photo backgrounds in either theme.
+const brandVars = {
+  '--brand-ink': colors.ink,
+  '--brand-purple': colors.purple,
+  '--brand-purple-on-dark': colors.purpleOnDark,
+  '--white': colors.white,
+};
 
 /**
  * The home hero's sky sits under a dusk veil in both modes, with white copy and a pale lavender
- * accent word (3.1:1 on the veiled photo; the link purple vanishes there).
+ * accent word. Photo text uses the same lavender as the app's dark appearance.
  */
 const heroVars = {
-  '--hero-veil-top': 'rgba(28, 18, 40, 0.34)',
-  '--hero-veil-mid': 'rgba(28, 18, 40, 0.4)',
-  '--hero-ink': '#FFFFFF',
-  '--hero-accent': lavender[300],
-  '--hero-glass': 'rgba(28, 18, 40, 0.28)',
-};
-
-/** Site-only surfaces, still built from the palette: the purple band and the dark band. */
-const bandVars = {
-  light: { '--band-purple': lavender[600], '--band-ink': palettes.light.inkPrimary },
-  dark: { '--band-purple': lavender[800], '--band-ink': '#0F0F12' },
+  '--hero-veil-top': 'color-mix(in srgb, var(--brand-ink) 34%, transparent)',
+  '--hero-veil-mid': 'color-mix(in srgb, var(--brand-ink) 40%, transparent)',
+  '--hero-ink': colors.white,
+  '--hero-accent': colors.purpleOnDark,
+  '--hero-glass': 'color-mix(in srgb, var(--brand-ink) 28%, transparent)',
+  '--photo-conflict': palettes.dark.conflict,
 };
 
 const typeVars: Record<string, string> = {};
@@ -96,7 +102,7 @@ const block = (vars: Record<string, string>) =>
     .join(';');
 
 export const TOKENS_CSS = [
-  `:root{${block({ ...colorVars(palettes.light), ...siteLight, ...heroVars, ...bandVars.light, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
-  `@media (prefers-color-scheme: dark){:root{${block({ ...colorVars(palettes.dark), ...bandVars.dark })};color-scheme:dark}}`,
-  `[data-semli-theme="dark"]{${block({ ...colorVars(palettes.dark), ...bandVars.dark })};color-scheme:dark}`,
+  `:root{${block({ ...colorVars(sitePalettes.light), ...brandVars, ...heroVars, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
+  `@media (prefers-color-scheme: dark){:root{${block(colorVars(sitePalettes.dark))};color-scheme:dark}}`,
+  `[data-semli-theme="dark"]{${block(colorVars(sitePalettes.dark))};color-scheme:dark}`,
 ].join('\n');

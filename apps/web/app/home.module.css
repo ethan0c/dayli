@@ -153,14 +153,14 @@
   transform: rotateY(-10deg) rotateX(4deg);
   transform-origin: left center;
   box-shadow:
-    1px 1px 0 #f1eff7,
-    2px 2px 0 #e9e6f2,
-    3px 3px 0 #e2deed,
-    4px 4px 0 #dbd7e8,
-    5px 5px 0 #d4cfe3,
-    6px 6px 0 #cdc8de,
-    0 24px 48px rgba(28, 18, 40, 0.28),
-    0 48px 96px rgba(28, 18, 40, 0.22);
+    1px 1px 0 color-mix(in srgb, var(--brand-purple) 6%, var(--white)),
+    2px 2px 0 color-mix(in srgb, var(--brand-purple) 10%, var(--white)),
+    3px 3px 0 color-mix(in srgb, var(--brand-purple) 14%, var(--white)),
+    4px 4px 0 color-mix(in srgb, var(--brand-purple) 18%, var(--white)),
+    5px 5px 0 color-mix(in srgb, var(--brand-purple) 22%, var(--white)),
+    6px 6px 0 color-mix(in srgb, var(--brand-purple) 26%, var(--white)),
+    0 24px 48px color-mix(in srgb, var(--brand-ink) 28%, transparent),
+    0 48px 96px color-mix(in srgb, var(--brand-ink) 22%, transparent);
   transition: transform var(--dur-slow) var(--ease), box-shadow var(--dur-slow) var(--ease);
 }
 .heroQr:hover :global(.getapp-code) {
@@ -197,14 +197,14 @@
   transform-origin: right center;
   transition: transform var(--dur-slow) var(--ease);
   box-shadow:
-    -1px 1px 0 #f1eff7,
-    -2px 2px 0 #e9e6f2,
-    -3px 3px 0 #e2deed,
-    -4px 4px 0 #dbd7e8,
-    -5px 5px 0 #d4cfe3,
-    -6px 6px 0 #cdc8de,
-    0 24px 48px rgba(28, 18, 40, 0.28),
-    0 48px 96px rgba(28, 18, 40, 0.22);
+    -1px 1px 0 color-mix(in srgb, var(--brand-purple) 6%, var(--white)),
+    -2px 2px 0 color-mix(in srgb, var(--brand-purple) 10%, var(--white)),
+    -3px 3px 0 color-mix(in srgb, var(--brand-purple) 14%, var(--white)),
+    -4px 4px 0 color-mix(in srgb, var(--brand-purple) 18%, var(--white)),
+    -5px 5px 0 color-mix(in srgb, var(--brand-purple) 22%, var(--white)),
+    -6px 6px 0 color-mix(in srgb, var(--brand-purple) 26%, var(--white)),
+    0 24px 48px color-mix(in srgb, var(--brand-ink) 28%, transparent),
+    0 48px 96px color-mix(in srgb, var(--brand-ink) 22%, transparent);
 }
 .heroCard:hover,
 .heroCard:focus-visible {
@@ -245,10 +245,10 @@
 /* A photo under a dusk scrim, white copy on it; cards and fields on the panel keep their own paper. */
 .photoBand {
   background: var(--row);
-  --ink: #ffffff;
+  --ink: var(--white);
   --ink-2: rgba(255, 255, 255, 0.82);
   --ink-3: rgba(255, 255, 255, 0.66);
-  --accent-ink: #dcd4fb;
+  --accent-ink: var(--brand-purple-on-dark);
   color: var(--ink);
 }
 .bandPhoto {
@@ -264,7 +264,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(28, 18, 40, 0.58);
+  background: color-mix(in srgb, var(--brand-ink) 58%, transparent);
 }
 
 /* Proof: a fan of students, then three survey numbers on paper, ink only */
@@ -469,7 +469,7 @@
 .closingBeta .waitlistInput {
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.14);
-  color: #ffffff;
+  color: var(--white);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -477,14 +477,14 @@
   color: rgba(255, 255, 255, 0.72);
 }
 .closingBeta .waitlistInput:focus {
-  border-color: #ffffff;
+  border-color: var(--white);
 }
 .closing :global(.btn) {
-  background: #ffffff;
-  color: #222320;
+  background: var(--white);
+  color: var(--brand-ink);
 }
 .closingBeta .waitlistError {
-  color: #ffd9d5;
+  color: var(--photo-conflict);
 }
 .closingBeta .waitlistNote,
 .closingBeta .waitlistError {

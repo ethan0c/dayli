@@ -5,7 +5,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { HOME_TITLE, pageMetadata } from '@/lib/seo';
 import { APP_STORE_ID, APP_STORE_LIVE, APP_STORE_URL, DESCRIPTION, KEYWORDS, PLUS_PLANS, SITE_URL, SUPPORT_EMAIL } from '@/lib/site';
-import { TOKENS_CSS } from './tokens';
+import { sitePalettes, TOKENS_CSS } from './tokens';
 import './globals.css';
 
 /** Geist everywhere, the same as the app (CLAUDE.md). */
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FAF9F6' },
-    { media: '(prefers-color-scheme: dark)', color: '#151515' },
+    { media: '(prefers-color-scheme: light)', color: sitePalettes.light.canvas },
+    { media: '(prefers-color-scheme: dark)', color: sitePalettes.dark.canvas },
   ],
 };
 

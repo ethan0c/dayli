@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { fullDate, localParts } from '@dayli/core';
+import { appIconColors } from '@dayli/tokens';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -18,7 +19,7 @@ import { deviceRegion, regionName } from '@/lib/locale';
 import { profileFor } from '@/lib/majors';
 import { useCanDo } from '@/lib/can-do';
 import { freeImportAllowance } from '@/lib/plans';
-import { PLUS_ENTITLEMENT, customerCenterEnabled } from '@/lib/revenuecat';
+import { PLUS_ENTITLEMENT } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
@@ -28,7 +29,7 @@ const APPEARANCE_LABEL = { system: 'Match iPhone', light: 'Light', dark: 'Dark' 
 /** Profile and preferences, shared by the You tab and /settings. */
 export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const { c } = useTheme();
-  const { isPlus, customerInfo, loading, busy, manageSubscription } = usePurchases();
+  const { isPlus, customerInfo, loading } = usePurchases();
   const settings = useStore((s) => s.settings);
   const backupStatus = settings.cloud.error ? 'Backup needs attention' : settings.cloud.backedUpAt ? 'Backed up' : 'Backup pending';
   /** null for a guest. */
@@ -80,11 +81,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         </Group> : null}
 
         <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
-          <Row label="Your plan" icon="sparkle" value={isPlus ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
-          <Row label="Manage subscription" icon="calendar" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
-            if (customerCenterEnabled || customerInfo?.managementURL) void manageSubscription().catch(() => router.push('/settings/plan'));
-            else router.push('/settings/plan');
-          }} />
+          <Row label="Your plan" icon="sparkle" value={isPlus ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} last />
         </Group>
 
         <Group title="Your stuff" footer={linkNote ?? undefined}>
@@ -101,7 +98,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 
         <View style={styles.about}>
           <View style={styles.markRow}>
-            <View style={[styles.mark, { backgroundColor: c.inkPrimary }]}><View style={[styles.markBig, { backgroundColor: c.onPrimary }]} /><View style={[styles.markSmall, { backgroundColor: c.accent }]} /></View>
+            <View style={[styles.mark, { backgroundColor: appIconColors.background }]}><View style={[styles.markBig, { backgroundColor: appIconColors.foreground }]} /><View style={[styles.markSmall, { backgroundColor: appIconColors.accent }]} /></View>
             <T token="caption" color={c.inkSecondary} tabular>Semli {Constants.expoConfig?.version ?? ''}</T>
           </View>
           <View style={{ flexDirection: 'row', gap: 14 }}>

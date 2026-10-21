@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { colors } from '@dayli/tokens';
 import { StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +11,7 @@ import { enter, exit } from '@/lib/motion';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
-const shadow = { shadowColor: '#18171C', shadowOpacity: 0.16, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 };
+const shadow = { shadowColor: colors.ink, shadowOpacity: 0.16, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 };
 
 /** Rises from the tab bar on a spring, sinks away on its own or when undone. `offset` is the space the tab bar needs. */
 export function Toast({ offset }: { offset: number }) {

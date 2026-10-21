@@ -1,4 +1,5 @@
 import { isLocalDate, isLocalTime } from '@dayli/core';
+import { colors } from '@dayli/tokens';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
@@ -64,7 +65,7 @@ export function NativeToggle({ value, onChange, label, activeColor }: ToggleProp
       accessibilityLabel={label}
       accessibilityState={{ checked: value }}
       style={[styles.toggle, { backgroundColor: value ? activeColor ?? c.added : c.line }]}>
-      <View style={[styles.knob, { backgroundColor: '#FFFFFF', alignSelf: value ? 'flex-end' : 'flex-start' }]} />
+      <View style={[styles.knob, { backgroundColor: colors.white, alignSelf: value ? 'flex-end' : 'flex-start' }]} />
     </Pressable>
   );
 }

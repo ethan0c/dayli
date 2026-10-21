@@ -1,23 +1,13 @@
 // Semli design tokens. Source of truth for the mobile app and the website.
 // See docs/design-system.md for usage rules.
 
-export const lavender = {
-  50: '#F6F4FE',
-  100: '#EEEAFD',
-  200: '#DCD4FB',
-  300: '#C5B8F7',
-  400: '#A796F0',
-  500: '#8A74E6',
-  600: '#6F57D4',
-  700: '#5843B0',
-  800: '#43338A',
-  900: '#2E2460',
-} as const;
+import { colors } from './colors';
+export { appIconColors, colors } from './colors';
 
-export const ink = '#222320';
+// Semantic palettes accept any hex value; primitives retain their exact values for asset tools.
+const color: Record<keyof typeof colors, string> = colors;
 
-// Widened copy so palettes hold plain strings rather than literal types.
-const lav: Record<keyof typeof lavender, string> = lavender;
+export const ink = color.ink;
 
 export type Category = 'school' | 'work' | 'personal';
 
@@ -30,7 +20,7 @@ export const COURSE_TINTS: TintName[] = ['lavender', 'sky', 'rose', 'butter', 'm
 type Tint = { fill: string; ink: string };
 
 const lightTint: Record<TintName, Tint> = {
-  lavender: { fill: lav[200], ink: lav[800] },
+  lavender: { fill: color.purpleSoft, ink: color.purple },
   apricot: { fill: '#FBDCC8', ink: '#7A3E1A' },
   mint: { fill: '#CDEBDD', ink: '#1F5A40' },
   sky: { fill: '#D4E6FB', ink: '#1F4A80' },
@@ -40,7 +30,7 @@ const lightTint: Record<TintName, Tint> = {
 };
 
 const darkTint: Record<TintName, Tint> = {
-  lavender: { fill: lav[900], ink: '#E4DDFF' },
+  lavender: { fill: color.purpleSoftDark, ink: color.purpleOnDark },
   apricot: { fill: '#4A2C1C', ink: '#FFD9C2' },
   mint: { fill: '#1C3A2D', ink: '#CDEBDD' },
   sky: { fill: '#1B2E4A', ink: '#CFE3FF' },
@@ -49,32 +39,32 @@ const darkTint: Record<TintName, Tint> = {
 };
 
 const light = {
-  canvas: '#FAF9F6',
-  header: '#FAF9F6',
-  row: '#F0EFEB',
-  surface: '#FFFFFF',
-  inkPrimary: '#222320',
-  inkSecondary: '#686963',
-  inkTertiary: '#686963',
-  onPrimary: '#FFFFFF',
-  onAccent: '#FFFFFF',
-  onNav: '#F4F3F8',
-  controlOutline: '#82837B',
-  line: '#E5E4DE',
+  canvas: color.paper,
+  header: color.paper,
+  row: color.paperRow,
+  surface: color.white,
+  inkPrimary: color.ink,
+  inkSecondary: color.mutedInk,
+  inkTertiary: color.mutedInk,
+  onPrimary: color.white,
+  onAccent: color.white,
+  onNav: color.white,
+  controlOutline: color.outline,
+  line: color.paperLine,
   nav: ink,
-  navInactive: '#9A99A4',
-  scrim: 'rgba(24,23,28,0.40)',
-  accent: '#7057BD',
-  accentSoft: '#F0ECF8',
-  accentBorder: '#DCD4EF',
-  accentInk: '#7057BD',
-  controlFill: '#222320',
-  controlInk: '#FFFFFF',
-  selectionFill: '#F0EFEB',
-  selectionInk: '#222320',
-  disclosureInk: '#686963',
-  chartBooked: '#76658F',
-  chartOnBooked: '#FFFFFF',
+  navInactive: color.darkMutedInk,
+  scrim: 'rgba(34,35,32,0.40)',
+  accent: color.purple,
+  accentSoft: color.purpleSoft,
+  accentBorder: color.purpleBorder,
+  accentInk: color.purple,
+  controlFill: color.ink,
+  controlInk: color.white,
+  selectionFill: color.paperRow,
+  selectionInk: color.ink,
+  disclosureInk: color.mutedInk,
+  chartBooked: color.purpleChart,
+  chartOnBooked: color.white,
   conflict: '#9F431F',
   conflictBg: '#F8EDE5',
   changed: '#80510A',
@@ -93,32 +83,32 @@ const light = {
 export type Palette = typeof light;
 
 const dark: Palette = {
-  canvas: '#151515',
-  header: '#151515',
-  row: '#292929',
-  surface: '#202020',
-  inkPrimary: '#F5F4F0',
-  inkSecondary: '#B4B4AC',
-  inkTertiary: '#B4B4AC',
-  onPrimary: '#151515',
-  onAccent: '#151515',
-  onNav: '#F4F3F8',
-  controlOutline: '#92938A',
-  line: '#363632',
-  nav: '#2A2931',
-  navInactive: '#A4A3AE',
+  canvas: color.darkCanvas,
+  header: color.darkCanvas,
+  row: color.darkRow,
+  surface: color.darkSurface,
+  inkPrimary: color.darkInk,
+  inkSecondary: color.darkMutedInk,
+  inkTertiary: color.darkMutedInk,
+  onPrimary: color.darkCanvas,
+  onAccent: color.darkCanvas,
+  onNav: color.white,
+  controlOutline: color.darkOutline,
+  line: color.darkLine,
+  nav: color.ink,
+  navInactive: color.darkMutedInk,
   scrim: 'rgba(0,0,0,0.55)',
-  accent: '#C3AFF8',
-  accentSoft: '#2B253A',
-  accentBorder: '#453B5A',
-  accentInk: '#C3AFF8',
-  controlFill: '#C3AFF8',
-  controlInk: '#151515',
-  selectionFill: '#2B253A',
-  selectionInk: '#C3AFF8',
-  disclosureInk: '#C3AFF8',
-  chartBooked: '#C3AFF8',
-  chartOnBooked: '#151515',
+  accent: color.purpleOnDark,
+  accentSoft: color.purpleSoftDark,
+  accentBorder: color.purpleBorderDark,
+  accentInk: color.purpleOnDark,
+  controlFill: color.purpleOnDark,
+  controlInk: color.darkCanvas,
+  selectionFill: color.purpleSoftDark,
+  selectionInk: color.purpleOnDark,
+  disclosureInk: color.purpleOnDark,
+  chartBooked: color.purpleOnDark,
+  chartOnBooked: color.darkCanvas,
   conflict: '#E8A274',
   conflictBg: '#3A2A20',
   changed: '#E2A84B',
