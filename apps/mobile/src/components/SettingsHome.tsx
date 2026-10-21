@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { StatusPill, TextButton } from '@/components/Controls';
+import { ListRow, StatusPill, TextButton } from '@/components/Controls';
+import { Icon } from '@/components/Icon';
 import { Skeleton } from '@/components/Skeleton';
 import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
@@ -69,10 +70,11 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
           <ToggleRow label="Haptics" icon="vibrate" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
         </Group>
 
-        {ACCOUNTS_ENABLED ? <Group title="Account" footer={email ? undefined : 'Planning as a guest. Your schedule is stored on this phone.'}>
+        {/* Two states: only on this iPhone, or backed up. The guest row is the ask to save the plan. */}
+        {ACCOUNTS_ENABLED ? <Group title="Account">
           {email !== null
-            ? <Row label="Account settings" icon="lock" value={email || 'Signed in'} onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
-            : <Row label="Log in or sign up" icon="lock" value="Guest" onPress={() => router.push('/auth')} last={!SHARING_ENABLED} />}
+            ? <ListRow leading={<Icon name="lock" size={20} color={c.inkPrimary} />} title={`Backed up as ${email || 'your account'}`} sub="Account settings" onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
+            : <ListRow leading={<Icon name="lock" size={20} color={c.inkPrimary} />} title="Back up your plan" sub="Your plan is only on this iPhone." onPress={() => router.push('/account')} last={!SHARING_ENABLED} />}
           {SHARING_ENABLED ? <Row label="Share your schedule" icon="share" value="Preview" onPress={() => router.push('/share-schedule')} last /> : null}
         </Group> : null}
 

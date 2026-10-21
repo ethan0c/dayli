@@ -20,7 +20,7 @@ const PERIOD: Record<PlanId, string> = { monthly: '/ month', semester: '/ 6 mont
 
 /** The app's price-first paywall: photo, hairline plan rows, green student switch, one action. */
 export function PlanCards() {
-  const [billing, setBilling] = useState<PlanId>('semester');
+  const [billing, setBilling] = useState<PlanId>('yearly');
   const [student, setStudent] = useState(true);
   const selected = PLUS_PLANS.find((p) => p.id === billing)!;
   const priceOf = (p: (typeof PLUS_PLANS)[number]) => student ? p.student : p.regular;

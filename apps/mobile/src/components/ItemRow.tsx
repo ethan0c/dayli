@@ -59,23 +59,22 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
   );
 }
 
-/** The completion circle: grey ring, fills green and pops; the tick grows out of the centre. */
+/** The completion circle stays fixed while its fill and tick grow into place. */
 export function Check({ done }: { done: boolean }) {
   const { c } = useTheme();
   const p = useSharedValue(done ? 1 : 0);
   useEffect(() => {
     p.value = withSpring(done ? 1 : 0, springs.snappy);
   }, [done, p]);
-  const ring = useAnimatedStyle(() => ({ transform: [{ scale: 1 + Math.max(0, 0.7 * p.value * (1 - p.value)) }] }));
   const fill = useAnimatedStyle(() => ({ opacity: Math.min(1, p.value), transform: [{ scale: 0.4 + 0.6 * p.value }] }));
   const tick = useAnimatedStyle(() => ({ opacity: Math.min(1, p.value), transform: [{ scale: Math.max(0, p.value) }] }));
   return (
-    <Animated.View style={[styles.circle, { borderColor: done ? c.added : c.controlOutline }, ring]}>
+    <View style={[styles.circle, { borderColor: done ? c.added : c.controlOutline }]}>
       <Animated.View style={[StyleSheet.absoluteFill, styles.fill, { backgroundColor: c.added }, fill]} />
       <Animated.View style={tick}>
         <Icon name="tick" size={13} color={c.onPrimary} strokeWidth={2.5} />
       </Animated.View>
-    </Animated.View>
+    </View>
   );
 }
 

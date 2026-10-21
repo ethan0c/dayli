@@ -16,6 +16,8 @@ export interface DemoRow {
   cat: 'work' | 'school' | 'personal';
   icon: IconKey;
   chip?: string;
+  /** Where it lands on the demo week, 0 being Monday: a span is a block, a single time a mark. */
+  at: { day: number; start: string; end?: string };
 }
 
 export interface SampleCourse {
@@ -45,7 +47,7 @@ export interface Profile {
   };
 }
 
-const workShift: DemoRow = { title: 'Work shift', kind: 'event', cat: 'work', icon: 'work', chip: 'Fri · 4–10 pm' };
+const workShift: DemoRow = { title: 'Work shift', kind: 'event', cat: 'work', icon: 'work', chip: 'Fri · 4–10 pm', at: { day: 4, start: '16:00', end: '22:00' } };
 
 export const MAJORS: Profile[] = [
   {
@@ -54,11 +56,11 @@ export const MAJORS: Profile[] = [
     icon: 'heart',
     chips: [{ key: 'clinicals', label: 'Clinicals', icon: 'heart' }],
     demo: {
-      text: 'Clinical Tuesday 7–3, pharm exam next Friday, and I\'m working Sat 4–10',
+      text: 'Clinical Tuesday 7–3, pharm exam Friday at 9, and I\'m working Sat 4–10',
       rows: [
-        { title: 'Clinical', kind: 'event', cat: 'school', icon: 'heart', chip: 'Tue 7 am–3 pm' },
-        { title: 'Pharm exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Fri, next week' },
-        { title: 'Work', kind: 'event', cat: 'work', icon: 'work', chip: 'Sat 4–10 pm' },
+        { title: 'Clinical', kind: 'event', cat: 'school', icon: 'heart', chip: 'Tue · 7 am–3 pm', at: { day: 1, start: '07:00', end: '15:00' } },
+        { title: 'Pharm exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Fri · 9 am', at: { day: 4, start: '09:00' } },
+        { title: 'Work', kind: 'event', cat: 'work', icon: 'work', chip: 'Sat · 4–10 pm', at: { day: 5, start: '16:00', end: '22:00' } },
       ],
     },
     sample: {
@@ -82,7 +84,7 @@ export const MAJORS: Profile[] = [
     chips: [{ key: 'labs', label: 'Labs', icon: 'exam' }],
     demo: {
       text: 'I work Fri 4–10, statics exam Monday at 9, and the lab report is due Wednesday',
-      rows: [{ title: 'Lab report', kind: 'task', cat: 'school', icon: 'pen' }, workShift, { title: 'Statics exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am' }],
+      rows: [{ title: 'Statics exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am', at: { day: 0, start: '09:00' } }, { title: 'Lab report', kind: 'task', cat: 'school', icon: 'pen', chip: 'Due Wed', at: { day: 2, start: '23:59' } }, workShift],
     },
     sample: {
       courses: [
@@ -105,7 +107,7 @@ export const MAJORS: Profile[] = [
     chips: [{ key: 'labs', label: 'Labs', icon: 'exam' }, { key: 'hackathons', label: 'Hackathons', icon: 'sparkle' }],
     demo: {
       text: 'I work Fri 4–10, data structures midterm Monday at 9, and PA2 is due Wednesday at 11:59',
-      rows: [{ title: 'PA2 due', kind: 'task', cat: 'school', icon: 'pen' }, workShift, { title: 'Data structures midterm', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am' }],
+      rows: [{ title: 'Data structures midterm', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am', at: { day: 0, start: '09:00' } }, { title: 'PA2', kind: 'task', cat: 'school', icon: 'pen', chip: 'Due Wed · 11:59 pm', at: { day: 2, start: '23:59' } }, workShift],
     },
     sample: {
       courses: [
@@ -128,7 +130,7 @@ export const MAJORS: Profile[] = [
     chips: [{ key: 'groups', label: 'Group projects', icon: 'calendar' }],
     demo: {
       text: 'I work Fri 4–10, accounting exam Monday at 9, and the case write-up is due Wednesday',
-      rows: [{ title: 'Case write-up', kind: 'task', cat: 'school', icon: 'pen' }, workShift, { title: 'Accounting exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am' }],
+      rows: [{ title: 'Accounting exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am', at: { day: 0, start: '09:00' } }, { title: 'Case write-up', kind: 'task', cat: 'school', icon: 'pen', chip: 'Due Wed', at: { day: 2, start: '23:59' } }, workShift],
     },
     sample: {
       courses: [
@@ -151,7 +153,7 @@ export const MAJORS: Profile[] = [
     chips: [{ key: 'labs', label: 'Labs', icon: 'exam' }, { key: 'research', label: 'Research', icon: 'book' }],
     demo: {
       text: 'I work Fri 4–10, orgo exam Monday at 9, and need to print the lab manual Wednesday',
-      rows: [{ title: 'Print lab manual', kind: 'task', cat: 'personal', icon: 'file' }, workShift, { title: 'Orgo exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am' }],
+      rows: [{ title: 'Orgo exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am', at: { day: 0, start: '09:00' } }, { title: 'Print lab manual', kind: 'task', cat: 'personal', icon: 'file', chip: 'Wed', at: { day: 2, start: '12:00' } }, workShift],
     },
     sample: {
       courses: [
@@ -174,7 +176,7 @@ export const MAJORS: Profile[] = [
     chips: [{ key: 'studio', label: 'Studio', icon: 'pen' }, { key: 'rehearsals', label: 'Rehearsals', icon: 'calendar' }],
     demo: {
       text: 'I work Fri 4–10, have a critique Monday at 9, and need to pick up canvas Wednesday',
-      rows: [{ title: 'Pick up canvas', kind: 'task', cat: 'personal', icon: 'bag' }, workShift, { title: 'Critique', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am' }],
+      rows: [{ title: 'Critique', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am', at: { day: 0, start: '09:00' } }, { title: 'Pick up canvas', kind: 'task', cat: 'personal', icon: 'bag', chip: 'Wed', at: { day: 2, start: '12:00' } }, workShift],
     },
     sample: {
       courses: [
@@ -197,7 +199,7 @@ export const MAJORS: Profile[] = [
     chips: [{ key: 'seminars', label: 'Seminars', icon: 'book' }],
     demo: {
       text: 'I work Fri 4–10, psych midterm Monday at 9, and the reading response is due Wednesday',
-      rows: [{ title: 'Reading response', kind: 'task', cat: 'school', icon: 'pen' }, workShift, { title: 'Psych midterm', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am' }],
+      rows: [{ title: 'Psych midterm', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am', at: { day: 0, start: '09:00' } }, { title: 'Reading response', kind: 'task', cat: 'school', icon: 'pen', chip: 'Due Wed', at: { day: 2, start: '23:59' } }, workShift],
     },
     sample: {
       courses: [
@@ -220,7 +222,7 @@ export const MAJORS: Profile[] = [
     chips: [{ key: 'practicum', label: 'Practicum', icon: 'school' }],
     demo: {
       text: 'I work Fri 4–10, practicum observation Monday at 9, and the lesson plan is due Wednesday',
-      rows: [{ title: 'Lesson plan', kind: 'task', cat: 'school', icon: 'pen' }, workShift, { title: 'Practicum observation', kind: 'event', cat: 'school', icon: 'school', chip: 'Mon · 9 am' }],
+      rows: [{ title: 'Practicum observation', kind: 'event', cat: 'school', icon: 'school', chip: 'Mon · 9 am', at: { day: 0, start: '09:00', end: '11:00' } }, { title: 'Lesson plan', kind: 'task', cat: 'school', icon: 'pen', chip: 'Due Wed', at: { day: 2, start: '23:59' } }, workShift],
     },
     sample: {
       courses: [
@@ -243,7 +245,7 @@ export const MAJORS: Profile[] = [
     chips: [{ key: 'labs', label: 'Labs', icon: 'exam' }],
     demo: {
       text: 'I work Fri 4–10, have an exam Monday at 9, and need to return a library book Wednesday',
-      rows: [{ title: 'Return library book', kind: 'task', cat: 'personal', icon: 'book' }, workShift, { title: 'Exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am' }],
+      rows: [{ title: 'Exam', kind: 'event', cat: 'school', icon: 'exam', chip: 'Mon · 9 am', at: { day: 0, start: '09:00' } }, { title: 'Return library book', kind: 'task', cat: 'personal', icon: 'book', chip: 'Wed', at: { day: 2, start: '12:00' } }, workShift],
     },
     sample: {
       courses: [
@@ -268,8 +270,8 @@ export const WORKING: Profile = {
   icon: 'work',
   chips: [{ key: 'gym', label: 'Gym', icon: 'heart' }, { key: 'family', label: 'Family', icon: 'heart' }],
   demo: {
-    text: 'I work Fri 4–10 and Sat 11–5, have the dentist Monday at 9, and need to pick up a package Wednesday',
-    rows: [{ title: 'Pick up package', kind: 'task', cat: 'personal', icon: 'bag' }, workShift, { title: 'Dentist', kind: 'event', cat: 'personal', icon: 'heart', chip: 'Mon · 9 am' }],
+    text: 'I work Fri 4–10, have the dentist Monday at 9, and need to pick up a package Wednesday',
+    rows: [{ title: 'Dentist', kind: 'event', cat: 'personal', icon: 'heart', chip: 'Mon · 9 am', at: { day: 0, start: '09:00', end: '10:00' } }, { title: 'Pick up package', kind: 'task', cat: 'personal', icon: 'bag', chip: 'Wed', at: { day: 2, start: '12:00' } }, workShift],
   },
   sample: {
     courses: [

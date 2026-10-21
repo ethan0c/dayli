@@ -1,4 +1,5 @@
 import type { CommitPlan, TermSystem } from '@dayli/core';
+import type { Snapshot } from '@/lib/cloud-snapshot';
 import type { ImportUsage } from '@/lib/plans';
 import type { Course, Extraction, Item, ScheduleVersion } from '@dayli/schema';
 import { COURSE_TINTS, type TintName } from '@dayli/tokens';
@@ -122,6 +123,8 @@ interface State {
   suggestionDismissals: { date: string; ids: string[] };
   captureDraft: string;
   selectedPlanDate: string | null;
+  /** Signed in while this phone and the account both had a plan: the account's, until the person keeps one. Not persisted. */
+  planChoice: { remote: Snapshot; remoteAt: string | null } | null;
 
   setHydrated: () => void;
   setPending: (p: Pending | null) => void;
@@ -177,6 +180,7 @@ export const useStore = create<State>()(
       suggestionDismissals: { date: '', ids: [] },
       captureDraft: '',
       selectedPlanDate: null,
+      planChoice: null,
       settings: DEFAULT_SETTINGS,
       usage: { month: '', imports: 0 },
 
@@ -374,7 +378,7 @@ export const useStore = create<State>()(
       clearAll: (scope) => {
         const { settings: s } = get();
         set({
-          items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null, taskWorkDates: {}, suggestionDismissals: { date: '', ids: [] }, captureDraft: '', selectedPlanDate: null,
+          items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null, taskWorkDates: {}, suggestionDismissals: { date: '', ids: [] }, captureDraft: '', selectedPlanDate: null, planChoice: null,
           settings: scope === 'plan'
             ? { ...s, breaks: [] }
             : { ...DEFAULT_SETTINGS, apiUrl: s.apiUrl, appearance: s.appearance, cardStyle: s.cardStyle, todayView: s.todayView, sounds: s.sounds, haptics: s.haptics, trial: s.trial },

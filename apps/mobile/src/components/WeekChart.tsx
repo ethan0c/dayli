@@ -5,7 +5,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 
 import { chart } from '@dayli/tokens';
 
-import { springs } from '@/lib/motion';
+import { enter, springs } from '@/lib/motion';
 
 import { clampY, Mark, NowLine, type MarkShape } from '@/components/ChartMark';
 import { T } from '@/components/Text';
@@ -50,19 +50,21 @@ export type WeekDay = {
  * The week as seven vertical day bars, 6 am to midnight. The same timeline as DayBar,
  * stood up. Used as the Plan header and in the schedule review.
  */
-export function WeekChart({ days, selected, today, onSelect, onWeek, height = 120, accessibilityLabel }: {
+export function WeekChart({ days, selected, today, onSelect, onWeek, height = 120, animate, accessibilityLabel }: {
   days: WeekDay[]; selected?: string; today: string; onSelect?: (date: string) => void;
+  /** Blocks and marks fade in as they are added, for a chart that fills while you watch. */
+  animate?: boolean;
   /** VoiceOver's way to the next or previous week, where touch swipes. */
   onWeek?: (step: 1 | -1) => void; height?: number; accessibilityLabel?: string;
 }) {
   return (
     <View style={styles.row} accessible={!onSelect} accessibilityRole={onSelect ? undefined : 'image'} accessibilityLabel={accessibilityLabel}>
-      {days.map((day) => <DayColumn key={day.date} day={day} selected={day.date === selected} today={day.date === today} height={height} onSelect={onSelect} onWeek={onWeek} />)}
+      {days.map((day) => <DayColumn key={day.date} day={day} selected={day.date === selected} today={day.date === today} height={height} animate={animate} onSelect={onSelect} onWeek={onWeek} />)}
     </View>
   );
 }
 
-function DayColumn({ day, selected, today, height, onSelect, onWeek }: { day: WeekDay; selected: boolean; today: boolean; height: number; onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void }) {
+function DayColumn({ day, selected, today, height, animate, onSelect, onWeek }: { day: WeekDay; selected: boolean; today: boolean; height: number; animate?: boolean; onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void }) {
   const { c } = useTheme();
   const tones = { ink: c.chartBooked, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
   const labelColor = day.labelTone ? tones[day.labelTone] : c.inkSecondary;
@@ -88,14 +90,15 @@ function DayColumn({ day, selected, today, height, onSelect, onWeek }: { day: We
           const h = Math.max(4, ((e - s) / SPAN) * height);
           const color = tones[b.tone];
           return (
-            <View key={b.id} style={[styles.block, { top, height: h },
+            <Animated.View key={b.id} entering={animate ? enter.fade : undefined} style={[styles.block, { top, height: h },
               b.outline ? { borderWidth: 1.5, borderColor: color, borderStyle: b.outline } : { backgroundColor: color }]} />
           );
         })}
         {today ? <NowLine at={{ y: nowTop(height) }} color={c.inkPrimary} /> : null}
         {(day.marks ?? []).map((m) => {
           const y = ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height;
-          return <Mark key={m.id} at={{ y: clampY(y, height, m.kind) }} kind={m.kind} color={m.tone === 'red' ? c.conflict : c.chartBooked} />;
+          const mark = <Mark key={m.id} at={{ y: clampY(y, height, m.kind) }} kind={m.kind} color={m.tone === 'red' ? c.conflict : c.chartBooked} />;
+          return animate ? <Animated.View key={m.id} entering={enter.fade} pointerEvents="none" style={StyleSheet.absoluteFill}>{mark}</Animated.View> : mark;
         })}
       </View>
       {day.label ? <T token="caption" color={labelColor} tabular style={[styles.label, day.labelTone && day.labelTone !== 'grey' ? { fontFamily: undefined } : null, day.labelStrike ? { textDecorationLine: 'line-through' } : null]}>{day.label}</T> : null}

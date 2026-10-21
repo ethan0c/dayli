@@ -3,14 +3,16 @@
  * nothing picks its own duration or spring. See docs/motion.md for the rules.
  *
  * Two springs: `snappy` for things under the finger (presses, toggles, checks,
- * segmented controls), `gentle` for things that move on their own (cards, rows
- * re-flowing, sheets, toasts). Three durations for fades and color changes, and
- * one slow breath for skeletons.
+ * segmented controls), `gentle` for rolling digits and continuous values.
+ * Three durations for layout, entrances, fades and color changes, and one slow
+ * breath for skeletons. Motion settles without overshooting or pulsing in size.
  */
 export const motion = {
   spring: {
-    snappy: { damping: 22, stiffness: 380, mass: 0.9 },
-    gentle: { damping: 26, stiffness: 190, mass: 1 },
+    // At least critical damping (2 * sqrt(stiffness * mass)): settle without
+    // oscillating. Clamp the target too, including when a gesture adds velocity.
+    snappy: { damping: 37, stiffness: 380, mass: 0.9, overshootClamping: true },
+    gentle: { damping: 28, stiffness: 190, mass: 1, overshootClamping: true },
   },
   duration: { fast: 120, base: 220, slow: 360 },
   /** Each half of a skeleton's breath, dim then back; slow enough to read as waiting, not flicker. */

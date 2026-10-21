@@ -17,7 +17,7 @@ One paid tier, **Semli Plus**, with three terms and two price lists. Student pri
 |---|---|---|---|
 | Monthly | 1 month, auto-renewing | $4.99 | $7.99 |
 | Semester | **6 months**, auto-renewing (Apple has no 4-month term) | $14.99 | $24.99 |
-| Yearly | 1 year, auto-renewing | $29.99 | $49.99 |
+| Yearly | 1 year, auto-renewing | $24.99 | $44.99 |
 
 Every product gets a **7-day free trial** (introductory offer, "free", 7 days, one per customer). No lifetime product. Free users are not a product; the app handles the free tier itself.
 
@@ -30,10 +30,10 @@ Every product gets a **7-day free trial** (introductory offer, "free", 7 days, o
 |---|---|---|---|
 | `semli_plus_monthly_student` | Plus Monthly (student) | 1 month | 4.99 |
 | `semli_plus_semester_student` | Plus Semester (student) | 6 months | 14.99 |
-| `semli_plus_yearly_student` | Plus Yearly (student) | 1 year | 29.99 |
+| `semli_plus_yearly_student` | Plus Yearly (student) | 1 year | 24.99 |
 | `semli_plus_monthly_regular` | Plus Monthly | 1 month | 7.99 |
 | `semli_plus_semester_regular` | Plus Semester | 6 months | 24.99 |
-| `semli_plus_yearly_regular` | Plus Yearly | 1 year | 49.99 |
+| `semli_plus_yearly_regular` | Plus Yearly | 1 year | 44.99 |
 
 3. On each: add an introductory offer, type **Free**, duration **1 week** (that is Apple's "7 days"), all territories. Localized display name "Semli Plus (Monthly)" etc., description "Unlimited AI imports of syllabi, schedules, and messages."
 4. Group ranking (for upgrade/downgrade direction): yearly regular > yearly student > semester regular > semester student > monthly regular > monthly student.

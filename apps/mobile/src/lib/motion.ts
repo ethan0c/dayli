@@ -14,18 +14,18 @@ export const springs: Record<'snappy' | 'gentle', WithSpringConfig> = {
 export const ease = Easing.bezier(...motion.easing);
 export const durations = motion.duration;
 
-/** Rows re-flowing when something is added, removed, or reordered. */
-export const layout = LinearTransition.springify().damping(motion.spring.gentle.damping).stiffness(motion.spring.gentle.stiffness).mass(motion.spring.gentle.mass);
+/** Layout and entrances use a bounded curve so content settles once, without recoil. */
+export const layout = LinearTransition.duration(motion.duration.base).easing(ease);
 
 /** Entrances and exits. `rise` is for toasts and sheets, `drop` for content revealed under a heading. */
 export const enter = {
   fade: FadeIn.duration(motion.duration.base).easing(ease),
-  rise: FadeInUp.springify().damping(motion.spring.gentle.damping).stiffness(motion.spring.gentle.stiffness),
+  rise: FadeInUp.duration(motion.duration.base).easing(ease),
   drop: FadeInDown.duration(motion.duration.base).easing(ease),
   fromRight: FadeInRight.duration(motion.duration.base).easing(ease),
   fromLeft: FadeInLeft.duration(motion.duration.base).easing(ease),
   /** A staggered sibling: pass its index. */
-  staggered: (i: number) => FadeInUp.springify().damping(motion.spring.gentle.damping).stiffness(motion.spring.gentle.stiffness).delay(i * motion.stagger),
+  staggered: (i: number) => FadeInUp.duration(motion.duration.base).easing(ease).delay(i * motion.stagger),
 };
 
 export const exit = {

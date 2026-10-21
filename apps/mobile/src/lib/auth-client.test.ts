@@ -56,6 +56,7 @@ vi.mock('./supabase', () => ({
   accountOf: (session: { user?: { is_anonymous?: boolean } } | null) => (session && !session.user?.is_anonymous ? session : null),
 }));
 vi.mock('../store', () => ({ useStore: mocks.store }));
+vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn().mockResolvedValue(null), setItem: vi.fn().mockResolvedValue(undefined), removeItem: vi.fn().mockResolvedValue(undefined) } }));
 
 const DEFAULTS = () => ({
   name: '', seeded: false, onboarded: false, isStudent: true, major: null as string | null, weekKinds: [] as string[], lms: null,
@@ -72,6 +73,8 @@ mocks.store = fakeStore(() => ({
   hydrated: true, items: {} as Record<string, unknown>, courses: [], schedules: [], taskWorkDates: {}, settings: DEFAULTS(), toast: null as unknown,
   setSettings: (patch: object) => mocks.store.setState((s) => ({ settings: { ...(s.settings as object), ...patch } })),
   showToast: (message: string) => mocks.store.setState({ toast: { message } }),
+  planChoice: null as unknown,
+  clearAll: () => mocks.store.setState({ items: {}, courses: [], schedules: [], taskWorkDates: {}, planChoice: null, settings: DEFAULTS() }),
 }));
 mocks.session = fakeStore(() => ({ session: null as unknown, ready: true }));
 
@@ -154,15 +157,44 @@ describe('logging in on a new phone', () => {
 });
 
 describe('logging in on a phone with a plan', () => {
-  it('keeps this phone’s settings, adds what only the backup has, and returns to the planner', async () => {
+  const twoPlans = () => {
     mocks.store.setState({ items: { b: item('b') }, settings: { ...DEFAULTS(), onboarded: true, seeded: true, name: 'Phone' } });
-    mocks.table.maybeSingle.mockResolvedValue({ data: { data: row({ items: [item('a')], settings: { name: 'Cloud' }, onboarded: true }) }, error: null });
+    mocks.table.maybeSingle.mockResolvedValue({ data: { data: row({ items: [item('a')], settings: { name: 'Cloud' }, onboarded: true }), updated_at: '2026-10-12T00:00:00Z' }, error: null });
+  };
+
+  it('never merges: with two plans it asks, and saves nothing until one is kept', async () => {
+    twoPlans();
     await authClient.signIn(fields);
-    expect(settings().name).toBe('Phone');
-    expect(Object.keys(mocks.store.getState().items as object).sort()).toEqual(['a', 'b']);
-    expect(saved().data).toMatchObject({ onboarded: true, settings: { name: 'Phone' } });
-    leaveAuth();
-    expect(mocks.router.dismissTo).toHaveBeenCalledWith('/');
+    expect(Object.keys(mocks.store.getState().items as object)).toEqual(['b']);
+    expect(mocks.store.getState().planChoice).toMatchObject({ remoteAt: '2026-10-12T00:00:00Z' });
+    expect(mocks.table.upsert).not.toHaveBeenCalled();
+  });
+
+  it('keeping the account plan replaces this phone’s plan', async () => {
+    twoPlans();
+    await authClient.signIn(fields);
+    const { keepAccountPlan } = await import('./cloud');
+    await keepAccountPlan();
+    expect(Object.keys(mocks.store.getState().items as object)).toEqual(['a']);
+    expect(settings().name).toBe('Cloud');
+    expect(saved().data.items.map((i) => i.id)).toEqual(['a']);
+    expect(mocks.store.getState().planChoice).toBeNull();
+  });
+
+  it('keeping this iPhone’s plan overwrites the backup with it', async () => {
+    twoPlans();
+    await authClient.signIn(fields);
+    const { keepPhonePlan } = await import('./cloud');
+    await keepPhonePlan();
+    expect(Object.keys(mocks.store.getState().items as object)).toEqual(['b']);
+    expect(saved().data.items.map((i) => i.id)).toEqual(['b']);
+  });
+
+  it('a guest backing up gives the new account its plan without asking', async () => {
+    mocks.store.setState({ items: { b: item('b') }, settings: { ...DEFAULTS(), onboarded: true, seeded: true } });
+    await authClient.signIn(fields);
+    expect(mocks.store.getState().planChoice).toBeNull();
+    expect(saved().data.items.map((i) => i.id)).toEqual(['b']);
   });
 
   it('as a guest, leaving the welcome goes to the planner once onboarded and to onboarding before', () => {
@@ -216,7 +248,7 @@ describe('email login and sign-up', () => {
     mocks.auth.signUp.mockResolvedValue({ data: { user: { ...user, identities: [] }, session: null }, error: null });
     const { authErrorMessage } = await import('./auth');
     await expect(authClient.signUp(fields)).rejects.toMatchObject({ code: 'user_already_exists' });
-    await authClient.signUp(fields).catch((e) => expect(authErrorMessage(e)).toMatch(/Log in instead/));
+    await authClient.signUp(fields).catch((e) => expect(authErrorMessage(e)).toMatch(/Sign in instead/));
     expect(settings().name).toBe('');
   });
 
@@ -346,15 +378,30 @@ describe('Apple', () => {
   });
 });
 
-describe('logging out', () => {
-  it('ends the session on this phone only and keeps the plan', async () => {
+describe('signing out', () => {
+  const signedInWithPlan = () => {
+    mocks.session.setState({ session });
     mocks.store.setState({ items: { b: item('b') }, settings: { ...DEFAULTS(), onboarded: true, cloud: { backedUpAt: '2026-10-19T00:00:00Z', error: 'x' } } });
     mocks.auth.signOut.mockResolvedValue({ error: null });
+  };
+
+  it('backs up first, then ends the session and removes the plan from this phone', async () => {
+    signedInWithPlan();
     await authClient.signOut();
+    expect(saved().data.items.map((i) => i.id)).toEqual(['b']);
+    expect(mocks.table.upsert.mock.invocationCallOrder[0]!).toBeLessThan(mocks.auth.signOut.mock.invocationCallOrder[0]!);
     expect(mocks.auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
     expect(mocks.purchases.logOut).toHaveBeenCalled();
+    expect(mocks.store.getState().items).toEqual({});
+    expect(settings().onboarded).toBe(false);
+  });
+
+  it('stays signed in, with the plan, when the backup can’t be saved', async () => {
+    signedInWithPlan();
+    mocks.table.upsert.mockResolvedValue({ error: { message: 'offline' } });
+    await expect(authClient.signOut()).rejects.toMatchObject({ code: 'backup_before_sign_out' });
+    expect(mocks.auth.signOut).not.toHaveBeenCalled();
     expect(Object.keys(mocks.store.getState().items as object)).toEqual(['b']);
-    expect(settings()).toMatchObject({ onboarded: true, cloud: { backedUpAt: null, error: null } });
   });
 
   it('deleting the account removes the row and the user, then logs out', async () => {
@@ -363,6 +410,48 @@ describe('logging out', () => {
     await authClient.deleteAccount();
     expect(mocks.supabase.rpc).toHaveBeenCalledWith('delete_account');
     expect(mocks.auth.signOut).toHaveBeenCalled();
+  });
+
+  it('deleting the account also removes the plan from this phone', async () => {
+    mocks.store.setState({ items: { b: item('b') }, settings: { ...DEFAULTS(), onboarded: true } });
+    mocks.supabase.rpc.mockResolvedValue({ error: null });
+    mocks.auth.signOut.mockResolvedValue({ error: null });
+    await authClient.deleteAccount();
+    expect(mocks.store.getState().items).toEqual({});
+  });
+
+  it('an Apple account is re-authorized and its token revoked before the account is deleted', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    mocks.auth.getSession.mockResolvedValue({ data: { session: { ...session, user: { ...user, app_metadata: { provider: 'apple' } } } } });
+    mocks.apple.signInAsync.mockResolvedValue({ authorizationCode: 'code-1' });
+    mocks.supabase.rpc.mockResolvedValue({ error: null });
+    mocks.auth.signOut.mockResolvedValue({ error: null });
+    await authClient.deleteAccount();
+    expect(fetchMock.mock.calls[0]![0]).toMatch(/\/api\/account\/apple-revoke$/);
+    expect(JSON.parse(fetchMock.mock.calls[0]![1].body)).toEqual({ code: 'code-1' });
+    expect(fetchMock.mock.invocationCallOrder[0]!).toBeLessThan(mocks.supabase.rpc.mock.invocationCallOrder[0]!);
+    vi.unstubAllGlobals();
+  });
+
+  it('nothing is deleted when Apple refuses the revocation', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 502 })));
+    mocks.auth.getSession.mockResolvedValue({ data: { session: { ...session, user: { ...user, app_metadata: { provider: 'apple' } } } } });
+    mocks.apple.signInAsync.mockResolvedValue({ authorizationCode: 'code-1' });
+    await expect(authClient.deleteAccount()).rejects.toMatchObject({ code: 'apple_revoke_failed' });
+    expect(mocks.supabase.rpc).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it('a guest’s erase deletes the anonymous record and clears the phone', async () => {
+    const { eraseThisPhone } = await import('./auth-client');
+    mocks.store.setState({ items: { b: item('b') }, settings: { ...DEFAULTS(), onboarded: true } });
+    mocks.auth.getSession.mockResolvedValue({ data: { session: { ...session, user: { ...user, is_anonymous: true } } } });
+    mocks.supabase.rpc.mockResolvedValue({ error: null });
+    mocks.auth.signOut.mockResolvedValue({ error: null });
+    await eraseThisPhone();
+    expect(mocks.supabase.rpc).toHaveBeenCalledWith('delete_account');
+    expect(mocks.store.getState().items).toEqual({});
   });
 
   it('a failed deletion keeps the session', async () => {

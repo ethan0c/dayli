@@ -5,7 +5,8 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-na
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Composer } from "@/components/Composer";
-import { Chip, GroupLabel, ListRow } from "@/components/Controls";
+import { ChartKey, keyOf } from "@/components/ChartMark";
+import { Chip } from "@/components/Controls";
 import { RecentShots } from "@/components/RecentShots";
 import { File } from "expo-file-system";
 import { Press } from "@/components/Press";
@@ -14,6 +15,7 @@ import { Icon, type IconKey } from "@/components/Icon";
 import { PaywallBackdrop } from "@/components/PhotoPaywall";
 import { PlanPicker } from "@/components/PlanPicker";
 import { Reading } from "@/components/Reading";
+import { WeekChart, compactRange, type WeekDay } from "@/components/WeekChart";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
 import { profile as setProfile, track } from "@/lib/analytics";
@@ -26,8 +28,8 @@ import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/l
 import { devStep } from "@/lib/dev";
 import { feedback } from "@/lib/feedback";
 import { reportError } from "@/lib/errors";
-import { enter, exit, springs } from "@/lib/motion";
-import { MAJORS, chipsFor, profileFor, type Profile, type Role } from "@/lib/majors";
+import { durations, enter, exit, springs } from "@/lib/motion";
+import { MAJORS, chipsFor, profileFor, type DemoRow, type Profile, type Role } from "@/lib/majors";
 import { requestNotifications, syncReminders } from "@/lib/notifications";
 import { usePlusAccess } from "@/lib/plus-access";
 import { purchaseErrorMessage } from "@/lib/revenuecat";
@@ -35,8 +37,9 @@ import { syncCanvas } from "@/lib/canvas-sync";
 import { normalizeFeedUrl, CANVAS_MESSAGES } from "@/lib/canvas";
 import { useStore, type Lms } from "@/store";
 import { palettes } from "@dayli/tokens";
+import { addDays, localParts, weekOf } from "@dayli/core";
 
-import { SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
+import { ForceAppearance, SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
 
 /**
  * One real result before any ask. The order follows docs/onboarding-research.md §3:
@@ -50,7 +53,7 @@ const BARS = STEPS.filter((s) => s !== "canvas");
 
 /** Only Canvas syncs today; the other answers tell us which feed to support next. */
 const PLATFORMS: { id: Lms; label: string; hint?: string }[] = [
-  { id: "canvas", label: "Canvas", hint: "Due dates sync on their own" },
+  { id: "canvas", label: "Canvas", hint: "Import due dates free. Keep them in sync with Plus." },
   { id: "blackboard", label: "Blackboard" },
   { id: "brightspace", label: "Brightspace (D2L)" },
   { id: "moodle", label: "Moodle" },
@@ -109,9 +112,16 @@ export default function OnboardingScreen() {
     setHistory((h) => [...h, step]);
     setStep(next);
   };
+  // The first question goes back to the welcome screen, which replaced itself with onboarding.
+  const canGoBack = history.length > 0 || step === "role";
   const back = () => {
     const previous = history[history.length - 1];
-    if (!previous) return;
+    if (!previous) {
+      if (step !== "role") return;
+      feedback("tap");
+      router.replace("/auth");
+      return;
+    }
     feedback("tap");
     setHistory((h) => h.slice(0, -1));
     setStep(previous);
@@ -149,11 +159,11 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[styles.root, { backgroundColor: bg, paddingTop: insets.top + 8, paddingBottom: Math.max(insets.bottom, 24) }]}>
-      {step === "demo" ? <Backdrop source={PHOTOS.demo} height={560} fadeFrom={300} /> : null}
-      {step === "heads-up" ? <Backdrop source={PHOTOS.headsup} full /> : null}
+      {step === "demo" ? <Backdrop key="bg-demo" source={PHOTOS.demo} height={420} fadeFrom={180} /> : null}
+      {step === "heads-up" ? <Backdrop key="bg-heads-up" source={PHOTOS.headsup} full /> : null}
       {step === "plus" ? <PaywallBackdrop /> : null}
       <View style={styles.header}>
-        {history.length > 0 ? (
+        {canGoBack ? (
           <Animated.View entering={enter.fade} exiting={exit.fade}>
             <Press accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} scale={0.9} onPress={back} style={styles.back}>
               <GlassCircle size={36} plain><Icon name="chevronLeft" size={22} color={barOn} /></GlassCircle>
@@ -169,7 +179,7 @@ export default function OnboardingScreen() {
 
       <Animated.View key={step} entering={enter.fromRight} style={{ flex: 1 }}>
       {step === "role" && (
-        <OneTapStep title="Right now you are a" subtitle="So the examples fit your week. One tap." gap={28}>
+        <OneTapStep title="Which best describes you?" subtitle="We’ll tailor the examples to your week." gap={28}>
           {ROLES.map((r) => (
             <Choice
               key={r.id}
@@ -186,7 +196,7 @@ export default function OnboardingScreen() {
         </OneTapStep>
       )}
       {step === "major" && (
-        <OneTapStep title="What are you studying?" subtitle="Pick the closest. You can change it later in You.">
+        <OneTapStep title="What are you studying?" subtitle="Choose the closest match. You can change it later in You.">
           {MAJORS.map((m) => (
             <Choice
               key={m.id}
@@ -219,7 +229,7 @@ export default function OnboardingScreen() {
         />
       )}
       {step === "lms" && (
-        <OneTapStep title="Where do your assignments live?" subtitle="If it’s Canvas, Semli can keep your due dates in sync.">
+        <OneTapStep title="Where do you find your assignments?" subtitle="Use Canvas? Import your due dates free and keep them in sync with Plus.">
           {PLATFORMS.map((p) => (
             <Choice
               key={p.id}
@@ -271,7 +281,7 @@ function Backdrop({ source, height, fadeFrom = 0, full = false, dim = 0 }: { sou
   const fadeTop = full ? screen * 0.45 : fadeFrom;
   const fadeH = h - fadeTop;
   return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { height: h }]}>
+    <Animated.View pointerEvents="none" entering={enter.fade} exiting={exit.fade} style={[StyleSheet.absoluteFill, { height: h }]}>
       <Photo source={source} style={{ width: "100%", height: h }} />
       {full ? <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: screen * 0.3, backgroundColor: "rgba(21,21,21,0.15)" }} /> : null}
       {dim > 0 ? <View style={[StyleSheet.absoluteFill, { backgroundColor: dark, opacity: dim }]} /> : null}
@@ -282,7 +292,7 @@ function Backdrop({ source, height, fadeFrom = 0, full = false, dim = 0 }: { sou
           return <View key={i} style={{ flex: 1, backgroundColor: dark, opacity: Math.min(1, alpha) }} />;
         })}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -362,7 +372,7 @@ function WeekStep({
   return (
     <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
       <View style={styles.titleBlock}>
-        <T token="displaySm" accessibilityRole="header">{"What's in a typical week?"}</T>
+        <T token="displaySm" accessibilityRole="header">{"What's in your typical week?"}</T>
         <T token="callout" color={c.inkSecondary}>Tap everything that applies.</T>
       </View>
       <View style={styles.chips}>
@@ -371,7 +381,7 @@ function WeekStep({
         ))}
       </View>
       <View style={{ gap: 8, paddingTop: 8 }}>
-        <T token="overline" color={c.inkSecondary}>What should Semli call you? Optional.</T>
+        <T token="overline" color={c.inkSecondary}>Your first name (optional)</T>
         <TextInput
           value={name}
           onChangeText={onName}
@@ -396,25 +406,37 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
   const { text, rows } = profile.demo;
   const [typed, setTyped] = useState("");
   const [shown, setShown] = useState(0);
+  const done = shown === rows.length;
+  // The demo is always the coming Monday to Sunday, so the days on the chart are real dates.
+  const [week] = useState(() => {
+    const today = localParts(new Date()).date;
+    return weekOf(addDays(today, 7));
+  });
 
   useEffect(() => {
     let i = 0;
+    let type: ReturnType<typeof setInterval> | undefined;
     const timers: ReturnType<typeof setTimeout>[] = [];
-    const type = setInterval(() => {
-      i += 2;
-      setTyped(text.slice(0, i));
-      if (i >= text.length) {
-        clearInterval(type);
-        rows.forEach((_, idx) => {
-          timers.push(
-            setTimeout(() => {
-              setShown(idx + 1);
-              feedback("select");
-            }, 450 + idx * 380),
-          );
-        });
-      }
-    }, 28);
+    // Typing waits for the page to finish sliding in, so the two never compete.
+    timers.push(
+      setTimeout(() => {
+        type = setInterval(() => {
+          i += 2;
+          setTyped(text.slice(0, i));
+          if (i >= text.length) {
+            clearInterval(type);
+            rows.forEach((_, idx) => {
+              timers.push(
+                setTimeout(() => {
+                  setShown(idx + 1);
+                  feedback(idx === rows.length - 1 ? "ready" : "select");
+                }, durations.slow * (idx + 1)),
+              );
+            });
+          }
+        }, 28);
+      }, durations.base),
+    );
     return () => {
       clearInterval(type);
       timers.forEach(clearTimeout);
@@ -430,35 +452,66 @@ function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void })
         <View style={{ gap: 6 }}>
           <T token="displaySerif" color={d.inkPrimary}>Just tell it.</T>
           <T token="callout" color={d.inkSecondary}>
-            One message became things on your calendar and a plan. Nothing to format, nothing to tap through.
+            One message turns into events and to-dos. Write naturally, then review what Semli finds.
           </T>
         </View>
-        <View>
-          {rows.slice(0, shown).map((r, i) => (
-            <Animated.View key={r.title} entering={enter.rise} style={[styles.demoRow, i < rows.length - 1 ? { borderBottomColor: d.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: d.inkPrimary }} />
-              <T color={d.inkPrimary} style={{ flex: 1, fontSize: 15, lineHeight: 21 }}>{r.title}{r.chip ? ` · ${r.chip}` : ""}</T>
-              <View style={[styles.demoPill, { backgroundColor: d.addedBg }]}>
-                <T token="subhead" color={d.added}>New</T>
-              </View>
-            </Animated.View>
+        {/* The week and every row keep their space from the start, so nothing jumps as rows land. */}
+        <ForceAppearance.Provider value="dark">
+          <View style={{ gap: 10 }}>
+            <WeekChart days={demoWeek(week, rows.slice(0, shown))} today={localParts(new Date()).date} height={64} animate
+              accessibilityLabel={done ? rows.map((r) => `${r.title}, ${r.chip ?? ""}`).join(". ") : "An empty week"} />
+            <ChartKey entries={keyOf([
+              { glyph: "block", color: d.added, label: "New" },
+              rows.some((r) => !r.at.end && r.icon === "exam") && { glyph: "target", color: d.chartBooked, label: "Exam" },
+              rows.some((r) => !r.at.end && r.icon !== "exam") && { glyph: "dot", color: d.chartBooked, label: "Due" },
+            ])} />
+          </View>
+        </ForceAppearance.Provider>
+        <View importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
+          {rows.map((r, i) => (
+            <View key={r.title} style={[styles.demoRow, { borderBottomColor: i < shown && i < rows.length - 1 ? d.line : "transparent" }]}>
+              {i < shown ? (
+                <Animated.View entering={enter.rise} style={styles.demoRowInner}>
+                  <Icon name={r.icon} size={18} color={d.inkPrimary} />
+                  <T token="body" color={d.inkPrimary} numberOfLines={1} style={{ flex: 1 }}>{r.title}</T>
+                  <T token="caption" color={d.inkSecondary} tabular>{r.chip}</T>
+                </Animated.View>
+              ) : null}
+            </View>
           ))}
         </View>
         <View style={styles.footer}>
           <Press
             haptic="tap"
             accessibilityRole="button"
-            accessibilityState={{ disabled: shown < rows.length }}
-            disabled={shown < rows.length}
+            accessibilityState={{ disabled: !done }}
+            disabled={!done}
             onPress={onNext}
-            style={[styles.darkButton, { backgroundColor: d.inkPrimary, opacity: shown < rows.length ? 0.4 : 1 }]}
+            style={[styles.darkButton, { backgroundColor: d.inkPrimary, opacity: done ? 1 : 0.4 }]}
           >
-            <T token="headline" color={d.onPrimary}>{shown === rows.length ? "Now try yours" : "Reading…"}</T>
+            <Animated.View key={done ? "go" : "wait"} entering={enter.fade}>
+              <T token="headline" color={d.onPrimary}>{done ? "Now try yours" : "Reading…"}</T>
+            </Animated.View>
           </Press>
         </View>
       </View>
     </View>
   );
+}
+
+/** The demo rows on the week chart: spans become new (green) blocks, single times a due dot or an exam target. */
+function demoWeek(week: string[], rows: DemoRow[]): WeekDay[] {
+  return week.map((date, i) => {
+    const here = rows.filter((r) => r.at.day === i);
+    const span = here.find((r) => r.at.end);
+    return {
+      date,
+      blocks: here.filter((r) => r.at.end).map((r) => ({ id: r.title, start: r.at.start, end: r.at.end!, tone: "green" as const })),
+      marks: here.filter((r) => !r.at.end).map((r) => ({ id: r.title, time: r.at.start, kind: r.icon === "exam" ? ("target" as const) : ("dot" as const) })),
+      label: span ? compactRange(span.at.start, span.at.end!) : undefined,
+      labelTone: span ? ("green" as const) : undefined,
+    };
+  });
 }
 
 /* ---------- Bring your own, or continue to a personalized display-only preview ---------- */
@@ -496,7 +549,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
         return;
       }
       if (res.extraction.items.length === 0) {
-        setError("Semli didn't find anything with a date in that. Try adding when it happens, or explore your preview for now.");
+        setError("Semli couldn't find any dates. Add a day or time and try again, or explore your preview for now.");
         return;
       }
       feedback("ready");
@@ -507,7 +560,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
     } catch (failure) {
       reportError("onboarding.import", failure);
       track("import_failed", { kind: input.kind, where: "onboarding" });
-      setError("Semli couldn't read that right now. You can explore your preview and try yours later.");
+      setError("Semli couldn't read that right now. Try again, or explore your preview for now.");
     } finally {
       importing.current = false;
       setBusy(null);
@@ -543,9 +596,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
     <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={styles.titleBlock}>
         <T token="displaySm" accessibilityRole="header">Now, your week.</T>
-        <T token="callout" color={c.inkSecondary}>
-          Type it, paste it, or drop in a screenshot of your schedule. You check what Semli finds before anything is saved.
-        </T>
+        <T token="callout" color={c.inkSecondary}>Type it, paste it, or add a screenshot.</T>
       </View>
       {busy ? (
         <Reading source={busy === "Message" ? "your message" : busy} chart={/\.pdf$/i.test(busy) ? "term" : "week"} />
@@ -569,17 +620,8 @@ function OwnStep({ onSample }: { onSample: () => void }) {
         </View>
       ) : null}
       {!busy ? <RecentShots onPick={(uri) => void openShot(uri)} /> : null}
-      {!busy ? (
-        <View>
-          <GroupLabel>Or start with</GroupLabel>
-          <ListRow leading={<Icon name="file" size={20} color={c.inkPrimary} />} title="A syllabus" sub="Classes, exams and due dates for the whole term" onPress={() => void pick(pickPdfInput)} />
-          <ListRow leading={<Icon name="work" size={20} color={c.inkPrimary} />} title="A work schedule" sub="A screenshot from the scheduling app or the group chat" last onPress={() => void pick(() => pickImageInput(false))} />
-        </View>
-      ) : null}
-      <View style={[styles.footer, { alignItems: "center" }]}>
-        <Press haptic="select" accessibilityRole="button" disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center" }}>
-          <T token="subhead" color={c.inkSecondary}>Explore my preview first</T>
-        </Press>
+      <View style={styles.footer}>
+        <Button label="Skip for now" variant="secondary" disabled={!!busy} onPress={onSample} />
       </View>
     </ScrollView>
   );
@@ -621,9 +663,9 @@ function CanvasStep({ onConnected, onInstead }: { onConnected: () => void; onIns
       <View style={styles.page}>
         <Animated.View entering={enter.rise} style={styles.titleBlock}>
           <T token="callout" color={c.inkSecondary}>From Canvas</T>
-          <T token="displayXl" tabular>{`${added} ${added === 1 ? "thing" : "things"}`}</T>
+          <T token="displayXl" tabular>{`${added} ${added === 1 ? "item" : "items"}`}</T>
           <T token="callout" color={c.inkSecondary}>
-            {added > 0 ? "Assignments and due dates are on your calendar. When a professor moves one, Semli moves it too." : "Canvas has nothing upcoming yet. New assignments will show up as your professors post them."}
+            {added > 0 ? "Your Canvas calendar is connected. With Plus, Semli checks for updates when you open the app." : "Your Canvas calendar is connected, with no items to import yet. With Plus, Semli checks for new ones when you open the app."}
           </T>
         </Animated.View>
         <View style={styles.footer}>
@@ -710,7 +752,7 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
             <T token="overline" color={l.inkPrimary} style={{ fontSize: 12, lineHeight: 16 }}>Semli</T>
             <T token="caption" color={l.inkSecondary}>7:30 am</T>
           </View>
-          <T token="callout" color={l.inkPrimary} style={{ fontFamily: textStyle("headline", l.inkPrimary).fontFamily }}>Good morning. 3 things today.</T>
+          <T token="callout" color={l.inkPrimary} style={{ fontFamily: textStyle("headline", l.inkPrimary).fontFamily }}>Good morning. 2 things today.</T>
           <T token="callout" color={l.inkSecondary}>Stats lecture 9–10:15, Café shift 4–10. Pharm exam is Friday.</T>
         </View>
       </Animated.View>
@@ -718,7 +760,7 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
         <View style={{ gap: 6 }}>
           <T token="displaySerif" color={d.inkPrimary}>Want a heads-up?</T>
           <T token="callout" color="#D8D7D0" style={{ maxWidth: 320 }}>
-            One note each morning with what’s on, and a nudge before shifts and deadlines. Nothing else, and never at night.
+            A morning summary of what’s coming up, plus reminders before events and deadlines. Choose your reminder times in You.
           </T>
         </View>
         <View style={[styles.footer, { alignItems: "center" }]}>
@@ -764,8 +806,9 @@ const styles = StyleSheet.create({
   actions: { flexDirection: "row", gap: 8 },
   status: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 4 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  bubble: { alignSelf: "flex-end", maxWidth: 290, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 20, borderBottomRightRadius: 6, minHeight: 45, marginTop: 150 },
-  demoRow: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 52 },
+  bubble: { alignSelf: "flex-end", maxWidth: 290, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 20, borderBottomRightRadius: 6, minHeight: 45, marginTop: 24 },
+  demoRow: { height: 44, justifyContent: "center", borderBottomWidth: StyleSheet.hairlineWidth },
+  demoRowInner: { flexDirection: "row", alignItems: "center", gap: 12 },
   demoPill: { height: 26, paddingHorizontal: 9, borderRadius: 13, alignItems: "center", justifyContent: "center" },
   darkButton: { alignSelf: "stretch", height: 52, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   notification: { marginTop: 120, flexDirection: "row", gap: 12, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 20 },

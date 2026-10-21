@@ -23,6 +23,7 @@ All variables in [.env.example](.env.example) belong on the server. See the [env
 | `ANTHROPIC_API_KEY` | Reads text, images, and PDFs through `/api/extract` |
 | `SUPABASE_URL`, `SUPABASE_KEY` | Import quotas, demo limits, beta waitlist, and referral tracking; use the publishable key |
 | `REVENUECAT_SECRET_KEY` | Verifies `semli_plus` entitlement for unlimited Plus imports |
+| `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`, `APPLE_CLIENT_ID` | Revokes Sign in with Apple when an account is deleted (`/api/account/apple-revoke`, required by App Review). A Sign in with Apple key (.p8, newlines as `\n`), its key id, the team id, and `app.semli.mobile`. Without them deletion still works and logs the missing revocation. |
 | `TESTFLIGHT_URL` | Optional destination for `/beta`; leave unset until the invite is available |
 
 Use the same Supabase project as the mobile app and apply [the migrations](../../supabase/migrations) in filename order. Without Supabase, local imports bypass server quotas; the waitlist needs Supabase. Configure Supabase, anonymous sign-ins, and RevenueCat verification before serving production app imports.
@@ -35,6 +36,7 @@ Use the same Supabase project as the mobile app and apply [the migrations](../..
 | `app/pricing/` | Free / Plus comparison and plan selection |
 | `app/api/extract/` | Validated extraction requests and import access checks |
 | `app/api/waitlist/` | Beta email signup |
+| `app/api/account/apple-revoke/` | Sign in with Apple revocation before account deletion |
 | `app/beta/` | Referral tracking and beta redirect |
 | `lib/site.ts` | Shared copy, prices, links, and `APP_STORE_LIVE` |
 | `app/tokens.ts` | CSS variables generated from `@dayli/tokens` |

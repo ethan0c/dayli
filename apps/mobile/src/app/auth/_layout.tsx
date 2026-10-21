@@ -14,7 +14,7 @@ export default function AuthLayout() {
     contentStyle: { backgroundColor: c.canvas }, ...navigationButtonOptions('back'),
   }}>
     <Stack.Screen name="index" options={{ headerShown: false }} />
-    <Stack.Screen name="login" options={{ title: 'Log in' }} />
+    <Stack.Screen name="login" options={{ title: 'Sign in' }} />
     <Stack.Screen name="signup" options={{ title: 'Sign up' }} />
     <Stack.Screen name="forgot-password" options={{ title: 'Forgot password' }} />
     <Stack.Screen name="reset-password" options={{ title: 'New password' }} />

@@ -6,7 +6,8 @@ import Purchases from 'react-native-purchases';
 import { Platform } from 'react-native';
 
 import { ACCOUNTS_ENABLED, AuthUnavailableError, unavailableClient, type AuthClient, type SignInResult } from './auth';
-import { restoreFromCloud } from './cloud';
+import { restoreFromCloud, saveToCloud } from './cloud';
+import { forgetAccount, maskEmail, rememberAccount, type Provider } from './last-account';
 import { reportError } from './errors';
 import { posthog, track } from './analytics';
 import { supabase } from './supabase';
@@ -28,6 +29,11 @@ async function signedIn(): Promise<SignInResult> {
       ...(typeof fullName === 'string' ? { name: fullName } : {}),
     });
     track('auth_completed');
+    const provider = user.app_metadata?.provider;
+    const first = (typeof fullName === 'string' ? fullName : useStore.getState().settings.name).trim().split(/\s+/)[0] || null;
+    if (provider === 'apple' || provider === 'google' || provider === 'email') {
+      void rememberAccount({ firstName: first, provider: provider as Provider, maskedEmail: maskEmail(user.email), ...(provider === 'email' && user.email ? { email: user.email } : {}) });
+    }
   }
 
   const { restored } = await restoreFromCloud().catch((error: unknown) => {
@@ -153,23 +159,84 @@ const supabaseClient: AuthClient = {
     if (error) throw error;
   },
 
-  /** The plan stays on this phone; only the session and the purchase identity go. */
+  /**
+   * The plan is backed up, then leaves this phone; signing in again brings it back. If the last
+   * changes can't be saved (offline), nothing happens, so signing out never loses work.
+   */
   async signOut() {
-    const { error } = await supabase!.auth.signOut({ scope: 'local' });
-    if (error) throw error;
-    track('account_signed_out');
-    posthog?.reset();
-    await Purchases.logOut().catch((error: unknown) => reportError('purchases.log_out', error));
-    const { settings, setSettings } = useStore.getState();
-    setSettings({ cloud: { ...settings.cloud, backedUpAt: null, error: null } });
+    try {
+      await saveToCloud(true);
+    } catch (error) {
+      reportError('cloud.backup_before_sign_out', error);
+      throw { code: 'backup_before_sign_out' };
+    }
+    await endSession();
+    useStore.getState().clearAll('everything');
   },
 
+  /**
+   * Removes the account, its backup and the plan on this phone. An account that used Sign in
+   * with Apple is re-authorized first so its Apple token can be revoked, as App Review requires.
+   */
   async deleteAccount() {
+    const { data: { session } } = await supabase!.auth.getSession();
+    const viaApple = session?.user.app_metadata?.provider === 'apple' || !!session?.user.identities?.some((i) => i.provider === 'apple');
+    if (viaApple && session) await revokeApple(session.access_token);
     const { error } = await supabase!.rpc('delete_account');
     if (error) throw error;
-    await supabaseClient.signOut();
+    await endSession();
+    await forgetAccount();
+    useStore.getState().clearAll('everything');
   },
 };
+
+/** Ends the session and the purchase identity on this phone; the plan is the caller's to keep or clear. */
+async function endSession() {
+  const { error } = await supabase!.auth.signOut({ scope: 'local' });
+  if (error) throw error;
+  track('account_signed_out');
+  posthog?.reset();
+  await Purchases.logOut().catch((error: unknown) => reportError('purchases.log_out', error));
+  const { settings, setSettings } = useStore.getState();
+  setSettings({ cloud: { ...settings.cloud, backedUpAt: null, error: null } });
+}
+
+/** A fresh Apple authorization code, revoked by the server with the app's Sign in with Apple key. */
+async function revokeApple(accessToken: string) {
+  if (Platform.OS !== 'ios') return;
+  let credential: AppleAuthentication.AppleAuthenticationCredential;
+  try {
+    credential = await AppleAuthentication.signInAsync({ requestedScopes: [] });
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'ERR_REQUEST_CANCELED') throw { code: 'apple_reauth_cancelled' };
+    throw error;
+  }
+  if (!credential.authorizationCode) throw { code: 'apple_reauth_cancelled' };
+  const res = await fetch(`${useStore.getState().settings.apiUrl}/api/account/apple-revoke`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ code: credential.authorizationCode }),
+  });
+  // 503: the server has no Apple key yet. Deleting still goes ahead; the failure is logged to fix.
+  if (res.status === 503) { reportError('account.apple_revoke_unconfigured', new Error('Apple revocation is not configured')); return; }
+  if (!res.ok) throw { code: 'apple_revoke_failed' };
+}
+
+/**
+ * A guest's "Erase plan": the plan and setup leave this phone, and the anonymous record the
+ * import limit created on the server is deleted too (App Review counts it as an account).
+ */
+export async function eraseThisPhone(): Promise<void> {
+  if (supabase) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user.is_anonymous) {
+      const { error } = await supabase.rpc('delete_account');
+      if (error) throw error;
+      await supabase.auth.signOut({ scope: 'local' }).catch((error: unknown) => reportError('auth.anonymous_sign_out', error));
+    }
+  }
+  useStore.getState().clearAll('everything');
+}
 
 export const authClient: AuthClient = ACCOUNTS_ENABLED && supabase ? supabaseClient : unavailableClient;
 

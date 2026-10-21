@@ -58,15 +58,18 @@ export const unavailableClient: AuthClient = {
   verifyCode: () => unavailable('Email codes'),
   resendCode: () => unavailable('Email codes'),
   updatePassword: () => unavailable('Password reset'),
-  signOut: () => unavailable('Log out'),
+  signOut: () => unavailable('Sign out'),
   deleteAccount: () => unavailable('Account deletion'),
 };
 
 /** Supabase error codes we can explain; anything else is a plain retry. Never echo provider text. */
 const MESSAGES: Record<string, string> = {
   invalid_credentials: 'That email and password don’t match. Try again or reset your password.',
-  user_already_exists: 'There’s already an account with that email. Log in instead.',
-  email_exists: 'There’s already an account with that email. Log in instead.',
+  backup_before_sign_out: 'We couldn’t back up your latest changes, so you’re still signed in. Check your connection and try again.',
+  apple_reauth_cancelled: 'Confirm with Apple to delete your account. Nothing was deleted.',
+  apple_revoke_failed: 'We couldn’t reach Apple to remove Sign in with Apple. Nothing was deleted. Try again.',
+  user_already_exists: 'There’s already an account with that email. Sign in instead.',
+  email_exists: 'There’s already an account with that email. Sign in instead.',
   email_not_confirmed: 'Confirm your email first. Open the code screen to request a new code.',
   weak_password: 'Choose a longer password, at least 8 characters.',
   same_password: 'Choose a password you haven’t used here before.',
@@ -75,9 +78,9 @@ const MESSAGES: Record<string, string> = {
   otp_expired: 'That code is wrong or has expired. Check the latest email, or send a new code.',
   flow_state_expired: 'That sign-in took too long. Please try again.',
   otp_disabled: 'Email codes aren’t available right now. Please try again later.',
-  session_not_found: 'Your session has ended. Please log in again.',
-  refresh_token_not_found: 'Your session has ended. Please log in again.',
-  refresh_token_already_used: 'Your session has ended. Please log in again.',
+  session_not_found: 'Your session has ended. Please sign in again.',
+  refresh_token_not_found: 'Your session has ended. Please sign in again.',
+  refresh_token_already_used: 'Your session has ended. Please sign in again.',
   user_banned: 'This account can’t sign in. Contact hello@semli.app for help.',
   signup_disabled: 'New accounts aren’t available right now. You can keep using Semli as a guest.',
   email_provider_disabled: 'Email sign-in isn’t available right now. Try Google, or continue as a guest.',
@@ -92,14 +95,14 @@ export function authErrorMessage(error: unknown, operation = 'auth'): string {
   if (error instanceof AuthUnavailableError) return error.message;
   const code = typeof error === 'object' && error !== null ? (error as { code?: unknown }).code : undefined;
   const fallback = operation === 'account.delete' ? 'We couldn’t delete your account. Please try again, or contact hello@semli.app for help.'
-    : operation === 'account.log_out' ? 'We couldn’t log you out. Please try again.'
+    : operation === 'account.sign_out' ? 'We couldn’t sign you out. Please try again.'
     : operation === 'auth.reset_password' ? 'We couldn’t save your new password. Please try again.'
     : operation === 'auth.verify_code' ? 'We couldn’t check that code. Check your connection and try again.'
     : operation === 'auth.resend_code' || operation.startsWith('auth.forgot-password') ? 'We couldn’t send a code. Check your connection and try again.'
-    : operation.includes('apple') ? 'Apple sign-in didn’t finish. Try again, or log in with email.'
-    : operation.includes('google') ? 'Google sign-in didn’t finish. Try again, or log in with email.'
+    : operation.includes('apple') ? 'Apple sign-in didn’t finish. Try again, or sign in with email.'
+    : operation.includes('google') ? 'Google sign-in didn’t finish. Try again, or sign in with email.'
     : operation.startsWith('auth.signup') ? 'We couldn’t create your account. Check your connection and try again.'
-    : operation.startsWith('auth.login') ? 'We couldn’t log you in. Check your connection and try again.'
+    : operation.startsWith('auth.login') ? 'We couldn’t sign you in. Check your connection and try again.'
     : 'We couldn’t connect. Please try again.';
   return (typeof code === 'string' && MESSAGES[code]) || fallback;
 }

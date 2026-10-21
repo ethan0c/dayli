@@ -21,7 +21,7 @@ Sources: `pricing-and-positioning.md` (the survey, n = 66), `onboarding-research
 
 | Gate | Why it comes first |
 |---|---|
-| **A device pass of Phase 1.** Cold launch in both appearances and with Reduce Motion; Clear everything as a guest and Clear my plan signed in; the four firsts; What Semli can do; voice (needs a development build, not an OTA update); the allowance copy in You; a syllabus with no end date; sign-in with each provider and a restore on a second phone; a free import over the allowance refused by the server, not the phone. | Twelve merged changes and the account and quota backend with no device run. Every Phase 2 item below builds on them. Deploying the quota (migrations, `REVENUECAT_SECRET_KEY`) is in `launch-checklist.md`. |
+| **A device pass of Phase 1.** Cold launch in both appearances and with Reduce Motion; Erase plan as a guest, and Sign out and Delete account signed in; the four firsts; What Semli can do; voice (needs a development build, not an OTA update); the allowance copy in You; a syllabus with no end date; sign-in with each provider and a restore on a second phone; a free import over the allowance refused by the server, not the phone. | Twelve merged changes and the account and quota backend with no device run. Every Phase 2 item below builds on them. Deploying the quota (migrations, `REVENUECAT_SECRET_KEY`) is in `launch-checklist.md`. |
 
 ## 1. Revenue
 

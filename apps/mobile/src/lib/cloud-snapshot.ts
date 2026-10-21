@@ -43,22 +43,46 @@ export function finishedOnboarding(remote: Snapshot): boolean {
   return remote.items.length > 0 || remote.courses.length > 0 || remote.schedules.length > 0;
 }
 
+type Plan = Pick<State, 'items' | 'courses' | 'schedules' | 'taskWorkDates' | 'settings'>;
+
+/** Whether a side holds anything the person made (samples don't count). */
+function hasPlan(p: { items: Item[]; courses: unknown[]; schedules: unknown[] }): boolean {
+  return realRecords(p.items).length > 0 || p.courses.length > 0 || p.schedules.length > 0;
+}
+
 /**
- * Union by id, and the phone wins any record both sides have. A phone that never finished
- * onboarding (a new install) takes the stored profile, and skips onboarding only when the
- * account finished it somewhere else; otherwise onboarding runs with the profile filled in.
+ * What signing in does with the two plans. Never merge: merging two people's plans on a shared
+ * phone was how one account's classes ended up in another's backup.
+ * - `remote`: only the account has a plan, so this phone takes it.
+ * - `local`: only this phone has one (a guest backing up), so the account takes it.
+ * - `ask`: both do; the person keeps one and the other is replaced.
+ * - `none`: neither does.
  */
-export function mergeSnapshot(local: Pick<State, 'items' | 'courses' | 'schedules' | 'taskWorkDates' | 'settings'>, remote: Snapshot) {
-  const items = { ...Object.fromEntries(remote.items.map((i) => [i.id, i])), ...local.items };
-  const byId = <T extends { id: string }>(mine: T[], theirs: T[]) => [...mine, ...theirs.filter((t) => !mine.some((m) => m.id === t.id))];
-  const fresh = !local.settings.onboarded;
+export function choosePlan(local: Plan, remote: Snapshot | null | undefined): 'remote' | 'local' | 'ask' | 'none' {
+  const mine = hasPlan({ items: realRecords(Object.values(local.items)), courses: realRecords(local.courses), schedules: realRecords(local.schedules) });
+  const theirs = !!remote && hasPlan(remote);
+  if (mine && theirs) return 'ask';
+  if (theirs) return 'remote';
+  return mine ? 'local' : 'none';
+}
+
+/** The newest thing on a plan, for "a plan from Oct 12": the latest item created. */
+export function planDate(items: Item[]): string | null {
+  return items.reduce<string | null>((latest, i) => (!latest || i.createdAt > latest ? i.createdAt : latest), null);
+}
+
+/**
+ * This phone takes the account's plan in place of its own. A phone that never finished onboarding
+ * (a new install) skips it only when the account finished it somewhere else; the person's
+ * settings come from the account, and this phone's own preferences (appearance, sounds) stay.
+ */
+export function adoptSnapshot(local: Plan, remote: Snapshot) {
+  const done = finishedOnboarding(remote);
   return {
-    items,
-    courses: byId(local.courses, remote.courses),
-    schedules: byId(local.schedules, remote.schedules),
-    taskWorkDates: { ...remote.taskWorkDates, ...local.taskWorkDates },
-    settings: fresh
-      ? finishedOnboarding(remote) ? { ...local.settings, ...remote.settings, onboarded: true, seeded: true } : { ...local.settings, ...remote.settings }
-      : local.settings,
+    items: Object.fromEntries(remote.items.map((i) => [i.id, i])),
+    courses: remote.courses,
+    schedules: remote.schedules,
+    taskWorkDates: remote.taskWorkDates,
+    settings: { ...local.settings, ...remote.settings, ...(done ? { onboarded: true, seeded: true } : {}) },
   };
 }

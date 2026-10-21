@@ -1,18 +1,19 @@
 import { router } from 'expo-router';
 import { dateLocale, fullDate, localParts } from '@dayli/core';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
 
 import { StatusPill } from '@/components/Controls';
-import { NativeToggle } from '@/components/Native';
 import { Press } from '@/components/Press';
-import { PlusFeatures, PlusWelcome } from '@/components/PlusWelcome';
+import { PlusFeatures, PlusWelcome, type PlusDestination } from '@/components/PlusWelcome';
 import { Skeleton } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
+import { durations } from '@/lib/motion';
 import { LINKS, openLink } from '@/lib/links';
+import { notificationsAllowed, requestNotifications } from '@/lib/notifications';
 import { PLUS_ENTITLEMENT, customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
@@ -57,10 +58,16 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
   const student = useStore((s) => s.settings.isStudent);
   const setSettings = useStore((s) => s.setSettings);
   const [welcome, setWelcome] = useState<'celebrate' | 'tour' | null>(null);
+  const trial = useStore((s) => s.settings.trial);
   const [previewPlans, setPreviewPlans] = useState(false);
   const actionInProgress = useRef(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const [term, setTerm] = useState<TermKey>('semester');
+  // Yearly by default: since Oct 21, 2026 it is the cheapest per month ($24.99 student, $44.99 regular),
+  // and annual is what Education buys and keeps (docs/conversion.md). 6 months stays the lower upfront price.
+  const [term, setTerm] = useState<TermKey>('yearly');
+  // The trial timeline promises the day-5 reminder only once notifications are on, and offers to turn them on.
+  const [canRemind, setCanRemind] = useState<boolean | null>(null);
+  useEffect(() => { notificationsAllowed().then(setCanRemind, () => setCanRemind(false)); }, []);
   const disabled = busy || loading || !!unavailableReason;
 
   const other = offeringFor(offerings, !student);
@@ -117,8 +124,17 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
     if (!(await openLink(url))) setNotice('We couldn’t open that page. It is at semli.app.');
   };
 
-  if (welcome) return <PlusWelcome stage={welcome} onTour={() => showWelcome('tour')}
-    onDone={() => { if (onComplete) onComplete(); else { setWelcome(null); onWelcome?.(); } }} c={c} />;
+  const leave = () => { if (onComplete) onComplete(); else { setWelcome(null); onWelcome?.(); } };
+  // Each Plus row closes this screen, then opens the feature where it starts.
+  const goTo = (to: PlusDestination) => {
+    leave();
+    setTimeout(() => {
+      if (to === 'canvas') router.push('/settings/canvas');
+      else router.navigate({ pathname: '/add', params: to === 'shifts' ? { source: 'image', at: String(Date.now()) } : {} });
+    }, durations.base);
+  };
+
+  if (welcome) return <PlusWelcome celebrate={welcome === 'celebrate'} trialEndsAt={trial?.endsAt} onGo={goTo} onDone={leave} c={c} />;
 
   if (isPlus && !previewPlans) {
     return (
@@ -130,10 +146,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
             {entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}.` : 'Every syllabus, schedule and screenshot read for you.'}
           </T>
         </View>
-        <PlusFeatures c={c} />
-        <Press accessibilityRole="button" onPress={() => showWelcome('tour')} style={[styles.cta, { backgroundColor: c.controlFill }]}>
-          <T token="headline" color={c.controlInk}>Explore your Plus features</T>
-        </Press>
+        <PlusFeatures c={c} onGo={goTo} />
         {onComplete ? <Press accessibilityRole="button" onPress={onComplete} style={styles.textBtn}><T token="subhead" color={c.inkSecondary}>Continue</T></Press> : null}
         {customerCenterEnabled || customerInfo?.managementURL ? (
           <Press accessibilityRole="button" disabled={disabled} onPress={() => { setNotice(null); void manageSubscription().catch(() => {}); }} style={styles.textBtn}>
@@ -188,26 +201,33 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
             </Pressable>
           );
         })}
-        <View style={styles.studentRow}>
-          <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-            <T token="body" color={c.inkPrimary}>{"I'm a college student"}</T>
-            <T token="caption" color={c.inkSecondary}>{`We don't check. ${current?.otherPack && student ? `Regular price is ${current.otherPack.product.priceString}.` : current?.otherPack && !student ? `Students pay ${current.otherPack.product.priceString}.` : 'Regular pricing is a little higher.'}`}</T>
-          </View>
-          <NativeToggle label="I'm a college student" value={student} activeColor={c.added} onChange={(v) => { feedback('select'); setNotice(null); setSettings({ isStudent: v }); }} />
-        </View>
+        {/* Student pricing follows the onboarding answer; a quiet switch, not a toggle (no toggles on paywalls). */}
+        <Pressable accessibilityRole="button" disabled={busy} onPress={() => { feedback('select'); setNotice(null); setSettings({ isStudent: !student }); }} style={styles.studentLink}>
+          <T token="caption" color={c.inkSecondary}>
+            {student ? 'Student pricing. ' : 'Regular pricing. '}
+            <T token="caption" color={c.accentInk}>{student ? 'Not a student?' : 'In college? See student prices'}</T>
+          </T>
+        </Pressable>
       </View>
 
       {days && selected && current ? (
         <View style={{ gap: 16 }}>
           {[
             { when: 'Today', what: 'Everything in Plus, free.', color: c.added },
-            { when: `Day ${Math.max(1, days - 2)}`, what: 'Trial reminder, if notifications are enabled.', color: c.changed },
+            { when: `Day ${Math.max(1, days - 2)}`, what: canRemind === false ? 'A reminder before you’re charged, once notifications are on.' : 'We remind you before you’re charged.', color: c.changed, remind: canRemind === false },
             { when: `Day ${days}`, what: `${selected.product.priceString} ${current.billed}. Cancel before and pay nothing.`, color: c.inkPrimary },
           ].map((r) => (
             <View key={r.when} style={styles.timelineRow}>
               <View style={[styles.timelineDot, { backgroundColor: r.color }]} />
               <T token="subhead" color={c.inkPrimary} style={{ width: 54 }}>{r.when}</T>
-              <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>{r.what}</T>
+              <View style={{ flex: 1, gap: 2 }}>
+                <T token="callout" color={c.inkSecondary}>{r.what}</T>
+                {'remind' in r && r.remind ? (
+                  <Pressable accessibilityRole="button" onPress={() => { feedback('select'); requestNotifications().then(setCanRemind, () => setCanRemind(false)); }} style={styles.remind}>
+                    <T token="subhead" color={c.accentInk}>Remind me</T>
+                  </Pressable>
+                ) : null}
+              </View>
             </View>
           ))}
         </View>
@@ -223,8 +243,9 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           style={[styles.cta, { backgroundColor: c.controlFill, opacity: disabled || !selected || previewPlans ? 0.4 : 1 }]}>
           <T token="headline" color={c.controlInk}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
         </Press>
+        <T token="subhead" color={c.inkPrimary} style={styles.center}>No commitment. Cancel anytime.</T>
         <T token="caption" color={c.inkSecondary} style={styles.center}>
-          {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.billed}. Auto-renews. Cancel any time.` : 'Prices are shown before you confirm.'}
+          {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.billed}. Renews automatically until you cancel in Settings.` : 'Prices are shown before you confirm.'}
         </T>
         {onContinueFree ? (
           <Pressable accessibilityRole="button" disabled={busy} onPress={onContinueFree} style={styles.textBtn}>
@@ -265,7 +286,8 @@ const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
   cta: { alignSelf: 'stretch', minHeight: 52, paddingVertical: 14, paddingHorizontal: 20, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingVertical: 12, flexWrap: 'wrap', borderBottomWidth: StyleSheet.hairlineWidth },
-  studentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 16 },
+  studentLink: { minHeight: 44, justifyContent: 'center', paddingTop: 8 },
+  remind: { minHeight: 32, justifyContent: 'center', alignSelf: 'flex-start' },
   radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   radioDot: { width: 7, height: 7, borderRadius: 4 },
   timelineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, minHeight: 32 },

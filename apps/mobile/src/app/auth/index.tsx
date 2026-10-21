@@ -6,8 +6,6 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { WORDMARK_RATIO, palettes } from '@dayli/tokens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GoogleButton } from '@/components/AuthControls';
-import { AppleButton } from '@/components/AppleButton';
 import { TextButton } from '@/components/Controls';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { Button } from '@/components/Sheet';
@@ -15,6 +13,7 @@ import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
 import { ACCOUNTS_ENABLED, authErrorMessage } from '@/lib/auth';
 import { authClient, leaveAuth } from '@/lib/auth-client';
+import { forgetAccount, providerLabel, useLastAccount, type LastAccount } from '@/lib/last-account';
 import { durations, ease, enter, springs } from '@/lib/motion';
 import { hideSplash, splashShowing } from '@/lib/splash';
 import { useStore } from '@/store';
@@ -25,24 +24,32 @@ const LOGO = 192;
 const SPLASH_LOGO = 240;
 const SPLASH_BG = '#FFFFFF';
 
-/** Semli's first screen; choosing guest continues to the first onboarding question. */
+/**
+ * Semli's first screen: one way forward. The account waits until there is a plan worth saving
+ * (Apple's HIG: delay sign-in; see docs/conversion.md), so a new person goes straight into
+ * onboarding as a guest, and someone returning signs in from "I have an account", where Apple,
+ * Google and email all are. After a sign-out on this phone, "Continue as <name>" leads instead.
+ */
 export default function AuthWelcomeScreen() {
   const { c, dark } = useTheme();
   const { active, landed, root, slot, logo, backdrop, reveal, onRootLayout, onSlotLayout, onLogoLayout } = useLaunchHandoff();
   const insets = useSafeAreaInsets();
   const onboarded = useStore((s) => s.settings.onboarded);
-  const [notice, setNotice] = useState<string | null>(null);
+  // After a sign-out on this phone: one tap back into that account instead of a fresh guest plan.
+  const last = useLastAccount();
   const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const lock = useRef(false);
-  const signIn = async (provider: 'google' | 'apple') => {
+  const continueAs = async (account: LastAccount) => {
+    if (account.provider === 'email') { router.push({ pathname: '/auth/login', params: account.email ? { email: account.email } : {} }); return; }
     if (lock.current) return;
     lock.current = true;
     setBusy(true);
     setNotice(null);
     try {
-      const result = await (provider === 'apple' ? authClient.signInWithApple() : authClient.signInWithGoogle());
+      const result = await (account.provider === 'apple' ? authClient.signInWithApple() : authClient.signInWithGoogle());
       if (result?.signedIn) { leaveAuth(); return; }
-    } catch (error) { setNotice(authErrorMessage(error, `auth.${provider}`)); }
+    } catch (error) { setNotice(authErrorMessage(error, `auth.${account.provider}`)); }
     setBusy(false);
     lock.current = false;
   };
@@ -60,17 +67,16 @@ export default function AuthWelcomeScreen() {
           </Animated.View>
         </View>
         <Animated.View entering={active ? undefined : enter.rise} style={[styles.actions, reveal]}>
-          {!ACCOUNTS_ENABLED ? <Button label="Get started" onPress={leaveAuth} /> : <>
           {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert" style={styles.center}>{notice}</T> : null}
-          <AppleButton onPress={() => void signIn('apple')} disabled={busy} />
-          <GoogleButton onPress={() => void signIn('google')} disabled={busy} />
-          <Button label="Sign up with email" variant="accent" disabled={busy} onPress={() => router.push('/auth/signup')} />
-          <TextButton label="Already have an account? Log in" tone="muted" disabled={busy} onPress={() => router.push('/auth/login')} style={styles.textAction} />
-          <View style={[styles.guest, { borderTopColor: c.line }]}>
-            <TextButton label="Continue as a guest" tone="muted" disabled={busy} onPress={leaveAuth} style={styles.textAction} />
-            <T token="caption" color={c.inkSecondary} style={styles.center}>Start planning. An account is optional.</T>
-          </View>
+          {ACCOUNTS_ENABLED && last ? <>
+            <Button label={`Continue as ${last.firstName ?? last.maskedEmail ?? 'you'} · ${providerLabel(last.provider)}`} variant="accent" disabled={busy} onPress={() => void continueAs(last)} />
+            <Button label="Get started" variant="secondary" disabled={busy} onPress={leaveAuth} />
+            <TextButton label="Not you? Remove" tone="muted" disabled={busy} onPress={() => void forgetAccount()} style={styles.textAction} />
+          </> : <>
+            <Button label="Get started" variant="accent" onPress={leaveAuth} />
+            {ACCOUNTS_ENABLED ? <TextButton label="I have an account" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} /> : null}
           </>}
+          <T token="caption" color={c.inkSecondary} style={styles.center}>Free to start. No account needed.</T>
         </Animated.View>
       </ScrollView>
       {landed ? null : (
@@ -150,5 +156,4 @@ const styles = StyleSheet.create({
   center: { textAlign: 'center' },
   actions: { gap: 14 },
   textAction: { alignSelf: 'center', minHeight: 44 },
-  guest: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 4, paddingTop: 12, gap: 4 },
 });

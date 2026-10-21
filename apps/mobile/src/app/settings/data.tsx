@@ -8,7 +8,7 @@ import { ListRow, StatusPill, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { Group, Row } from '@/components/Settings';
 import { T } from '@/components/Text';
-import { backUpNow } from '@/lib/cloud';
+import { eraseThisPhone } from '@/lib/auth-client';
 import { buildBackup, buildIcs, shareText } from '@/lib/export';
 import { friendlyError } from '@/lib/errors';
 import { feedback } from '@/lib/feedback';
@@ -41,15 +41,14 @@ export default function DataScreen() {
   const schedules = useScheduleList();
   const batches = useStore((s) => s.batches);
   const undoBatch = useStore((s) => s.undoBatch);
-  const clearAll = useStore((s) => s.clearAll);
   const setSettings = useStore((s) => s.setSettings);
   const applyPlan = useStore((s) => s.applyPlan);
-  const canvasConnected = useStore((s) => !!s.settings.canvas.feedUrl);
   // Signed in, the account keeps the setup answers and only the plan is cleared; a guest starts over.
   const signedIn = useSession((s) => !!accountOf(s.session));
   const [confirm, setConfirm] = useState(false);
   const [allChanges, setAllChanges] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [eraseError, setEraseError] = useState<string | null>(null);
 
   const jobs = useMemo(() => new Set(items.map((it) => it.employer?.trim().toLowerCase()).filter(Boolean)).size, [items]);
   const since = useMemo(() => items.map((it) => it.createdAt.slice(0, 10)).sort()[0], [items]);
@@ -70,15 +69,18 @@ export default function DataScreen() {
     }
   };
   const exportPlan = () => share('semli-plan.json', buildBackup({ items, courses, schedules, exportedAt: new Date().toISOString() }), 'application/json');
-  const clear = () => {
-    clearAll(signedIn ? 'plan' : 'everything');
-    setConfirm(false);
-    if (signedIn) backUpNow();
-    else router.dismissTo('/');
+  // A guest's one destructive action. Signed in, the plan leaves this phone through Sign out or Delete account.
+  const erase = async () => {
+    setEraseError(null);
+    try {
+      await eraseThisPhone();
+      setConfirm(false);
+      router.dismissAll();
+      router.replace('/auth');
+    } catch (error) {
+      setEraseError(friendlyError(error, 'We couldn’t erase your plan. Check your connection and try again.', 'data.erase'));
+    }
   };
-  const clearWarning = signedIn
-    ? `Clear your plan? Every item, class, shift and break you added is erased here and from your account’s backup. Your answers from setup stay.${canvasConnected ? ' Canvas stays connected, so its due dates come back on the next sync.' : ''} This cannot be undone.`
-    : 'Clear everything? Your plan and your answers from setup, like your name and what you study, are erased and Semli starts over from the welcome screen. As a guest there’s no backup, so this cannot be undone.';
   const exportCalendar = () => share('semli.ics', buildIcs(items, courses), 'text/calendar');
 
   const whenLabel = (b: Batch) => {
@@ -136,17 +138,17 @@ export default function DataScreen() {
         </Group>
       ) : null}
 
-      <Group title="Start again" footer={signedIn ? 'Your account backs up this phone, so clearing here clears the backup too.' : 'Nothing here leaves the phone unless you export it.'}>
-        <Row label="Replay the intro" value="Keeps everything" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} />
-        {confirm ? (
+      <Group title="Start again" footer={signedIn ? 'To remove your plan from this iPhone, sign out or delete your account in Account settings.' : eraseError ?? 'Nothing here leaves the phone unless you export it.'}>
+        <Row label="Replay the intro" value="Keeps everything" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} last={signedIn} />
+        {signedIn ? null : confirm ? (
           <Animated.View entering={enter.drop} exiting={exit.fade} style={styles.confirm} accessibilityRole="alert">
-            <T token="callout" color={c.inkSecondary} style={{ flexBasis: '100%' }}>{clearWarning}</T>
+            <T token="callout" color={c.inkSecondary} style={{ flexBasis: '100%' }}>Erase your plan? Your courses, tasks and setup will be removed from this iPhone. This can’t be undone.</T>
             <TextButton label="Export first" onPress={() => void exportPlan()} />
-            <TextButton label="Keep" tone="muted" onPress={() => setConfirm(false)} />
-            <TextButton label="Clear" tone="danger" haptic="warning" onPress={clear} />
+            <TextButton label="Cancel" tone="muted" onPress={() => setConfirm(false)} />
+            <TextButton label="Erase" tone="danger" haptic="warning" onPress={() => void erase()} />
           </Animated.View>
         ) : (
-          <Row label={signedIn ? 'Clear my plan' : 'Clear everything'} destructive onPress={() => { feedback('tap'); setConfirm(true); }} last />
+          <Row label="Erase plan" destructive onPress={() => { feedback('tap'); setConfirm(true); }} last />
         )}
       </Group>
     </ScrollView>

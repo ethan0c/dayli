@@ -19,6 +19,7 @@ import { reportError } from '@/lib/errors';
 import { useStorageStatus } from '@/lib/storage';
 import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
+import { PlanChoice } from '@/components/PlanChoice';
 import { devClock, devCommand, setDevAutoConfirm, setDevSpreadOpen } from '@/lib/dev';
 import { i18n } from '@/lib/i18n';
 import { SHOWCASE, SKY, preloadPhotos } from '@/lib/images';
@@ -229,6 +230,7 @@ function RootLayout() {
             <Stack.Screen name="settings" />
           </Stack.Protected>
         </Stack>
+        <PlanChoice />
         {/* One owner restores the theme's icons when leaving either always-dark paywall. */}
         <StatusBar style={photoPaywall || dark ? 'light' : 'dark'} hidden={false} />
       </ThemeProvider>

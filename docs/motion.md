@@ -1,6 +1,6 @@
 # Motion: the Robinhood teardown and Semli's rules
 
-Status: Oct 19, 2026. Goal from the founder: every interaction as smooth and intentional as Robinhood's. This doc lists what Robinhood actually does, maps each move to Semli, and sets the rules the code enforces through `packages/tokens/src/motion.ts`, `apps/mobile/src/lib/motion.ts`, and the `Press` component.
+Status: Oct 21, 2026. Goal from the founder: every interaction smooth and intentional, with no distracting bounce-back. This doc lists what Robinhood actually does, maps each move to Semli, and sets the rules the code enforces through `packages/tokens/src/motion.ts`, `apps/mobile/src/lib/motion.ts`, and the `Press` component.
 
 ## 1. What Robinhood does, interaction by interaction
 
@@ -12,7 +12,7 @@ Status: Oct 19, 2026. Goal from the founder: every interaction as smooth and int
 | Range tabs (1D, 1W…) | Selected pill slides to the new tab on a spring; the chart crossfades | One moving element, never two things popping | Week strip pill; segmented controls in Reminders |
 | Lists | New rows fade in and others slide to make room; removed rows fade out and the list closes the gap | Nothing jumps | `layout` transition on every list row in Today, Plan, School |
 | Loading | Grey rounded placeholders in the exact layout of the content, pulsing | You already know what's coming | `Skeleton`, `SkeletonRows`, the Reading state, PlanPicker prices |
-| Toasts and sheets | Rise on a spring with no overshoot, sink on exit | Weight without bounce | Toast enter/exit, onboarding steps |
+| Toasts and sheets | Rise on a spring with no overshoot, sink on exit | Weight without bounce | Toast enter/exit and onboarding steps use the bounded timed curve |
 | Navigation | Full-screen pushes with the native iOS header and back chevron; flows that need their own context slide up as full-screen covers with an X in the header, not half sheets | Native transitions are free, interruptible, and 120 Hz | Item detail and Settings push; Capture, Create, Review are full-screen covers with an X |
 | Tab bar | The system tab bar; icons switch between outline and fill | It's iOS | `NativeTabs` with the Liquid Glass "+" in the bottom accessory |
 | Confirmation | A full-screen success with a drawn checkmark and one success haptic | The one moment that earns a celebration | Review confirm toast + success haptic today; a full-screen "Added" moment is a later candidate |
@@ -27,10 +27,10 @@ From `packages/tokens/src/motion.ts`:
 
 | Token | Value | Use |
 |---|---|---|
-| `spring.snappy` | damping 22, stiffness 380, mass 0.9 | Anything under the finger: press, toggle, check, chevron, segment |
-| `spring.gentle` | damping 26, stiffness 190, mass 1 | Anything moving on its own: list re-flow, toast, pill slide, digit roll |
+| `spring.snappy` | damping 37, stiffness 380, mass 0.9, overshoot clamped | Anything under the finger: press, toggle, check, segment |
+| `spring.gentle` | damping 28, stiffness 190, mass 1, overshoot clamped | Rolling digits, voice level, launch handoff, onboarding progress |
 | `duration.fast` | 120 ms | Exits and dims |
-| `duration.base` | 220 ms | Fades and reveals |
+| `duration.base` | 220 ms | Layout re-flow, entrances, fades and reveals |
 | `duration.slow` | 360 ms | Screen-level fades |
 | `pulse` | 700 ms | Each half of a skeleton's breath |
 | `easing` | cubic-bezier(0.2, 0, 0, 1) | The only timed curve |
@@ -52,6 +52,7 @@ From `packages/tokens/src/motion.ts`:
 9. **One haptic per meaning**, through `feedback()`. Tap for presses that navigate, select for choosing, complete/uncomplete for checks, success for a confirmed save, remove for deletions, undo for undo, warning and error for their messages. Never two haptics for one gesture.
 10. **Navigation is native.** Detail screens push with the system header and back chevron. Capture, Create, and Review are full-screen covers with an X on the left of the system header. No half sheets for primary flows.
 11. **Reduce Motion is automatic.** Reanimated jumps springs and layout animations to their end state when the system setting is on; do not add manual checks, and do not add motion that only works with it off.
+12. **Move once, settle once.** Shared springs use at least critical damping and clamp overshoot. Layout and entrances use the bounded timed curve. Completion rings stay fixed while their fill and tick grow in; no expand-then-contract pulses, error shakes, or local bounce curves.
 
 ## 4. Checklist for a new screen
 
@@ -61,6 +62,7 @@ From `packages/tokens/src/motion.ts`:
 - Every loading state is a skeleton shaped like the content.
 - Every number that can change on screen is a `Ticker`.
 - Every state change has exactly one `feedback()` cue.
+- Rapidly press/release, switch segments, toggle completion, and add/remove rows: no overshoot, recoil, or expand-then-contract pulse.
 - Tested on a real iPhone at 120 Hz with Reduce Motion both off and on.
 
 ## 5. What is still manual

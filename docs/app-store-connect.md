@@ -100,7 +100,7 @@ Free, forever
 The calendar, to-dos, reminders and 3 AI imports a month are free, with no time limit.
 
 Semli Plus
-Unlimited imports, Canvas kept in sync, schedule-change comparisons and suggested times for overlaps. Student pricing is on the honor system: $4.99 a month, $14.99 every 6 months, or $29.99 a year, with a 7-day free trial. Regular pricing is $7.99, $24.99 and $49.99.
+Unlimited imports, Canvas kept in sync, schedule-change comparisons and suggested times for overlaps. Student pricing is on the honor system: $4.99 a month, $14.99 every 6 months, or $24.99 a year, with a 7-day free trial. Regular pricing is $7.99, $24.99 and $44.99.
 
 Private by default
 Your plan lives on your phone. Files you import are read by our AI provider and not stored. An account is optional; it backs up your plan so a new phone can restore it.
@@ -153,7 +153,7 @@ The set was rerendered Oct 20, 2026 with Geist Bold captions, one lavender accen
 
 | Field | Value |
 |---|---|
-| Sign-in required | **Yes** (the app has optional accounts; reviewers need a way in). Reviewer account `review@semli.app` exists, email confirmed (created Oct 20, 2026 via the Supabase admin API). The password is `REVIEW_PASSWORD` in the repo-root `.env`; paste both into Sign-in Information. Notes: "Log in on the welcome screen with email and password. An account is optional; every feature also works signed out." |
+| Sign-in required | **Yes** (the app has optional accounts; reviewers need a way in). Reviewer account `review@semli.app` exists, email confirmed (created Oct 20, 2026 via the Supabase admin API). The password is `REVIEW_PASSWORD` in the repo-root `.env`; paste both into Sign-in Information. Notes: "Tap I have an account on the welcome screen and sign in with email and password. An account is optional; every feature also works signed out." |
 | Contact first/last name, phone, email | **you** |
 | Notes | see below |
 | Attachment | none |
@@ -229,10 +229,10 @@ Subscription group **Semli Plus** (group display name shown to customers: `Semli
 |---|---|---|---|---|---|
 | `semli_plus_monthly_student` | Plus Monthly, student | Unlimited imports and Canvas sync | 1 month | $4.99 | Free, 1 week |
 | `semli_plus_semester_student` | Plus Semester, student | Unlimited imports and Canvas sync | 6 months | $14.99 | Free, 1 week |
-| `semli_plus_yearly_student` | Plus Yearly, student | Unlimited imports and Canvas sync | 1 year | $29.99 | Free, 1 week |
+| `semli_plus_yearly_student` | Plus Yearly, student | Unlimited imports and Canvas sync | 1 year | $24.99 | Free, 1 week |
 | `semli_plus_monthly_regular` | Plus Monthly | Unlimited imports and Canvas sync | 1 month | $7.99 | Free, 1 week |
 | `semli_plus_semester_regular` | Plus Semester | Unlimited imports and Canvas sync | 6 months | $24.99 | Free, 1 week |
-| `semli_plus_yearly_regular` | Plus Yearly | Unlimited imports and Canvas sync | 1 year | $49.99 | Free, 1 week |
+| `semli_plus_yearly_regular` | Plus Yearly | Unlimited imports and Canvas sync | 1 year | $44.99 | Free, 1 week |
 
 Each product also needs: availability (all territories or US), a **review screenshot** (use `6-paywall.png`), and review notes ("Student pricing is on the honor system; nothing is verified."). Subscription levels in the group: yearly = level 1, semester = level 2, monthly = level 3, student and regular at the same level, so upgrades and downgrades behave.
 

@@ -39,7 +39,7 @@ export default function ResetPasswordScreen() {
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.body}>
         <View style={styles.hero}>
           <T token="display" accessibilityRole="header">{signedIn ? 'Choose a new password.' : 'Start with a code.'}</T>
-          <T token="body" color={c.inkSecondary}>{signedIn ? 'At least 8 characters. You’ll stay logged in on this phone.' : 'Ask for a reset code first, then choose your new password.'}</T>
+          <T token="body" color={c.inkSecondary}>{signedIn ? 'At least 8 characters. You’ll stay signed in on this phone.' : 'Ask for a reset code first, then choose your new password.'}</T>
         </View>
         {signedIn ? <>
           <AuthField label="New password" password value={password} onChangeText={(v) => { setPassword(v); setError(null); }} error={error ?? undefined}

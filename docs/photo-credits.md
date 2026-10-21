@@ -9,3 +9,4 @@ Photos bundled in the app, all under the [Unsplash License](https://unsplash.com
 | `apps/mobile/assets/images/sky/afternoon.webp` | [White fluffy clouds float in a blue sky](https://unsplash.com/photos/white-fluffy-clouds-float-in-a-blue-sky-Pe332zREgZ8) | Miguel Ángel Padriñán Alba |
 | `apps/mobile/assets/images/sky/golden.webp` | [Cloudy sky during golden hour](https://unsplash.com/photos/cloudy-sky-during-golden-hour-AUrK7wuV8fE) | Andres Perez |
 | `apps/mobile/assets/images/sky/night.webp` | [A dark sky with clouds](https://unsplash.com/photos/a-dark-sky-with-clouds-chWryC7O0H8) | Cici Hung |
+| `apps/mobile/assets/showcase/demo.jpg` (onboarding "Just tell it." step; top of the frame, 900 x 1200 JPEG) | [Desk with open book, laptop, and study materials](https://unsplash.com/photos/desk-with-open-book-laptop-and-study-materials-HNjWq8WPyoY) | Yen Vu |

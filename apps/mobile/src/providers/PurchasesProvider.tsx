@@ -56,7 +56,7 @@ export function PurchasesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Plus follows the account: a signed-in person's purchases are keyed to their Supabase id,
-  // so they come back on a new phone. Log out happens in authClient.signOut.
+  // so they come back on a new phone. Sign out happens in authClient.signOut.
   useEffect(() => {
     if (purchasesUnavailableReason || !userId) return;
     void initializePurchases()

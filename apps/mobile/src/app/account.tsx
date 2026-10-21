@@ -12,16 +12,22 @@ import { authClient } from '@/lib/auth-client';
 import { feedback } from '@/lib/feedback';
 import { useNow } from '@/lib/now';
 import { accountOf, useSession } from '@/lib/supabase';
+import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
-/** Account settings. Signing out or deleting the account never touches the plan on this phone. */
+/**
+ * Account settings. Two states: a guest's plan is only on this iPhone; a signed-in plan is backed
+ * up. Signing out backs up, then removes the plan from this phone until the next sign-in; Delete
+ * account removes the account, its backup and the plan here. One destructive action per state.
+ */
 export default function AccountScreen() {
   const { c } = useTheme();
   const now = useNow();
   const session = useSession((s) => accountOf(s.session));
   const cloud = useStore((s) => s.settings.cloud);
-  const [deleting, setDeleting] = useState(false);
+  const { isPlus, manageSubscription } = usePurchases();
+  const [confirm, setConfirm] = useState<'sign-out' | 'delete' | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const user = session?.user;
@@ -33,7 +39,9 @@ export default function AccountScreen() {
       await action();
       feedback('success');
       useStore.getState().showToast(done);
-      router.dismissTo('/');
+      // The plan has left this phone: back to the welcome screen.
+      router.dismissAll();
+      router.replace('/auth');
     } catch (failure) {
       setError(authErrorMessage(failure, operation));
     } finally {
@@ -54,38 +62,49 @@ export default function AccountScreen() {
       <Sheet title="Account settings">
         <ScrollView contentContainerStyle={styles.body}>
           <View style={styles.hero}>
-            <T token="display" accessibilityRole="header">Your account.</T>
-            <T token="body" color={c.inkSecondary}>You’re planning as a guest. Log in to back up your plan and bring it to a new phone.</T>
+            <T token="display" accessibilityRole="header">Your plan is only on this iPhone.</T>
+            <T token="body" color={c.inkSecondary}>Back it up with a free account to keep it safe and bring it to a new phone.</T>
           </View>
-          <Group title="Get connected" footer="Your schedule is stored on this phone until you log in.">
-            <Row label="Log in" onPress={() => router.push('/auth/login')} />
-            <Row label="Create an account" onPress={() => router.push('/auth/signup')} last />
+          <Group>
+            <Row label="Back up your plan" onPress={() => router.push('/auth/signup')} />
+            <Row label="Sign in" onPress={() => router.push('/auth/login')} last />
           </Group>
         </ScrollView>
       </Sheet>
     );
   }
 
+  const deleting = confirm === 'delete';
+  const signingOut = confirm === 'sign-out';
   return (
-    <Sheet title={deleting ? 'Delete account' : 'Account settings'} footer={deleting ? <>
-      <Button label={busy ? 'Deleting…' : 'Delete my account'} disabled={busy} onPress={() => void run(authClient.deleteAccount, 'Account deleted. Your plan is still on this phone.', 'account.delete')} />
-      <TextButton label="Keep my account" tone="muted" onPress={() => setDeleting(false)} />
+    <Sheet title={deleting ? 'Delete account' : signingOut ? 'Sign out' : 'Account settings'} footer={deleting ? <>
+      <Button label={busy ? 'Deleting…' : 'Delete my account'} disabled={busy} onPress={() => void run(authClient.deleteAccount, 'Account deleted.', 'account.delete')} />
+      <TextButton label="Keep my account" tone="muted" onPress={() => setConfirm(null)} />
+    </> : signingOut ? <>
+      <Button label={busy ? 'Signing out…' : 'Sign out'} disabled={busy} onPress={() => void run(authClient.signOut, 'Signed out. Sign in again to bring your plan back.', 'account.sign_out')} />
+      <TextButton label="Stay signed in" tone="muted" onPress={() => setConfirm(null)} />
     </> : undefined}>
       <ScrollView contentContainerStyle={styles.body}>
         <View style={styles.hero}>
-          <T token="display" accessibilityRole="header">{deleting ? 'Delete your account?' : 'Your account.'}</T>
+          <T token="display" accessibilityRole="header">{deleting ? 'Delete your account?' : signingOut ? 'Sign out?' : 'Your account.'}</T>
           <T token="body" color={c.inkSecondary}>{deleting
-            ? 'This removes your account and its backup for good. Your plan stays on this phone, and Semli Plus is billed by Apple: cancel it in Manage subscription.'
-            : user.email ?? 'Signed in with Google'}</T>
+            ? 'Your plan and your backup will be permanently deleted from Semli’s servers and this iPhone. This can’t be undone.'
+            : signingOut
+              ? 'Your plan is backed up. It will be removed from this iPhone until you sign in again.'
+              : `Backed up as ${user.email ?? 'your Apple or Google account'}`}</T>
+          {deleting && isPlus ? <>
+            <T token="body" color={c.inkSecondary}>Your Semli Plus subscription is billed by Apple. Cancel it in Settings first.</T>
+            <TextButton label="Manage subscription" disabled={busy} onPress={() => void manageSubscription().catch(() => {})} />
+          </> : null}
         </View>
         {error ? <T token="callout" color={c.conflict} accessibilityRole="alert">{error}</T> : null}
-        {!deleting ? <>
-          <Group title="Backup" footer="Your plan is saved to your account a few seconds after each change. Log in on a new phone to bring it back.">
+        {!confirm ? <>
+          <Group title="Backup" footer="Your plan is saved to your account a few seconds after each change. Sign in on a new phone to bring it back.">
             <Row label="Status" value={backedUp} />
           </Group>
-          <Group title="Account controls" footer="Logging out keeps everything on this phone.">
-            <Row label={busy ? 'Logging out…' : 'Log out'} onPress={busy ? undefined : () => void run(authClient.signOut, 'Logged out. Your plan is still on this phone.', 'account.log_out')} />
-            <Row label="Delete account" destructive onPress={() => setDeleting(true)} last />
+          <Group>
+            <Row label="Sign out" onPress={() => { feedback('tap'); setError(null); setConfirm('sign-out'); }} />
+            <Row label="Delete account" destructive onPress={() => { feedback('tap'); setError(null); setConfirm('delete'); }} last />
           </Group>
         </> : null}
       </ScrollView>

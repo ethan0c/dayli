@@ -1,4 +1,5 @@
 import { fontFamily, palettes, radius, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
+import { createContext, useContext } from 'react';
 import { useColorScheme, type TextStyle } from 'react-native';
 
 import { useStore } from '@/store';
@@ -9,11 +10,15 @@ export type { Palette, TypeToken };
 /** Readable UI text. The outlined brand wordmark stays independent. */
 export const mobileFonts = fontFamily;
 
-/** Palette for the current appearance: the user's choice in You, or the system setting. */
+/** Forces one appearance for a subtree, like a chart on a dark showcase page. */
+export const ForceAppearance = createContext<'light' | 'dark' | null>(null);
+
+/** Palette for the current appearance: a forced one, the user's choice in You, or the system setting. */
 export function useTheme(): { c: Palette; dark: boolean } {
   const scheme = useColorScheme();
   const pref = useStore((s) => s.settings.appearance);
-  const dark = pref === 'dark' || (pref !== 'light' && scheme === 'dark');
+  const forced = useContext(ForceAppearance);
+  const dark = forced ? forced === 'dark' : pref === 'dark' || (pref !== 'light' && scheme === 'dark');
   return { c: dark ? palettes.dark : palettes.light, dark };
 }
 

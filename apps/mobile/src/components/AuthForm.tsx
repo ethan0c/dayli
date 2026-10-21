@@ -1,5 +1,5 @@
 import { useRef, useState, type ComponentRef } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { AuthField, GoogleButton } from '@/components/AuthControls';
@@ -9,19 +9,23 @@ import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { authErrorMessage, validateAuthForm, type AuthFieldErrors, type AuthMode, type SignInResult } from '@/lib/auth';
 import { authClient, leaveAuth } from '@/lib/auth-client';
+import { useLastAccount } from '@/lib/last-account';
 import { LINKS, openLink } from '@/lib/links';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 const COPY = {
-  login: { title: 'Log in', heading: 'Welcome back.', body: 'A little less juggling starts here.', action: 'Log in' },
+  login: { title: 'Sign in', heading: 'Welcome back.', body: 'A little less juggling starts here.', action: 'Sign in' },
   signup: { title: 'Sign up', heading: 'Make room for your week.', body: 'Create your Semli account.', action: 'Create account' },
   'forgot-password': { title: 'Forgot password', heading: 'Let’s get you back in.', body: 'Enter the email you use for Semli. We’ll send you a code to reset your password.', action: 'Send code' },
 };
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
   const { c } = useTheme();
+  // "Continue as" for an email account opens here with the address filled in.
+  const params = useLocalSearchParams<{ email?: string }>();
+  const last = useLastAccount();
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(typeof params.email === 'string' ? params.email : '');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<AuthFieldErrors>({});
   const [notice, setNotice] = useState<string | null>(null);
@@ -75,9 +79,16 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           <T token="body" color={c.inkSecondary}>{copy.body}</T>
         </View>
         {!forgot ? <>
-          <AppleButton onPress={() => void submit('apple')} disabled={busy} />
-          <GoogleButton onPress={() => void submit('google')} disabled={busy} />
-          <View style={styles.divider}><View style={[styles.line, { backgroundColor: c.line }]} /><T token="caption" color={c.inkTertiary}>or with email</T><View style={[styles.line, { backgroundColor: c.line }]} /></View>
+          {/* "Last used" on the way this phone last signed in, so nobody makes a second account by accident. */}
+          <View style={styles.provider}>
+            {last?.provider === 'apple' ? <T token="caption" color={c.inkSecondary} style={styles.lastUsed}>Last used</T> : null}
+            <AppleButton onPress={() => void submit('apple')} disabled={busy} />
+          </View>
+          <View style={styles.provider}>
+            {last?.provider === 'google' ? <T token="caption" color={c.inkSecondary} style={styles.lastUsed}>Last used</T> : null}
+            <GoogleButton onPress={() => void submit('google')} disabled={busy} />
+          </View>
+          <View style={styles.divider}><View style={[styles.line, { backgroundColor: c.line }]} /><T token="caption" color={c.inkTertiary}>{last?.provider === 'email' ? 'or with email · last used' : 'or with email'}</T><View style={[styles.line, { backgroundColor: c.line }]} /></View>
         </> : null}
         <View style={{ gap: 20 }}>
           {signup ? <AuthField label="Name (optional)" value={name} onChangeText={setName} placeholder="Your name" autoComplete="name" autoCapitalize="words"
@@ -95,7 +106,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         <View style={{ gap: 12 }}>
           <Button label={busy ? 'One moment…' : copy.action} disabled={busy} onPress={() => void submit()} />
           {signup ? <T token="caption" color={c.inkSecondary} style={styles.center}>By creating an account, you agree to our <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.terms)}>Terms</T> and <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.privacy)}>Privacy policy</T>.</T> : null}
-          <TextButton label={forgot ? 'Back to log in' : signup ? 'Already have an account? Log in' : 'New to Semli? Sign up'} tone="muted"
+          <TextButton label={forgot ? 'Back to sign in' : signup ? 'Already have an account? Sign in' : 'New to Semli? Sign up'} tone="muted"
             disabled={busy}
             onPress={() => { setPassword(''); if (forgot && router.canGoBack()) router.back(); else router.replace(signup || forgot ? '/auth/login' : '/auth/signup'); }} style={styles.footerLink} />
           <TextButton label="Continue as a guest" tone="muted" disabled={busy} onPress={leaveAuth} style={styles.footerLink} />
@@ -108,6 +119,8 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 const styles = StyleSheet.create({
   body: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40, gap: 28 },
   hero: { gap: 12, paddingBottom: 8 },
+  provider: { gap: 6 },
+  lastUsed: { alignSelf: 'flex-end' },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   line: { flex: 1, height: StyleSheet.hairlineWidth },
   start: { alignSelf: 'flex-start', minHeight: 44 },

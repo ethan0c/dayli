@@ -59,8 +59,8 @@ Calendar, tasks, Today, reminders, repeating classes, manual add, voice capture,
 | Plan | Student | Regular | Student effective | Why |
 |---|---|---|---|---|
 | Monthly | **$4.99** | $7.99 | $4.99/mo | Sits at the top of the "$1–5" band; under Structured and MyStudyLife monthly |
-| **Semester** | **$14.99** / 6 months | $24.99 | $2.50/mo | A semester plus the break; the plan to push in-app |
-| Yearly | **$29.99** | $49.99 | $2.50/mo | Matches Structured's anchor; the plan to push on web |
+| Semester | **$14.99** / 6 months | $24.99 | $2.50/mo | A semester plus the break; the lower upfront price |
+| **Yearly** | **$24.99** | $44.99 | $2.08/mo | The best per-month price and the preselected plan since Oct 21, 2026 (was $29.99 / $49.99, which tied with 6 months; see [conversion.md](conversion.md)) |
 
 **Store note (Oct 19, 2026):** Apple has no 4-month auto-renewing term, so the Semester plan is sold as a 6-month subscription at the same price (a semester plus the break; a year is exactly two). **Oct 21:** "Semester" is the plan's name only; every price line in the app and on the site states the term as 6 months ("$14.99 / 6 months", "then $14.99 every 6 months"), because App Review 3.1.2 requires the length of the subscription to be stated plainly and "per semester" is not a length. Product setup: [revenuecat-offerings-brief.md](revenuecat-offerings-brief.md).
 
