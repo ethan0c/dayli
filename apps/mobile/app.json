@@ -70,7 +70,14 @@
           ]
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Semli listens so you can say what’s coming up instead of typing it.",
+          "speechRecognitionPermission": "Semli turns what you say into text on this phone."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false,

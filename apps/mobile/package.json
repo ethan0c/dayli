@@ -31,6 +31,7 @@
     "expo-notifications": "~58.1.5",
     "expo-router": "~58.0.24",
     "expo-sharing": "~58.0.19",
+    "expo-speech-recognition": "^58.0.0",
     "expo-splash-screen": "~58.0.10",
     "expo-status-bar": "~58.0.3",
     "expo-store-review": "~58.0.2",
