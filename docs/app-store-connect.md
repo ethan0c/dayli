@@ -100,7 +100,7 @@ Free, forever
 The calendar, to-dos, reminders and 3 AI imports a month are free, with no time limit.
 
 Semli Plus
-Unlimited imports, Canvas kept in sync, schedule-change comparisons and suggested times for overlaps. Student pricing is on the honor system: $4.99 a month, $14.99 a semester, or $29.99 a year, with a 7-day free trial. Regular pricing is $7.99, $24.99 and $49.99.
+Unlimited imports, Canvas kept in sync, schedule-change comparisons and suggested times for overlaps. Student pricing is on the honor system: $4.99 a month, $14.99 every 6 months, or $29.99 a year, with a 7-day free trial. Regular pricing is $7.99, $24.99 and $49.99.
 
 Private by default
 Your plan lives on your phone. Files you import are read by our AI provider and not stored. An account is optional; it backs up your plan so a new phone can restore it.
