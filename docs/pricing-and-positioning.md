@@ -66,7 +66,7 @@ Calendar, tasks, Today, reminders, repeating classes, manual add, **3 AI imports
 
 Student pricing is on the honor system. The toggle in onboarding says so plainly: we don't check IDs or .edu emails, we trust you, switch it off when you graduate. The regular price exists so the student price reads as a real discount (~40%) and so non-students (parents, grads, shift workers) have a way to pay.
 
-Plus includes unlimited AI imports, work-schedule update comparisons, suggested times for overlapping plans, and urgent items with ringing alarms (decided Oct 20, 2026; standard reminders stay free). Syllabi count toward the three free monthly imports; Plus removes that limit. Canvas sync is still planned.
+Plus includes unlimited AI imports, work-schedule update comparisons, suggested times for overlapping plans, and urgent items with ringing alarms (decided Oct 20, 2026; standard reminders stay free). Voice capture on Add is free, like typing; adding by Siri will be Plus when it ships (decided Oct 21, 2026, `voice-capture.md`). Syllabi count toward the three free monthly imports; Plus removes that limit. Canvas sync is still planned.
 
 ### Access audit (Oct 19, 2026)
 

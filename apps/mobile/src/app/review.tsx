@@ -614,6 +614,7 @@ function longRange(start: string, end: string): string {
 function sourceNoun(source: string): string {
   const s = source.toLowerCase();
   if (s === 'message') return 'your message';
+  if (s === 'voice') return 'your voice note';
   if (s === 'screenshot') return 'a screenshot';
   if (s === 'photo') return 'a photo';
   if (s.endsWith('.pdf')) return 'a PDF';

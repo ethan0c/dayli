@@ -54,7 +54,10 @@ export type AnalyticsEvent =
   | 'auth_completed'
   | 'account_signed_out'
   | 'first_note'
-  | 'can_do';
+  | 'can_do'
+  | 'voice_started'
+  | 'voice_stopped'
+  | 'voice_failed';
 
 export function track(event: AnalyticsEvent, properties: Record<string, string | number | boolean | null> = {}): void {
   if (posthog) {

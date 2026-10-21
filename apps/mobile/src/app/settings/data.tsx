@@ -27,6 +27,7 @@ function fromSource(source: string | null | undefined): string | null {
   if (s === 'screenshot') return 'from a screenshot';
   if (s === 'photo') return 'from a photo';
   if (s === 'message') return 'from your message';
+  if (s === 'voice') return 'from your voice note';
   if (s.endsWith('.pdf')) return 'from a PDF';
   return `from ${source}`;
 }

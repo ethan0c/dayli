@@ -1,10 +1,11 @@
 import { IMPORT_MESSAGES, type ExtractRequest } from '@dayli/schema';
 import { File } from 'expo-file-system';
 import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
-import { useEffect, useEffectEvent, useRef, useState, type ComponentRef } from 'react';
+import { useCallback, useEffect, useEffectEvent, useRef, useState, type ComponentRef } from 'react';
 import { Platform, ScrollView, StyleSheet, type TextInput, View } from 'react-native';
 
 import { Composer } from '@/components/Composer';
+import { Heard } from '@/components/Heard';
 import { GroupLabel, ListRow } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { Reading } from '@/components/Reading';
@@ -18,6 +19,7 @@ import { feedback } from '@/lib/feedback';
 import { reportError } from '@/lib/errors';
 import { usePlusAccess } from '@/lib/plus-access';
 import { useNow } from '@/lib/now';
+import { VOICE_AVAILABLE, useVoiceCapture } from '@/lib/voice';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { useStore } from '@/store';
 import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
@@ -44,6 +46,10 @@ export function AddScreen() {
   const setPending = useStore((s) => s.setPending);
   const recordImport = useStore((s) => s.recordImport);
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
+  // Spoken words land in the same text as typed ones; the composer stays the source of truth.
+  const onVoiceText = useCallback((value: string) => { setText(value); useStore.getState().setCaptureDraft(value); }, []);
+  const voice = useVoiceCapture({ prefix: text, onText: onVoiceText });
+  const spoke = useRef(false);
 
   async function run(input: ExtractRequest['input'], source: string) {
     if (importing.current) return;
@@ -73,6 +79,7 @@ export function AddScreen() {
       }
       feedback('ready');
       useStore.getState().setCaptureDraft('');
+      spoke.current = false;
       recordImport();
       track('import_succeeded', { kind: input.kind, items: res.extraction.items.length, type: res.extraction.detected_type });
       setPending({ extraction: res.extraction, source });
@@ -98,6 +105,7 @@ export function AddScreen() {
   };
 
   const canSend = text.trim().length > 0 && !busy;
+  const shownError = error ?? voice.error;
 
   /** A tapped screenshot thumbnail; an empty uri means "open the photo picker". */
   async function openShot(uri: string) {
@@ -138,27 +146,30 @@ export function AddScreen() {
       <TabHeader date={now.date} label="What’s coming up?" title="Add"
         details={<T token="callout" color={c.inkSecondary}>Type it, paste it, or drop in a screenshot. You review everything before it’s added.</T>} />
       <View style={styles.body}>
-        {busy ? <Reading source={busy === 'Message' ? 'your message' : busy} chart={/\.pdf$/i.test(busy) ? 'term' : 'week'} /> : null}
+        {busy ? <Reading source={busy === 'Message' ? 'your message' : busy === 'Voice' ? 'your voice note' : busy} chart={/\.pdf$/i.test(busy) ? 'term' : 'week'} /> : null}
 
         <Composer
           ref={inputRef}
           id="capture-text"
           value={text}
-          onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); }}
+          onChangeText={(value) => { setText(value); useStore.getState().setCaptureDraft(value); if (!value) spoke.current = false; }}
           busy={!!busy}
           canSend={canSend}
           onPickImage={() => void pick(() => pickImageInput(false))}
           onCamera={() => void pick(() => pickImageInput(true))}
           onPickPdf={() => void pick(pickPdfInput)}
-          onSend={() => void run({ kind: 'text', text: text.trim() }, 'Message')}
+          onSend={() => void run({ kind: 'text', text: text.trim() }, spoke.current ? 'Voice' : 'Message')}
+          voice={VOICE_AVAILABLE ? { state: voice.state, transcript: voice.transcript, level: voice.level, onStart: () => { spoke.current = true; setError(null); void voice.start(); }, onStop: voice.stop } : undefined}
         />
 
-        {error ? (
+        {shownError ? (
           <View accessibilityRole="alert" style={styles.status}>
             <Icon name="alert" size={16} color={c.conflict} />
-            <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{error}</T>
+            <T token="subhead" color={c.conflict} style={{ flex: 1 }}>{shownError}</T>
           </View>
         ) : null}
+
+        {!busy ? <Heard text={text} /> : null}
 
         {!busy ? <RecentShots disabled={!!busy} onPick={(uri) => void openShot(uri)} /> : null}
 

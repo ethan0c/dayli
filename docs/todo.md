@@ -40,6 +40,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 - [ ] Make local-only storage clear: no account, cloud backup or cross-device recovery exists. Test export before destructive actions and document what deleting the app loses.
 - Accounts run on Supabase (docs/supabase.md): email and Google (no Apple), emailed codes (6 to 8 digits) for confirm and reset, log out, delete, and plan backup/restore. They switch on when the Supabase keys are set; until then the welcome is one "Get started". Schedule sharing stays hidden (`SHARING_ENABLED`). Do not list live sharing as a shipped benefit.
 - [ ] Before a public paid launch, resolve server-side import abuse/quota enforcement. Current frontend gating and local counters cannot protect the extraction endpoint; backend work is explicitly deferred for now.
+- [ ] Privacy page: say that voice capture uses Apple speech recognition, on the phone when its model is present and otherwise over Apple's network, and that Semli receives the transcript as text, never audio (`docs/voice-capture.md`).
 - [ ] Review App Store screenshots/copy, accessibility, photo permissions, privacy disclosures for extraction/analytics/crash services, version/build numbers, release environment, production API URL and white native splash in an actual build.
 - [ ] Keep a short support playbook: purchase not active → Restore; notifications missing → permission + test reminder; schedule wrong → review/edit/Undo; data recovery → available export. Write down the release rollback/update steps while they are fresh.
 
