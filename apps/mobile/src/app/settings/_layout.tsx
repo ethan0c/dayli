@@ -32,6 +32,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="plan" options={{ title: 'Semli Plus', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' }, contentStyle: { backgroundColor: palettes.dark.canvas }, headerTintColor: palettes.dark.inkPrimary, headerTitleStyle: { fontFamily: mobileFonts.medium, color: palettes.dark.inkPrimary, fontSize: 16 } }} />
       <Stack.Screen name="canvas" options={{ title: 'Canvas' }} />
       <Stack.Screen name="data" options={{ title: 'Your data' }} />
+      <Stack.Screen name="can-do" options={{ title: 'What Semli can do' }} />
       <Stack.Screen name="server" options={{ title: 'Semli server' }} />
     </Stack>
   );

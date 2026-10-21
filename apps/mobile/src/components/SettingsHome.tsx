@@ -13,6 +13,7 @@ import { accountOf, useSession } from '@/lib/supabase';
 import { feedback } from '@/lib/feedback';
 import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
 import { profileFor } from '@/lib/majors';
+import { useCanDo } from '@/lib/can-do';
 import { useNow } from '@/lib/now';
 import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
 import { PRO_ENTITLEMENT, customerCenterEnabled } from '@/lib/revenuecat';
@@ -34,6 +35,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const usage = useStore((s) => s.usage);
   const month = new Date().toISOString().slice(0, 7);
   const used = usage.month === month ? usage.imports : 0;
+  const canDo = useCanDo();
   const [linkNote, setLinkNote] = useState<string | null>(null);
   const [openedAt] = useState(() => Date.now());
   const open = async (url: string, fallback: string) => {
@@ -83,7 +85,8 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         </Group>
 
         <Group title="Your stuff" footer={linkNote ?? undefined}>
-          <Row label="Your data" value="On this phone" onPress={() => router.push('/settings/data')} />
+          <Row label="What Semli can do" value={`${canDo.filter((t) => t.done).length} of ${canDo.length} tried`} onPress={() => router.push('/settings/can-do')} />
+          <Row label="Your data" value={email !== null ? 'Backed up' : 'On this phone'} onPress={() => router.push('/settings/data')} />
           <Row label="Help and feedback" value={SUPPORT_EMAIL} onPress={() => void open(LINKS.support, 'Email us at ' + SUPPORT_EMAIL + '.')} />
           <Row label="Rate Semli" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} last={!__DEV__} />
           {__DEV__ ? <Row label="Semli server" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last /> : null}
