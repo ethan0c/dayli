@@ -75,7 +75,7 @@ textarea {
   margin: 0 auto;
   padding-left: max(64px, env(safe-area-inset-left, 0px));
   padding-right: max(64px, env(safe-area-inset-right, 0px));
-  /* The header floats; pages start below it. The home hero pulls up under it. */
+  /* The header is fixed; pages start below it. */
   --nav-clear: 112px;
   padding-block: var(--nav-clear) 40px;
   display: flex;
@@ -89,26 +89,29 @@ textarea {
   flex: 1;
 }
 
- /* Header: one small glass pill floating over the page, centered, hugging its contents. */
+/* Header: a paper bar across the top, its contents on the page's own edges. No shadow; a hairline
+   only once content scrolls under it, the same as the app's headers. */
 .topbar {
   position: fixed;
-  top: 14px;
+  top: 0;
   inset-inline: 0;
   z-index: 20;
-  width: fit-content;
-  margin-inline: auto;
-  display: flex;
-  align-items: center;
-  gap: 36px;
-  padding: 8px 8px 8px 24px;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--canvas) 80%, transparent);
-  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 8px 24px rgba(0, 0, 0, 0.06);
+  --nav-h: 64px;
+  background: color-mix(in srgb, var(--canvas) 92%, transparent);
+  border-bottom: 1px solid transparent;
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
+}
+.topbar-in {
+  max-width: 1280px;
+  height: var(--nav-h);
+  margin: 0 auto;
+  padding-left: max(64px, env(safe-area-inset-left, 0px));
+  padding-right: max(64px, env(safe-area-inset-right, 0px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
 }
 .wm-link {
   text-decoration: none;
@@ -126,8 +129,10 @@ textarea {
   font-size: var(--type-body-size);
   line-height: 40px;
   font-weight: var(--type-headline-weight);
+  white-space: nowrap;
 }
-.nav > a:not(.btn):hover {
+.nav > a:not(.btn):hover,
+.nav > a[aria-current='page'] {
   color: var(--ink);
 }
 .nav .btn {
@@ -1136,13 +1141,15 @@ textarea {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1000px) {
-  .wrap {
+  .wrap,
+  .topbar-in {
     padding-left: max(32px, env(safe-area-inset-left, 0px));
     padding-right: max(32px, env(safe-area-inset-right, 0px));
   }
 }
 @media (max-width: 820px) {
-  .wrap {
+  .wrap,
+  .topbar-in {
     padding-left: max(20px, env(safe-area-inset-left, 0px));
     padding-right: max(20px, env(safe-area-inset-right, 0px));
   }
@@ -1168,12 +1175,10 @@ textarea {
     grid-column: 1 / -1;
   }
   .topbar {
-    top: 10px;
-    gap: 20px;
-    padding-left: 18px;
+    --nav-h: 56px;
   }
   .nav {
-    gap: 18px;
+    gap: 20px;
   }
   .section-title,
   .faq h2,
@@ -1192,17 +1197,33 @@ textarea {
   .cmp tbody th {
     width: 44%;
   }
-  .nav > a:not(.btn):nth-child(2) {
+  /* The hero's own "Try it" button is right there; the bar keeps Pricing and the one action. */
+  .nav-try {
     display: none;
   }
-  .topbar {
+  .nav {
     gap: 16px;
-    padding-left: 16px;
+  }
+  .nav .btn {
+    margin-left: 0;
+    padding: 0 16px;
   }
   .try-tools .textlink {
     margin-right: 8px;
   }
   .try-tools .btn {
+    padding: 0 14px;
+  }
+}
+@media (max-width: 360px) {
+  .topbar-in {
+    gap: 12px;
+  }
+  .wm-link svg {
+    width: 64px;
+    height: auto;
+  }
+  .nav .btn {
     padding: 0 14px;
   }
 }
@@ -1286,24 +1307,20 @@ textarea {
   }
 }
 
-/* The header settles as the page scrolls under it: a touch more opaque, a touch more shadow.
+/* The header's hairline fades in as the page scrolls under it.
    Scroll-driven, so there is no scroll listener; browsers without it keep the resting look. */
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {
     .topbar {
       animation: nav-settle linear both;
       animation-timeline: scroll(root);
-      animation-range: 0 160px;
+      animation-range: 0 48px;
     }
   }
 }
 @keyframes nav-settle {
   to {
-    background: color-mix(in srgb, var(--canvas) 94%, transparent);
-    border-color: var(--line);
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.05),
-      0 12px 32px rgba(0, 0, 0, 0.1);
+    border-bottom-color: var(--line);
   }
 }
 

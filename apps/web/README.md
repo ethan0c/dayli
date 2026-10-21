@@ -55,4 +55,4 @@ npm run typecheck --workspace web
 npm test
 ```
 
-Run build and standalone typecheck sequentially: Next.js regenerates `.next` route types during builds. The [website notes](../../docs/website.md) record copy and design decisions; the [launch checklist](../../docs/launch-checklist.md) tracks production readiness.
+Run build and standalone typecheck sequentially: Next.js regenerates `.next` route types during builds. The [launch checklist](../../docs/launch-checklist.md) tracks production readiness.

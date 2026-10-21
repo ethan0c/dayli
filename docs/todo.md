@@ -28,8 +28,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 ### Reviews, support and learning what works
 
-- Existing: You → Rate Semli opens the App Store review URL; native in-app review requests are not implemented.
-- [ ] Add an optional native review request after repeated useful moments (for example, several confirmed imports across multiple days), with a persisted cooldown and availability check. Do not interrupt the purchase celebration or ask on every launch. Keep Rate Semli as the explicit fallback.
+- Existing: You → Rate Semli opens the App Store review URL, and `lib/store-review.ts` asks with the system prompt after the second confirmed import on a second day, at most every 120 days, never right after a Plus gate.
 - [ ] Verify the App Store ID, support inbox and legal URLs in a release build. Send a real support email to yourself and check the reply path.
 - [ ] Review analytics for paywall shown → purchase/cancel → welcome/tour completion, import confirmed and reminder permission. Add missing events with coarse properties; never include schedule titles, file contents or student details.
 - [ ] Configure release crash reporting and source maps; test one controlled error in a non-production build. Check offline, extraction timeout, malformed PDF, permission denied and store unavailable states.
@@ -38,8 +37,8 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 - [ ] Verify clean install → onboarding → real import → review → Today, and existing install → update with local data preserved. Test free users and Plus users, Undo, export and .ics import on a real device.
 - [ ] Make local-only storage clear: no account, cloud backup or cross-device recovery exists. Test export before destructive actions and document what deleting the app loses.
-- Accounts run on Supabase (docs/supabase.md): email and Google (no Apple), emailed codes (6 to 8 digits) for confirm and reset, log out, delete, and plan backup/restore. They switch on when the Supabase keys are set; until then the welcome is one "Get started". Schedule sharing stays hidden (`SHARING_ENABLED`). Do not list live sharing as a shipped benefit.
-- [ ] Before a public paid launch, resolve server-side import abuse/quota enforcement. Current frontend gating and local counters cannot protect the extraction endpoint; backend work is explicitly deferred for now.
+- Accounts run on Supabase (`lib/auth-client.ts`, `supabase/migrations`): email, Google and Apple, emailed codes (6 to 8 digits) for confirm and reset, log out, delete, and plan backup/restore. They switch on when the Supabase keys are set; until then the welcome is one "Get started". Schedule sharing stays hidden (`SHARING_ENABLED`). Do not list live sharing as a shipped benefit.
+- Server-side import quota is built: `import_usage` and `claim_import` in `supabase/migrations/20261020000000_import_quota.sql`, Plus checked against RevenueCat in `apps/web/lib/import-access.ts`. Deploying it is in `launch-checklist.md`.
 - [ ] Privacy page: say that voice capture uses Apple speech recognition, on the phone when its model is present and otherwise over Apple's network, and that Semli receives the transcript as text, never audio (`docs/voice-capture.md`).
 - [ ] Review App Store screenshots/copy, accessibility, photo permissions, privacy disclosures for extraction/analytics/crash services, version/build numbers, release environment, production API URL and white native splash in an actual build.
 - [ ] Keep a short support playbook: purchase not active → Restore; notifications missing → permission + test reminder; schedule wrong → review/edit/Undo; data recovery → available export. Write down the release rollback/update steps while they are fresh.
@@ -85,7 +84,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 - Plan pill on You and price rows on Plus are skeletons while the store answers. The Moment photo fades in on load.
 
 **Site**
-- Review and layout in `docs/website.md`; the desktop board is row 13 on the canvas. Rebuild in progress: DM Sans, real iPhone frames, the try-it box second, the review look for results, survey proof, prices in the open.
+- The desktop board is row 13 on the canvas. Real iPhone frames, the try-it box second, the review look for results, survey proof, prices in the open.
 
 ## Outstanding
 
@@ -93,19 +92,17 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 - Schedule sharing direction: a named, private read-only link that friends or parents can open in a browser without installing Semli. Show a useful message preview (owner and date range); allow hiding titles or sharing school/work only, and let the owner revoke access. A live view should show when it last updated. Image/PDF export can be a fallback; links are not implemented yet.
 - Streaming "Found so far" while reading (Capture board).
 - Keeping the real screenshot for the import screen (it shows the sample image).
-- iCloud backup, the share extension.
+- The share extension. (Backup and restore shipped with accounts, `lib/cloud.ts`.)
 
 **Auth frontend and sharing**
 - `/auth` is the new-install welcome using the original Onest wordmark and welcome copy, with Continue with Google, Sign up with email, Log in and Continue as a guest. Guest continues to the role question in `/onboarding`; existing onboarded planners still open their tabs normally. You → Log in or sign up opens the same flow.
 - Built `/auth/login`, `/auth/signup` and `/auth/forgot-password`: email/password fields, optional signup name, password visibility, autofill hints, field validation, keyboard Next/Go/Send, legal links and navigation between flows. Each pushed screen uses a glass back chevron; the auth cover opened from the app has a glass X.
-- Removed the account preview banners, fake verification code and simulated signed-in state. `/account` shows honest guest account settings with login/signup links, an inactive logout row and an account-deletion entry that requires login. No local planner data or purchase access changes through these screens.
-- Backend/auth/database setup remains deferred by request. `lib/auth.ts` is the unconfigured adapter boundary: all identity actions reject with a clear unavailable message. It never manufactures a session, sends a reset email, reports account deletion, stores passwords or emits credential analytics. Connect the chosen identity provider here before shipping functional auth.
-- [ ] Connect Google OAuth (provider client IDs, app redirect scheme, callback/cancellation handling), email signup/login, email verification, reset email + token/password-change screen, secure session storage/refresh, logout, authenticated account deletion and RevenueCat identity migration. Persist onboarding separately from auth so signing out never deletes the guest plan. Review platform sign-in requirements before release.
+- Accounts are wired through `lib/auth-client.ts` on Supabase: email with emailed codes for confirm and reset (`/auth/verify`, `/auth/reset-password`), Google, Apple, log out, authenticated deletion, `Purchases.logIn`/`logOut` for RevenueCat identity, and plan backup/restore (`lib/cloud.ts`). `lib/auth.ts` keeps the unavailable fallback for builds without Supabase keys. Signing out keeps the guest plan.
+- [ ] On a device: each provider, cancellation, a reset code, deletion (including Apple token revocation), and a restore on a second phone.
 - Built `/share-schedule`: day/week selection, category filters, title redaction, a message preview with Open preview, and a read-only schedule. Entry from the glass share button in Plan or You → Account → Share your schedule. Create share link remains unavailable until a backend exists; there are no public URLs yet.
 - Sharing rendering uses an explicit field allowlist. Notes, source files, employer metadata, account data, private IDs and completed entries are excluded. The title switch substitutes Busy/To-do before the viewer receives data. Cloud backup, permanent links, recipient access/revocation and cross-device sync remain future work.
 
 **UI still to do**
-- Mic on the composer (speech).
 - Scrubbing the day bar to change the countdown.
 - "Block time to study" on an empty Plan day (needs its own board).
 - Course row tint dot in the native header (Sheet takes a string title).

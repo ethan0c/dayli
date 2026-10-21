@@ -1,6 +1,6 @@
 # Voice capture: say it, watch it land
 
-Status: Phases 1 and 2 built Oct 21, 2026 (`apps/mobile/src/lib/voice.ts`, `components/Heard.tsx`, `packages/core/src/cues.ts`); device verification pending. Builds on the Add screen (`apps/mobile/src/components/AddScreen.tsx`, `Composer.tsx`, `Reading.tsx`) and the extraction endpoint (`apps/web/app/api/extract/route.ts`). Nothing here is built yet.
+Status: Phases 1 and 2 built Oct 21, 2026 (`apps/mobile/src/lib/voice.ts`, `components/Heard.tsx`, `packages/core/src/cues.ts`); device verification pending. Builds on the Add screen (`apps/mobile/src/components/AddScreen.tsx`, `Composer.tsx`, `Reading.tsx`) and the extraction endpoint (`apps/web/app/api/extract/route.ts`).
 
 ## 1. What it is, in one line
 

@@ -102,7 +102,7 @@ Raw capture name, caption on the image (sentence case, Geist Medium 136px), and 
 | 8 | `add` | Type it or screenshot it | Semli reads work schedules, syllabi, and messages from class. |
 | 9 | `item` | Every detail one tap away | Time, course, reminder, and the overlap, with a way out. Optional; Apple allows ten. |
 
-The captions live in `design/render-screenshots.py` (`SHOTS`). Listing text: [app-store-listing.md](app-store-listing.md) and [app-store-connect.md](app-store-connect.md). An earlier six-image set in `design/screenshots/out/` (from `design/screenshots/compose.py`, 92px Light captions, whole phone visible) is superseded by this one.
+The captions live in `design/render-screenshots.py` (`SHOTS`). Listing text: [app-store-connect.md](app-store-connect.md). An earlier six-image set in `design/screenshots/out/` (from `design/screenshots/compose.py`, 92px Light captions, whole phone visible) is superseded by this one.
 
 ### 2.3 How to produce them
 1. On the booted **iPhone 17 Pro Max** simulator with the dev client and Metro running, write the dev files into the app's Documents folder (`C=$(xcrun simctl get_app_container booted app.semli.mobile data)`): `dev-clock.txt` holds `09:41`, or `2026-10-19 09:41` to also fix the day (Monday has the overlap, the due reading and the lecture); `dev-command.txt` holds `sample`, `hours`, `list`, `review`, `review-update`, `item`, `plus` or `moment`. Then relaunch: `xcrun simctl terminate booted app.semli.mobile; xcrun simctl openurl booted "semli://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"` and wait 16–20 s.
@@ -193,4 +193,4 @@ Beta on $500 instead: [marketing-500.md](marketing-500.md).
 Apple Developer $99; Apple Search Ads ~$600; creator seeding ~$1,000; ambassador rewards ~$300; Vercel/PostHog/Sentry/RevenueCat free tiers. Roughly **$2,000** to find out whether 50 students pay and what an install costs.
 
 ### 4.5 Numbers to watch every Monday
-Installs by source → first import rate → paywall shown → trial started → trial converted → week-4 retention. Targets from [mvp.md](mvp.md): ≥20% trial-to-paid in the beta, ≥40% W4 retention. If installs are fine but first imports are low, the problem is onboarding; if imports are high but trials are low, the paywall; if trials are high but conversion is low, the product's second week.
+Installs by source → first import rate → paywall shown → trial started → trial converted → week-4 retention. Targets from the beta plan: ≥20% trial-to-paid in the beta, ≥40% W4 retention. If installs are fine but first imports are low, the problem is onboarding; if imports are high but trials are low, the paywall; if trials are high but conversion is low, the product's second week.

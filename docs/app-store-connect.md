@@ -260,4 +260,4 @@ Agreements: the **Paid Applications** agreement must be signed (Business → Agr
 - [ ] A reminder fired on a real phone; a Canvas feed synced on a real phone.
 - [ ] `APP_STORE_LIVE = true` in `apps/web/lib/site.ts` once approved, so the site's "Get the app" links to the store.
 
-**Sign in with Apple (Oct 20).** Native Apple sign-in is implemented alongside Google on welcome, login and signup. Before submission, enable the App ID capability and Supabase Apple provider (`app.semli.mobile`), build a new binary, and verify a real-device sign-in with Hide My Email. Setup and the remaining account-deletion revocation check are in [supabase.md](supabase.md#sign-in-with-apple-oct-20-2026).
+**Sign in with Apple (Oct 20).** Native Apple sign-in is implemented alongside Google on welcome, login and signup. Before submission, enable the App ID capability and Supabase Apple provider (`app.semli.mobile`), build a new binary, and verify a real-device sign-in with Hide My Email. The remaining account-deletion revocation check is in [todo.md](todo.md) and the [launch checklist](launch-checklist.md).
