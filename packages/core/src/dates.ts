@@ -105,3 +105,28 @@ export function relativeDay(today: string, date: string): string {
   if (n === -1) return 'Yesterday';
   return n > 0 ? `In ${n} days` : `${-n} days ago`;
 }
+
+export type Term = 'fall' | 'spring' | 'summer';
+
+/** The Friday on or before the given day of a month, as a local date. */
+function fridayOnOrBefore(year: number, month: number, day: number): string {
+  let d = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  while (weekdayOf(d) !== 'fri') d = addDays(d, -1);
+  return d;
+}
+
+/**
+ * Where a repeating class most likely ends when the syllabus does not say: the end of the term
+ * it starts in. US semesters: fall classes end the second week of December, spring the second
+ * week of May, summer the first week of August. A class has to run at least four weeks, so one
+ * starting late November belongs to spring, not to a December that is two weeks away.
+ */
+export function typicalTermEnd(start: string): { date: string; term: Term } {
+  const year = Number(start.slice(0, 4));
+  const earliest = addDays(start, 28);
+  const candidates: { date: string; term: Term }[] = [];
+  for (const y of [year, year + 1]) {
+    candidates.push({ date: fridayOnOrBefore(y, 5, 14), term: 'spring' }, { date: fridayOnOrBefore(y, 8, 7), term: 'summer' }, { date: fridayOnOrBefore(y, 12, 14), term: 'fall' });
+  }
+  return candidates.sort((a, b) => a.date.localeCompare(b.date)).find((c) => c.date >= earliest)!;
+}

@@ -13,8 +13,7 @@ import {
   relativeDay,
   toDrafts,
   weekOf,
-  weekdayOf,
-} from '../src';
+  weekdayOf,, typicalTermEnd } from '../src';
 
 function item(p: Partial<Item> & Pick<Item, 'id' | 'date'>): Item {
   return {
@@ -182,5 +181,17 @@ describe('drafts and commit planning', () => {
     const plan = planCommit(ex, toDrafts(ex, '2026-10-19'), existing, () => null);
     expect(plan.create).toEqual([]);
     expect(plan.skipped).toBe(1);
+  });
+});
+
+describe('typical term end', () => {
+  it('ends a fall class in mid-December, spring in mid-May, summer in early August', () => {
+    expect(typicalTermEnd('2026-08-24')).toEqual({ date: '2026-12-11', term: 'fall' });
+    expect(typicalTermEnd('2027-01-19')).toEqual({ date: '2027-05-14', term: 'spring' });
+    expect(typicalTermEnd('2027-06-01')).toEqual({ date: '2027-08-06', term: 'summer' });
+  });
+  it('gives a class that starts late in a term the next one', () => {
+    expect(typicalTermEnd('2026-11-20')).toEqual({ date: '2027-05-14', term: 'spring' });
+    expect(typicalTermEnd('2026-12-20')).toEqual({ date: '2027-05-14', term: 'spring' });
   });
 });
