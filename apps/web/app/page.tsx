@@ -9,6 +9,7 @@ import campus from '@/public/photos/campus.jpg';
 import heroAutumn from '@/public/photos/hero-autumn.jpg';
 import table from '@/public/photos/table.jpg';
 import { faqJsonLd, pageMetadata } from '@/lib/seo';
+import { GET_APP_QR } from '@/lib/qr';
 import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
 import { TryIt } from './TryIt';
 import { Waitlist } from './Waitlist';
@@ -72,7 +73,7 @@ export default function Home() {
         <Shot name="today" width={372} priority className={styles.heroShot} label="Today: 1 hour 19 minutes until Psych lecture, a full day on one bar, then seven things on the list" />
       </section>
 
-      <TryIt />
+      <TryIt qr={GET_APP_QR} />
 
       <section className={styles.proof} aria-label="What students told us">
         <p className={styles.bandEyebrow} data-reveal>What students told us</p>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { TryIt } from '@/app/TryIt';
+import { GET_APP_QR } from '@/lib/qr';
 import { breadcrumbJsonLd, faqJsonLd, type Faq } from '@/lib/seo';
 
 export interface Step {
@@ -58,7 +59,7 @@ export function LandingPage({
         {detail}
       </section>
 
-      <TryIt />
+      <TryIt qr={GET_APP_QR} />
 
       <section className="faq" aria-label="Questions">
         <h2>Questions</h2>

@@ -5,6 +5,8 @@ import { ExtractResponse, IMPORT_MESSAGES, friendlyImportError, importErrorForSt
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Pill, Roll, Row, TermLine, WeekChart } from '@/components/Mock';
 import { feedback } from '@/lib/feedback';
+import type { Qr } from '@/lib/qr';
+import { GetAppDialog } from './GetAppDialog';
 import { summarize, type Summary } from './review';
 
 const SAMPLE = 'I work Friday 4-10 and Saturday 11-5 at the campus café, have a stats exam Thursday at 9, and need to return a library book Wednesday.';
@@ -40,6 +42,27 @@ function exampleExtraction(today: string): Extraction {
 
 const noop = () => () => {};
 
+/**
+ * Each preview spends model tokens, so the site gives a browser two before it points to the app.
+ * The server's per-IP daily limit is the real cap; this one is cleared with the browser's storage.
+ */
+const PREVIEWS = 2;
+const PREVIEWS_KEY = 'semli.previews';
+
+function previewsUsed(): number {
+  try {
+    return Number(localStorage.getItem(PREVIEWS_KEY)) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+function countPreview() {
+  try {
+    localStorage.setItem(PREVIEWS_KEY, String(previewsUsed() + 1));
+  } catch {}
+}
+
 async function fileToBase64(file: globalThis.File): Promise<string> {
   const buf = await file.arrayBuffer();
   let s = '';
@@ -52,7 +75,7 @@ async function fileToBase64(file: globalThis.File): Promise<string> {
  * The try-it box: the app's composer on the left, the app's review on the right
  * (the big number, the week or the term as a chart, rows only for what needs input).
  */
-export function TryIt() {
+export function TryIt({ qr }: { qr: Qr }) {
   const [text, setText] = useState('');
   const [file, setFile] = useState<globalThis.File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -61,6 +84,7 @@ export function TryIt() {
   const [typing, setTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Summary | null>(null);
+  const [capped, setCapped] = useState(false);
   const typer = useRef<ReturnType<typeof setInterval> | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   // The example result depends on today's date, so it renders only on the client (the page is prerendered).
@@ -136,6 +160,11 @@ export function TryIt() {
     } else {
       return fail('Type something or add a file first.');
     }
+    if (previewsUsed() >= PREVIEWS) {
+      feedback('ready');
+      setCapped(true);
+      return;
+    }
 
     feedback('tap');
     setPhase(0);
@@ -161,10 +190,16 @@ export function TryIt() {
         console.info('[web.import.response_schema]', { code: 'invalid_response', status: res.status });
         return fail(importErrorForStatus(res.status));
       }
+      if (!parsed.data.ok && parsed.data.error === IMPORT_MESSAGES.demoLimit) {
+        feedback('ready');
+        setCapped(true);
+        return;
+      }
       if (!parsed.data.ok) {
         console.info('[web.import.response]', { code: 'import_rejected', status: res.status });
         return fail(friendlyImportError(parsed.data.error, res.status));
       }
+      countPreview();
       const drafts = toDrafts(parsed.data.extraction, today);
       feedback(drafts.length > 0 ? 'success' : 'ready');
       setResult(summarize(parsed.data.extraction, drafts));
@@ -289,6 +324,7 @@ export function TryIt() {
         )}
       </div>
       </div>
+      <GetAppDialog open={capped} onClose={() => setCapped(false)} qr={qr} />
     </section>
   );
 }

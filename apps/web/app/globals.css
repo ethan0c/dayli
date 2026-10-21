@@ -461,6 +461,151 @@ textarea {
 .try-chart + .try-rows {
   margin-top: 20px;
 }
+
+/* ---------- Get the app: the try-it box's cap ---------- */
+.getapp {
+  width: 760px;
+  max-width: calc(100vw - 32px);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sheet);
+  background: var(--canvas);
+  color: var(--ink);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  animation: rise var(--dur-slow) var(--ease) both;
+}
+.getapp[open] {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+.getapp::backdrop {
+  background: var(--scrim);
+  animation: fade var(--dur-base) var(--ease) both;
+}
+.getapp-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--canvas);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.getapp-close svg {
+  width: 16px;
+  height: 16px;
+}
+.getapp-copy {
+  padding: 48px;
+}
+/* The App Store's header: icon, name, one line under it. */
+.getapp-app {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.getapp-icon {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: 13px;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.getapp-name {
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 500;
+}
+.getapp-sub {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ink-2);
+}
+.getapp-kicker {
+  margin: 40px 0 0;
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--ink-2);
+}
+.getapp-title {
+  margin: 6px 0 0;
+  font-size: 34px;
+  line-height: 40px;
+  font-weight: 400;
+  letter-spacing: -0.8px;
+}
+.getapp-word {
+  color: var(--accent-ink);
+}
+.getapp-text {
+  margin: 14px 0 0;
+  max-width: 34ch;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--ink-2);
+}
+.getapp-btn {
+  margin-top: 32px;
+}
+/* Lavender paper behind the code, edge to edge. */
+.getapp-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px 44px;
+  background: var(--accent-soft);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+/* The code stays dark on light in both themes: phone cameras read it best that way. */
+.getapp-code {
+  border-radius: 24px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(40, 24, 90, 0.12);
+}
+.getapp-code svg {
+  display: block;
+  width: 224px;
+  height: 224px;
+}
+.qr-ink {
+  color: #222320;
+}
+.qr-accent {
+  color: #7057bd;
+}
+/* On a phone the link is the way in; a code to scan with the same phone is no help. */
+@media (hover: none) and (pointer: coarse), (max-width: 720px) {
+  .getapp[open] {
+    grid-template-columns: 1fr;
+  }
+  .getapp-qr {
+    display: none;
+  }
+  .getapp-copy {
+    padding: 40px 28px 28px;
+  }
+  .getapp-close {
+    background: var(--row);
+  }
+  .getapp-title {
+    font-size: 30px;
+    line-height: 36px;
+  }
+  .getapp-btn {
+    width: 100%;
+  }
+}
 .try-rows {
   margin-top: 12px;
 }
