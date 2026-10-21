@@ -7,7 +7,7 @@ import { PlanCards } from './PlanCards';
 export const metadata: Metadata = pageMetadata({
   path: '/pricing',
   title: 'Pricing',
-  description: `Semli is free with ${FREE_IMPORTS_PER_MONTH} AI imports a month. Semli Plus is unlimited imports for students at ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} every six months (the semester plan), or ${money(plan('yearly').student)} a year.`,
+  description: `Semli is free with ${FREE_IMPORTS_PER_MONTH} AI imports a month. Semli Plus is unlimited imports for students at ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} every six months, or ${money(plan('yearly').student)} a year.`,
   ownCard: true,
 });
 
@@ -40,8 +40,8 @@ const FAQS = [
     a: `Choose student pricing if you’re in college; no student ID or school email is needed. Student plans cost ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} every six months, or ${money(plan('yearly').student)} a year. Turn off the student switch to see regular prices.`,
   },
   {
-    q: 'Why a semester plan?',
-    a: `The semester plan covers six months, including the break, for ${money(plan('semester').student)} at the student price. The yearly student plan is ${money(plan('yearly').student)}, equivalent to ${money(plan('yearly').student / 12)} a month.`,
+    q: 'Why a 6-month plan?',
+    a: `Six months is a semester plus the break, for ${money(plan('semester').student)} at the student price. The yearly student plan is ${money(plan('yearly').student)}, equivalent to ${money(plan('yearly').student / 12)} a month.`,
   },
   {
     q: 'Is there a trial?',

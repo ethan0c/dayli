@@ -35,7 +35,7 @@ export interface Plan {
 }
 export const PLUS_PLANS: readonly Plan[] = [
   { id: 'monthly', name: 'Monthly', months: 1, student: 4.99, regular: 7.99, billed: 'monthly' },
-  { id: 'semester', name: 'Semester', months: 6, student: 14.99, regular: 24.99, billed: 'every 6 months', tag: 'Most popular' },
+  { id: 'semester', name: '6 months', months: 6, student: 14.99, regular: 24.99, billed: 'every 6 months', tag: 'Most popular' },
   { id: 'yearly', name: 'Yearly', months: 12, student: 29.99, regular: 49.99, billed: 'yearly', tag: 'Best value' },
 ];
 export const plan = (id: PlanId) => PLUS_PLANS.find((p) => p.id === id)!;
