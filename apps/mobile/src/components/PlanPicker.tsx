@@ -86,7 +86,11 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
         track('purchase_completed', { term: current.key, student, trial: !!days });
         const ends = info.entitlements.active[PRO_ENTITLEMENT]?.expirationDate;
         if (days && ends) setSettings({ trial: { endsAt: ends, label: `${selected.product.priceString} ${current.billed}` } });
-      } else setNotice('Your purchase finished, but Plus is not active yet. Try Restore, or email hello@semli.app.');
+      } else {
+        // Apple sold it; RevenueCat did not map it. Say which, so a screenshot is enough to fix the dashboard.
+        const seen = info.activeSubscriptions.length ? `The store lists ${info.activeSubscriptions.join(', ')} but not Semli Plus.` : 'The store lists no subscription for this app user.';
+        setNotice(`Your purchase finished, but Plus is not active yet. ${seen} Try Restore, check Plan status in You, or email hello@semli.app.`);
+      }
     } catch {
       // The provider exposes actionable failures in `error`.
     } finally {
