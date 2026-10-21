@@ -10,7 +10,8 @@ import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
 import { DateField } from '@/components/Native';
 import { Sheet } from '@/components/Sheet';
-import { TermLine, type TermMark } from '@/components/TermLine';
+import { ChartKey } from '@/components/ChartMark';
+import { TermLine, termKey, type TermMark } from '@/components/TermLine';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
@@ -197,6 +198,7 @@ export default function CourseScreen() {
             <View accessible accessibilityRole="image" accessibilityLabel={`This term from ${longMonthDay(from)} to ${longMonthDay(to)}: ${deadlines.map((it) => `${it.title} ${monthDay(it.date)}${it.done ? ' done' : ''}`).join(', ') || 'no deadlines'}.`}>
               <TermLine from={from} to={to} marks={marks} today={now.date} scale="months" />
             </View>
+            <ChartKey entries={termKey(marks, c)} style={{ paddingTop: 12 }} />
           </View>
         ) : null}
 

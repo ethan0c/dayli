@@ -82,10 +82,10 @@ export function DayBar({ segments, now, labels = true, style }: { segments: Segm
       </div>
       {labels ? (
         <div className={m.barLabels}>
-          <span>6 am</span>
-          <span>noon</span>
-          <span>6 pm</span>
-          <span>midnight</span>
+          <span style={{ left: 0 }}>6 am</span>
+          <span className={m.barLabelMid} style={{ left: `${100 / 3}%` }}>noon</span>
+          <span className={m.barLabelMid} style={{ left: `${200 / 3}%` }}>6 pm</span>
+          <span style={{ right: 0 }}>midnight</span>
         </div>
       ) : null}
     </div>

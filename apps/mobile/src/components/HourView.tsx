@@ -25,16 +25,20 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
   const y = (t: string) => ((toMinutes(t) - fromHour * 60) / 60) * PX_PER_HOUR;
   const nowMin = toMinutes(now.time);
   const nowY = ((nowMin - fromHour * 60) / 60) * PX_PER_HOUR;
+  const showNow = nowMin >= fromHour * 60 && nowMin <= 24 * 60;
   const label = (h: number) => !dateLocale().hour12 ? formatHour(h) : (h === 12 ? 'Noon' : h === 0 || h === 24 ? '12' : h === fromHour || h === 8 ? `${h % 12 || 12} ${h < 12 ? 'am' : 'pm'}` : h > 12 ? `${h - 12}` : `${h}`);
 
   return (
     <View style={{ height, position: 'relative' }}>
       {Array.from({ length: Math.floor(hours / 2) + 1 }, (_, i) => fromHour + i * 2).map((h) => (
         <View key={h} style={[styles.hour, { top: (h - fromHour) * PX_PER_HOUR }]}>
-          <T token="caption" color={c.inkSecondary} tabular style={styles.hourLabel}>{label(h)}</T>
+          {/* The now time takes the gutter near it; the hour it would cover steps aside. */}
+          <T token="caption" color={c.inkSecondary} tabular style={[styles.hourLabel, showNow && Math.abs((h - fromHour) * PX_PER_HOUR - nowY) < 14 ? { opacity: 0 } : null]}>{label(h)}</T>
           <View style={[styles.rule, { backgroundColor: c.line }]} />
         </View>
       ))}
+      {/* Under the blocks, so the line never strikes through an event's title. */}
+      {showNow ? <View style={[styles.nowLine, { top: nowY - chart.now / 2, backgroundColor: c.inkPrimary }]} /> : null}
       <View style={[StyleSheet.absoluteFill, { left: 48 }]} pointerEvents="box-none">
       {timed.map((it) => {
         const top = y(it.start!);
@@ -63,9 +67,8 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
         );
       })}
       </View>
-      {nowMin >= fromHour * 60 && nowMin <= 24 * 60 ? (
+      {showNow ? (
         <>
-          <View style={[styles.nowLine, { top: nowY - chart.now / 2, backgroundColor: c.inkPrimary }]} />
           <View style={[styles.nowDot, { top: nowY - chart.nowDot / 2, backgroundColor: c.inkPrimary }]} />
           <T token="caption" color={c.inkPrimary} tabular style={[styles.nowLabel, { top: nowY - 7 }]}>{formatTime(now.time).replace(/ [ap]m$/, '')}</T>
         </>

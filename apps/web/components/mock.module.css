@@ -204,12 +204,22 @@
   margin-left: -0.75px;
   background: var(--ink);
 }
+/* Each label sits on its hour: the ends align to the bar's ends, noon and 6 pm centre on theirs. */
 .barLabels {
-  display: flex;
-  justify-content: space-between;
+  position: relative;
+  height: 12px;
   font-size: 9px;
+  line-height: 12px;
   color: var(--ink-2);
   margin-top: 6px;
+}
+.barLabels span {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+.barLabelMid {
+  transform: translateX(-50%);
 }
 
 /* The week as seven vertical bars */

@@ -8,7 +8,8 @@ import { CategoryDot, GroupLabel, ListRow, SectionTitle, StatusPill, itemStatus 
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
-import { TermLine, type TermMark } from '@/components/TermLine';
+import { ChartKey } from '@/components/ChartMark';
+import { TermLine, termKey, type TermMark } from '@/components/TermLine';
 import { useNow } from '@/lib/now';
 import { useCourseList, useItemList, type StoredCourse } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
@@ -55,6 +56,9 @@ export default function SchoolScreen() {
   const deadlines = useMemo(() => items.filter((i) => i.courseId && courseIds.has(i.courseId) && i.isDeadline && !i.done && i.date >= now.date), [items, courseIds, now.date]);
   const next = deadlines[0];
   const inMap = deadlines.filter((i) => diffDays(now.date, i.date) < MAP_DAYS);
+  const marksFor = (courseId: string): TermMark[] => inMap.filter((i) => i.courseId === courseId).map((i) => ({
+    id: i.id, date: i.date, kind: EXAM.test(i.title) ? 'ring' : 'dot', tone: i.date === now.date ? 'red' : 'ink',
+  }));
   const mapEnd = addDays(now.date, MAP_DAYS - 1);
   const labels = weekLabels(now.date);
 
@@ -114,9 +118,7 @@ export default function SchoolScreen() {
             </View>
           </View>
           {courses.map((course) => {
-            const marks: TermMark[] = inMap.filter((i) => i.courseId === course.id).map((i) => ({
-              id: i.id, date: i.date, kind: EXAM.test(i.title) ? 'ring' : 'dot', tone: i.date === now.date ? 'red' : 'ink',
-            }));
+            const marks = marksFor(course.id);
             return (
               <View key={course.id} style={[styles.mapRow, { height: 28 }]}>
                 <View style={styles.mapLabel}>
@@ -129,7 +131,7 @@ export default function SchoolScreen() {
               </View>
             );
           })}
-          <T token="caption" color={c.inkSecondary} style={{ paddingLeft: 66 }}>Dots are due dates, rings are exams, orange is due today.</T>
+          <ChartKey entries={termKey(courses.flatMap((k) => marksFor(k.id)), c)} style={{ paddingLeft: 66, paddingTop: 4 }} />
         </View>
       </View>
 

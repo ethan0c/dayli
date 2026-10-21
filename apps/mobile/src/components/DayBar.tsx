@@ -10,6 +10,7 @@ import { useTheme } from '@/theme';
 const START = 6 * 60;
 const END = 24 * 60;
 const SPAN = END - START;
+const AXIS = (['6 am', 'Noon', '6 pm', 'Midnight'] as const).map((l, i) => [l, (i * 6 * 60 / SPAN) * 100] as const);
 
 /**
  * The day as a bar, 6 am to midnight: green for what is done, ink for what is booked,
@@ -56,8 +57,10 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
       </View>
       {labels ? (
         <View style={styles.labels}>
-          {['6 am', 'Noon', '6 pm', 'Midnight'].map((l) => (
-            <T key={l} token="caption" color={c.inkSecondary} tabular style={{ fontSize: 11, lineHeight: 14 }}>{l}</T>
+          {/* Each label sits on its hour: the ends align to the bar's ends, Noon and 6 pm centre on theirs. */}
+          {AXIS.map(([l, p]) => (
+            <T key={l} token="caption" color={c.inkSecondary} tabular
+              style={[styles.label, p === 0 ? { left: 0 } : p === 100 ? { right: 0 } : { left: `${p}%`, width: 60, marginLeft: -30, textAlign: 'center' }]}>{l}</T>
           ))}
         </View>
       ) : null}
@@ -69,5 +72,6 @@ const styles = StyleSheet.create({
   wrap: { gap: 8 },
   track: { height: chart.track, borderRadius: chart.track / 2, position: 'relative' },
   block: { position: 'absolute', top: 0, height: chart.track, borderRadius: chart.track / 2 },
-  labels: { flexDirection: 'row', justifyContent: 'space-between' },
+  labels: { position: 'relative', height: 14 },
+  label: { position: 'absolute', fontSize: 11, lineHeight: 14 },
 });

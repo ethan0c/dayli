@@ -3,7 +3,7 @@ import { chart } from '@dayli/tokens';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Mark, NowLine } from '@/components/ChartMark';
+import { keyOf, Mark, NowLine, type KeyEntry } from '@/components/ChartMark';
 import { T } from '@/components/Text';
 import { useTheme } from '@/theme';
 
@@ -43,7 +43,10 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
       {scale === 'months' ? (
         <View style={styles.scale}>
           {monthSpans(from, to).map((m) => (
-            <T key={m.key} token="caption" color={c.inkSecondary} style={[styles.scaleLabel, { width: `${m.pct}%` }]}>{m.label}</T>
+            // A month with too few days on the line to hold its name keeps its space but not its label.
+            <T key={m.key} token="caption" color={c.inkSecondary} numberOfLines={1} style={[styles.scaleLabel, { width: `${m.pct}%` }]}>
+              {width && (m.pct / 100) * (width - INSET * 2) < MONTH ? '' : m.label}
+            </T>
           ))}
         </View>
       ) : scale === 'weeks' && weekLabels ? (
@@ -51,7 +54,7 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
           {weekLabels.map((l) => <T key={l} token="caption" color={c.inkSecondary} tabular style={[styles.scaleLabel, { flex: 1 }]}>{l}</T>)}
         </View>
       ) : null}
-      <View style={[styles.track, { backgroundColor: c.row }]} accessible accessibilityRole="image" accessibilityLabel={`${marks.length} dates between ${from} and ${to}`}>
+      <View style={[styles.track, { backgroundColor: c.row }]} accessible accessibilityRole="image" accessibilityLabel={describe(marks, from, to)}>
         <View style={styles.plot} pointerEvents="none">
           {showToday ? <NowLine at={{ x: pct(today!) }} color={c.inkPrimary} /> : null}
           {ordered.map((m) => <Mark key={m.id} at={{ x: pct(m.date) }} kind={m.kind} color={tones[m.tone ?? 'ink']} />)}
@@ -74,6 +77,25 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
 const INSET = chart.ring / 2;
 /** The slot a label under the line is centred in. */
 const LABEL = 72;
+/** The least width a month name needs above the line. */
+const MONTH = 26;
+
+function describe(marks: TermMark[], from: string, to: string): string {
+  const exams = marks.filter((m) => m.kind === 'ring').length;
+  const due = marks.length - exams;
+  const parts = [exams ? `${exams} ${exams === 1 ? 'exam' : 'exams'}` : '', due ? `${due} ${due === 1 ? 'due date' : 'due dates'}` : ''].filter(Boolean);
+  return `${parts.join(' and ') || 'Nothing'} between ${from} and ${to}`;
+}
+
+/** The key for a term line: only the marks it shows, in the order a reader meets them. */
+export function termKey(marks: TermMark[], c: { chartBooked: string; conflict: string; added: string }): KeyEntry[] {
+  return keyOf([
+    marks.some((m) => m.kind === 'dot' && (m.tone ?? 'ink') === 'ink') && { glyph: 'dot', color: c.chartBooked, label: 'Due' },
+    marks.some((m) => m.kind === 'ring' && (m.tone ?? 'ink') === 'ink') && { glyph: 'ring', color: c.chartBooked, label: 'Exam' },
+    marks.some((m) => m.tone === 'red') && { glyph: marks.find((m) => m.tone === 'red')!.kind, color: c.conflict, label: 'Due today' },
+    marks.some((m) => m.tone === 'green') && { glyph: 'dot', color: c.added, label: 'Done' },
+  ]);
+}
 
 function rank(m: TermMark): number {
   return (m.kind === 'ring' ? 2 : 0) + (m.tone === 'red' ? 1 : 0);

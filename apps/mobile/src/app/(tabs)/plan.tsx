@@ -13,6 +13,7 @@ import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
+import { ChartKey, keyOf } from '@/components/ChartMark';
 import { WeekChart, type WeekDay } from '@/components/WeekChart';
 import { SHARING_ENABLED } from '@/lib/auth';
 import { feedback } from '@/lib/feedback';
@@ -69,7 +70,7 @@ export default function PlanScreen() {
     setLastStart(weekStart);
   }
 
-  // The legend under the chart shows until the person has moved by week once.
+  // The swipe hint under the chart shows until the person has moved by week once; the key stays.
   const legendSeen = useStore((s) => s.settings.firsts.week);
   const moveWeek = useCallback((step: 1 | -1) => {
     setSelected(addDays(selected, step * 7));
@@ -194,7 +195,14 @@ export default function PlanScreen() {
         </Animated.View>
         <View style={styles.legend}>
           <T token="callout" color={c.inkSecondary} tabular>{`${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}</T>
-          {legendSeen ? null : <T token="caption" color={c.inkSecondary}>Green is done, orange is an overlap, a ring is an exam. Swipe for next week.</T>}
+          <ChartKey entries={keyOf([
+            days.some((d) => d.blocks.some((b) => b.tone === 'green')) && { glyph: 'block', color: c.added, label: 'Done' },
+            days.some((d) => d.blocks.some((b) => b.tone === 'red')) && { glyph: 'block', color: c.conflict, label: 'Overlap' },
+            days.some((d) => d.marks?.some((m) => m.tone !== 'red')) && { glyph: 'ring', color: c.chartBooked, label: 'Deadline' },
+            days.some((d) => d.marks?.some((m) => m.tone === 'red')) && { glyph: 'ring', color: c.conflict, label: 'Due today' },
+            days.some((d) => d.unknown) && { glyph: 'outline', color: c.changed, label: 'Needs a time' },
+          ])} />
+          {legendSeen ? null : <T token="caption" color={c.inkSecondary}>Swipe for next week.</T>}
         </View>
 
         <Animated.View layout={layout} style={styles.section}>
@@ -247,7 +255,7 @@ export default function PlanScreen() {
 
 const styles = StyleSheet.create({
   chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
-  legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, gap: 4 },
+  legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, gap: 8 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 24, paddingTop: 4 },
   shift: { borderBottomWidth: StyleSheet.hairlineWidth },

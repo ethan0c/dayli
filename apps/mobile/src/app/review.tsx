@@ -15,7 +15,8 @@ import { DateField, TimeField } from '@/components/Native';
 import { Press } from '@/components/Press';
 import { ReviewDisclosure, ReviewGlyph, ReviewPickerSlot, ReviewPill, ReviewPillRow, ReviewRow } from '@/components/ReviewRow';
 import { Button, Sheet } from '@/components/Sheet';
-import { TermLine, type TermMark } from '@/components/TermLine';
+import { ChartKey, keyOf } from '@/components/ChartMark';
+import { TermLine, termKey, type TermMark } from '@/components/TermLine';
 import { T } from '@/components/Text';
 import { WeekChart, compactRange, type WeekBlock, type WeekDay } from '@/components/WeekChart';
 import { track } from '@/lib/analytics';
@@ -363,7 +364,7 @@ export default function ReviewScreen() {
     if (unknown) { label = 'time'; labelTone = 'amber'; }
     return { date, blocks, unknown, label: label ?? 'off', labelTone };
   };
-  const chartCaption = isUpdate ? 'Green is new, orange outline is dropped, dashed is where a shift was.' : 'Each bar is 6 am to midnight. Tap a day to change it.';
+  const chartCaption = 'Each bar is 6 am to midnight. Tap a day to change it.';
 
   const marks: TermMark[] = nonSeries.map((d) => {
     const exam = exams.includes(d);
@@ -520,12 +521,21 @@ export default function ReviewScreen() {
             {weeks.map((week) => (
               <WeekChart key={week[0]} days={week.map(dayFor)} today={today} onSelect={(date) => toggleEditing(shifts.filter((d) => d.date === date).map((d) => d.key))} />
             ))}
+            {isUpdate ? (
+              <ChartKey entries={keyOf([
+                shifts.some((d) => addedKeys.has(d.key)) && { glyph: 'block', color: c.added, label: 'New' },
+                removed.some((r) => !r.kept) && { glyph: 'outline', color: c.conflict, label: 'Dropped' },
+                shifts.some((d) => changedByKey.has(d.key)) && { glyph: 'dashed', color: c.controlOutline, label: 'Was here' },
+                shifts.some((d) => !d.start || !d.end) && { glyph: 'outline', color: c.changed, label: 'Needs a time' },
+              ])} />
+            ) : null}
             <T token="caption" color={c.inkSecondary}>{chartCaption}</T>
           </View>
         ) : null}
         {!isSchedule && firstDate && lastDate && included.length >= 2 ? (
           <View style={styles.chart}>
             <TermLine from={firstDate} to={lastDate} marks={marks} today={today} scale="months" />
+            <ChartKey entries={termKey(marks, c)} />
           </View>
         ) : null}
 
