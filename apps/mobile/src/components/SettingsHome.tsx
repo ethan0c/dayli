@@ -78,6 +78,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 
         <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
           <Row label="Your plan" icon="sparkle" value={isPro ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
+          <Row label="Plan status" icon="search" value={isPro ? 'Active' : customerInfo?.activeSubscriptions.length ? 'Needs a look' : 'Free'} onPress={() => router.push('/settings/plan-status')} />
           <Row label="Manage subscription" icon="calendar" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
             if (customerCenterEnabled || customerInfo?.managementURL) void manageSubscription().catch(() => router.push('/settings/plan'));
             else router.push('/settings/plan');
