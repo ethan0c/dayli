@@ -8,7 +8,7 @@ import Animated from 'react-native-reanimated';
 import { CategoryDot, IconButton, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { ItemRow } from '@/components/ItemRow';
 import { TimeField } from '@/components/Native';
-import { PlanCalendarControl, PlanMonthCalendar } from '@/components/PlanCalendar';
+import { PlanMonthCalendar, PlanMonthTitle, TodayPill } from '@/components/PlanCalendar';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
@@ -69,15 +69,23 @@ export default function PlanScreen() {
     setLastStart(weekStart);
   }
 
+  // The legend under the chart shows until the person has moved by week once.
+  const legendSeen = useStore((s) => s.settings.firsts.week);
+  const moveWeek = useCallback((step: 1 | -1) => {
+    setSelected(addDays(selected, step * 7));
+    const { settings, setSettings } = useStore.getState();
+    if (!settings.firsts.week) setSettings({ firsts: { ...settings.firsts, week: true } });
+  }, [selected, setSelected]);
+
   // Swipe the chart for the previous or next week, the way the week strip did.
   const swipe = useMemo(() => PanResponder.create({
     onMoveShouldSetPanResponder: (_, { dx, dy }) => Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy) * 1.5,
     onPanResponderRelease: (_, { dx }) => {
       if (Math.abs(dx) < 45) return;
       feedback('select');
-      setSelected(addDays(selected, dx < 0 ? 7 : -7));
+      moveWeek(dx < 0 ? 1 : -1);
     },
-  }), [selected, setSelected]);
+  }), [moveWeek]);
 
   const weekItems = useMemo(() => items.filter((i) => i.date >= weekStart && i.date <= weekEnd), [items, weekStart, weekEnd]);
   const weekConflicts = useMemo(() => conflictIds(items.filter((i) => i.date >= addDays(weekStart, -1) && i.date <= weekEnd)), [items, weekStart, weekEnd]);
@@ -123,17 +131,16 @@ export default function PlanScreen() {
     .sort((a, b) => b.date.localeCompare(a.date))[0];
 
   const openCapture = () => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } });
+  const thisWeek = weekOf(now.date)[0] === weekStart;
   const header = (
-    <TabHeader date={selected} label="" title="Plan"
-      trailing={SHARING_ENABLED ? <IconButton icon="share" label="Preview schedule sharing" tone="glass" onPress={() => router.push({ pathname: '/share-schedule', params: { date: selected } })} /> : undefined}
-      context={<PlanCalendarControl selected={selected} expanded={calendarOpen} onToggle={() => setCalendarOpen((open) => !open)}
-        onPreviousWeek={() => setSelected(addDays(selected, -7))} onNextWeek={() => setSelected(addDays(selected, 7))} />}
-      details={<>
-        {calendarOpen ? <PlanMonthCalendar selected={selected} today={now.date} onSelect={setSelected} /> : null}
-        <T token="callout" color={c.inkSecondary} tabular={!starting}>
-          {starting ? 'Add one thing and Plan fills in. Everything is checked with you first.' : `${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}
-        </T>
-      </>} />
+    <TabHeader
+      value={<PlanMonthTitle selected={selected} today={now.date} expanded={calendarOpen} onToggle={() => setCalendarOpen((open) => !open)} />}
+      trailing={!thisWeek
+        ? <Animated.View entering={enter.fade} exiting={exit.fade}><TodayPill onPress={() => setSelected(now.date)} /></Animated.View>
+        : SHARING_ENABLED ? <IconButton icon="share" label="Preview schedule sharing" tone="glass" onPress={() => router.push({ pathname: '/share-schedule', params: { date: selected } })} /> : undefined}
+      details={calendarOpen ? <PlanMonthCalendar selected={selected} today={now.date} onSelect={setSelected} /> : starting
+        ? <T token="callout" color={c.inkSecondary}>Add one thing and Plan fills in. Everything is checked with you first.</T>
+        : undefined} />
   );
 
   if (starting) return (
@@ -183,9 +190,12 @@ export default function PlanScreen() {
         {header}
         <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined}
           style={styles.chart} {...swipe.panHandlers}>
-          <WeekChart days={days} selected={selected} today={now.date} onSelect={(date) => { if (date !== selected) feedback('select'); setSelected(date); }} />
+          <WeekChart days={days} selected={selected} today={now.date} onWeek={moveWeek} onSelect={(date) => { if (date !== selected) feedback('select'); setSelected(date); }} />
         </Animated.View>
-        <T token="caption" color={c.inkSecondary} style={styles.legend}>Green is done, orange is an overlap, a ring is an exam. Swipe for next week.</T>
+        <View style={styles.legend}>
+          <T token="callout" color={c.inkSecondary} tabular>{`${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}</T>
+          {legendSeen ? null : <T token="caption" color={c.inkSecondary}>Green is done, orange is an overlap, a ring is an exam. Swipe for next week.</T>}
+        </View>
 
         <Animated.View layout={layout} style={styles.section}>
           <SectionTitle title={isToday ? 'Today' : weekdayLong(selected)}
@@ -237,7 +247,7 @@ export default function PlanScreen() {
 
 const styles = StyleSheet.create({
   chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
-  legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8 },
+  legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, gap: 4 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 24, paddingTop: 4 },
   shift: { borderBottomWidth: StyleSheet.hairlineWidth },

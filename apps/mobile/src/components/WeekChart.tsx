@@ -47,17 +47,19 @@ export type WeekDay = {
  * The week as seven vertical day bars, 6 am to midnight. The same timeline as DayBar,
  * stood up. Used as the Plan header and in the schedule review.
  */
-export function WeekChart({ days, selected, today, onSelect, height = 120, accessibilityLabel }: {
-  days: WeekDay[]; selected?: string; today: string; onSelect?: (date: string) => void; height?: number; accessibilityLabel?: string;
+export function WeekChart({ days, selected, today, onSelect, onWeek, height = 120, accessibilityLabel }: {
+  days: WeekDay[]; selected?: string; today: string; onSelect?: (date: string) => void;
+  /** VoiceOver's way to the next or previous week, where touch swipes. */
+  onWeek?: (step: 1 | -1) => void; height?: number; accessibilityLabel?: string;
 }) {
   return (
     <View style={styles.row} accessible={!onSelect} accessibilityRole={onSelect ? undefined : 'image'} accessibilityLabel={accessibilityLabel}>
-      {days.map((day) => <DayColumn key={day.date} day={day} selected={day.date === selected} today={day.date === today} height={height} onSelect={onSelect} />)}
+      {days.map((day) => <DayColumn key={day.date} day={day} selected={day.date === selected} today={day.date === today} height={height} onSelect={onSelect} onWeek={onWeek} />)}
     </View>
   );
 }
 
-function DayColumn({ day, selected, today, height, onSelect }: { day: WeekDay; selected: boolean; today: boolean; height: number; onSelect?: (date: string) => void }) {
+function DayColumn({ day, selected, today, height, onSelect, onWeek }: { day: WeekDay; selected: boolean; today: boolean; height: number; onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void }) {
   const { c } = useTheme();
   const tones = { ink: c.chartBooked, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
   const labelColor = day.labelTone ? tones[day.labelTone] : c.inkSecondary;
@@ -103,6 +105,8 @@ function DayColumn({ day, selected, today, height, onSelect }: { day: WeekDay; s
   return (
     <Pressable onPress={() => onSelect(day.date)} accessibilityRole="button" accessibilityState={{ selected }}
       accessibilityLabel={`${weekdayShort(day.date)}, ${monthDay(day.date)}${today ? ', today' : ''}, ${day.blocks.length} ${day.blocks.length === 1 ? 'block' : 'blocks'}`}
+      accessibilityActions={onWeek ? [{ name: 'next', label: 'Next week' }, { name: 'previous', label: 'Previous week' }] : undefined}
+      onAccessibilityAction={onWeek ? (e) => onWeek(e.nativeEvent.actionName === 'next' ? 1 : -1) : undefined}
       style={({ pressed }) => [styles.col, { opacity: pressed ? 0.7 : 1 }]}>
       {column}
     </Pressable>

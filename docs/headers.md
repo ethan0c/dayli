@@ -1,6 +1,6 @@
 # Main-tab headers: number first, one line above
 
-Status: plan, Oct 21, 2026. Nothing here is built. Replaces the `TabHeader` rules in `design-system.md` (Layout, the two bullets on main tabs and Plan) once it ships. Decided with the founder the same day: number first on Today and School, the month as Plan's title, title only on You and Add.
+Status: built Oct 21, 2026 (not yet on a device beyond the simulator). The `TabHeader` rules in `design-system.md` now follow this doc. Decided with the founder the same day: number first on Today and School, the month as Plan's title, title only on You and Add.
 
 ## What is wrong now
 
@@ -94,7 +94,7 @@ Tuesday                    9 things
 - **No date line.** The chart's selected day already says which day, and the day section below names it ("Today", "Tuesday").
 - **No arrows.** The chart already swipes by week. A **Today** pill (subhead, fully round) appears top right only when the selected week is not this week, and jumps back. When `SHARING_ENABLED`, the share button sits in the same slot when the Today pill is not showing.
 - **VoiceOver:** the week chart gets `accessibilityActions` increment / decrement ("Next week", "Previous week"), so removing the arrows removes no capability.
-- **The totals move under the chart** ("31 things · 30 work hours", callout, tabular), replacing the legend line. The legend ("Green is done, orange is an overlap, a ring is an exam") becomes a first, shown once (`firsts.week`), and lives in the chart's accessibility hint after that.
+- **The totals move under the chart** ("31 things · 30 work hours", callout, tabular), replacing the legend line. The legend ("Green is done, orange is an overlap, a ring is an exam") stays under the totals until the person first moves by week, swipe or VoiceOver action (`firsts.week`), then goes.
 - **The month grid** still opens below the title, now directly above the chart instead of below a 56pt word.
 - **First run:** the same title row; `TodayStart` content follows with the chart hidden, as now.
 
