@@ -2,7 +2,7 @@
 
 Geist Light, Regular, Medium and SemiBold (OFL), fetched from Google Fonts on Oct 19, 2026. Names match `packages/tokens` fontFamily.
 
-Newsreader Regular (`Newsreader-Regular.ttf`, the 16pt optical-size static cut, OFL; license in `Newsreader-OFL.txt`), fetched from https://github.com/productiontype/Newsreader on Oct 20, 2026. It is the marketing voice, used only through the `displaySerif` token on the paywall tagline, the Plus welcome, the auth welcome and the two onboarding showcases. The website loads the same family from Google Fonts. The 16pt cut was chosen over the 72pt cut because its hairlines hold up at 34px on a phone.
+EB Garamond Regular (`EBGaramond-Regular.ttf`, OFL; license in `EBGaramond-OFL.txt`), a static 400 instance cut with fontTools from the Google Fonts variable file (https://github.com/google/fonts/tree/main/ofl/ebgaramond) on Oct 21, 2026. It is the marketing voice, used only through the `displaySerif` token on the paywall tagline, the Plus welcome, the auth welcome and the two onboarding showcases. The website loads the same family from Google Fonts at the same weight. It replaced Newsreader Regular.
 
 # Gilroy preview
 

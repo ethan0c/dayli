@@ -41,7 +41,7 @@ FRAME_MASK = ROOT / "apps" / "web" / "public" / "phones" / "iphone-screen-mask.p
 PHOTOS = ROOT / "apps" / "web" / "public" / "photos"
 GEIST_VAR = ROOT / "design" / "fonts" / "Geist[wght].ttf"  # variable, for the Bold the app does not ship
 TRACKING = -0.025  # headline letter spacing, as a share of the size; display type reads better tight
-SERIF = ROOT / "design" / "fonts" / "Newsreader[opsz,wght].ttf"  # variable; the app ships only the Regular cut
+SERIF = ROOT / "design" / "fonts" / "EBGaramond[wght].ttf"  # variable; the app ships only the Regular cut
 MIN_CONTRAST = 3.5  # above WCAG AA for large text (3:1); the captions are 156px semibold
 
 W, H = 1320, 2868
@@ -80,7 +80,7 @@ class Layout:
     title_size: int = 140
     title_lead: int = 148  # 1.06 x size, so two lines read as one block
     title_weight: str = "Bold"  # captions are always bold and large, in Geist (founder, Oct 20, 2026)
-    serif: bool = False  # Newsreader was tried Oct 20, 2026 and rejected; kept as an option only
+    serif: bool = False  # the serif (then Newsreader) was tried Oct 20, 2026 and rejected; kept as an option only
     sub_size: int = 64
     sub_lead: int = 78
     sub_weight: str = "Medium"
@@ -159,9 +159,9 @@ def draw_tracked(draw: ImageDraw.ImageDraw, x: float, y: float, text: str, f: Im
 
 
 def serif(size: int, weight: int = 600) -> ImageFont.FreeTypeFont:
-    """Newsreader at display optical size; SemiBold by default so it holds up on photos."""
+    """EB Garamond; SemiBold by default so it holds up on photos."""
     f = ImageFont.truetype(str(SERIF), size)
-    f.set_variation_by_axes([weight, 72])  # axes: Weight, Optical Size
+    f.set_variation_by_axes([weight])  # axes: Weight
     return f
 
 

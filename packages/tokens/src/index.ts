@@ -143,7 +143,7 @@ export const radius = { chip: 999, row: 14, card: 16, sheet: 28, pill: 999 } as 
 /**
  * Geist, one face, four weights (apps/mobile/assets/fonts, OFL). Regular carries
  * large headings, numbers, section titles and text, Medium pills and primary labels,
- * and SemiBold emphasis. Newsreader Regular (the 16pt optical cut, OFL) is the marketing
+ * and SemiBold emphasis. EB Garamond Regular (OFL) is the marketing
  * voice: only `displaySerif`, on the few lines that speak to the student (the paywall
  * tagline, the Plus welcome, the auth welcome, the onboarding showcases, the site hero).
  * Never on numbers, rows, forms or the big number. The outlined wordmark uses Onest.
@@ -153,7 +153,7 @@ export const fontFamily = {
   regular: 'Geist-Regular',
   medium: 'Geist-Medium',
   semibold: 'Geist-SemiBold',
-  serif: 'Newsreader-Regular',
+  serif: 'EBGaramond-Regular',
 } as const;
 
 /** Every large heading uses normal (Geist Regular, 400), regardless of its size. */

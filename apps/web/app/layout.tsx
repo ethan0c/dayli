@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Newsreader } from 'next/font/google';
+import { EB_Garamond, Geist } from 'next/font/google';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { HOME_TITLE, pageMetadata } from '@/lib/seo';
@@ -10,7 +10,7 @@ import './globals.css';
 /** Geist everywhere, the same as the app (CLAUDE.md). */
 const sans = Geist({ subsets: ['latin'], weight: ['300', '400', '500', '600'], variable: '--font-sans', display: 'swap' });
 /** The marketing face: a serif for the few headlines that speak for the brand (site hero and closing; paywall and welcome in the app). */
-const serif = Newsreader({ subsets: ['latin'], weight: 'variable', style: ['normal', 'italic'], axes: ['opsz'], variable: '--font-serif', display: 'swap' });
+const serif = EB_Garamond({ subsets: ['latin'], weight: 'variable', style: ['normal', 'italic'], variable: '--font-serif', display: 'swap' });
 
 export const metadata: Metadata = {
   ...pageMetadata({ path: '/' }),

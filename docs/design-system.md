@@ -9,7 +9,7 @@ Robinhood's 2024 identity is the reference: neutrals first, one accent used spar
 - One big number per screen (Regular, 56px). Everything under it is one step smaller than iOS defaults. Contrast reads as premium, size does not.
 - Color only when it means something: terracotta is behind or in conflict, green is ahead, amber is "Semli needs something from you".
 - Pills act, rectangles hold. Every action is fully round; rows, cards, fields and composers keep corners.
-- Planner screens use plain rows, with no decorative cards or icon tiles. Photography belongs on moment days and showcase pages; the Plus welcome and guide can use small accent icon badges.
+- Planner screens use plain rows, with no decorative cards or icon tiles. Photography belongs on moment days, showcase pages and Today's sky (a time-of-day sky fading into the paper behind Today's header only; decided Oct 21, 2026, spec in `headers.md`); the Plus welcome and guide can use small accent icon badges.
 - Marketing surfaces (the site, the paywall, the App Store screenshots, the header and search card, the emails) may be more playful than planner screens: a site photo under a scrim, soft lavender paper, one accent word per headline, always bold and large enough to read over the background. The in-app rules above still hold on Today, Plan, School and every row. Decided Oct 20, 2026.
 - The website in light mode uses white paper (#FFFFFF) and neutral grey panels (#F4F4F5) instead of the app's cream, and its hero is solid brand purple (lavender 600) with white copy, so the purple reads rich rather than faded. Site only; the app keeps its paper. Decided Oct 21, 2026 (`apps/web/app/tokens.ts`).
 
@@ -29,13 +29,13 @@ Meaning: filled terracotta pill for due today / overdue; terracotta text on a gr
 ## Type
 Geist carries product text: normal / Regular 400 for all large headings, the one big number, section titles and text; Medium 500 for pills and the primary label; and SemiBold 600 for emphasis. All display tokens share `largeHeadingWeight` in the tokens package; large headings use these tokens rather than local font-family or bold overrides. Onboarding follows this same normal-weight rule. The separate outlined wordmark uses Onest SemiBold. Tabular numerals wherever a number can change. Sentence case always.
 
-Newsreader Regular is the marketing voice, decided Oct 20, 2026. It appears only through `displaySerif` (34 / 40) on lines that speak to the student: the paywall tagline, the Plus welcome, the auth welcome and the two dark onboarding showcases. On the site it is the `.serif` class on the hero, pricing and closing headlines. It was tried on the App Store captions on Oct 20, 2026 and rejected; store captions are Geist Bold, tracked 2.5% tight, with one lavender accent word (`design/render-screenshots.py`). It never carries a number, a row, a form heading, a question step or a section title; if every heading were serif, none would be special.
+EB Garamond Regular is the marketing voice: the serif was decided Oct 20, 2026 (Newsreader), and switched to EB Garamond Regular on Oct 21, 2026. It appears only through `displaySerif` (34 / 40) on lines that speak to the student: the paywall tagline, the Plus welcome, the auth welcome and the two dark onboarding showcases. On the site it is the `.serif` class on the hero, pricing and closing headlines. It was tried on the App Store captions on Oct 20, 2026 and rejected; store captions are Geist Bold, tracked 2.5% tight, with one lavender accent word (`design/render-screenshots.py`). It never carries a number, a row, a form heading, a question step or a section title; if every heading were serif, none would be special.
 
 | Token | Size / line | Weight | Use |
 |---|---|---|---|
 | displayXl | 56 / 60 | 400 | The one big number (countdown, price, moment) |
 | display | 34 / 40 | 400 | Screen heading on covers |
-| displaySerif | 34 / 40 | Newsreader 400 | Paywall tagline, Plus welcome, auth welcome, onboarding showcases |
+| displaySerif | 34 / 40 | EB Garamond 400 | Paywall tagline, Plus welcome, auth welcome, onboarding showcases |
 | displaySm | 30 / 36 | 400 | Onboarding questions and editable item titles |
 | title | 24 / 30 | 400 | Section titles with a chevron |
 | headline | 16 / 22 | 500 | Button labels |
