@@ -50,12 +50,12 @@ export function FirstOverlap({ overlap, today }: { overlap: MovableOverlap; toda
   const { flexible, other } = overlap;
   const time = flexible.start && flexible.end ? ` (${formatRange(flexible.start, flexible.end)})` : '';
   return (
-    <FirstNote kind="overlap" label="Your first overlap"
+    <FirstNote kind="overlap" label="Overlapping events"
       body={`${flexible.title} overlaps ${other.title} ${when(flexible.date, today)}${time}.`}
       detail={isPlus
-        ? `Semli marks overlaps red as plans come in, and keeps the one that can’t move. Open this one for a free time for ${flexible.title}; ${other.title} stays where it is.`
-        : `Semli marks overlaps red as plans come in, and keeps the one that can’t move. With Plus, it finds a free time for ${flexible.title} and moves it in one tap; ${other.title} stays where it is.`}
-      action="See it" onAction={() => router.push(`/item/${flexible.id}`)} />
+        ? `Review a suggested time for ${flexible.title}. ${other.title} will stay at its current time.`
+        : `With Plus, review a suggested time for ${flexible.title}. ${other.title} will stay at its current time.`}
+      action="Review overlap" onAction={() => router.push(`/item/${flexible.id}`)} />
   );
 }
 
@@ -66,9 +66,9 @@ export function FirstUrgent({ item, today }: { item: Item; today: string }) {
     <FirstNote kind="urgent" label="Due soon"
       body={`${item.title} is due ${when(item.date, today)}.`}
       detail={isPlus
-        ? 'Standard reminders are on their way. For the ones you can’t miss, open it and switch on Urgent: it rings like an alarm, even on silent.'
-        : 'Standard reminders are free and on their way. With Plus, an urgent item rings like an alarm, even on silent. Open it and switch on Urgent.'}
-      action="Open it" onAction={() => router.push(`/item/${item.id}`)} />
+        ? 'To set an alarm, open this item, add a time and turn on Urgent. Alarm permission is required.'
+        : 'Plus includes alarms for urgent items. Open this item to see the options. Standard reminders are free.'}
+      action="Open item" onAction={() => router.push(`/item/${item.id}`)} />
   );
 }
 
@@ -76,8 +76,8 @@ export function FirstUrgent({ item, today }: { item: Item; today: string }) {
 export function FirstCanvas() {
   return (
     <FirstNote kind="canvas" label="Canvas"
-      body="Your assignments live in Canvas."
-      detail="Connect it once and due dates come in on their own, and move when a professor changes them. It takes the calendar link from Canvas, not your password."
+      body="Add your Canvas due dates."
+      detail="Connect with your Canvas calendar link. The first import is free; automatic updates require Plus."
       action="Connect Canvas" onAction={() => router.push('/settings/canvas')} dismiss="Not now" />
   );
 }
@@ -86,10 +86,10 @@ export function FirstCanvas() {
 export function FirstHours({ timed }: { timed: number }) {
   const setSettings = useStore((s) => s.setSettings);
   return (
-    <FirstNote kind="hours" label="A full day"
-      body={`${timed} things with times today.`}
-      detail="The button at the top shows the day by the hour instead, where gaps and overlaps are easier to see. Switch back any time."
-      action="Show the hours" onAction={() => { setSettings({ todayView: 'hours' }); track('today_view_changed', { view: 'hours', timed, source: 'first' }); profile({ today_view: 'hours', today_view_source: 'first' }); }} />
+    <FirstNote kind="hours" label="Today’s events"
+      body={`${timed} timed events today.`}
+      detail="Switch to the hourly view to see gaps and overlapping events. Use the button at the top to switch back."
+      action="Show hourly view" onAction={() => { setSettings({ todayView: 'hours' }); track('today_view_changed', { view: 'hours', timed, source: 'first' }); profile({ today_view: 'hours', today_view_source: 'first' }); }} />
   );
 }
 

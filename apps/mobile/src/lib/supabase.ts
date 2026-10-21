@@ -21,6 +21,30 @@ export const supabase = URL && KEY
     })
   : null;
 
+let guest: { id: string; token: string } | null = null;
+
+/**
+ * Signing in replaces a guest's anonymous session, whose record would otherwise stay on the
+ * server. Apple counts it as an account, so once a real sign-in lands, delete it with its own
+ * (still valid) token. Best effort: a failure is reported, and the record holds nothing but
+ * the import count.
+ */
+export async function deleteReplacedGuest(accountId: string): Promise<void> {
+  const replaced = guest;
+  if (!replaced || replaced.id === accountId || !URL || !KEY) return;
+  guest = null;
+  try {
+    const res = await fetch(`${URL}/rest/v1/rpc/delete_account`, {
+      method: 'POST',
+      headers: { apikey: KEY, authorization: `Bearer ${replaced.token}`, 'content-type': 'application/json' },
+      body: '{}',
+    });
+    if (!res.ok) throw new Error(`delete_account ${res.status}`);
+  } catch (error) {
+    reportError('auth.delete_replaced_guest', error);
+  }
+}
+
 /** A real account's session; a guest's silent anonymous session (used only for import limits) is not one. */
 export const accountOf = (session: Session | null): Session | null => (session && !session.user.is_anonymous ? session : null);
 
@@ -35,7 +59,10 @@ if (supabase) {
     reportError('auth.restore_session', error);
     useSession.setState({ ready: true });
   });
-  supabase.auth.onAuthStateChange((_event, session) => useSession.setState({ session, ready: true }));
+  supabase.auth.onAuthStateChange((_event, session) => {
+    if (session?.user.is_anonymous) guest = { id: session.user.id, token: session.access_token };
+    useSession.setState({ session, ready: true });
+  });
   // Refresh tokens only while the app is in the foreground (Supabase's React Native guidance).
   if (Platform.OS !== 'web') {
     AppState.addEventListener('change', (state) => {

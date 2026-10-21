@@ -10,6 +10,7 @@ import { T } from '@/components/Text';
 import { authErrorMessage } from '@/lib/auth';
 import { authClient } from '@/lib/auth-client';
 import { feedback } from '@/lib/feedback';
+import { durations } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { accountOf, useSession } from '@/lib/supabase';
 import { usePurchases } from '@/providers/PurchasesProvider';
@@ -38,10 +39,15 @@ export default function AccountScreen() {
     try {
       await action();
       feedback('success');
-      useStore.getState().showToast(done);
-      // The plan has left this phone: back to the welcome screen.
-      router.dismissAll();
+      // Leave first, clear after. Clearing resets `onboarded`, which removes the tabs and every
+      // signed-in screen (Stack.Protected in app/_layout.tsx); doing that while this sheet is still
+      // open sent dismissAll and replace into a stack that was changing under them.
+      if (router.canDismiss()) router.dismissAll();
       router.replace('/auth');
+      setTimeout(() => {
+        useStore.getState().clearAll('everything');
+        useStore.getState().showToast(done);
+      }, durations.slow);
     } catch (failure) {
       setError(authErrorMessage(failure, operation));
     } finally {
@@ -62,8 +68,8 @@ export default function AccountScreen() {
       <Sheet title="Account settings">
         <ScrollView contentContainerStyle={styles.body}>
           <View style={styles.hero}>
-            <T token="display" accessibilityRole="header">Your plan is only on this iPhone.</T>
-            <T token="body" color={c.inkSecondary}>Back it up with a free account to keep it safe and bring it to a new phone.</T>
+            <T token="display" accessibilityRole="header">Saved on this iPhone</T>
+            <T token="body" color={c.inkSecondary}>Create a free account to back up your plan and access it on a new phone.</T>
           </View>
           <Group>
             <Row label="Back up your plan" onPress={() => router.push('/auth/signup')} />

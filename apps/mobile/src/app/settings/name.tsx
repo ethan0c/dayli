@@ -21,7 +21,7 @@ export default function NameScreen() {
         autoCorrect={false}
         style={[styles.field, textStyle('body', c.inkPrimary), { backgroundColor: c.row }]}
       />
-      <T token="caption" color={c.inkSecondary}>Used for the morning note and nothing else. Leave it empty if you prefer.</T>
+      <T token="caption" color={c.inkSecondary}>Optional. Change or remove your name here.</T>
     </ScrollView>
   );
 }

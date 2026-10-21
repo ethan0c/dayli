@@ -34,19 +34,19 @@ export function useCanDo(): CanDo[] {
     const nextDeadline = items.filter((i) => i.isDeadline && !i.done && i.date >= now.date).sort((a, b) => a.date.localeCompare(b.date))[0];
     const add = (source?: 'image' | 'file') => router.navigate(source ? { pathname: '/add', params: { source, at: String(Date.now()) } } : '/add');
     const list: CanDo[] = [
-      { id: 'text', title: 'Just tell it', sub: 'Type what’s coming up the way you’d text a friend. Semli puts it on the calendar.', done: sources.has('message'), go: () => add() },
-      { id: 'screenshot', title: 'Add a work schedule from a screenshot', sub: 'Shifts, hours and overlaps, read from the picture.', done: schedules.length > 0 || sources.has('screenshot') || sources.has('photo'), go: () => add('image') },
-      { id: 'syllabus', title: 'Drop in a syllabus', sub: 'Every exam and due date, filed under the course.', done: [...sources].some((s) => s.endsWith('.pdf')), go: () => add('file') },
-      { id: 'reimport', title: 'Update a schedule with next week’s', sub: 'Semli compares it with the week you have: changes marked, the rest kept.', done: settings.firsts.reimport, plus: true, go: () => add('image') },
-      { id: 'canvas', title: 'Connect Canvas', sub: 'Due dates come in on their own and move when a professor changes them.', done: !!settings.canvas.feedUrl, go: () => router.push('/settings/canvas') },
-      { id: 'overlap', title: 'Let Semli fix an overlap', sub: 'When two plans clash, it keeps the one that can’t move and finds a time for the other.', done: settings.firsts.overlap, plus: true, go: () => router.push(overlap ? `/item/${overlap.flexible.id}` : '/plan') },
-      { id: 'urgent', title: 'Ring for what can’t be missed', sub: 'An urgent item sounds like an alarm, even on silent.', done: items.some((i) => i.urgent), plus: true, go: () => router.push(nextDeadline ? `/item/${nextDeadline.id}` : '/plan') },
-      { id: 'hours', title: 'See the day by the hour', sub: 'Today as a timeline: gaps, overlaps, and how long until the next thing.', done: settings.todayView === 'hours' || settings.firsts.hours, go: () => { useStore.getState().setSettings({ todayView: 'hours' }); router.navigate('/'); } },
-      { id: 'briefing', title: 'Get a morning briefing', sub: 'A short note each morning with what matters today.', done: settings.reminders.enabled && settings.reminders.briefing, go: () => router.push('/settings/reminders') },
-      { id: 'undo', title: 'Undo any import', sub: 'Every import is one change you can take back, in Your data.', done: batches.some((b) => b.undone), go: () => router.push('/settings/data') },
-      { id: 'calendar', title: 'Send it all to your calendar', sub: 'Every event into Apple or Google Calendar, once.', done: false, go: () => router.push('/settings/data') },
+      { id: 'text', title: 'Add plans by typing', sub: 'Type dates and times, then review the results before saving.', done: sources.has('message'), go: () => add() },
+      { id: 'screenshot', title: 'Add a work schedule from a screenshot', sub: 'Import shifts from a photo or screenshot.', done: schedules.length > 0 || sources.has('screenshot') || sources.has('photo'), go: () => add('image') },
+      { id: 'syllabus', title: 'Import a syllabus', sub: 'Add courses, exams and due dates from a PDF.', done: [...sources].some((s) => s.endsWith('.pdf')), go: () => add('file') },
+      { id: 'reimport', title: 'Update your work schedule', sub: 'Upload a new schedule and review changes to existing shifts.', done: settings.firsts.reimport, plus: true, go: () => add('image') },
+      { id: 'canvas', title: 'Connect Canvas', sub: 'Import due dates for free. Automatic updates require Plus.', done: !!settings.canvas.feedUrl, go: () => router.push('/settings/canvas') },
+      { id: 'overlap', title: 'Find another time for an event', sub: 'Review a suggested time that avoids overlapping events.', done: settings.firsts.overlap, plus: true, go: () => router.push(overlap ? `/item/${overlap.flexible.id}` : '/plan') },
+      { id: 'urgent', title: 'Set an alarm for an urgent item', sub: 'Add a time and allow alarms to receive a ringing alert.', done: items.some((i) => i.urgent), plus: true, go: () => router.push(nextDeadline ? `/item/${nextDeadline.id}` : '/plan') },
+      { id: 'hours', title: 'See the day by the hour', sub: 'Show scheduled events and gaps on a timeline.', done: settings.todayView === 'hours' || settings.firsts.hours, go: () => { useStore.getState().setSettings({ todayView: 'hours' }); router.navigate('/'); } },
+      { id: 'briefing', title: 'Turn on the daily summary', sub: 'Receive a notification with today’s schedule and upcoming deadlines.', done: settings.reminders.enabled && settings.reminders.briefing, go: () => router.push('/settings/reminders') },
+      { id: 'undo', title: 'Undo any import', sub: 'Reverse an import from Recent changes in Your data.', done: batches.some((b) => b.undone), go: () => router.push('/settings/data') },
+      { id: 'calendar', title: 'Export events to your calendar', sub: 'Add events to Apple or Google Calendar from an export file.', done: false, go: () => router.push('/settings/data') },
     ];
-    if (!signedIn) list.push({ id: 'account', title: 'Keep this on every device', sub: 'A free account backs up your plan and brings it to a new phone.', done: false, go: () => router.push('/auth') });
+    if (!signedIn) list.push({ id: 'account', title: 'Back up your plan', sub: 'Create a free account to save your plan for a new phone.', done: false, go: () => router.push('/auth') });
     return list;
   }, [items, schedules, batches, settings, now, signedIn]);
 }

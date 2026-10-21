@@ -18,7 +18,7 @@ describe('planReminders', () => {
     const real = item({ id: 'real', title: 'Real shift', date: '2026-10-20', start: '16:00', end: '22:00', sourceId: 'schedule.jpg' });
     const plan = planReminders([example, real], DEFAULT_REMINDERS, now);
     expect(plan.some((notification) => notification.itemId === 'demo')).toBe(false);
-    expect(plan.find((notification) => notification.kind === 'briefing')?.body).toContain('1 thing today');
+    expect(plan.find((notification) => notification.kind === 'briefing')?.body).toContain('1 item today');
     expect(plan.some((notification) => notification.itemId === 'real')).toBe(true);
   });
 
@@ -75,7 +75,7 @@ describe('planReminders', () => {
     );
     const b = plan.find((p) => p.id === 'brief-2026-10-20')!;
     expect(b.time).toBe('08:00');
-    expect(b.body).toBe('2 things today: Psych lecture 9–10:15 am; 1 to-do. Stats exam Thursday.');
+    expect(b.body).toBe('2 items today: Psych lecture 9–10:15 am; 1 to-do. Stats exam is due Thursday.');
     expect(plan.some((p) => p.id === 'brief-2026-10-25')).toBe(false);
   });
 

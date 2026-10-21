@@ -1,7 +1,7 @@
-import { addDays, conflictIds, countdownLine, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, type CountdownState } from '@dayli/core';
+import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, type CountdownState } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,6 +27,8 @@ import { momentFor } from '@/lib/moments';
 import { durations, enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
+import { ACCOUNTS_ENABLED } from '@/lib/auth';
+import { accountOf, useSession } from '@/lib/supabase';
 import { SAMPLE_SOURCE } from '@/store/sample';
 import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
 
@@ -51,6 +53,12 @@ export default function TodayScreen() {
   const removeItem = useStore((s) => s.removeItem);
   const todayView = useStore((s) => s.settings.todayView);
   const setSettings = useStore((s) => s.setSettings);
+  // The onboarding sample, while it's here, and the guest's one-time offer to back up a real plan.
+  const sampleBatchId = useStore((s) => s.settings.sampleBatchId);
+  const undoBatch = useStore((s) => s.undoBatch);
+  const signedIn = useSession((s) => !!accountOf(s.session));
+  const offerSave = useStore((s) => ACCOUNTS_ENABLED && s.settings.onboarded && !s.settings.savePlanDismissed)
+    && !signedIn && items.some((i) => i.batchId !== sampleBatchId);
   const planTasks = useStore((s) => s.planTasks);
   const unplanTask = useStore((s) => s.unplanTask);
   const dismissSuggestion = useStore((s) => s.dismissSuggestion);
@@ -141,6 +149,7 @@ export default function TodayScreen() {
 
   // The number first, then the sentence that finishes it.
   const line = featured && state ? countdownLine(featured, state) : featured?.title ?? null;
+  const parts = featured && state ? countdownParts(featured, state) : featured ? { text: featured.title, time: null } : null;
   const hours = todayView === 'hours';
   const viewToggle = (
     <Animated.View key={hours ? 'list' : 'chart'} entering={enter.fade} exiting={exit.fade}>
@@ -191,8 +200,10 @@ export default function TodayScreen() {
         onPress={featured ? () => router.push(`/item/${featured.id}`) : undefined}
         accessibilityLabel={featured ? [big, line].filter(Boolean).join(' ') : undefined}
         details={featured ? <>
-          <T token="body" style={moment ? undefined : { fontSize: 18, lineHeight: 26 }}>{line}</T>
-          {featuredWhere && !moment ? <T token="callout" color={c.inkSecondary}>{featuredWhere}</T> : null}
+          <T token="body" style={moment ? undefined : { fontSize: 18, lineHeight: 26 }} numberOfLines={2}>{parts?.text}</T>
+          {/* The time leads the grey line, so a long title wraps alone and never strands "· 2:45 pm". */}
+          {!moment && (parts?.time || featuredWhere) ? <T token="callout" color={c.inkSecondary} numberOfLines={1}>{[parts?.time, featuredWhere].filter(Boolean).join(' · ')}</T>
+            : moment && parts?.time ? <T token="callout" color={c.inkSecondary}>{parts.time}</T> : null}
         </> : <T token="callout" color={c.inkSecondary}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>} />
 
       <Animated.View layout={layout}>
@@ -213,6 +224,17 @@ export default function TodayScreen() {
       {/* One thing explained at the moment it first matters, in place of a tour (see components/Firsts). */}
       <TodayFirst items={items} now={now} timedToday={timedToday} style={styles.section} />
 
+      {sampleBatchId ? (
+        <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={[styles.section, styles.sampleLine]}>
+          <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>This is a sample week.</T>
+          <TextButton label="Remove" tone="muted" accessibilityLabel="Remove the sample week" onPress={() => {
+            undoBatch(sampleBatchId);
+            setSettings({ sampleBatchId: null });
+            track('sample_removed', { how: 'today' });
+          }} />
+        </Animated.View>
+      ) : null}
+
       <Animated.View layout={layout} style={styles.section}>
         <SectionTitle title="On your list" onPress={() => router.push('/plan')} detail={conflictsToday ? `${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : undefined} />
         {openItems.map((item, i) => {
@@ -221,14 +243,14 @@ export default function TodayScreen() {
             <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.sink}>
               <ItemRow item={item} today={now.date} planned={planned} conflict={conflictSet.has(item.id)} last={i === openItems.length - 1 && !completed.length}
                 onPress={() => router.push(`/item/${item.id}`)} onToggle={() => complete(item)} onDelete={() => removeItem(item.id)} />
-              {planned ? <View style={styles.inlineAction}><TextButton label="Not today after all" tone="muted" onPress={() => unplanTask(item.id)} accessibilityLabel={`Remove ${item.title} from today's work plan`} /></View> : null}
+              {planned ? <View style={styles.inlineAction}><TextButton label="Remove from today" tone="muted" onPress={() => unplanTask(item.id)} accessibilityLabel={`Remove ${item.title} from today's work plan`} /></View> : null}
             </Animated.View>
           );
         })}
         {openItems.length === 0 && completed.length ? (
           <Animated.View entering={enter.fade} style={{ paddingVertical: 10, gap: 2 }}>
-            <T token="headline" color={c.inkPrimary}>That’s everything for today.</T>
-            <T token="callout" color={c.inkSecondary}>{completed.length === 1 ? 'One thing done.' : `All ${completed.length} done.`} Nice work.</T>
+            <T token="headline" color={c.inkPrimary}>No tasks left today.</T>
+            <T token="callout" color={c.inkSecondary}>{`${completed.length} ${completed.length === 1 ? 'task' : 'tasks'} completed.`}</T>
           </Animated.View>
         ) : openItems.length === 0 ? (
           <View style={styles.empty}>
@@ -312,6 +334,8 @@ export default function TodayScreen() {
         </View>
       ) : null}
 
+      {offerSave ? <SavePlanRow onDismiss={() => setSettings({ savePlanDismissed: true })} /> : null}
+
       {isSample ? (
         <View style={styles.section}>
           <ListRow title="This is a sample week" sub="Clear it any time in Your data" last onPress={() => router.push('/settings/data')} />
@@ -324,6 +348,21 @@ export default function TodayScreen() {
 /** Where the moment's first line starts; its photo has fully faded into the page above this. */
 const MOMENT_TEXT_TOP = 206;
 
+/** Once, for a guest with a real plan: an account backs it up. Dismissed for good with "Not now". */
+function SavePlanRow({ onDismiss }: { onDismiss: () => void }) {
+  const { c } = useTheme();
+  useEffect(() => { track('save_plan_card_shown', {}); }, []);
+  return (
+    <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.section}>
+      <ListRow leading={<Icon name="lock" size={20} color={c.inkPrimary} />} title="Save your plan" sub="Back it up with a free account" last
+        onPress={() => { track('save_plan_card_tapped', {}); router.push('/auth/signup'); }} />
+      <View style={styles.inlineAction}>
+        <TextButton label="Not now" tone="muted" onPress={() => { track('save_plan_card_dismissed', {}); onDismiss(); }} />
+      </View>
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
   bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
   hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 18 },
@@ -331,6 +370,7 @@ const styles = StyleSheet.create({
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   inlineAction: { paddingLeft: 34 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 20 },
+  sampleLine: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   spread: { paddingTop: 12, gap: 8 },
   empty: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
   spreadRow: { flexDirection: 'row', alignItems: 'baseline', gap: 12 },

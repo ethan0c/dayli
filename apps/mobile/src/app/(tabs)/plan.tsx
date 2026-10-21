@@ -141,7 +141,7 @@ export default function PlanScreen() {
         ? <Animated.View entering={enter.fade} exiting={exit.fade}><TodayPill onPress={() => setSelected(now.date)} /></Animated.View>
         : SHARING_ENABLED ? <IconButton icon="share" label="Preview schedule sharing" tone="glass" onPress={() => router.push({ pathname: '/share-schedule', params: { date: selected } })} /> : undefined}
       details={calendarOpen ? <PlanMonthCalendar selected={selected} today={now.date} onSelect={setSelected} /> : starting
-        ? <T token="callout" color={c.inkSecondary}>Add one thing and Plan fills in. Everything is checked with you first.</T>
+        ? <T token="callout" color={c.inkSecondary}>Add events or tasks to see them here. Review imports before saving.</T>
         : undefined} />
   );
 
@@ -223,10 +223,10 @@ export default function PlanScreen() {
             <Animated.View key={selected} entering={enter.fade} exiting={exit.fade}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 4 }}>
                 <Icon name="calendar" size={24} color={c.inkTertiary} />
-                <T token="body">Nothing on yet.</T>
+                <T token="body">No plans for this day.</T>
               </View>
               <T token="callout" color={c.inkSecondary} style={{ paddingTop: 2 }}>
-                {nextDeadline ? `${diffDays(selected, nextDeadline.date) === 1 ? 'The day before' : 'Two days before'} ${nextDeadline.title}. A good one to study.` : 'Free all day.'}
+                {nextDeadline ? `${nextDeadline.title} is due ${diffDays(selected, nextDeadline.date) === 1 ? 'the next day' : 'in two days'}.` : 'Add an event or task below.'}
               </T>
               <View style={styles.actions}>
                 <TextButton label="Add something" onPress={() => router.push({ pathname: '/create', params: { kind: 'task', date: selected } })} />

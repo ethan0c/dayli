@@ -13,9 +13,9 @@ import type { Palette } from '@/theme';
 export type PlusDestination = 'import' | 'shifts' | 'canvas';
 
 const FEATURES: { icon: IconKey; title: string; detail: string; to: PlusDestination }[] = [
-  { icon: 'file', title: 'Import anything', detail: 'Syllabi, screenshots and texts, with no monthly count.', to: 'import' },
-  { icon: 'work', title: 'Update your work schedule', detail: 'Screenshot the new one. Semli shows what moved before saving.', to: 'shifts' },
-  { icon: 'book', title: 'Keep Canvas in sync', detail: 'New assignments land in your plan on their own.', to: 'canvas' },
+  { icon: 'file', title: 'Unlimited imports', detail: 'Add syllabi, screenshots and messages without an import limit.', to: 'import' },
+  { icon: 'work', title: 'Update your work schedule', detail: 'Upload a new schedule and review changes before saving.', to: 'shifts' },
+  { icon: 'book', title: 'Sync Canvas', detail: 'Check for new assignments and changed due dates when you open Semli.', to: 'canvas' },
 ];
 
 /** The Plus features as rows that open each one: ink glyphs, no tiles, a highlight on press. */
@@ -55,20 +55,20 @@ export function PlusWelcome({ celebrate, trialEndsAt, onGo, onDone, c }: {
           <Tick c={c} animate={celebrate} />
         </View>
         <T token="subhead" color={c.inkSecondary}>Semli <T token="subhead" color={c.accentInk}>Plus</T></T>
-        <T token="displaySerif" color={c.inkPrimary} accessibilityRole="header">{celebrate ? 'You’re in.' : 'Your Plus.'}</T>
+        <T token="displaySerif" color={c.inkPrimary} accessibilityRole="header">{celebrate ? 'Plus is active.' : 'Your Plus subscription.'}</T>
         <T token="body" color={c.inkSecondary}>
-          {trialDate ? `Everything in Plus is yours, free until ${trialDate}. We’ll remind you two days before.` : 'Everything in Plus is yours. Thanks for backing Semli.'}
+          {trialDate ? `Your free trial ends ${trialDate}. Manage your subscription in You → Semli Plus.` : 'Your subscription includes the features below.'}
         </T>
       </View>
       <View style={{ gap: 8 }}>
-        <T token="subhead" color={c.inkSecondary}>Start with one</T>
+        <T token="subhead" color={c.inkSecondary}>Included with Plus</T>
         <PlusFeatures c={c} onGo={onGo} />
       </View>
       <View style={{ gap: 12 }}>
         <Press haptic="tap" accessibilityRole="button" onPress={onDone} style={[styles.cta, { backgroundColor: c.controlFill }]}>
           <T token="headline" color={c.controlInk}>Done</T>
         </Press>
-        <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>This list stays in You → Semli Plus.</T>
+        <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Manage Plus in You → Semli Plus.</T>
       </View>
     </Animated.View>
   );

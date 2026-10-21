@@ -82,11 +82,11 @@ export default function CanvasScreen() {
   })();
 
   const fallback = (
-    <Group title="Can’t find the feed?" footer="Some schools hide Calendar feed. These work everywhere and count as an import.">
+    <Group title="Can’t find the feed?" footer="If Calendar feed isn’t available, import a screenshot or PDF instead. Each uses one import.">
       <ListRow leading={<Icon name="image" size={20} color={c.inkPrimary} />} title="Screenshot your Canvas to-do list"
         sub="Semli reads the due dates from it" onPress={() => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } })} />
       <ListRow leading={<Icon name="file" size={20} color={c.inkPrimary} />} title="Upload the syllabus PDF"
-        sub="The whole term from the file in Canvas" last onPress={() => router.navigate({ pathname: '/add', params: { source: 'file', at: String(Date.now()) } })} />
+        sub="Import exams and due dates from your syllabus" last onPress={() => router.navigate({ pathname: '/add', params: { source: 'file', at: String(Date.now()) } })} />
     </Group>
   );
 
@@ -98,8 +98,8 @@ export default function CanvasScreen() {
             <T token="callout" color={c.inkSecondary}>{syncedLabel}</T>
             <T token="displayXl" tabular>{`${synced} from Canvas`}</T>
             <T token="body" color={c.inkSecondary} style={styles.line}>{isPlus
-              ? 'When a professor moves a due date, it moves here too. Done stays done.'
-              : 'Your Canvas due dates are in. Keeping them in sync when professors change them is part of Semli Plus.'}</T>
+              ? 'Semli checks for Canvas updates when you open the app. Completed items stay completed.'
+              : 'Your Canvas due dates are imported. Automatic updates require Semli Plus.'}</T>
           </View>
           {canvas.lastError ? (
             <View accessibilityRole="alert" style={styles.status}>
@@ -116,8 +116,8 @@ export default function CanvasScreen() {
       ) : (
         <Animated.View key="off" layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.stack}>
           <View style={styles.top}>
-            <T token="display" accessibilityRole="header">Canvas, kept in sync.</T>
-            <T token="body" color={c.inkSecondary} style={styles.line}>Assignments and due dates come in on their own, and move when your professor changes them.</T>
+            <T token="display" accessibilityRole="header">Connect Canvas</T>
+            <T token="body" color={c.inkSecondary} style={styles.line}>Import your Canvas calendar for free. Automatic updates are included with Plus.</T>
           </View>
           <Group title="Paste your calendar feed link"
             footer="On the Canvas website, open Calendar, choose Calendar feed at the bottom of the sidebar, and copy the link. It only lets Semli read your calendar.">

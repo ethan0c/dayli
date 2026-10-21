@@ -79,12 +79,13 @@ function RootLayout() {
   const { c, dark } = useTheme();
   const pathname = usePathname();
   const photoPaywall = pathname === '/paywall' || pathname === '/settings/plan';
-  // Photos the first screen shows are decoded behind the splash, at most 300 ms: Today's sky for
-  // a returning person, the onboarding showcases and the Plus photo for a new one.
+  // Photos the first screen shows are decoded behind the splash, at most 300 ms: the hour's sky,
+  // which both Today and the welcome screen open under, and the Plus photo for a new person.
   const [photosReady, setPhotosReady] = useState(false);
   useEffect(() => {
     if (!hydrated) return;
-    const sources = onboarded ? [SKY[skySlot(localParts(new Date()).time, dark)], SHOWCASE.plus] : [SHOWCASE.demo, SHOWCASE.headsup, SHOWCASE.plus];
+    const sky = SKY[skySlot(localParts(new Date()).time, dark)];
+    const sources = [sky, SHOWCASE.plus];
     void preloadPhotos(sources).finally(() => setPhotosReady(true));
     // Once per launch: later sky changes fade in on their own.
     // eslint-disable-next-line react-hooks/exhaustive-deps

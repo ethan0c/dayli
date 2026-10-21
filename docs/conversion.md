@@ -12,6 +12,23 @@ Research Oct 21, 2026, and what Semli does with it. Most vendor numbers are self
 
 Built with it (Oct 21, 2026): You shows a guest "Back up your plan · Your plan is only on this iPhone"; after a sign-out the welcome offers "Continue as <name> · <provider>". Next: ask at the moment there is a plan worth saving (after the first confirmed import, or at a Plus purchase).
 
+## Onboarding
+
+Rebuilt Oct 21, 2026 from six research passes and an audit of what each answer drove (most drove nothing after onboarding). Plan with sources: the "Semli Onboarding Plan" page.
+
+| Step | Asks or shows | What it changes |
+|---|---|---|
+| What's on your plate? | Classes, A job, Clubs and practice (any) | `isStudent` (student pricing), Today opens on the hour view with a job, the import offered first, the paywall headline |
+| Where do your deadlines live? | Canvas, a syllabus PDF, screenshots and texts, nowhere yet (skipped for a job alone) | The import path; Canvas keeps `lms` for the Canvas tip |
+| Their import | PDF, photo, recent screenshots, or typing; "Try a sample" loads a real, labelled sample week | The aha moment; a later real import removes the sample unless it edits sample rows |
+| Your term, at a glance | Deadlines until the last one, next due, busiest week, exams, a shift clash (`termSummary`) | Nothing new asked; their own numbers, no loader |
+| When should we remind you? | 8 pm the night before, or 8 am the morning of | `reminders.dayBeforeAt` / `morningAt`; the system prompt only on "Remind me"; makes the paywall's reminder promise true |
+| Plus | Headline from their data ("Your 4 classes and 3 shifts, kept up to date.") | Paywall copy; "Continue free" is tracked |
+
+Removed: major (still in You), the typical-week chips (never read), the scripted demo and the two dark photo showcases. The account waits: a guest with a real plan sees "Save your plan · Back it up with a free account" on Today once.
+
+Events: `onboarding_step` (with `plate`, `source`, `sample`), `onboarding_back`, `import_*` (kind `sample` for the sample), `result_shown`, `remind_choice`, `paywall_shown {personalized}`, `paywall_continue_free`, `sample_removed`, `save_plan_card_shown/tapped/dismissed`, `onboarding_completed {plate, source, sample}`. Judge changes on trial-to-paid and day-7 retention, not completion.
+
 ## Paywall
 
 | Finding | Source | Semli |

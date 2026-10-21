@@ -142,7 +142,7 @@ export function AddScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }}
       keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="never">
       <TabHeader title="Add" size="title"
-        details={<T token="callout" color={c.inkSecondary}>Type it, paste it, or drop in a screenshot. You review everything before it’s added.</T>} />
+        details={<T token="callout" color={c.inkSecondary}>Type your plans or add a screenshot or PDF. Review the results before saving.</T>} />
       <View style={styles.body}>
         {busy ? <Reading source={busy === 'Message' ? 'your message' : busy === 'Voice' ? 'your voice note' : busy} chart={/\.pdf$/i.test(busy) ? 'term' : 'week'} /> : null}
 

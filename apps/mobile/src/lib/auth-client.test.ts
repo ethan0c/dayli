@@ -54,6 +54,7 @@ vi.mock('./supabase', () => ({
   supabase: mocks.supabase,
   useSession: mocks.session,
   accountOf: (session: { user?: { is_anonymous?: boolean } } | null) => (session && !session.user?.is_anonymous ? session : null),
+  deleteReplacedGuest: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock('../store', () => ({ useStore: mocks.store }));
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn().mockResolvedValue(null), setItem: vi.fn().mockResolvedValue(undefined), removeItem: vi.fn().mockResolvedValue(undefined) } }));
@@ -385,15 +386,15 @@ describe('signing out', () => {
     mocks.auth.signOut.mockResolvedValue({ error: null });
   };
 
-  it('backs up first, then ends the session and removes the plan from this phone', async () => {
+  it('backs up first, then ends the session; the screen clears the plan after it has left', async () => {
     signedInWithPlan();
     await authClient.signOut();
     expect(saved().data.items.map((i) => i.id)).toEqual(['b']);
     expect(mocks.table.upsert.mock.invocationCallOrder[0]!).toBeLessThan(mocks.auth.signOut.mock.invocationCallOrder[0]!);
     expect(mocks.auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
     expect(mocks.purchases.logOut).toHaveBeenCalled();
-    expect(mocks.store.getState().items).toEqual({});
-    expect(settings().onboarded).toBe(false);
+    // Clearing here would pull the signed-in screens out from under the navigation (account.tsx clears).
+    expect(Object.keys(mocks.store.getState().items as object)).toEqual(['b']);
   });
 
   it('stays signed in, with the plan, when the backup can’t be saved', async () => {
@@ -412,12 +413,14 @@ describe('signing out', () => {
     expect(mocks.auth.signOut).toHaveBeenCalled();
   });
 
-  it('deleting the account also removes the plan from this phone', async () => {
+  it('deleting the account ends the session and leaves clearing to the screen', async () => {
     mocks.store.setState({ items: { b: item('b') }, settings: { ...DEFAULTS(), onboarded: true } });
     mocks.supabase.rpc.mockResolvedValue({ error: null });
     mocks.auth.signOut.mockResolvedValue({ error: null });
     await authClient.deleteAccount();
-    expect(mocks.store.getState().items).toEqual({});
+    expect(mocks.supabase.rpc).toHaveBeenCalledWith('delete_account');
+    expect(mocks.auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
+    expect(Object.keys(mocks.store.getState().items as object)).toEqual(['b']);
   });
 
   it('an Apple account is re-authorized and its token revoked before the account is deleted', async () => {

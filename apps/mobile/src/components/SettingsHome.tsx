@@ -62,7 +62,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         </Group>
 
         <Group title="Preferences">
-          <Row label="Reminders" icon="bell" value={settings.reminders.enabled ? (settings.reminders.briefing ? 'On, with briefing' : 'On') : 'Off'} onPress={() => router.push('/settings/reminders')} />
+          <Row label="Reminders" icon="bell" value={settings.reminders.enabled ? (settings.reminders.briefing ? 'On, with daily summary' : 'On') : 'Off'} onPress={() => router.push('/settings/reminders')} />
           <Row label="Canvas" icon="book" value={settings.canvas.feedUrl ? (settings.canvas.lastError ? 'Needs a look' : 'Syncing') : 'Off'} onPress={() => router.push('/settings/canvas')} />
           <Row label="Region" icon="globe" value={regionName(settings.region ?? deviceRegion())} onPress={() => router.push('/settings/region')} />
           <Row label="Appearance" icon="appearance" value={APPEARANCE_LABEL[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
@@ -74,7 +74,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         {ACCOUNTS_ENABLED ? <Group title="Account">
           {email !== null
             ? <ListRow leading={<Icon name="lock" size={20} color={c.inkPrimary} />} title={`Backed up as ${email || 'your account'}`} sub="Account settings" onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
-            : <ListRow leading={<Icon name="lock" size={20} color={c.inkPrimary} />} title="Back up your plan" sub="Your plan is only on this iPhone." onPress={() => router.push('/account')} last={!SHARING_ENABLED} />}
+            : <ListRow leading={<Icon name="lock" size={20} color={c.inkPrimary} />} title="Back up your plan" sub="Create a free account to back up your plan" onPress={() => router.push('/account')} last={!SHARING_ENABLED} />}
           {SHARING_ENABLED ? <Row label="Share your schedule" icon="share" value="Preview" onPress={() => router.push('/share-schedule')} last /> : null}
         </Group> : null}
 

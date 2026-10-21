@@ -75,7 +75,7 @@ export default function DataScreen() {
     try {
       await eraseThisPhone();
       setConfirm(false);
-      router.dismissAll();
+      if (router.canDismiss()) router.dismissAll();
       router.replace('/auth');
     } catch (error) {
       setEraseError(friendlyError(error, 'We couldn’t erase your plan. Check your connection and try again.', 'data.erase'));
@@ -104,14 +104,14 @@ export default function DataScreen() {
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
       <View style={styles.top}>
-        <T token="callout" color={c.inkSecondary}>{signedIn ? 'On this phone, backed up to your account' : 'On this phone, nowhere else'}</T>
-        <T token="displayXl" tabular>{`${items.length} ${items.length === 1 ? 'thing' : 'things'}`}</T>
+        <T token="callout" color={c.inkSecondary}>{signedIn ? 'Account backup enabled' : 'Saved on this iPhone'}</T>
+        <T token="displayXl" tabular>{`${items.length} ${items.length === 1 ? 'item' : 'items'}`}</T>
         <T token="body" style={styles.line}>{summary}</T>
       </View>
 
-      <Group title="Keep it safe" footer={exportError ?? undefined}>
-        <ListRow title="Export my plan" sub="A file you can AirDrop, save, or bring to a new phone" onPress={() => void exportPlan()} />
-        <ListRow title="Add to Calendar" sub="Every event into Apple or Google Calendar, once" onPress={() => void exportCalendar()} last />
+      <Group title="Export" footer={exportError ?? undefined}>
+        <ListRow title="Export my plan" sub="Save or share a backup file" onPress={() => void exportPlan()} />
+        <ListRow title="Add to Calendar" sub="Export events to Apple or Google Calendar" onPress={() => void exportCalendar()} last />
       </Group>
 
       <Group title="Recent changes">
@@ -138,7 +138,7 @@ export default function DataScreen() {
         </Group>
       ) : null}
 
-      <Group title="Start again" footer={signedIn ? 'To remove your plan from this iPhone, sign out or delete your account in Account settings.' : eraseError ?? 'Nothing here leaves the phone unless you export it.'}>
+      <Group title="Reset" footer={signedIn ? 'To remove your plan from this iPhone, sign out or delete your account in Account settings.' : eraseError ?? 'Export a backup before erasing your plan.'}>
         <Row label="Replay the intro" value="Keeps everything" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} last={signedIn} />
         {signedIn ? null : confirm ? (
           <Animated.View entering={enter.drop} exiting={exit.fade} style={styles.confirm} accessibilityRole="alert">

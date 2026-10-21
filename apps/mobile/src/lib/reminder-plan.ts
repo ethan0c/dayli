@@ -79,7 +79,7 @@ function dayLine(items: Item[], date: string): string {
   const timed = todays.filter((i) => i.start).sort((a, b) => a.start!.localeCompare(b.start!));
   const parts = timed.slice(0, 3).map((i) => `${i.title} ${i.end && i.start ? formatRange(i.start, i.end) : formatTime(i.start!)}`);
   const tasks = todays.length - timed.length;
-  const head = `${todays.length} ${todays.length === 1 ? 'thing' : 'things'} today`;
+  const head = `${todays.length} ${todays.length === 1 ? 'item' : 'items'} today`;
   const tail = [parts.join(', '), tasks > 0 ? `${tasks} to-do${tasks === 1 ? '' : 's'}` : ''].filter(Boolean).join('; ');
   return tail ? `${head}: ${tail}.` : `${head}.`;
 }
@@ -111,9 +111,8 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
       if (it.done || it.date < now.date) continue;
       if (it.kind === 'event' && it.start) {
         const itemAbs = toAbs(it.date, it.start);
-        const when = it.end ? formatRange(it.start, it.end) : formatTime(it.start);
         push(
-          { id: `ev-${it.id}`, title: it.title, body: `Starts in ${prefs.eventLead} min, ${when}.`, itemId: it.id, kind: 'event' },
+          { id: `ev-${it.id}`, title: it.title, body: `Starts at ${formatTime(it.start)}${it.end ? ` · Ends at ${formatTime(it.end)}` : ''}.`, itemId: it.id, kind: 'event' },
           respectQuiet(itemAbs - prefs.eventLead, itemAbs, prefs),
         );
       }
@@ -121,12 +120,12 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
         const dueAbs = it.start ? toAbs(it.date, it.start) : null;
         const dueLabel = it.start ? `${weekdayLong(it.date)} at ${formatTime(it.start)}` : weekdayLong(it.date);
         push(
-          { id: `dl1-${it.id}`, title: `${it.title} is tomorrow`, body: `Due ${dueLabel}. A good evening to get ahead.`, itemId: it.id, kind: 'deadline' },
+          { id: `dl1-${it.id}`, title: it.title, body: `Due ${dueLabel}.`, itemId: it.id, kind: 'deadline' },
           respectQuiet(toAbs(addDays(it.date, -1), prefs.dayBeforeAt), dueAbs, prefs),
         );
         const morning = toAbs(it.date, prefs.morningAt);
         if (dueAbs === null || morning < dueAbs) {
-          push({ id: `dl2-${it.id}`, title: `${it.title} today`, body: it.start ? `Due at ${formatTime(it.start)}.` : 'Due today.', itemId: it.id, kind: 'deadline' }, morning);
+          push({ id: `dl2-${it.id}`, title: it.title, body: it.start ? `Due today at ${formatTime(it.start)}.` : 'Due today.', itemId: it.id, kind: 'deadline' }, morning);
         }
       }
     }
@@ -140,8 +139,8 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
         .filter((i) => i.isDeadline && !i.done && i.date > date && diffDays(date, i.date) <= 3)
         .sort((a, b) => a.date.localeCompare(b.date))[0];
       if (!line && !nextDeadline) continue;
-      const body = [line, nextDeadline ? `${nextDeadline.title} ${weekdayLong(nextDeadline.date)}.` : ''].filter(Boolean).join(' ');
-      push({ id: `brief-${date}`, title: 'Good morning', body, itemId: null, kind: 'briefing' }, toAbs(date, prefs.briefingAt));
+      const body = [line, nextDeadline ? `${nextDeadline.title} is due ${weekdayLong(nextDeadline.date)}.` : ''].filter(Boolean).join(' ');
+      push({ id: `brief-${date}`, title: 'Today’s schedule', body, itemId: null, kind: 'briefing' }, toAbs(date, prefs.briefingAt));
     }
   }
 
@@ -151,7 +150,7 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
       const pad = (n: number) => String(n).padStart(2, '0');
       const endDate = `${ends.getFullYear()}-${pad(ends.getMonth() + 1)}-${pad(ends.getDate())}`;
       push(
-        { id: 'trial-reminder', title: 'Your Semli Plus trial ends in 2 days', body: `${extras.trial.label} unless you cancel. Manage it any time in You → Semli Plus.`, itemId: null, kind: 'briefing' },
+        { id: 'trial-reminder', title: 'Your Semli Plus trial ends in 2 days', body: `Renews at ${extras.trial.label} unless you cancel. Manage your subscription in You → Semli Plus.`, itemId: null, kind: 'briefing' },
         toAbs(addDays(endDate, -2), prefs.dayBeforeAt),
       );
     }

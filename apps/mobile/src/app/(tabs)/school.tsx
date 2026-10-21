@@ -88,7 +88,7 @@ export default function SchoolScreen() {
     <View style={styles.section}>
       <GroupLabel>Keep it up to date</GroupLabel>
       <ListRow leading={<Icon name="file" size={20} color={c.inkPrimary} />} title="A syllabus" sub="Adds the course, its exams and due dates" onPress={() => capture('file')} />
-      <ListRow leading={<Icon name="image" size={20} color={c.inkPrimary} />} title="A screenshot from class" sub="An announcement becomes your next to-do" onPress={() => capture('image')} last />
+      <ListRow leading={<Icon name="image" size={20} color={c.inkPrimary} />} title="A screenshot from class" sub="Import dates from a class announcement" onPress={() => capture('image')} last />
     </View>
   );
 
@@ -96,7 +96,7 @@ export default function SchoolScreen() {
     return (
       <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
         <TabHeader date={now.date} title="School" size="title"
-          details={<T token="callout" color={c.inkSecondary}>Add a syllabus and the whole term lands here.</T>} />
+          details={<T token="callout" color={c.inkSecondary}>Import a syllabus to add courses, exams and due dates.</T>} />
         {keepUpToDate}
       </ScrollView>
     );

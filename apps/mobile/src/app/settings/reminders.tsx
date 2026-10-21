@@ -84,12 +84,12 @@ export default function RemindersScreen() {
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
       {error ? <Group footer={error}><Row label="Retry reminder setup" onPress={() => { void syncReminders().then(() => setError(null)).catch(failed); }} last /></Group> : null}
       {allowed === false ? (
-        <Group footer="Semli needs permission to show reminders. Nothing is sent anywhere; they are scheduled on this phone. If iOS no longer asks, this opens Settings so you can allow it there.">
+        <Group footer="Allow notifications to receive reminders on this iPhone. If prompted, enable them in Settings → Semli → Notifications.">
           <Row label="Turn on reminders" onPress={() => void enable()} last />
         </Group>
       ) : null}
 
-      <Group title="Before things" footer="Reminders fire before timed events and twice before deadlines: the evening before and the morning of.">
+      <Group title="Event and deadline reminders" footer="Choose when to be notified before events and on the evening before and morning of each deadline.">
         <ToggleRow label="Reminders" value={prefs.enabled && allowed !== false} onChange={(on) => void toggle('enabled')(on)} />
         <View style={[styles.row, hairline]}>
           <T style={{ flex: 1 }}>Before an event</T>
@@ -107,13 +107,13 @@ export default function RemindersScreen() {
         {timeRow('Morning of a deadline', 'morningAt', true)}
       </Group>
 
-      <Group title="Quiet hours" footer="Reminders that would land in quiet hours wait until they end, unless the event itself is sooner.">
+      <Group title="Quiet hours" footer="Event and deadline reminders wait until quiet hours end, unless that would be too late.">
         {timeRow('From', 'quietStart')}
         {timeRow('Until', 'quietEnd', true)}
       </Group>
 
-      <Group title="Daily briefing" footer="One morning note with what's on today and the next deadline. Skipped on days with nothing on.">
-        <ToggleRow label="Morning briefing" value={prefs.briefing && allowed !== false} onChange={(on) => void toggle('briefing')(on)} />
+      <Group title="Daily summary" footer="Today’s schedule and the next deadline within three days. No notification if there’s nothing to show.">
+        <ToggleRow label="Daily summary" value={prefs.briefing && allowed !== false} onChange={(on) => void toggle('briefing')(on)} />
         {timeRow('At', 'briefingAt', true)}
       </Group>
 
@@ -121,7 +121,7 @@ export default function RemindersScreen() {
         <RingingAlarmInfo settings />
       </Group>
 
-      <Group footer={sent ? 'Sent. It arrives in about five seconds, even with the app open.' : undefined}>
+      <Group footer={sent ? 'Test reminder scheduled for five seconds from now.' : undefined}>
         <Row
           label={sending ? 'Sending…' : 'Send a test reminder'}
           onPress={sending ? undefined : () => {

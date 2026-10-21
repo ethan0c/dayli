@@ -40,6 +40,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 ### Before inviting more people
 
 - [ ] Verify clean install → onboarding → real import → review → Today, and existing install → update with local data preserved. Test free users and Plus users, Undo, export and .ics import on a real device.
+- [ ] New onboarding (Oct 21, 2026) on a device: plate multi-select and Next; job-only skips the deadlines question and opens on screenshots; each deadline source opens the matching import (syllabus → PDF picker, screenshots → photo picker and recent shots, nowhere → composer, Canvas → feed guide); "Try a sample" loads a labelled sample week and Today shows "This is a sample week · Remove"; a real import later removes the sample; "Your term, at a glance" numbers match the plan (deadlines, busiest week, exams, a shift clash); "Remind me" sets 8 pm the night before or 8 am the morning of and asks for permission once; the paywall headline names their classes and shifts (or Canvas); "Continue free" lands on Today; a guest with real items sees "Save your plan" once and "Not now" hides it for good; back on the first question returns to the welcome screen.
 - [ ] Make local-only storage clear: no account, cloud backup or cross-device recovery exists. Test export before destructive actions and document what deleting the app loses.
 - Accounts run on Supabase (`lib/auth-client.ts`, `supabase/migrations`): email, Google and Apple, emailed codes (6 to 8 digits) for confirm and reset, sign out, delete, and plan backup/restore. They switch on when the Supabase keys are set; until then the welcome is one "Get started". Schedule sharing stays hidden (`SHARING_ENABLED`). Do not list live sharing as a shipped benefit.
 - Server-side import quota is built: `import_usage` and `claim_import` in `supabase/migrations/20261020000000_import_quota.sql`, Plus checked against RevenueCat in `apps/web/lib/import-access.ts`. Deploying it is in `launch-checklist.md`.
@@ -74,7 +75,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 - Review: work schedule first import and update, syllabus, general; never blocks; "Until when?"; "Add 14 · skip 2".
 - Create: pill field, hairline rows, segmented category, course chips with dots.
 - You: no card style, Plus in accent, inline Clear confirm. Your data: export, Add to Calendar (.ics), recent changes with Undo, clear with "Export first".
-- Onboarding: all eight steps as boarded.
+- Onboarding: six steps (plate, deadlines, import, term at a glance, reminder, Plus), rebuilt Oct 21, 2026.
 
 **Behavior**
 - One tap deletes, Undo toast, undoable later from Your data. Swipe right completes, left deletes.
@@ -133,7 +134,7 @@ Keep this as the release scratchpad. Unchecked means work or device verification
 
 **Canvas sync (no backend)**
 - Built Oct 19, 2026 on the Canvas calendar feed link (`lib/canvas.ts`, `lib/canvas-sync.ts`, You → Canvas, a row on Add). Matched by Canvas UID (`Item.externalId`); moved dates update, done stays done, upcoming items that leave the feed are removed, an empty or failed feed changes nothing. Each sync is one undoable batch.
-- Onboarding asks students where assignments live (Canvas, Blackboard, Brightspace, Moodle, Google Classroom, other; stored as `settings.lms`). Canvas students connect in place of the own-import step; the fallback is the screenshot/syllabus import.
+- Onboarding asks where deadlines live (Canvas, a syllabus PDF, screenshots and texts, nowhere yet; `settings.deadlineSource`, with `lms: 'canvas'` kept for the Canvas tip). Canvas connects in place of the own-import step; the fallback is the screenshot/syllabus import.
 - The first sync is free (the onboarding value moment); auto-sync and Sync now need `semli_plus`.
 - [ ] Connect a real student's feed on a device: UTC vs TZID times, all-day assignments, course matching against an imported syllabus, a reset feed link.
 - [ ] Update the pricing and SEO pages once verified ("coming soon" today).

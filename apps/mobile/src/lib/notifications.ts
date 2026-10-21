@@ -76,7 +76,7 @@ export async function syncReminders(): Promise<number> {
 export async function sendTestNotification(): Promise<void> {
   return withErrorLogging('reminders.send_test', async () => {
     await Notifications.scheduleNotificationAsync({
-      content: { title: 'Stats exam 2 is tomorrow', body: 'Due Friday at 9:00 am. A good evening to get ahead.', sound: 'default' },
+      content: { title: 'Test reminder', body: 'Notifications are working. You can change reminder times in Semli.', sound: 'default' },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 5 },
     });
   });

@@ -10,11 +10,13 @@ import { TextButton } from '@/components/Controls';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { Button } from '@/components/Sheet';
 import { T } from '@/components/Text';
+import { SkyHeader } from '@/components/SkyHeader';
 import { Wordmark } from '@/components/Wordmark';
 import { ACCOUNTS_ENABLED, authErrorMessage } from '@/lib/auth';
 import { authClient, leaveAuth } from '@/lib/auth-client';
 import { forgetAccount, providerLabel, useLastAccount, type LastAccount } from '@/lib/last-account';
 import { durations, ease, enter, springs } from '@/lib/motion';
+import { useNow } from '@/lib/now';
 import { hideSplash, splashShowing } from '@/lib/splash';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
@@ -34,6 +36,7 @@ export default function AuthWelcomeScreen() {
   const { c, dark } = useTheme();
   const { active, landed, root, slot, logo, backdrop, reveal, onRootLayout, onSlotLayout, onLogoLayout } = useLaunchHandoff();
   const insets = useSafeAreaInsets();
+  const now = useNow();
   const onboarded = useStore((s) => s.settings.onboarded);
   // After a sign-out on this phone: one tap back into that account instead of a fresh guest plan.
   const last = useLastAccount();
@@ -56,6 +59,9 @@ export default function AuthWelcomeScreen() {
   return (
     <View ref={root} onLayout={onRootLayout} style={{ flex: 1, backgroundColor: c.canvas }}>
       <Stack.Screen options={{ headerShown: onboarded, title: '', ...navigationButtonOptions('close') }} />
+      {/* The hour's sky, the same one Today opens under, so store, welcome and Today read as one place.
+          It fades into the paper above the wordmark; the words and buttons sit on the paper. */}
+      <SkyHeader time={now.time} />
       <ScrollView contentContainerStyle={[styles.page, { paddingTop: onboarded ? 24 : insets.top + 24, paddingBottom: Math.max(insets.bottom, 24) }]}>
         <View style={styles.hero}>
           <Animated.View ref={slot} onLayout={onSlotLayout} entering={active ? undefined : enter.rise} style={{ opacity: landed ? 1 : 0 }}>

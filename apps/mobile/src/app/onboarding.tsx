@@ -1,26 +1,21 @@
 import { Redirect, router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
-import { ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ScrollView, StyleSheet, TextInput, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Composer } from "@/components/Composer";
-import { ChartKey, keyOf } from "@/components/ChartMark";
-import { Chip } from "@/components/Controls";
 import { RecentShots } from "@/components/RecentShots";
 import { File } from "expo-file-system";
 import { Press } from "@/components/Press";
 import { GlassCircle } from "@/components/Glass";
-import { Icon, type IconKey } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
 import { PaywallBackdrop } from "@/components/PhotoPaywall";
 import { PlanPicker } from "@/components/PlanPicker";
 import { Reading } from "@/components/Reading";
-import { WeekChart, compactRange, type WeekDay } from "@/components/WeekChart";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
 import { profile as setProfile, track } from "@/lib/analytics";
-import { Photo } from "@/components/Photo";
-import { SHOWCASE } from "@/lib/images";
 import { requestExtraction } from "@/lib/api";
 import { requestImport } from "@/lib/import-auth";
 import { IMPORT_MESSAGES } from "@dayli/schema";
@@ -28,45 +23,42 @@ import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/l
 import { devStep } from "@/lib/dev";
 import { feedback } from "@/lib/feedback";
 import { reportError } from "@/lib/errors";
-import { durations, enter, exit, springs } from "@/lib/motion";
-import { MAJORS, chipsFor, profileFor, type DemoRow, type Profile, type Role } from "@/lib/majors";
+import { enter, exit, layout, springs } from "@/lib/motion";
 import { requestNotifications, syncReminders } from "@/lib/notifications";
 import { usePlusAccess } from "@/lib/plus-access";
 import { purchaseErrorMessage } from "@/lib/revenuecat";
 import { syncCanvas } from "@/lib/canvas-sync";
 import { normalizeFeedUrl, CANVAS_MESSAGES } from "@/lib/canvas";
-import { useStore, type Lms } from "@/store";
+import { useCourseList, useItemList, useStore, type DeadlineSource, type Plate } from "@/store";
+import { sampleWeek } from "@/store/sample";
 import { palettes } from "@dayli/tokens";
-import { addDays, localParts, weekOf } from "@dayli/core";
+import { localParts, monthDay, relativeDay, termSummary, weekOf, weekdayLong } from "@dayli/core";
 
-import { ForceAppearance, SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
+import { SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
 
 /**
- * One real result before any ask. The order follows docs/onboarding-research.md §3:
- * three one-tap questions → the demo → your own import → the review sheet (the aha)
- * → reminders priming → the paywall after value → Today.
+ * Ask less, build their week, then ask (docs/conversion.md, decided Oct 21, 2026): two tap
+ * questions that each change something, their own import (or a real sample), the facts of their
+ * term, a reminder they choose, then the paywall. No slideshows, no fake loaders, account later.
  */
-const STEPS = ["role", "major", "week", "lms", "demo", "own", "canvas", "heads-up", "plus"] as const;
+const STEPS = ["plate", "deadlines", "own", "canvas", "result", "remind", "plus"] as const;
 type Step = (typeof STEPS)[number];
 /** The progress bar: Canvas connect takes the own-import slot, so both paths fill the same bars. */
 const BARS = STEPS.filter((s) => s !== "canvas");
 
-/** Only Canvas syncs today; the other answers tell us which feed to support next. */
-const PLATFORMS: { id: Lms; label: string; hint?: string }[] = [
-  { id: "canvas", label: "Canvas", hint: "Import due dates free. Keep them in sync with Plus." },
-  { id: "blackboard", label: "Blackboard" },
-  { id: "brightspace", label: "Brightspace (D2L)" },
-  { id: "moodle", label: "Moodle" },
-  { id: "classroom", label: "Google Classroom" },
-  { id: "other", label: "Something else, or not sure" },
-];
-
 type Picked = { input: Parameters<typeof requestExtraction>[1]["input"]; source: string } | null;
 
-const ROLES: { id: Role; label: string; hint: string }[] = [
-  { id: "student", label: "Student", hint: "Classes, exams, deadlines" },
-  { id: "both", label: "Student with a job", hint: "Classes plus shifts that change" },
-  { id: "working", label: "Working", hint: "Shifts, appointments, life" },
+const PLATES: { id: Plate; label: string; hint: string }[] = [
+  { id: "classes", label: "Classes", hint: "Lectures, labs, exams and due dates" },
+  { id: "job", label: "Work", hint: "Shifts and changing work schedules" },
+  { id: "clubs", label: "Clubs and activities", hint: "Practice, rehearsals and meetings" },
+];
+
+const SOURCES: { id: DeadlineSource; label: string; hint: string }[] = [
+  { id: "canvas", label: "Canvas", hint: "Connect your calendar. Keep it in sync with Plus." },
+  { id: "syllabus", label: "A syllabus PDF", hint: "Import exams and due dates, then review them." },
+  { id: "screenshots", label: "Screenshots and messages", hint: "Work schedules, group chats or printed schedules." },
+  { id: "nowhere", label: "I’ll add them myself", hint: "Type what’s coming up, or try a sample week." },
 ];
 
 export default function OnboardingScreen() {
@@ -74,12 +66,13 @@ export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const settings = useStore((s) => s.settings);
   const setSettings = useStore((s) => s.setSettings);
+  const applyPlan = useStore((s) => s.applyPlan);
   const showToast = useStore((s) => s.showToast);
   const importDone = useStore((s) => s.settings.onboardingImportDone);
 
   // `?step=plus` opens a specific step; useful when previewing copy and layout.
   const params = useLocalSearchParams<{ step?: string }>();
-  const requested = (STEPS as readonly string[]).includes(params.step ?? "") ? (params.step as Step) : "role";
+  const requested = (STEPS as readonly string[]).includes(params.step ?? "") ? (params.step as Step) : "plate";
   const [step, setStep] = useState<Step>(requested);
   // Reset when the link changes (derived state, no effect).
   const [lastRequested, setLastRequested] = useState(requested);
@@ -96,28 +89,25 @@ export default function OnboardingScreen() {
     });
   }, []);
 
-  const [name, setName] = useState(settings.name);
-  const [role, setRole] = useState<Role>(settings.isStudent ? "both" : "working");
-  const [major, setMajor] = useState<string | null>(settings.major);
-  const [kinds, setKinds] = useState<string[]>(settings.weekKinds);
-  const [lms, setLms] = useState<Lms | null>(settings.lms);
+  const [plate, setPlate] = useState<Plate[]>(settings.plate);
+  const [source, setSource] = useState<DeadlineSource | null>(settings.deadlineSource);
   const [usedSample, setUsedSample] = useState(false);
-  const student = role !== "working";
-  const profile = profileFor(major, student);
+  const job = plate.includes("job");
 
   const [history, setHistory] = useState<Step[]>([]);
-  const go = (next: Step) => {
+  const go = (next: Step, answers: Record<string, string | number | boolean> = {}) => {
     feedback("tap");
-    track("onboarding_step", { step: next });
+    track("onboarding_step", { step: next, ...answers });
     setHistory((h) => [...h, step]);
     setStep(next);
   };
   // The first question goes back to the welcome screen, which replaced itself with onboarding.
-  const canGoBack = history.length > 0 || step === "role";
+  const canGoBack = history.length > 0 || step === "plate";
   const back = () => {
     const previous = history[history.length - 1];
+    track("onboarding_back", { from: step });
     if (!previous) {
-      if (step !== "role") return;
+      if (step !== "plate") return;
       feedback("tap");
       router.replace("/auth");
       return;
@@ -127,30 +117,62 @@ export default function OnboardingScreen() {
     setStep(previous);
   };
 
-  // The review sheet flips this when the first import is confirmed; carry on to the heads-up.
+  // The review sheet flips this when the first import is confirmed; carry on to the term at a glance.
   const [seenImportDone, setSeenImportDone] = useState(importDone);
   if (importDone !== seenImportDone) {
     setSeenImportDone(importDone);
-    if (importDone && (step === "own" || step === "canvas")) setStep("heads-up");
+    if (importDone && (step === "own" || step === "canvas")) {
+      setHistory((h) => [...h, step]);
+      setStep("result");
+    }
   }
 
-  const saveProfile = () =>
-    setSettings({ name: name.trim(), weekKinds: kinds, isStudent: student, major: student ? (major ?? "other") : null });
+  const answerPlate = () => {
+    const student = plate.includes("classes") || plate.includes("clubs");
+    setSettings({ plate, isStudent: student });
+    // A job only: the first import is their shifts, so there's nothing to ask about deadlines.
+    if (!student) {
+      setSource("screenshots");
+      setSettings({ deadlineSource: "screenshots" });
+      go("own", { plate: plate.join(","), source: "screenshots" });
+    } else go("deadlines", { plate: plate.join(",") });
+  };
+
+  const answerSource = (id: DeadlineSource) => {
+    setSource(id);
+    setSettings({ deadlineSource: id, ...(id === "canvas" ? { lms: "canvas" as const } : {}) });
+    go(id === "canvas" ? "canvas" : "own", { source: id });
+  };
+
+  /** "Try a sample": a real, labelled sample week as one undoable change, removed by the first real import. */
+  const loadSample = () => {
+    const today = localParts(new Date()).date;
+    const student = useStore.getState().settings.isStudent;
+    const week = sampleWeek(today, { student, preview: true });
+    const create = week.items.map(({ id: _id, createdAt: _at, batchId: _batch, sourceId: _source, ...rest }) => rest);
+    const batchId = applyPlan({ create, update: [], remove: [], skipped: 0 }, "Sample week", { source: "Sample week", courses: week.courses });
+    setSettings({ sampleBatchId: batchId });
+    setUsedSample(true);
+    track("import_succeeded", { kind: "sample", items: create.length, where: "onboarding" });
+    go("result", { sample: true });
+  };
 
   const finish = () => {
-    // Working people start on the day by the hour, where shifts and overlaps read best; students on the list.
-    const todayView = role === "student" ? "list" : "hours";
+    // A job opens on the day by the hour, where shifts and overlaps read best; otherwise the list.
+    const todayView = job ? "hours" : "list";
     setSettings({ onboarded: true, seeded: true, onboardingImportDone: false, todayView });
-    track("onboarding_completed", { role, major: student ? (major ?? "other") : null, sample: usedSample });
-    setProfile({ role, major: student ? (major ?? "other") : null, lms: lms ?? null, today_view: todayView, today_view_source: "role" });
+    track("onboarding_completed", { plate: plate.join(","), source: source ?? "none", sample: usedSample });
+    setProfile({ plate: plate.join(","), deadline_source: source ?? null, lms: settings.lms ?? null, today_view: todayView, today_view_source: "plate" });
     feedback("success");
-    showToast(usedSample ? "Your preview is ready. Add your own details any time." : "You're set.");
+    // The sample may have been replaced by a real import since it was loaded; say what is there now.
+    const sampleLeft = !!useStore.getState().settings.sampleBatchId;
+    showToast(sampleLeft ? "Your sample week is ready. Add your own plans any time." : "Your plan is ready.");
     router.replace("/");
   };
 
   const progress = BARS.indexOf(step === "canvas" ? "own" : step);
-  // Watch it work and the heads-up are showcase pages: dark, ready for a full-bleed photo.
-  const showcase = step === "demo" || step === "heads-up" || step === "plus";
+  // Only the paywall is a dark showcase now; every other step is the plain paper canvas.
+  const showcase = step === "plus";
   const bg = showcase ? palettes.dark.canvas : c.canvas;
   const barOn = showcase ? palettes.dark.inkPrimary : c.inkPrimary;
   const barOff = showcase ? "rgba(245,244,240,0.3)" : c.line;
@@ -159,8 +181,6 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[styles.root, { backgroundColor: bg, paddingTop: insets.top + 8, paddingBottom: Math.max(insets.bottom, 24) }]}>
-      {step === "demo" ? <Backdrop key="bg-demo" source={PHOTOS.demo} height={420} fadeFrom={180} /> : null}
-      {step === "heads-up" ? <Backdrop key="bg-heads-up" source={PHOTOS.headsup} full /> : null}
       {step === "plus" ? <PaywallBackdrop /> : null}
       <View style={styles.header}>
         {canGoBack ? (
@@ -178,121 +198,37 @@ export default function OnboardingScreen() {
       </View>
 
       <Animated.View key={step} entering={enter.fromRight} style={{ flex: 1 }}>
-      {step === "role" && (
-        <OneTapStep title="Which best describes you?" subtitle="We’ll tailor the examples to your week." gap={28}>
-          {ROLES.map((r) => (
-            <Choice
-              key={r.id}
-              label={r.label}
-              hint={r.hint}
-              on={role === r.id}
-              onPress={() => {
-                setRole(r.id);
-                if (r.id === "working") setKinds((ks) => ks.filter((k) => k !== "classes"));
-                go(r.id === "working" ? "week" : "major");
-              }}
-            />
+      {step === "plate" && (
+        <ScrollView contentContainerStyle={styles.page}>
+          <View style={styles.titleBlock}>
+            <T token="displaySm" accessibilityRole="header">What do you need to plan?</T>
+            <T token="callout" color={c.inkSecondary}>Choose all that apply.</T>
+          </View>
+          <View accessibilityRole="list">
+            {PLATES.map((p) => (
+              <Choice key={p.id} label={p.label} hint={p.hint} multi on={plate.includes(p.id)}
+                onPress={() => setPlate((ps) => (ps.includes(p.id) ? ps.filter((x) => x !== p.id) : [...ps, p.id]))} />
+            ))}
+          </View>
+          <View style={styles.footer}>
+            <Button label="Next" disabled={plate.length === 0} onPress={answerPlate} />
+          </View>
+        </ScrollView>
+      )}
+      {step === "deadlines" && (
+        <OneTapStep title="Where do you keep your deadlines?" subtitle="Choose one to start with.">
+          {SOURCES.map((s) => (
+            <Choice key={s.id} label={s.label} hint={s.hint} on={source === s.id} onPress={() => answerSource(s.id)} />
           ))}
         </OneTapStep>
       )}
-      {step === "major" && (
-        <OneTapStep title="What are you studying?" subtitle="Choose the closest match. You can change it later in You.">
-          {MAJORS.map((m) => (
-            <Choice
-              key={m.id}
-              label={m.label}
-              icon={m.icon}
-              on={major === m.id}
-              onPress={() => {
-                setMajor(m.id);
-                go("week");
-              }}
-            />
-          ))}
-        </OneTapStep>
-      )}
-      {step === "week" && (
-        <WeekStep
-          name={name}
-          onName={setName}
-          profile={profile}
-          student={student}
-          kinds={kinds}
-          onToggle={(k) => {
-            feedback("select");
-            setKinds((ks) => (ks.includes(k) ? ks.filter((x) => x !== k) : [...ks, k]));
-          }}
-          onNext={() => {
-            saveProfile();
-            go(student ? "lms" : "demo");
-          }}
-        />
-      )}
-      {step === "lms" && (
-        <OneTapStep title="Where do you find your assignments?" subtitle="Use Canvas? Import your due dates free and keep them in sync with Plus.">
-          {PLATFORMS.map((p) => (
-            <Choice
-              key={p.id}
-              label={p.label}
-              hint={p.hint}
-              on={lms === p.id}
-              onPress={() => {
-                setLms(p.id);
-                setSettings({ lms: p.id });
-                track("onboarding_step", { step: "lms", lms: p.id });
-                go("demo");
-              }}
-            />
-          ))}
-        </OneTapStep>
-      )}
-      {step === "demo" && <DemoStep key={profile.id} profile={profile} onNext={() => go(student && lms === "canvas" ? "canvas" : "own")} />}
-      {step === "canvas" && <CanvasStep onConnected={() => go("heads-up")} onInstead={() => go("own")} />}
-      {step === "own" && (
-        <OwnStep
-          onSample={() => {
-            saveProfile();
-            setUsedSample(true);
-            // Reminders are asked later, after their first real import.
-            go("plus");
-          }}
-        />
-      )}
-      {step === "heads-up" && <HeadsUpStep onDone={() => go("plus")} />}
+      {step === "canvas" && <CanvasStep onConnected={() => go("result")} onInstead={() => go("own", { source: "canvas-instead" })} />}
+      {step === "own" && <OwnStep source={source ?? "nowhere"} job={job} onSample={loadSample} />}
+      {step === "result" && <ResultStep sample={!!settings.sampleBatchId} onNext={() => go("remind")} />}
+      {step === "remind" && <RemindStep onDone={() => go("plus")} />}
       {step === "plus" && <PlusStep onFinish={finish} />}
       </Animated.View>
     </View>
-  );
-}
-
-/** The same photos as the design boards. Stand-ins until the final set is sourced. */
-const PHOTOS = SHOWCASE;
-
-const FADE_STEPS = 28;
-
-/**
- * A full-bleed photo behind a showcase step, fading into the dark canvas the way the boards do.
- * The fade is stacked strips, so no native gradient module is needed.
- */
-function Backdrop({ source, height, fadeFrom = 0, full = false, dim = 0 }: { source: number; height?: number; fadeFrom?: number; full?: boolean; dim?: number }) {
-  const { height: screen } = useWindowDimensions();
-  const h = full ? screen : (height ?? screen);
-  const dark = palettes.dark.canvas;
-  const fadeTop = full ? screen * 0.45 : fadeFrom;
-  const fadeH = h - fadeTop;
-  return (
-    <Animated.View pointerEvents="none" entering={enter.fade} exiting={exit.fade} style={[StyleSheet.absoluteFill, { height: h }]}>
-      <Photo source={source} style={{ width: "100%", height: h }} />
-      {full ? <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: screen * 0.3, backgroundColor: "rgba(21,21,21,0.15)" }} /> : null}
-      {dim > 0 ? <View style={[StyleSheet.absoluteFill, { backgroundColor: dark, opacity: dim }]} /> : null}
-      <View style={{ position: "absolute", left: 0, right: 0, top: fadeTop, height: fadeH }}>
-        {Array.from({ length: FADE_STEPS }, (_, i) => {
-          const t = (i + 1) / FADE_STEPS;
-          const alpha = full ? 0.2 + 0.72 * t * t : Math.pow(t, 1.4);
-          return <View key={i} style={{ flex: 1, backgroundColor: dark, opacity: Math.min(1, alpha) }} />;
-        })}
-      </View>
-    </Animated.View>
   );
 }
 
@@ -310,9 +246,7 @@ function Segment({ on, fill, track }: { on: boolean; fill: string; track: string
   );
 }
 
-/* ---------- Welcome: the wordmark assembles itself ---------- */
-
-/* ---------- One question per screen, auto-advance ---------- */
+/* ---------- One question per screen ---------- */
 
 function OneTapStep({ title, subtitle, children, gap = 24 }: { title: string; subtitle: string; children: React.ReactNode; gap?: number }) {
   const { c } = useTheme();
@@ -327,197 +261,44 @@ function OneTapStep({ title, subtitle, children, gap = 24 }: { title: string; su
   );
 }
 
-function Choice({ label, hint, icon, on, onPress }: { label: string; hint?: string; icon?: IconKey; on: boolean; onPress: () => void }) {
+/** A choice row. One-tap rows advance (chevron); `multi` rows toggle an ink checkbox. */
+function Choice({ label, hint, on, multi, onPress }: { label: string; hint?: string; on: boolean; multi?: boolean; onPress: () => void }) {
   const { c } = useTheme();
   return (
     <Press
       haptic="select"
       scale={1}
-      accessibilityRole="button"
-      accessibilityLabel={on ? `${label}, selected` : label}
+      accessibilityRole={multi ? "checkbox" : "button"}
+      accessibilityState={multi ? { checked: on } : undefined}
+      accessibilityLabel={!multi && on ? `${label}, selected` : label}
       onPress={onPress}
       style={[styles.choice, { minHeight: hint ? 68 : 56, borderBottomColor: c.line }]}
     >
-      {icon ? <Icon name={icon} size={20} color={c.inkPrimary} /> : null}
       <View style={{ flex: 1, gap: 2 }}>
         <T token="body">{label}</T>
         {hint ? <T token="caption" color={c.inkSecondary}>{hint}</T> : null}
       </View>
-      <Icon name="chevronRight" size={16} color={c.inkSecondary} />
+      {multi ? (
+        <View style={[styles.box, on ? { backgroundColor: c.inkPrimary, borderColor: c.inkPrimary } : { borderColor: c.controlOutline }]}>
+          {on ? <Icon name="tick" size={14} color={c.onPrimary} strokeWidth={2.5} /> : null}
+        </View>
+      ) : <Icon name="chevronRight" size={16} color={c.inkSecondary} />}
     </Press>
   );
 }
 
-/* ---------- Your week + optional name ---------- */
+/* ---------- Their own import, starting where their deadlines live ---------- */
 
-function WeekStep({
-  name,
-  onName,
-  profile,
-  student,
-  kinds,
-  onToggle,
-  onNext,
-}: {
-  name: string;
-  onName: (v: string) => void;
-  profile: Profile;
-  student: boolean;
-  kinds: string[];
-  onToggle: (k: string) => void;
-  onNext: () => void;
-}) {
+const OWN_COPY: Record<DeadlineSource, { title: string; sub: string; primary?: "pdf" | "image"; sample: string }> = {
+  canvas: { title: "Add your syllabus.", sub: "You can also use a screenshot or message. Review the dates before adding them.", primary: "pdf", sample: "Try a sample week instead" },
+  syllabus: { title: "Add your syllabus.", sub: "Semli finds exams and due dates. You review them before adding them.", primary: "pdf", sample: "No syllabus handy? Try a sample week" },
+  screenshots: { title: "Add a screenshot or photo.", sub: "Choose a work schedule, a message with dates or a printed schedule.", primary: "image", sample: "Try a sample week instead" },
+  nowhere: { title: "What’s coming up?", sub: "Type or paste a few plans. Include the days and times you know.", sample: "Try a sample week instead" },
+};
+
+function OwnStep({ source, job, onSample }: { source: DeadlineSource; job: boolean; onSample: () => void }) {
   const { c } = useTheme();
-  const chips = chipsFor(profile, student);
-  return (
-    <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-      <View style={styles.titleBlock}>
-        <T token="displaySm" accessibilityRole="header">{"What's in your typical week?"}</T>
-        <T token="callout" color={c.inkSecondary}>Tap everything that applies.</T>
-      </View>
-      <View style={styles.chips}>
-        {chips.map((k) => (
-          <Chip key={k.key} label={k.label} icon={k.icon} on={kinds.includes(k.key)} onPress={() => onToggle(k.key)} />
-        ))}
-      </View>
-      <View style={{ gap: 8, paddingTop: 8 }}>
-        <T token="overline" color={c.inkSecondary}>Your first name (optional)</T>
-        <TextInput
-          value={name}
-          onChangeText={onName}
-          placeholder="Your first name"
-          placeholderTextColor={c.inkTertiary}
-          autoCapitalize="words"
-          autoCorrect={false}
-          style={[styles.input, textStyle("body", c.inkPrimary), { backgroundColor: c.row }]}
-        />
-      </View>
-      <View style={styles.footer}>
-        <Button label="Next" onPress={onNext} />
-      </View>
-    </ScrollView>
-  );
-}
-
-/* ---------- Watch it work ---------- */
-
-function DemoStep({ profile, onNext }: { profile: Profile; onNext: () => void }) {
-  const d = palettes.dark;
-  const { text, rows } = profile.demo;
-  const [typed, setTyped] = useState("");
-  const [shown, setShown] = useState(0);
-  const done = shown === rows.length;
-  // The demo is always the coming Monday to Sunday, so the days on the chart are real dates.
-  const [week] = useState(() => {
-    const today = localParts(new Date()).date;
-    return weekOf(addDays(today, 7));
-  });
-
-  useEffect(() => {
-    let i = 0;
-    let type: ReturnType<typeof setInterval> | undefined;
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    // Typing waits for the page to finish sliding in, so the two never compete.
-    timers.push(
-      setTimeout(() => {
-        type = setInterval(() => {
-          i += 2;
-          setTyped(text.slice(0, i));
-          if (i >= text.length) {
-            clearInterval(type);
-            rows.forEach((_, idx) => {
-              timers.push(
-                setTimeout(() => {
-                  setShown(idx + 1);
-                  feedback(idx === rows.length - 1 ? "ready" : "select");
-                }, durations.slow * (idx + 1)),
-              );
-            });
-          }
-        }, 28);
-      }, durations.base),
-    );
-    return () => {
-      clearInterval(type);
-      timers.forEach(clearTimeout);
-    };
-  }, [rows, text]);
-
-  return (
-    <View style={styles.page}>
-      <View style={[styles.bubble, { backgroundColor: "rgba(255,255,255,0.92)" }]}>
-        <T color={palettes.light.inkPrimary} style={{ fontSize: 15, lineHeight: 21 }}>{typed}</T>
-      </View>
-      <View style={{ marginTop: "auto", gap: 20 }}>
-        <View style={{ gap: 6 }}>
-          <T token="displaySerif" color={d.inkPrimary}>Just tell it.</T>
-          <T token="callout" color={d.inkSecondary}>
-            One message turns into events and to-dos. Write naturally, then review what Semli finds.
-          </T>
-        </View>
-        {/* The week and every row keep their space from the start, so nothing jumps as rows land. */}
-        <ForceAppearance.Provider value="dark">
-          <View style={{ gap: 10 }}>
-            <WeekChart days={demoWeek(week, rows.slice(0, shown))} today={localParts(new Date()).date} height={64} animate
-              accessibilityLabel={done ? rows.map((r) => `${r.title}, ${r.chip ?? ""}`).join(". ") : "An empty week"} />
-            <ChartKey entries={keyOf([
-              { glyph: "block", color: d.added, label: "New" },
-              rows.some((r) => !r.at.end && r.icon === "exam") && { glyph: "target", color: d.chartBooked, label: "Exam" },
-              rows.some((r) => !r.at.end && r.icon !== "exam") && { glyph: "dot", color: d.chartBooked, label: "Due" },
-            ])} />
-          </View>
-        </ForceAppearance.Provider>
-        <View importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
-          {rows.map((r, i) => (
-            <View key={r.title} style={[styles.demoRow, { borderBottomColor: i < shown && i < rows.length - 1 ? d.line : "transparent" }]}>
-              {i < shown ? (
-                <Animated.View entering={enter.rise} style={styles.demoRowInner}>
-                  <Icon name={r.icon} size={18} color={d.inkPrimary} />
-                  <T token="body" color={d.inkPrimary} numberOfLines={1} style={{ flex: 1 }}>{r.title}</T>
-                  <T token="caption" color={d.inkSecondary} tabular>{r.chip}</T>
-                </Animated.View>
-              ) : null}
-            </View>
-          ))}
-        </View>
-        <View style={styles.footer}>
-          <Press
-            haptic="tap"
-            accessibilityRole="button"
-            accessibilityState={{ disabled: !done }}
-            disabled={!done}
-            onPress={onNext}
-            style={[styles.darkButton, { backgroundColor: d.inkPrimary, opacity: done ? 1 : 0.4 }]}
-          >
-            <Animated.View key={done ? "go" : "wait"} entering={enter.fade}>
-              <T token="headline" color={d.onPrimary}>{done ? "Now try yours" : "Reading…"}</T>
-            </Animated.View>
-          </Press>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-/** The demo rows on the week chart: spans become new (green) blocks, single times a due dot or an exam target. */
-function demoWeek(week: string[], rows: DemoRow[]): WeekDay[] {
-  return week.map((date, i) => {
-    const here = rows.filter((r) => r.at.day === i);
-    const span = here.find((r) => r.at.end);
-    return {
-      date,
-      blocks: here.filter((r) => r.at.end).map((r) => ({ id: r.title, start: r.at.start, end: r.at.end!, tone: "green" as const })),
-      marks: here.filter((r) => !r.at.end).map((r) => ({ id: r.title, time: r.at.start, kind: r.icon === "exam" ? ("target" as const) : ("dot" as const) })),
-      label: span ? compactRange(span.at.start, span.at.end!) : undefined,
-      labelTone: span ? ("green" as const) : undefined,
-    };
-  });
-}
-
-/* ---------- Bring your own, or continue to a personalized display-only preview ---------- */
-
-function OwnStep({ onSample }: { onSample: () => void }) {
-  const { c } = useTheme();
+  const copy = OWN_COPY[source];
   const { requireImportAccess, requirePlus } = usePlusAccess();
   const importing = useRef(false);
   const apiUrl = useStore((s) => s.settings.apiUrl);
@@ -549,7 +330,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
         return;
       }
       if (res.extraction.items.length === 0) {
-        setError("Semli couldn't find any dates. Add a day or time and try again, or explore your preview for now.");
+        setError("We couldn’t find any plans to add. Include a day or time and try again, or try a sample week.");
         return;
       }
       feedback("ready");
@@ -560,7 +341,7 @@ function OwnStep({ onSample }: { onSample: () => void }) {
     } catch (failure) {
       reportError("onboarding.import", failure);
       track("import_failed", { kind: input.kind, where: "onboarding" });
-      setError("Semli couldn't read that right now. Try again, or explore your preview for now.");
+      setError("We couldn’t read that. Try again, or try a sample week.");
     } finally {
       importing.current = false;
       setBusy(null);
@@ -595,14 +376,19 @@ function OwnStep({ onSample }: { onSample: () => void }) {
   return (
     <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={styles.titleBlock}>
-        <T token="displaySm" accessibilityRole="header">Now, your week.</T>
-        <T token="callout" color={c.inkSecondary}>Type it, paste it, or add a screenshot.</T>
+        <T token="displaySm" accessibilityRole="header">{copy.title}</T>
+        <T token="callout" color={c.inkSecondary}>{job && source !== "screenshots" ? `${copy.sub} You can add work shifts later.` : copy.sub}</T>
       </View>
+      {!busy && copy.primary ? (
+        <Button label={copy.primary === "pdf" ? "Choose a syllabus PDF" : "Choose a photo or screenshot"}
+          onPress={() => void pick(copy.primary === "pdf" ? pickPdfInput : () => pickImageInput(false))} />
+      ) : null}
       {busy ? (
         <Reading source={busy === "Message" ? "your message" : busy} chart={/\.pdf$/i.test(busy) ? "term" : "week"} />
       ) : (
         <Composer
           value={text}
+          placeholder={job ? "Working Friday 4–10 pm, team meeting Monday at noon…" : "Biology exam next Friday, essay due Monday at 5 pm…"}
           onChangeText={setText}
           canSend={text.trim().length > 0}
           onPickImage={() => void pick(() => pickImageInput(false))}
@@ -620,8 +406,10 @@ function OwnStep({ onSample }: { onSample: () => void }) {
         </View>
       ) : null}
       {!busy ? <RecentShots onPick={(uri) => void openShot(uri)} /> : null}
-      <View style={styles.footer}>
-        <Button label="Skip for now" variant="secondary" disabled={!!busy} onPress={onSample} />
+      <View style={[styles.footer, { alignItems: "center" }]}>
+        <Press haptic="select" accessibilityRole="button" disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center" }}>
+          <T token="subhead" color={c.inkSecondary}>{copy.sample}</T>
+        </Press>
       </View>
     </ScrollView>
   );
@@ -665,7 +453,7 @@ function CanvasStep({ onConnected, onInstead }: { onConnected: () => void; onIns
           <T token="callout" color={c.inkSecondary}>From Canvas</T>
           <T token="displayXl" tabular>{`${added} ${added === 1 ? "item" : "items"}`}</T>
           <T token="callout" color={c.inkSecondary}>
-            {added > 0 ? "Your Canvas calendar is connected. With Plus, Semli checks for updates when you open the app." : "Your Canvas calendar is connected, with no items to import yet. With Plus, Semli checks for new ones when you open the app."}
+            {added > 0 ? "Your Canvas calendar is connected. Plus keeps it up to date when you open Semli." : "Your Canvas calendar is connected. There’s nothing to add yet. Plus checks for updates when you open Semli."}
           </T>
         </Animated.View>
         <View style={styles.footer}>
@@ -679,10 +467,10 @@ function CanvasStep({ onConnected, onInstead }: { onConnected: () => void; onIns
     <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={styles.titleBlock}>
         <T token="displaySm" accessibilityRole="header">Connect Canvas.</T>
-        <T token="callout" color={c.inkSecondary}>Paste your calendar feed link once. Semli only reads it, and nothing you do here changes Canvas.</T>
+        <T token="callout" color={c.inkSecondary}>Paste your Canvas calendar link to add its dates to Semli. Your Canvas calendar stays unchanged.</T>
       </View>
       <View>
-        {["Open Canvas in a browser. A laptop is easiest.", "Go to Calendar, then Calendar feed at the bottom of the sidebar.", "Copy the link and paste it below."].map((line, i) => (
+        {["Open Canvas in your browser.", "Go to Calendar and select Calendar feed in the sidebar.", "Copy the calendar link and paste it below."].map((line, i) => (
           <View key={line} style={[styles.choice, { minHeight: 52, borderBottomColor: c.line }]}>
             <T token="headline" tabular style={{ width: 18 }}>{String(i + 1)}</T>
             <T token="body" style={{ flex: 1 }}>{line}</T>
@@ -709,27 +497,80 @@ function CanvasStep({ onConnected, onInstead }: { onConnected: () => void; onIns
       <View style={[styles.footer, { alignItems: "center" }]}>
         <Button label={busy ? "Reading Canvas…" : "Connect Canvas"} disabled={busy || !link.trim()} onPress={() => void connect()} />
         <Press haptic="select" accessibilityRole="button" disabled={busy} onPress={onInstead} style={{ minHeight: 44, justifyContent: "center" }}>
-          <T token="subhead" color={c.inkSecondary}>Use a screenshot or syllabus instead</T>
+          <T token="subhead" color={c.inkSecondary}>Add another way</T>
         </Press>
       </View>
     </ScrollView>
   );
 }
 
-/* ---------- Heads-up: our sheet first, the system prompt only on yes ---------- */
+/* ---------- Their term, from what they just added ---------- */
 
-function HeadsUpStep({ onDone }: { onDone: () => void }) {
-  const d = palettes.dark;
-  const l = palettes.light;
+function ResultStep({ sample, onNext }: { sample: boolean; onNext: () => void }) {
+  const { c } = useTheme();
+  const items = useItemList();
+  const today = localParts(new Date()).date;
+  const s = useMemo(() => termSummary(items, today), [items, today]);
+  useEffect(() => {
+    track("result_shown", { deadlines: s.deadlines, exams: s.exams, clash: !!s.clash });
+    // Once, for what was imported when the screen opened.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const rows = [
+    s.first ? { label: "Next due", value: `${s.first.title} · ${relativeDay(today, s.first.date)}` } : null,
+    s.busiestWeek && s.busiestWeek.count > 1 ? { label: "Busiest week", value: `${monthDay(s.busiestWeek.start)} · ${s.busiestWeek.count} due` } : null,
+    s.exams ? { label: "Exams", value: String(s.exams) } : null,
+    s.clash ? { label: "Work overlap", value: `${weekdayLong(s.clash.date)} · ${s.clash.work}` } : null,
+  ].filter((r): r is { label: string; value: string } => r !== null);
+  return (
+    <ScrollView contentContainerStyle={styles.page} showsVerticalScrollIndicator={false}>
+      <View style={styles.titleBlock}>
+        <T token="displaySm" accessibilityRole="header">{sample ? "Sample week" : "Your deadlines"}</T>
+      </View>
+      <View style={{ gap: 2 }}>
+        <T token="displayXl" tabular>{String(s.deadlines)}</T>
+        <T token="callout" color={c.inkSecondary}>
+          {s.deadlines === 0 ? "No upcoming deadlines in this plan." : `${s.deadlines === 1 ? "deadline" : "deadlines"}${s.lastDate ? ` through ${monthDay(s.lastDate)}` : ""}`}
+        </T>
+      </View>
+      <View>
+        {rows.map((r, i) => (
+          <Animated.View key={r.label} layout={layout} entering={enter.staggered(i)} style={[styles.fact, { borderBottomColor: c.line }]}>
+            <T token="body" color={c.inkSecondary}>{r.label}</T>
+            <T token="body" numberOfLines={1} style={{ flexShrink: 1, textAlign: "right" }}>{r.value}</T>
+          </Animated.View>
+        ))}
+      </View>
+      <View style={styles.footer}>
+        <Button label="Continue" onPress={onNext} />
+      </View>
+    </ScrollView>
+  );
+}
+
+/* ---------- A reminder they choose: our question first, the system prompt only on yes ---------- */
+
+const REMIND = [
+  { id: "evening", label: "The night before at 8 pm", patch: { dayBeforeAt: "20:00" } },
+  { id: "morning", label: "The day it’s due at 8 am", patch: { morningAt: "08:00", briefingAt: "08:00" } },
+] as const;
+
+function RemindStep({ onDone }: { onDone: () => void }) {
+  const { c } = useTheme();
+  const items = useItemList();
   const setSettings = useStore((s) => s.setSettings);
+  const [choice, setChoice] = useState<(typeof REMIND)[number]["id"]>("evening");
   const [asking, setAsking] = useState(false);
+  const today = localParts(new Date()).date;
+  const first = useMemo(() => termSummary(items, today).first, [items, today]);
   const yes = async () => {
     setAsking(true);
     setSettings({ remindersAsked: true });
-    const ok = await requestNotifications().catch(() => false);
-    track("onboarding_step", { step: ok ? "heads-up-yes" : "heads-up-denied" });
-    if (ok) {
-      setSettings({ reminders: { ...useStore.getState().settings.reminders, enabled: true, briefing: true } });
+    const granted = await requestNotifications().catch(() => false);
+    track("remind_choice", { time: choice, granted });
+    if (granted) {
+      const picked = REMIND.find((r) => r.id === choice)!;
+      setSettings({ reminders: { ...useStore.getState().settings.reminders, enabled: true, briefing: true, ...picked.patch } });
       await syncReminders().catch(() => {});
     }
     setAsking(false);
@@ -737,55 +578,68 @@ function HeadsUpStep({ onDone }: { onDone: () => void }) {
   };
   const notNow = () => {
     setSettings({ remindersAsked: true });
-    track("onboarding_step", { step: "heads-up-no" });
+    track("remind_choice", { time: "none", granted: false });
     onDone();
   };
   return (
-    <View style={styles.center}>
-      <Animated.View entering={enter.rise} style={[styles.notification, { backgroundColor: "rgba(255,255,255,0.94)" }]}>
-        <View style={[styles.notificationMark, { backgroundColor: l.inkPrimary }]}>
-          <View style={[styles.notificationBig, { backgroundColor: l.onPrimary }]} />
-          <View style={[styles.notificationSmall, { backgroundColor: l.accent }]} />
-        </View>
-        <View style={{ flex: 1, gap: 2 }}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <T token="overline" color={l.inkPrimary} style={{ fontSize: 12, lineHeight: 16 }}>Semli</T>
-            <T token="caption" color={l.inkSecondary}>7:30 am</T>
-          </View>
-          <T token="callout" color={l.inkPrimary} style={{ fontFamily: textStyle("headline", l.inkPrimary).fontFamily }}>Good morning. 2 things today.</T>
-          <T token="callout" color={l.inkSecondary}>Stats lecture 9–10:15, Café shift 4–10. Pharm exam is Friday.</T>
-        </View>
-      </Animated.View>
-      <View style={{ marginTop: "auto", gap: 20 }}>
-        <View style={{ gap: 6 }}>
-          <T token="displaySerif" color={d.inkPrimary}>Want a heads-up?</T>
-          <T token="callout" color="#D8D7D0" style={{ maxWidth: 320 }}>
-            A morning summary of what’s coming up, plus reminders before events and deadlines. Choose your reminder times in You.
-          </T>
-        </View>
-        <View style={[styles.footer, { alignItems: "center" }]}>
-          <Press haptic="tap" accessibilityRole="button" disabled={asking} onPress={() => void yes()} style={[styles.darkButton, { backgroundColor: d.inkPrimary, opacity: asking ? 0.6 : 1 }]}>
-            <T token="headline" color={d.onPrimary}>{asking ? "One sec…" : "Yes, remind me"}</T>
-          </Press>
-          <Press haptic="select" accessibilityRole="button" disabled={asking} onPress={notNow} style={{ minHeight: 44, justifyContent: "center" }}>
-            <T token="subhead" color="#D8D7D0">Not now</T>
-          </Press>
-        </View>
+    <ScrollView contentContainerStyle={styles.page} showsVerticalScrollIndicator={false}>
+      <View style={styles.titleBlock}>
+        <T token="displaySm" accessibilityRole="header">When would you like a reminder?</T>
+        <T token="callout" color={c.inkSecondary}>
+          {first ? `Next due: ${first.title}, ${relativeDay(today, first.date).toLowerCase()}. Change the times in You → Reminders.` : "Get reminders before deadlines. Change the times in You → Reminders."}
+        </T>
       </View>
-    </View>
+      <View accessibilityRole="radiogroup">
+        {REMIND.map((r) => (
+          <Press key={r.id} haptic="select" scale={1} accessibilityRole="radio" accessibilityState={{ selected: choice === r.id }} onPress={() => setChoice(r.id)}
+            style={[styles.choice, { minHeight: 56, borderBottomColor: c.line }]}>
+            <T token="body" style={{ flex: 1 }}>{r.label}</T>
+            <View style={[styles.radio, choice === r.id ? { backgroundColor: c.inkPrimary } : { borderWidth: 1.5, borderColor: c.controlOutline }]}>
+              {choice === r.id ? <View style={[styles.radioDot, { backgroundColor: c.onPrimary }]} /> : null}
+            </View>
+          </Press>
+        ))}
+      </View>
+      <View style={[styles.footer, { alignItems: "center" }]}>
+        <Button label={asking ? "Setting up reminders…" : "Remind me"} disabled={asking} onPress={() => void yes()} />
+        <Press haptic="select" accessibilityRole="button" disabled={asking} onPress={notNow} style={{ minHeight: 44, justifyContent: "center" }}>
+          <T token="subhead" color={c.inkSecondary}>Not now</T>
+        </Press>
+      </View>
+    </ScrollView>
   );
 }
 
-/* ---------- Plus, after the value moment ---------- */
+/* ---------- Plus, after the value moment, in their own words ---------- */
 
 function PlusStep({ onFinish }: { onFinish: () => void }) {
   const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
+  const items = useItemList();
+  const courses = useCourseList();
+  const canvas = useStore((s) => !!s.settings.canvas.feedUrl);
+  const headline = useMemo(() => {
+    const week = weekOf(localParts(new Date()).date);
+    const shifts = items.filter((i) => i.category === "work" && i.kind === "event" && week.includes(i.date)).length;
+    const classes = courses.length;
+    const n = (k: number, one: string, many: string) => `${k} ${k === 1 ? one : many}`;
+    if (canvas) return "Keep Canvas in sync with Plus.";
+    if (classes && shifts) return `Keep your ${n(classes, "class", "classes")} and ${n(shifts, "shift", "shifts")} in one plan.`;
+    if (classes) return `One plan for all ${n(classes, "class", "classes")}.`;
+    if (shifts) return `One plan for this week’s ${n(shifts, "shift", "shifts")}.`;
+    return undefined;
+  }, [items, courses, canvas]);
   useEffect(() => {
-    track("paywall_shown", { reason: "onboarding" });
+    track("paywall_shown", { reason: "onboarding", personalized: !!headline });
+    // Once per visit to the step.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const continueFree = () => {
+    track("paywall_continue_free", { reason: "onboarding" });
+    onFinish();
+  };
   return (
     <ScrollView ref={scroll} contentContainerStyle={[styles.page, { paddingTop: 150 }]} showsVerticalScrollIndicator={false}>
-      <PlanPicker palette={palettes.dark} onContinueFree={onFinish} onComplete={onFinish} onWelcome={() => scroll.current?.scrollTo({ y: 0, animated: false })} />
+      <PlanPicker palette={palettes.dark} headline={headline} onContinueFree={continueFree} onComplete={onFinish} onWelcome={() => scroll.current?.scrollTo({ y: 0, animated: false })} />
     </ScrollView>
   );
 }
@@ -796,23 +650,14 @@ const styles = StyleSheet.create({
   back: { marginLeft: -8, alignItems: "center", justifyContent: "center" },
   progress: { flex: 1, flexDirection: "row", gap: 5 },
   bar: { flex: 1, height: 3, borderRadius: 2 },
-  center: { flex: 1 },
   page: { flexGrow: 1, gap: 24 },
   titleBlock: { gap: 6 },
   footer: { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
   choice: { flexDirection: "row", alignItems: "center", gap: 14, borderBottomWidth: StyleSheet.hairlineWidth },
+  box: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
+  radio: { width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  radioDot: { width: 7, height: 7, borderRadius: 4 },
+  fact: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 16, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
   input: { height: 52, borderRadius: 999, paddingHorizontal: 20 },
-  textarea: { minHeight: 140, borderRadius: 16, padding: 16, textAlignVertical: "top" },
-  actions: { flexDirection: "row", gap: 8 },
   status: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 4 },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  bubble: { alignSelf: "flex-end", maxWidth: 290, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 20, borderBottomRightRadius: 6, minHeight: 45, marginTop: 24 },
-  demoRow: { height: 44, justifyContent: "center", borderBottomWidth: StyleSheet.hairlineWidth },
-  demoRowInner: { flexDirection: "row", alignItems: "center", gap: 12 },
-  demoPill: { height: 26, paddingHorizontal: 9, borderRadius: 13, alignItems: "center", justifyContent: "center" },
-  darkButton: { alignSelf: "stretch", height: 52, borderRadius: 999, alignItems: "center", justifyContent: "center" },
-  notification: { marginTop: 120, flexDirection: "row", gap: 12, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 20 },
-  notificationMark: { width: 36, height: 36, borderRadius: 9 },
-  notificationBig: { position: "absolute", left: 7, bottom: 7, width: 16, height: 16, borderRadius: 8 },
-  notificationSmall: { position: "absolute", right: 7, top: 7, width: 7, height: 7, borderRadius: 4 },
 });

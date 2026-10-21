@@ -1,6 +1,8 @@
 import type { Item } from '@dayli/schema';
-import { addDays, dayNumber, diffDays, formatRange, formatTime, monthDay, toMinutes } from './dates';
+import { addDays, dayNumber, diffDays, formatRange, formatTime, monthDay, toMinutes, weekOf } from './dates';
 import { intervalOf, overlap, union } from './intervals';
+import { assessment } from './assessment';
+import { findConflicts } from './conflicts';
 
 export type LocalNow = { date: string; time: string };
 export type WorkDates = Record<string, string>;
@@ -54,10 +56,21 @@ export type CountdownState = 'ends' | 'next' | 'now';
  * The sentence under Today's big number, which finishes it: "34m" then "until Stats lecture
  * ends · 10:15 am". `now` has no number, so the line is the item and its time.
  */
+/**
+ * The line under Today's big number, in two parts so a long title never strands its time on a
+ * line of its own: `text` ("until Composition seminar ends") sits under the number, and `time`
+ * ("2:45 pm") leads the grey line below, before the course.
+ */
+export function countdownParts(item: Pick<Item, 'title' | 'start' | 'end'>, state: CountdownState): { text: string; time: string | null } {
+  if (state === 'ends') return { text: `until ${item.title} ends`, time: item.end ? formatTime(item.end) : null };
+  if (state === 'next') return { text: `until ${item.title}`, time: item.start ? formatTime(item.start) : null };
+  return { text: item.title, time: item.start ? (item.end ? formatRange(item.start, item.end) : formatTime(item.start)) : null };
+}
+
+/** Both parts on one line, for VoiceOver and anywhere the line is read whole. */
 export function countdownLine(item: Pick<Item, 'title' | 'start' | 'end'>, state: CountdownState): string {
-  if (state === 'ends') return `until ${item.title} ends${item.end ? ` · ${formatTime(item.end)}` : ''}`;
-  if (state === 'next') return `until ${item.title}${item.start ? ` · ${formatTime(item.start)}` : ''}`;
-  return `${item.title}${item.start ? ` · ${item.end ? formatRange(item.start, item.end) : formatTime(item.start)}` : ''}`;
+  const { text, time } = countdownParts(item, state);
+  return time ? `${text} · ${time}` : text;
 }
 
 export function nowSummary(items: Item[], now: LocalNow): string {
@@ -186,4 +199,52 @@ export function spreadWork(items: Item[], ids: string[], now: LocalNow, workDate
     steps.push({ item, date: best.date });
   }
   return steps;
+}
+
+export interface TermSummary {
+  /** Open deadlines from today on. */
+  deadlines: number;
+  /** The last of them, the end of the plan as far as Semli knows. */
+  lastDate: string | null;
+  /** The Monday of the week with the most deadlines, and how many. */
+  busiestWeek: { start: string; count: number } | null;
+  /** Exams among the deadlines (`assessment`), not quizzes. */
+  exams: number;
+  /** The first day a work shift overlaps a school event, if any. */
+  clash: { date: string; work: string; school: string } | null;
+  /** The next deadline. */
+  first: Item | null;
+}
+
+/** The facts of a freshly imported plan, for onboarding's "your term at a glance". All real numbers. */
+export function termSummary(items: Item[], today: string): TermSummary {
+  const ahead = items
+    .filter((i) => i.isDeadline && !i.done && i.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? '').localeCompare(b.start ?? ''));
+  const perWeek = new Map<string, number>();
+  for (const d of ahead) {
+    const monday = weekOf(d.date)[0]!;
+    perWeek.set(monday, (perWeek.get(monday) ?? 0) + 1);
+  }
+  let busiestWeek: TermSummary['busiestWeek'] = null;
+  for (const [start, count] of [...perWeek].sort((a, b) => a[0].localeCompare(b[0]))) {
+    if (!busiestWeek || count > busiestWeek.count) busiestWeek = { start, count };
+  }
+  const byId = new Map(items.map((i) => [i.id, i]));
+  let clash: TermSummary['clash'] = null;
+  for (const c of findConflicts(items.filter((i) => i.date >= today))) {
+    const a = byId.get(c.a)!;
+    const b = byId.get(c.b)!;
+    const work = a.category === 'work' ? a : b.category === 'work' ? b : null;
+    const school = a.category === 'school' ? a : b.category === 'school' ? b : null;
+    if (work && school && (!clash || work.date < clash.date)) clash = { date: work.date, work: work.title, school: school.title };
+  }
+  return {
+    deadlines: ahead.length,
+    lastDate: ahead.at(-1)?.date ?? null,
+    busiestWeek,
+    exams: ahead.filter((i) => assessment(i.title) === 'exam').length,
+    clash,
+    first: ahead[0] ?? null,
+  };
 }

@@ -26,17 +26,17 @@ export function TodayStart({ date, tab = 'Today', header }: { date: string; tab?
   return (
     <View>
       {header ?? <TabHeader date={date} title={tab} size="title"
-        details={<T token="callout" color={c.inkSecondary}>Add one thing and {tab} fills in. Everything is checked with you first.</T>} />}
+        details={<T token="callout" color={c.inkSecondary}>Add events or tasks to see them here. Review imports before saving.</T>} />}
 
       <View style={styles.section}>
         <SectionTitle title="Start with" />
         <ListRow title="A work schedule" sub="A screenshot from the scheduling app or the group chat" leading={<Icon name="image" size={20} color={c.inkPrimary} />} onPress={() => open('image')} />
         <ListRow title="A syllabus" sub="Classes, exams and due dates for the whole term" leading={<Icon name="file" size={20} color={c.inkPrimary} />} onPress={() => open('file')} />
-        <ListRow title="Tell Semli what's coming up" sub="“I work Friday 4–10 and have an exam Monday”" leading={<Icon name="pen" size={20} color={c.inkPrimary} />} onPress={() => open()} last />
+        <ListRow title="Type your plans" sub="“I work Friday 4–10 and have an exam Monday”" leading={<Icon name="pen" size={20} color={c.inkPrimary} />} onPress={() => open()} last />
       </View>
 
       <View style={styles.section}>
-        <SectionTitle title="Then Today looks like this" />
+        <SectionTitle title="Example schedule" />
         <View style={styles.examples} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           <View style={[styles.row, { borderBottomColor: c.line }]}>
             <View style={styles.lead}><CategoryDot color={c.inkPrimary} /></View>
@@ -55,7 +55,7 @@ export function TodayStart({ date, tab = 'Today', header }: { date: string; tab?
             <StatusPill label="Due today" tone="red" tabular={false} />
           </View>
         </View>
-        <T token="caption" color={c.inkSecondary} style={{ paddingTop: 10 }}>Examples. Not on your calendar, no reminders.</T>
+        <T token="caption" color={c.inkSecondary} style={{ paddingTop: 10 }}>Example items only. They aren’t saved and won’t send reminders.</T>
       </View>
     </View>
   );

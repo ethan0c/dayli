@@ -10,7 +10,7 @@ import { restoreFromCloud, saveToCloud } from './cloud';
 import { forgetAccount, maskEmail, rememberAccount, type Provider } from './last-account';
 import { reportError } from './errors';
 import { posthog, track } from './analytics';
-import { supabase } from './supabase';
+import { deleteReplacedGuest, supabase } from './supabase';
 import { useStore } from '../store';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -23,6 +23,7 @@ async function signedIn(): Promise<SignInResult> {
   const { data: { session } } = await supabase!.auth.getSession();
   const user = session?.user;
   if (user && !user.is_anonymous) {
+    void deleteReplacedGuest(user.id);
     const fullName = user.user_metadata?.full_name;
     posthog?.identify(user.id, {
       ...(user.email ? { email: user.email } : {}),
@@ -171,7 +172,7 @@ const supabaseClient: AuthClient = {
       throw { code: 'backup_before_sign_out' };
     }
     await endSession();
-    useStore.getState().clearAll('everything');
+    // The caller clears the plan once it has left the signed-in screens (see account.tsx).
   },
 
   /**
@@ -186,7 +187,6 @@ const supabaseClient: AuthClient = {
     if (error) throw error;
     await endSession();
     await forgetAccount();
-    useStore.getState().clearAll('everything');
   },
 };
 

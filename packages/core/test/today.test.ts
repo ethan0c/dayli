@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from '@dayli/schema';
-import { countdownLine, deadlineReason, deadlineWindow, featuredCommitment, nowSummary, overdueTasks, spreadWork, startTodaySuggestions, todayItems, tomorrowSummary } from '../src/today';
+import { countdownLine, countdownParts, deadlineReason, deadlineWindow, featuredCommitment, nowSummary, overdueTasks, spreadWork, startTodaySuggestions, termSummary, todayItems, tomorrowSummary } from '../src/today';
 
 const date = '2026-10-19';
 const now = { date, time: '10:00' };
@@ -156,6 +156,10 @@ describe('countdown line', () => {
     expect(countdownLine({ title: 'Bio lecture', start: '10:30', end: '11:45' }, 'next')).toBe('until Bio lecture · 10:30 am');
     expect(countdownLine(lecture, 'now')).toBe('Stats lecture · 9–10:15 am');
   });
+  it('keeps the time apart from a long title', () => {
+    expect(countdownParts({ title: 'Composition seminar', start: '13:30', end: '14:45' }, 'ends')).toEqual({ text: 'until Composition seminar ends', time: '2:45 pm' });
+    expect(countdownParts({ title: 'Shift', start: '16:00', end: null }, 'ends')).toEqual({ text: 'until Shift ends', time: null });
+  });
   it('drops a time it does not have', () => {
     expect(countdownLine({ title: 'Shift', start: '16:00', end: null }, 'ends')).toBe('until Shift ends');
     expect(countdownLine({ title: 'Dentist', start: '16:00', end: null }, 'now')).toBe('Dentist · 4:00 pm');
@@ -185,5 +189,31 @@ describe('spreading a heavy week', () => {
     expect(steps.find((s) => s.item.id === 'chosen')).toBeUndefined();
     expect(steps.find((s) => s.item.id === 'soon')?.date).toBe(date);
     expect(steps.find((s) => s.item.id === 'in-break')!.date <= '2026-10-23').toBe(true);
+  });
+});
+
+describe('the term at a glance', () => {
+  it('counts open deadlines from today, the busiest week, exams, and the first work clash', () => {
+    const items = [
+      item({ id: 'old', date: '2026-10-12', isDeadline: true }),
+      item({ id: 'done', date: '2026-10-20', isDeadline: true, done: true }),
+      item({ id: 'ps4', title: 'Problem set 4', date: '2026-10-21', isDeadline: true }),
+      event({ id: 'exam2', title: 'Stats exam 2', date: '2026-10-28', isDeadline: true }),
+      item({ id: 'quiz', title: 'Quiz 3', date: '2026-10-29', isDeadline: true }),
+      item({ id: 'essay', title: 'Essay draft', date: '2026-10-30', isDeadline: true }),
+      event({ id: 'lab', title: 'Bio lab', category: 'school', date: '2026-10-22', start: '13:00', end: '15:30' }),
+      event({ id: 'shift', title: 'Café shift', category: 'work', date: '2026-10-22', start: '15:00', end: '21:00' }),
+    ];
+    const s = termSummary(items, date);
+    expect(s.deadlines).toBe(4);
+    expect(s.lastDate).toBe('2026-10-30');
+    expect(s.busiestWeek).toEqual({ start: '2026-10-26', count: 3 });
+    expect(s.exams).toBe(1);
+    expect(s.clash).toEqual({ date: '2026-10-22', work: 'Café shift', school: 'Bio lab' });
+    expect(s.first?.id).toBe('ps4');
+  });
+
+  it('is empty, not wrong, with nothing ahead', () => {
+    expect(termSummary([], date)).toEqual({ deadlines: 0, lastDate: null, busiestWeek: null, exams: 0, clash: null, first: null });
   });
 });

@@ -45,8 +45,8 @@ export function momentFor(items: Item[], breaks: Break[], today: string): Moment
     return {
       lead: `${soonBreak.label} in`,
       big: `${days} ${days === 1 ? 'day' : 'days'}`,
-      line: landing.length ? `${landing.length} ${landing.length === 1 ? 'deadline lands' : 'deadlines land'} that week.` : 'Nothing lands that week. Enjoy it.',
-      action: landing.length ? { label: 'Start them before', spread: landing.map((i) => i.id), until: soonBreak.start } : undefined,
+      line: landing.length ? `${landing.length} ${landing.length === 1 ? 'deadline' : 'deadlines'} during the break.` : 'No deadlines scheduled during the break.',
+      action: landing.length ? { label: 'Plan work before the break', spread: landing.map((i) => i.id), until: soonBreak.start } : undefined,
       image: PHOTOS.break,
     };
   }
@@ -79,10 +79,10 @@ export function momentFor(items: Item[], breaks: Break[], today: string): Moment
     if (cluster.length >= 3) {
       const days = diffDays(today, first.date);
       return {
-        lead: 'A heavy week starts in',
+        lead: 'Deadlines in',
         big: `${days} ${days === 1 ? 'day' : 'days'}`,
         line: `${cluster.slice(0, 2).map((i) => i.title).join(', ')} and ${cluster.length - 2} more in ${diffDays(first.date, cluster[cluster.length - 1]!.date) + 1} days.`,
-        action: { label: 'Spread it out', spread: cluster.map((i) => i.id) },
+        action: { label: 'Plan work across days', spread: cluster.map((i) => i.id) },
         image: PHOTOS.heavy,
       };
     }
@@ -91,14 +91,14 @@ export function momentFor(items: Item[], breaks: Break[], today: string): Moment
   const doneToday = items.filter((i) => i.done && i.isDeadline && i.date === today).length;
   const left = open.filter((i) => i.isDeadline && i.date > today && diffDays(today, i.date) <= 7).length;
   if (doneToday > 0 && left === 0) {
-    return { lead: 'Deadlines left this week', big: '0', line: `${doneToday === 1 ? 'The last one' : `${doneToday} of them`} done today.`, image: PHOTOS.done };
+    return { lead: 'Deadlines left this week', big: '0', line: `${doneToday} ${doneToday === 1 ? 'deadline' : 'deadlines'} completed today.`, image: PHOTOS.done };
   }
   // The first quiet day after exams: two or more in the last three days, none in the next two weeks.
   const exams = items.filter((i) => i.isDeadline && assessment(i.title) === 'exam');
   const behind = exams.filter((i) => i.date < today && diffDays(i.date, today) <= 3).length;
   const ahead = exams.some((i) => !i.done && i.date >= today && i.date <= addDays(today, 14));
   if (behind >= 2 && !ahead) {
-    return { lead: 'Exams behind you', big: `${behind}`, line: 'Nothing big for two weeks. Take the evening.', image: PHOTOS.done };
+    return { lead: 'Recent exams', big: `${behind}`, line: 'No exams scheduled in the next two weeks.', image: PHOTOS.done };
   }
   return null;
 }

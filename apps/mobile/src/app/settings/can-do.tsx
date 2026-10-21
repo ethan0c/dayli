@@ -18,7 +18,7 @@ export default function CanDoScreen() {
       <View style={styles.top}>
         <T token="callout" color={c.inkSecondary}>Tried so far</T>
         <T token="displayXl" tabular>{`${tried} of ${list.length}`}</T>
-        <T token="body" color={c.inkSecondary} style={styles.line}>Each one opens the real thing. Plus items are marked; the free ones are always free.</T>
+        <T token="body" color={c.inkSecondary} style={styles.line}>Select a feature to open it. Paid features are marked Plus.</T>
       </View>
       <View>
         {list.map((t, i) => (

@@ -29,7 +29,7 @@ export function Heard({ text }: { text: string }) {
           <T token="caption" color={c.inkSecondary} tabular>{row.label}</T>
         </Animated.View>
       ))}
-      <T token="caption" color={c.inkSecondary} style={{ paddingTop: 6 }}>Semli reads it properly when you send.</T>
+      <T token="caption" color={c.inkSecondary} style={{ paddingTop: 6 }}>Send to review the dates and times before adding them.</T>
     </Animated.View>
   );
 }

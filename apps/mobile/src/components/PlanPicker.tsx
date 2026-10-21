@@ -49,8 +49,10 @@ function perMonth(pack: PurchasesPackage, months: number): string {
 }
 
 /** Shared purchase controls for the photographic onboarding, settings and gated paywalls. */
-export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsLeft, palette }: {
+export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsLeft, palette, headline }: {
   onContinueFree?: () => void; onComplete?: () => void; onWelcome?: () => void; freeImportsLeft?: number; palette?: Palette;
+  /** Optional heading based on the person’s imports. */
+  headline?: string;
 }) {
   const theme = useTheme();
   const c = palette ?? theme.c;
@@ -94,9 +96,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
         const ends = info.entitlements.active[PLUS_ENTITLEMENT]?.expirationDate;
         if (days && ends) setSettings({ trial: { endsAt: ends, label: `${selected.product.priceString} ${current.billed}` } });
       } else {
-        // Apple sold it; RevenueCat did not map it. Say which, so a screenshot is enough to fix the dashboard.
-        const seen = info.activeSubscriptions.length ? `The store lists ${info.activeSubscriptions.join(', ')} but not Semli Plus.` : 'The store lists no subscription for this app user.';
-        setNotice(`Your purchase finished, but Plus is not active yet. ${seen} Try Restore, check Plan status in You, or email hello@semli.app.`);
+        setNotice('Your purchase completed, but Plus isn’t active yet. Try Restore below. If it still doesn’t work, email hello@semli.app.');
       }
     } catch {
       // The provider exposes actionable failures in `error`.
@@ -143,7 +143,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           <T token="callout" color={c.inkSecondary}>Semli <T token="callout" color={c.accentInk}>Plus</T> · Active</T>
           <T token="displayXl" color={c.inkPrimary}>Unlimited</T>
           <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
-            {entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}.` : 'Every syllabus, schedule and screenshot read for you.'}
+            {entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}.` : 'Your Plus subscription is active.'}
           </T>
         </View>
         <PlusFeatures c={c} onGo={goTo} />
@@ -165,7 +165,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
     <View style={{ gap: 28 }}>
       {previewPlans ? <Press accessibilityRole="button" onPress={() => setPreviewPlans(false)} style={styles.textBtn}><T token="caption" color={c.accentInk}>End preview · purchases disabled</T></Press> : null}
       <View style={{ gap: 12 }}>
-        <T token="displaySerif" color={c.inkPrimary}>More life. Less juggling.</T>
+        <T token="displaySerif" color={c.inkPrimary}>{headline ?? 'Get Semli Plus.'}</T>
         <T token="callout" color={c.inkSecondary}>
           Semli <T token="callout" color={c.accentInk}>Plus</T>{days ? ` · ${days} days free, then` : ''}
         </T>
@@ -178,7 +178,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           </View>
         )}
         <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
-          Unlimited imports, Canvas kept in sync, updates to your work schedule, suggested times for overlapping plans, and urgent items that ring like an alarm. Calendar, to-dos, reminders and overlap warnings stay free forever.
+          Unlimited imports, Canvas sync, work schedule comparisons, suggested times for overlapping events, and alarms for urgent items. Your calendar, to-dos, reminders and overlap warnings are free.
         </T>
       </View>
 
@@ -213,9 +213,9 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
       {days && selected && current ? (
         <View style={{ gap: 16 }}>
           {[
-            { when: 'Today', what: 'Everything in Plus, free.', color: c.added },
-            { when: `Day ${Math.max(1, days - 2)}`, what: canRemind === false ? 'A reminder before you’re charged, once notifications are on.' : 'We remind you before you’re charged.', color: c.changed, remind: canRemind === false },
-            { when: `Day ${days}`, what: `${selected.product.priceString} ${current.billed}. Cancel before and pay nothing.`, color: c.inkPrimary },
+            { when: 'Today', what: 'Your free trial starts.', color: c.added },
+            { when: `Day ${Math.max(1, days - 2)}`, what: canRemind !== true ? 'Turn on notifications for a reminder before your trial ends.' : 'You’ll get a reminder before your trial ends.', color: c.changed, remind: canRemind !== true },
+            { when: `Day ${days}`, what: `${selected.product.priceString} ${current.billed}. Cancel before the trial ends to avoid a charge.`, color: c.inkPrimary },
           ].map((r) => (
             <View key={r.when} style={styles.timelineRow}>
               <View style={[styles.timelineDot, { backgroundColor: r.color }]} />
@@ -243,7 +243,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           style={[styles.cta, { backgroundColor: c.controlFill, opacity: disabled || !selected || previewPlans ? 0.4 : 1 }]}>
           <T token="headline" color={c.controlInk}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
         </Press>
-        <T token="subhead" color={c.inkPrimary} style={styles.center}>No commitment. Cancel anytime.</T>
+        <T token="subhead" color={c.inkPrimary} style={styles.center}>Cancel anytime in Apple Settings.</T>
         <T token="caption" color={c.inkSecondary} style={styles.center}>
           {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.billed}. Renews automatically until you cancel in Settings.` : 'Prices are shown before you confirm.'}
         </T>

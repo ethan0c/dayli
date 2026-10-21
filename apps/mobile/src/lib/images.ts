@@ -11,9 +11,8 @@ export const SKY: Record<SkySlot, number> = {
   night: require('../../assets/images/sky/night.webp'),
 };
 
+/** The paywall's photo; onboarding's other showcases were removed Oct 21, 2026. */
 export const SHOWCASE = {
-  demo: require('../../assets/showcase/demo.jpg') as number,
-  headsup: require('../../assets/showcase/headsup.jpg') as number,
   plus: require('../../assets/showcase/plus.jpg') as number,
 };
 

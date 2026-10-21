@@ -61,7 +61,7 @@ The current, complete version is [app-store-connect.md](app-store-connect.md); t
 - TestFlight builds use the **sandbox** store: testers see a sandbox sign-in when buying. Tell them it is normal.
 
 ### 1.6 App Review (for the public release, later)
-- Review notes: "No account needed. Tap 'Show me a sample week' in onboarding to see a populated app. To test import, send the text: 'I work Fri 4-10, exam Monday at 9.' Subscriptions use StoreKit via RevenueCat; the 7-day trial is configured on each product."
+- Review notes: "No account needed. Tap 'Try a sample' on the import step in onboarding to see a populated app. To test import, send the text: 'I work Fri 4-10, exam Monday at 9.' Subscriptions use StoreKit via RevenueCat; the 7-day trial is configured on each product."
 - Common rejections to pre-empt: subscription terms must be visible on the paywall before purchase (they are: price, period, auto-renew, cancel, Terms and Privacy links); "Restore purchases" must exist (it does); the privacy policy must mention the AI provider (make sure `/privacy` names Anthropic as a processor of uploaded content).
 
 ### 1.7 Keys: which .p8 is which

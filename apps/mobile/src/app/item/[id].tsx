@@ -137,7 +137,7 @@ export default function ItemScreen() {
   const showDay = dayItems.some((it) => it.kind === 'event' && it.start);
 
   const reminderLine = reminders.enabled
-    ? isEvent && item.start ? `Reminder ${reminders.eventLead} min before` : item.isDeadline ? 'Reminder the evening before and the morning of' : 'In the morning briefing'
+    ? isEvent && item.start ? `Reminder ${reminders.eventLead} min before` : item.isDeadline ? 'Reminder the evening before and the morning of' : 'Included in the daily summary'
     : 'Reminders are off · Turn them on in You';
 
   const shorten = (date: string) => {

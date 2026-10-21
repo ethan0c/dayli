@@ -45,11 +45,12 @@ STAT 200 · Coursework
 
 ### Today's sky
 
-Decided Oct 21, 2026: Today gets a sky photo behind its header, the one place a planner screen carries a photo outside moment days. It is a greeting, not a theme, so it stays on Today only.
+Decided Oct 21, 2026: Today gets a sky photo behind its header, the one place a planner screen carries a photo outside moment days. It is a greeting, not a theme, so it stays on Today and, since Oct 21, 2026, the welcome screen: the store screenshots, the welcome and Today then share one sky. The questions in between, and the term at a glance, stay plain paper.
 
 - **A sky, not a scene.** Clouds and light only: no horizon, buildings, people or sun disc. `PhotoHeader` (already used by moments) at about 280pt tall, fading into the paper before the day bar; the date line and the big number sit on the faded part, never on busy pixels.
 - **Five slots from the phone's clock:** dawn 5–8, morning 8–12, afternoon 12–17, golden hour 17–20, night 20–5. Night is also the dark-mode sky at every hour. No location, no weather, nothing leaves the phone.
 - **Moments win.** On a moment day the moment's photo replaces the sky.
+- **The fade is one SVG gradient** with a light wash of the paper over the whole photo (`dim`), so the date line and the big number never sit on full-strength cloud and the fade has no seams.
 - **No motion while reading.** The sky changes only on open or when the hour crosses a slot, with the existing `PhotoHeader` fade. Reduce Motion: no fade, a straight swap.
 - **Contrast:** callout grey and the 56pt number must clear 4.5:1 and 3:1 against the pixels behind them. If a photo fails, lighten that photo in the export (or start the fade higher); never add a scrim or tint.
 - **Assets:** five photos, 1290 wide, cropped to the top 40% of a portrait frame, WebP at about 100 KB each, in `assets/images/sky/`, with photographer credit in `docs/photo-credits.md` (Unsplash License: free for apps, no attribution required, credit kept anyway). Candidates in **Sky candidates** below.

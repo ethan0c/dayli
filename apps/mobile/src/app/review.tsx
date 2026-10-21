@@ -257,6 +257,16 @@ export default function ReviewScreen() {
       }
     }
     leaving.current = true;
+    // A real import replaces the onboarding sample, unless it edits sample rows (then Today keeps offering Remove).
+    const { settings: before, batches, undoBatch, setSettings: saveSettings } = useStore.getState();
+    if (before.sampleBatchId) {
+      const sampleIds = new Set(batches.find((b) => b.id === before.sampleBatchId)?.changes.map((ch) => ch.after?.id).filter(Boolean));
+      if (!plan.update.some((u) => sampleIds.has(u.id)) && !plan.remove.some((r) => sampleIds.has(r))) {
+        undoBatch(before.sampleBatchId);
+        saveSettings({ sampleBatchId: null });
+        track('sample_removed', { how: 'import' });
+      }
+    }
     const label = plan.schedule
       ? `Updated ${plan.schedule.employer} schedule`
       : `Added ${plan.create.length} ${plan.create.length === 1 ? 'item' : 'items'}`;

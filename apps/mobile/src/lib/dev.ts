@@ -3,7 +3,8 @@ import { File, Paths } from 'expo-file-system';
 /**
  * Development only: a file named `dev-step.txt` in the app's Documents folder names an
  * onboarding step to open at launch, so screens can be screenshotted without tapping through.
- * Write it with: echo demo > "$(xcrun simctl get_app_container booted app.semli.mobile data)/Documents/dev-step.txt"
+ * Steps: plate, deadlines, own, canvas, result, remind, plus (or welcome).
+ * Write it with: echo result > "$(xcrun simctl get_app_container booted app.semli.mobile data)/Documents/dev-step.txt"
  */
 export async function devStep(): Promise<string | null> {
   if (!__DEV__) return null;
