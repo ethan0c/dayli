@@ -4,7 +4,7 @@ import type { Day, TermMark } from '@/components/Mock';
 
 /*
  * Turns an extraction into what the try-it result draws: the found line, the big
- * number, the one-line summary, a week chart or a term line, and the rows that
+ * number, the one-line summary, a week chart (anything within two weeks) or a term line, and the rows that
  * still need something from the reader. Pure, so it is easy to check by hand.
  */
 
@@ -53,16 +53,21 @@ const pct = (mins: number) => Math.min(100, Math.max(0, ((mins - START) / SPAN) 
 
 function dayOf(date: string, list: Draft[]): Day {
   const label = weekdayShort(date);
-  if (list.length === 0) return { label, under: 'off' };
-  const timed = list.filter((d) => d.start);
-  if (timed.length === 0) return { label, unknown: true, under: 'time?', underTone: 'amber' };
+  const num = Number(date.slice(8, 10));
+  if (list.length === 0) return { label, num, under: 'off' };
+  // Exams and timed deadlines are rings, as on Plan; a to-do with no time stays off the bar.
+  const rings = list.filter((d) => d.isDeadline && d.start).map((d) => pct(toMinutes(d.start!)));
+  const timed = list.filter((d) => d.start && !d.isDeadline);
+  const noTime = list.some((d) => d.kind === 'event' && !d.isDeadline && !d.start);
+  if (noTime && timed.length === 0 && rings.length === 0) return { label, num, unknown: true, under: 'time?', underTone: 'amber' };
   const blocks = timed.map((d) => {
     const s = toMinutes(d.start!);
     const e = d.end ? toMinutes(d.end) : s + 60;
     return { top: pct(s), height: Math.max(3, pct(Math.max(e, s + 30)) - pct(s)) };
   });
-  const first = timed[0]!;
-  return { label, blocks, under: shortRange(first.start!, first.end) };
+  const first = list.find((d) => d.start);
+  const under = first ? shortRange(first.start!, first.isDeadline ? null : first.end) : 'to-do';
+  return { label, num, blocks, rings, under };
 }
 
 function hoursOf(list: Draft[]): number {
@@ -116,7 +121,7 @@ export function summarize(ex: Extraction, drafts: Draft[]): Summary {
   }
 
   let view: View = null;
-  if (first && last && shifts && weeks.length <= 2) {
+  if (first && last && weeks.length <= 2) {
     view = {
       kind: 'week',
       weeks: weeks.map((monday) => weekOf(monday).map((date) => dayOf(date, dated.filter((d) => d.date === date)))),

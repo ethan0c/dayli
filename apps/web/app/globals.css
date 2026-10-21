@@ -458,6 +458,9 @@ textarea {
 .try-chart + .try-chart {
   margin-top: 12px;
 }
+.try-chart + .try-rows {
+  margin-top: 20px;
+}
 .try-rows {
   margin-top: 12px;
 }
