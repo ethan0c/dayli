@@ -6,7 +6,7 @@ const OPTIONS: IntersectionObserverInit = { rootMargin: '0px 0px -8% 0px', thres
 
 /**
  * Own the reveal attributes in React so each element starts observing only after
- * its own hydration. A layout effect cannot assume streamed pages have hydrated.
+ * its own hydration. A layout's effect cannot assume streamed pages have hydrated.
  * Render the original tag to preserve layout and semantics; children can stay
  * server-rendered. Motion and stagger timing still come from globals.css.
  */

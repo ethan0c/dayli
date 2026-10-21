@@ -49,6 +49,18 @@ function colorVars(p: Palette): Record<string, string> {
  */
 const siteLight = { '--canvas': '#FFFFFF', '--header': '#FFFFFF', '--row': '#F4F4F5', '--line': '#E7E7EA' };
 
+/**
+ * The home hero's sky sits under a dusk veil in both modes, with white copy and a pale lavender
+ * accent word (3.9:1 on the veiled photo; the link purple vanishes there).
+ */
+const heroVars = {
+  '--hero-veil-top': 'rgba(28, 18, 40, 0.34)',
+  '--hero-veil-mid': 'rgba(28, 18, 40, 0.4)',
+  '--hero-ink': '#FFFFFF',
+  '--hero-accent': lavender[200],
+  '--hero-glass': 'rgba(28, 18, 40, 0.28)',
+};
+
 /** Site-only surfaces, still built from the palette: the purple band and the dark band. */
 const bandVars = {
   light: { '--band-purple': lavender[600], '--band-ink': palettes.light.inkPrimary },
@@ -84,7 +96,7 @@ const block = (vars: Record<string, string>) =>
     .join(';');
 
 export const TOKENS_CSS = [
-  `:root{${block({ ...colorVars(palettes.light), ...siteLight, ...bandVars.light, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
+  `:root{${block({ ...colorVars(palettes.light), ...siteLight, ...heroVars, ...bandVars.light, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
   `@media (prefers-color-scheme: dark){:root{${block({ ...colorVars(palettes.dark), ...bandVars.dark })};color-scheme:dark}}`,
   `[data-semli-theme="dark"]{${block({ ...colorVars(palettes.dark), ...bandVars.dark })};color-scheme:dark}`,
 ].join('\n');

@@ -1,10 +1,10 @@
-import { Reveal } from '@/components/Reveal';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CountUp } from '@/components/CountUp';
 import { FeatureCard } from '@/components/FeatureCard';
 import { Pill, Row, TermLine, WeekChart } from '@/components/Mock';
+import { Reveal } from '@/components/Reveal';
 import { Shot } from '@/components/Shot';
 import cafeShift from '@/public/photos/cafe-shift.jpg';
 import campus from '@/public/photos/campus.jpg';

@@ -69,9 +69,9 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(28, 18, 40, 0.34) 0%, rgba(28, 18, 40, 0.4) 50%, var(--canvas) 100%);
+  background: linear-gradient(180deg, var(--hero-veil-top) 0%, var(--hero-veil-mid) 50%, var(--canvas) 100%);
 }
-/* White copy on the sky, the accent word in the links' purple. */
+/* White copy on the sky, the accent word in pale lavender (tokens.ts). */
 .heroCopy {
   display: flex;
   flex-direction: column;
@@ -79,7 +79,8 @@
   width: 100%;
   min-width: 0;
   max-width: 780px;
-  --ink: #ffffff;
+  --ink: var(--hero-ink);
+  --accent-ink: var(--hero-accent);
   color: var(--ink);
 }
 .heroCopy h1 {

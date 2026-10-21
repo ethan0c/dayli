@@ -1,5 +1,5 @@
-import { Reveal } from '@/components/Reveal';
 import type { Metadata } from 'next';
+import { Reveal } from '@/components/Reveal';
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata, type Faq } from '@/lib/seo';
 import { FREE_IMPORTS_PER_MONTH, SUPPORT_EMAIL, TRIAL_DAYS, money, plan } from '@/lib/site';
 import { PlanCards } from './PlanCards';
