@@ -65,7 +65,7 @@ export const Composer = forwardRef<ComponentRef<typeof TextInput>, {
           multiline
           autoFocus={autoFocus}
           editable={!busy}
-          placeholder={placeholder ?? 'Clinical Tuesday 7–3, pharm exam next Friday, working Sat 4–10…'}
+          placeholder={placeholder ?? 'Exam Friday at 9 am, work Saturday 4–10 pm…'}
           placeholderTextColor={c.inkTertiary}
           style={[styles.input, textStyle('body', c.inkPrimary)]}
         />

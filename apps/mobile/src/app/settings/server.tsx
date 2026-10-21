@@ -1,3 +1,4 @@
+import { Redirect } from 'expo-router';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { FieldRow, Group } from '@/components/Settings';
@@ -5,6 +6,11 @@ import { SCREEN_GUTTER } from '@/theme';
 import { useStore } from '@/store';
 
 export default function ServerScreen() {
+  if (!__DEV__) return <Redirect href="/settings" />;
+  return <ServerSettings />;
+}
+
+function ServerSettings() {
   const apiUrl = useStore((s) => s.settings.apiUrl);
   const setSettings = useStore((s) => s.setSettings);
   return (

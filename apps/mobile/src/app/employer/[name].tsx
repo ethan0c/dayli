@@ -131,7 +131,7 @@ export default function EmployerScreen() {
             <GroupLabel>{`Remove ${name}?`}</GroupLabel>
             {[
               { label: 'Upcoming shifts only', value: count(upcomingCount), scope: 'upcoming' as const },
-              { label: 'Everything, past shifts too', value: count(shifts.length), scope: 'all' as const },
+              { label: 'All shifts, including past shifts', value: count(shifts.length), scope: 'all' as const },
             ].map((o) => (
               <Pressable key={o.scope} accessibilityRole="button" accessibilityLabel={`${o.label}, ${o.value}`} onPress={() => remove(o.scope)}
                 style={({ pressed }) => [styles.scopeRow, { borderBottomColor: c.line }, pressed ? { opacity: 0.6 } : null]}>
@@ -139,8 +139,8 @@ export default function EmployerScreen() {
                 <T token="callout" color={c.inkSecondary} tabular>{o.value}</T>
               </Pressable>
             ))}
-            <TextButton label="Keep it" tone="muted" onPress={() => setRemoving(false)} style={{ alignSelf: 'center' }} />
-            <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Stops the next-week reminders too. Undo from the toast or Your data.</T>
+            <TextButton label="Cancel" tone="muted" onPress={() => setRemoving(false)} style={{ alignSelf: 'center' }} />
+            <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Also stops reminders to add next week’s shifts. Tap Undo after removing, or open Your data → Recent changes.</T>
           </Animated.View>
         ) : (
           <TextButton label={`Remove ${name}`} tone="danger" haptic="tap" onPress={() => setRemoving(true)} />

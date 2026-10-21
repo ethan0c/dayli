@@ -41,7 +41,7 @@ export function PlusFeatures({ c, onGo }: { c: Palette; onGo: (to: PlusDestinati
 /**
  * The one screen after a new purchase: a tick that lands with a short burst, what the person now
  * has (and, on a trial, when it ends and that a reminder comes first), then three ways to start.
- * `celebrate` is false when it is reopened from You → Semli Plus: same screen, no burst.
+ * `celebrate` is false when it is reopened from You → Your plan: same screen, no burst.
  */
 export function PlusWelcome({ celebrate, trialEndsAt, onGo, onDone, c }: {
   celebrate: boolean; trialEndsAt?: string | null; onGo: (to: PlusDestination) => void; onDone: () => void; c: Palette;
@@ -57,7 +57,7 @@ export function PlusWelcome({ celebrate, trialEndsAt, onGo, onDone, c }: {
         <T token="subhead" color={c.inkSecondary}>Semli <T token="subhead" color={c.accentInk}>Plus</T></T>
         <T token="displaySerif" color={c.inkPrimary} accessibilityRole="header">{celebrate ? 'Plus is active.' : 'Your Plus subscription.'}</T>
         <T token="body" color={c.inkSecondary}>
-          {trialDate ? `Your free trial ends ${trialDate}. Manage your subscription in You → Semli Plus.` : 'Your subscription includes the features below.'}
+          {trialDate ? `Your free trial ends ${trialDate}. Manage your subscription in You → Your plan.` : 'Your subscription includes the features below.'}
         </T>
       </View>
       <View style={{ gap: 8 }}>
@@ -68,7 +68,7 @@ export function PlusWelcome({ celebrate, trialEndsAt, onGo, onDone, c }: {
         <Press haptic="tap" accessibilityRole="button" onPress={onDone} style={[styles.cta, { backgroundColor: c.controlFill }]}>
           <T token="headline" color={c.controlInk}>Done</T>
         </Press>
-        <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Manage Plus in You → Semli Plus.</T>
+        <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Manage Plus in You → Your plan.</T>
       </View>
     </Animated.View>
   );

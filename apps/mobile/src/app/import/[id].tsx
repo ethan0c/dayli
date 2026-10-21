@@ -1,7 +1,7 @@
 import { dateLocale, formatTime, localParts, monthDay, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { SectionTitle, StatusPill, TextButton, type PillTone } from '@/components/Controls';
@@ -13,9 +13,6 @@ import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useStore, type Change } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
-
-// We do not keep the screenshot itself yet; the sample stands in for it on screenshot imports.
-const SAMPLE_SHOT = require('../../../assets/showcase/demo.jpg');
 
 const isShot = (source: string | null | undefined) => /^(screenshot|photo)$/i.test(source ?? '');
 
@@ -101,8 +98,7 @@ export default function ImportScreen() {
   const timed = created.filter((it) => it.kind === 'event' && it.start).length;
   const remindersLine = reminders.enabled && timed > 0 ? (timed === created.length ? `Reminders set for all ${timed}.` : `Reminders set for ${timed} of ${created.length}.`) : null;
 
-  const what = allShifts ? 'the week' : madeCourse ? 'the term' : 'things';
-  const caption = `Puts ${what} back the way ${what === 'things' ? 'they were' : 'it was'} before ${monthDay(when.date)}.${shot ? ' The screenshot stays in Photos.' : ''}`;
+  const caption = 'Undo the changes made by this import.';
   const undo = () => {
     feedback('undo');
     undoBatch(batch.id);
@@ -129,10 +125,8 @@ export default function ImportScreen() {
             <T token="body" style={styles.line} numberOfLines={2}>{line}</T>
             {remindersLine ? <T token="callout" color={c.inkSecondary}>{remindersLine}</T> : null}
           </View>
-          <View style={[styles.thumb, { backgroundColor: c.row }]} accessible accessibilityRole="image" accessibilityLabel={shot ? 'The screenshot' : `The file, ${sourceLabel}`}>
-            {shot
-              ? <Image source={SAMPLE_SHOT} resizeMode="cover" style={StyleSheet.absoluteFill} accessibilityIgnoresInvertColors />
-              : <Icon name="file" size={24} color={c.inkSecondary} />}
+          <View style={[styles.thumb, { backgroundColor: c.row }]} accessible accessibilityRole="image" accessibilityLabel={shot ? 'Imported image' : `Import source: ${sourceLabel}`}>
+            <Icon name={shot ? 'image' : 'file'} size={24} color={c.inkSecondary} />
           </View>
         </View>
 

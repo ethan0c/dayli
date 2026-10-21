@@ -167,8 +167,8 @@ export default function ItemScreen() {
                 <T token="callout" color={c.inkSecondary} tabular>{o.value}</T>
               </Pressable>
             ))}
-            <TextButton label="Keep it" tone="muted" onPress={() => setScope(false)} style={{ alignSelf: 'center' }} />
-            <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Every choice can be undone from the toast or Your data.</T>
+            <TextButton label="Cancel" tone="muted" onPress={() => setScope(false)} style={{ alignSelf: 'center' }} />
+            <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Tap Undo after deleting, or open Your data → Recent changes to restore deleted items.</T>
           </Animated.View>
         ) : (
           <>
@@ -282,7 +282,7 @@ export default function ItemScreen() {
                 value={notes}
                 onChangeText={setNotes}
                 onBlur={() => { const next = notes.trim() || null; if (next !== item.notes) updateItem(item.id, { notes: next }); setEditing(null); }}
-                placeholder="Anything to remember. Use - for a list, - [ ] for a tick, # for a heading."
+                placeholder="Add a note…"
                 placeholderTextColor={c.inkTertiary}
                 style={[textStyle('body', c.inkPrimary), styles.notes, { backgroundColor: c.row }]}
               />

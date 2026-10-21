@@ -30,6 +30,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const { c } = useTheme();
   const { isPlus, customerInfo, loading, busy, manageSubscription } = usePurchases();
   const settings = useStore((s) => s.settings);
+  const backupStatus = settings.cloud.error ? 'Backup needs attention' : settings.cloud.backedUpAt ? 'Backed up' : 'Backup pending';
   /** null for a guest. */
   const email = useSession((s) => { const account = accountOf(s.session); return account ? account.user.email ?? '' : null; });
   const setSettings = useStore((s) => s.setSettings);
@@ -73,14 +74,13 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         {/* Two states: only on this iPhone, or backed up. The guest row is the ask to save the plan. */}
         {ACCOUNTS_ENABLED ? <Group title="Account">
           {email !== null
-            ? <ListRow leading={<Icon name="lock" size={20} color={c.inkPrimary} />} title={`Backed up as ${email || 'your account'}`} sub="Account settings" onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
+            ? <ListRow leading={<Icon name="lock" size={20} color={c.inkPrimary} />} title={email || 'Your account'} sub={`Account settings · ${backupStatus}`} onPress={() => router.push('/account')} last={!SHARING_ENABLED} />
             : <ListRow leading={<Icon name="lock" size={20} color={c.inkPrimary} />} title="Back up your plan" sub="Create a free account to back up your plan" onPress={() => router.push('/account')} last={!SHARING_ENABLED} />}
           {SHARING_ENABLED ? <Row label="Share your schedule" icon="share" value="Preview" onPress={() => router.push('/share-schedule')} last /> : null}
         </Group> : null}
 
         <Group label={<T token="overline" color={c.inkSecondary} style={styles.groupLabel}>Semli <T token="overline" color={c.accentInk}>Plus</T></T>}>
           <Row label="Your plan" icon="sparkle" value={isPlus ? (entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}` : 'Active') : 'Free'} onPress={() => router.push('/settings/plan')} />
-          <Row label="Plan status" icon="search" value={isPlus ? 'Active' : customerInfo?.activeSubscriptions.length ? 'Needs a look' : 'Free'} onPress={() => router.push('/settings/plan-status')} />
           <Row label="Manage subscription" icon="calendar" value={busy ? 'Opening…' : undefined} last onPress={busy ? undefined : () => {
             if (customerCenterEnabled || customerInfo?.managementURL) void manageSubscription().catch(() => router.push('/settings/plan'));
             else router.push('/settings/plan');
@@ -89,11 +89,15 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 
         <Group title="Your stuff" footer={linkNote ?? undefined}>
           <Row label="What Semli can do" icon="list" value={`${canDo.filter((t) => t.done).length} of ${canDo.length} tried`} onPress={() => router.push('/settings/can-do')} />
-          <Row label="Your data" icon="file" value={email !== null ? 'Backed up' : 'On this phone'} onPress={() => router.push('/settings/data')} />
+          <Row label="Your data" icon="file" value={email !== null ? backupStatus : 'On this phone'} onPress={() => router.push('/settings/data')} />
           <Row label="Help and feedback" icon="mail" value={SUPPORT_EMAIL} onPress={() => void open(LINKS.support, 'Email us at ' + SUPPORT_EMAIL + '.')} />
-          <Row label="Rate Semli" icon="star" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} last={!__DEV__} />
-          {__DEV__ ? <Row label="Semli server" icon="chart" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last /> : null}
+          <Row label="Rate Semli" icon="star" onPress={() => void open(LINKS.review, 'Open the App Store to leave a rating.')} last />
         </Group>
+
+        {__DEV__ ? <Group title="Development">
+          <Row label="Plan diagnostics" icon="search" onPress={() => router.push('/settings/plan-status')} />
+          <Row label="Semli server" icon="chart" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last />
+        </Group> : null}
 
         <View style={styles.about}>
           <View style={styles.markRow}>

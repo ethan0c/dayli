@@ -416,8 +416,8 @@ export default function ReviewScreen() {
             <ReviewRow key={r.item.id} glyph={<ReviewGlyph color={r.kept ? c.inkPrimary : c.controlOutline} />} title={shiftWhen(r.item)} struck={!r.kept}
               sub={r.kept ? 'Stays as it is' : 'Not on the new schedule'}
               trailing={<>
-                <TextButton label={r.kept ? 'Drop it' : 'Keep it'} onPress={() => toggleKept(r.item.id)} />
-                <StatusPill label={r.kept ? 'Kept' : 'Dropped'} tone={r.kept ? 'grey' : 'redText'} />
+                <TextButton label={r.kept ? 'Remove shift' : 'Keep shift'} onPress={() => toggleKept(r.item.id)} />
+                <StatusPill label={r.kept ? 'Kept' : 'Removed'} tone={r.kept ? 'grey' : 'redText'} />
               </>} />
           ),
         });
@@ -495,10 +495,10 @@ export default function ReviewScreen() {
         : `Add ${plan.create.length + plan.update.length}${undated.length ? ` · Skip ${undated.length}` : ''}`;
 
   const footerNote = untimed.length
-    ? `${untimed.map((d) => weekdayLong(d.date)).join(' and ')} ${untimed.length === 1 ? 'goes' : 'go'} in without a time. Plan will ask for ${untimed.length === 1 ? 'it' : 'them'}.`
+    ? `${untimed.map((d) => weekdayLong(d.date)).join(' and ')} will be added without a time. You can add times later in Plan.`
     : isUpdate && diff.unchanged.length
       ? `${count(diff.unchanged.length, 'shift')} ${diff.unchanged.length === 1 ? 'is the same as before and stays as it is' : 'are the same as before and stay as they are'}.`
-      : isSyllabus ? 'Deadlines get a reminder the evening before and the morning of.' : null;
+      : isSyllabus ? 'With reminders on, you’ll be notified the evening before and the morning of each deadline.' : null;
 
   return (
     <Sheet
@@ -517,7 +517,7 @@ export default function ReviewScreen() {
           <T token="displayXl" tabular>{big}</T>
           <T token="body" style={styles.line}>{line}</T>
           <T token="callout" color={c.inkSecondary}>{note}</T>
-          {explainCompare ? <T token="callout" color={c.inkSecondary} style={{ paddingTop: 8 }}>Compared, not added twice: Semli matched these with the shifts you already have. Changed ones are marked, unchanged ones stay.</T> : null}
+          {explainCompare ? <T token="callout" color={c.inkSecondary} style={{ paddingTop: 8 }}>Semli matched these shifts to your existing schedule. Review the marked changes before saving.</T> : null}
           {total === 0 ? (
             <T token="callout" color={c.inkSecondary} style={{ paddingTop: 8 }}>
               {included.length === 0 ? 'Nothing has a date yet. Add one to bring it in.' : 'Already in your plan. Nothing to add.'}
@@ -533,8 +533,8 @@ export default function ReviewScreen() {
             {isUpdate ? (
               <ChartKey entries={keyOf([
                 shifts.some((d) => addedKeys.has(d.key)) && { glyph: 'block', color: c.added, label: 'New' },
-                removed.some((r) => !r.kept) && { glyph: 'outline', color: c.conflict, label: 'Dropped' },
-                shifts.some((d) => changedByKey.has(d.key)) && { glyph: 'dashed', color: c.controlOutline, label: 'Was here' },
+                removed.some((r) => !r.kept) && { glyph: 'outline', color: c.conflict, label: 'Removed' },
+                shifts.some((d) => changedByKey.has(d.key)) && { glyph: 'dashed', color: c.controlOutline, label: 'Previous time' },
                 shifts.some((d) => !d.start || !d.end) && { glyph: 'outline', color: c.changed, label: 'Needs a time' },
               ])} />
             ) : null}

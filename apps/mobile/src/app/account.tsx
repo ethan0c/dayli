@@ -96,11 +96,14 @@ export default function AccountScreen() {
           <T token="body" color={c.inkSecondary}>{deleting
             ? 'Your plan and your backup will be permanently deleted from Semli’s servers and this iPhone. This can’t be undone.'
             : signingOut
-              ? 'Your plan is backed up. It will be removed from this iPhone until you sign in again.'
-              : `Backed up as ${user.email ?? 'your Apple or Google account'}`}</T>
+              ? 'We’ll back up your latest changes, then remove your plan from this iPhone. Sign in again to restore it.'
+              : `Signed in with ${user.email ?? 'your Apple or Google account'}`}</T>
           {deleting && isPlus ? <>
-            <T token="body" color={c.inkSecondary}>Your Semli Plus subscription is billed by Apple. Cancel it in Settings first.</T>
-            <TextButton label="Manage subscription" disabled={busy} onPress={() => void manageSubscription().catch(() => {})} />
+            <T token="body" color={c.inkSecondary}>Deleting your account doesn’t cancel your Semli Plus subscription. Manage it separately in your store settings.</T>
+            <TextButton label="Manage subscription" disabled={busy} onPress={() => {
+              setError(null);
+              void manageSubscription().catch(() => setError('We couldn’t open your subscription settings. Open your device’s subscription settings to manage Semli Plus.'));
+            }} />
           </> : null}
         </View>
         {error ? <T token="callout" color={c.conflict} accessibilityRole="alert">{error}</T> : null}

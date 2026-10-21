@@ -150,7 +150,7 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
       const pad = (n: number) => String(n).padStart(2, '0');
       const endDate = `${ends.getFullYear()}-${pad(ends.getMonth() + 1)}-${pad(ends.getDate())}`;
       push(
-        { id: 'trial-reminder', title: 'Your Semli Plus trial ends in 2 days', body: `Renews at ${extras.trial.label} unless you cancel. Manage your subscription in You → Semli Plus.`, itemId: null, kind: 'briefing' },
+        { id: 'trial-reminder', title: 'Your Semli Plus trial ends in 2 days', body: `Renews at ${extras.trial.label} unless you cancel. Manage your subscription in You → Your plan.`, itemId: null, kind: 'briefing' },
         toAbs(addDays(endDate, -2), prefs.dayBeforeAt),
       );
     }

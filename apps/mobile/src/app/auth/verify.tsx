@@ -70,7 +70,7 @@ export default function VerifyScreen() {
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.body}>
         <View style={styles.hero}>
           <T token="display" accessibilityRole="header">Check your email.</T>
-          <T token="body" color={c.inkSecondary}>{codeSent ? `We sent a code to ${email}. It works for an hour.` : `Use the latest code sent to ${email}, or request a new one below.`}</T>
+          <T token="body" color={c.inkSecondary}>{codeSent ? `We sent a code to ${email}. Enter it below to continue.` : `Use the latest code sent to ${email}, or request a new one below.`}</T>
         </View>
         <AuthField label="Code" value={code} error={error ?? undefined} placeholder="Your code" autoFocus
           keyboardType="number-pad" textContentType="oneTimeCode" autoComplete="one-time-code" maxLength={CODE_MAX} editable={!busy}

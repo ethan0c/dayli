@@ -30,11 +30,11 @@ const LEVEL_FLOOR = 0;
 const LEVEL_CEIL = 10;
 
 export const VOICE_ERRORS = {
-  denied: 'Semli can’t hear you. Allow the microphone and speech recognition in Settings.',
-  offline: 'Voice needs a connection right now. You can still type it.',
-  unavailable: 'Voice isn’t ready on this phone yet. You can still type it.',
-  failed: 'Semli lost the thread. What it heard is still here; tap the mic to keep going.',
-  long: 'That’s plenty. Send it, then say the rest.',
+  denied: 'Allow microphone and speech recognition access in Settings to add plans by voice.',
+  offline: 'Voice input needs an internet connection. You can type your plans instead.',
+  unavailable: 'Voice input isn’t available on this device. You can type your plans instead.',
+  failed: 'Voice input stopped. Your text is still here. Tap the microphone to continue.',
+  long: 'This message has reached the voice input limit. Review it, then add the rest in a new message.',
 } as const;
 
 function sameWords(previous: string, current: string): string {

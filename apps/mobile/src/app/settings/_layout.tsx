@@ -34,7 +34,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="canvas" options={{ title: 'Canvas' }} />
       <Stack.Screen name="data" options={{ title: 'Your data' }} />
       <Stack.Screen name="can-do" options={{ title: 'What Semli can do' }} />
-      <Stack.Screen name="plan-status" options={{ title: 'Plan status' }} />
+      <Stack.Screen name="plan-status" options={{ title: 'Plan diagnostics' }} />
       <Stack.Screen name="server" options={{ title: 'Semli server' }} />
     </Stack>
   );

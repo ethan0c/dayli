@@ -1,6 +1,6 @@
 import { addDays, formatRange, formatTime, isLocalDate, localParts, monthDay, schedulePreview, weekdayLong, type SharedEntry } from '@dayli/core';
 import type { Category } from '@dayli/schema';
-import { useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -10,6 +10,7 @@ import { Segmented } from '@/components/Segmented';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
+import { SHARING_ENABLED } from '@/lib/auth';
 import { useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -23,6 +24,11 @@ function entryTime(entry: SharedEntry): string {
 
 /** Local-only preview: the reader receives a restricted projection, never source records. */
 export default function ShareScheduleScreen() {
+  if (!SHARING_ENABLED) return <Redirect href="/plan" />;
+  return <ShareSchedulePreview />;
+}
+
+function ShareSchedulePreview() {
   const { c } = useTheme();
   const params = useLocalSearchParams<{ date?: string }>();
   const items = useItemList();

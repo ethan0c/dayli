@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Purchases from 'react-native-purchases';
@@ -17,6 +18,11 @@ import { SCREEN_GUTTER, useTheme } from '@/theme';
  * purchase at all (products), and did it map it to the entitlement (semli_plus).
  */
 export default function PlanStatusScreen() {
+  if (!__DEV__) return <Redirect href="/settings/plan" />;
+  return <PlanDiagnosticsScreen />;
+}
+
+function PlanDiagnosticsScreen() {
   const { c } = useTheme();
   const { customerInfo, isPlus, loading, error, refreshCustomerInfo, restore } = usePurchases();
   const [appUserId, setAppUserId] = useState<string | null>(null);

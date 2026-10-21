@@ -158,8 +158,8 @@ export default function CourseScreen() {
       nav="push"
       footer={
         <>
-          <TextButton label={`Remove ${name} · ${all.length} ${all.length === 1 ? 'thing' : 'things'}`} tone="danger" haptic="tap" onPress={remove} />
-          <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Takes its lectures, exams and to-dos with it. Undo from the toast.</T>
+          <TextButton label={`Remove ${name} · ${all.length} ${all.length === 1 ? 'item' : 'items'}`} tone="danger" haptic="tap" onPress={remove} />
+          <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Removes this course and its lectures, exams and to-dos. Tap Undo in the confirmation message to restore them.</T>
         </>
       }>
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">

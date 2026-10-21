@@ -9,14 +9,7 @@ import { T } from '@/components/Text';
 import { reportError } from '@/lib/errors';
 import { useTheme } from '@/theme';
 
-type Shot = { id: string; uri: string; sample?: number };
-
-/** Stand-ins shown until the person grants photo access or has screenshots; tapping one opens the picker. */
-const SAMPLES: Shot[] = [
-  { id: 's1', uri: '', sample: require('../../assets/showcase/demo.jpg') },
-  { id: 's2', uri: '', sample: require('../../assets/showcase/headsup.jpg') },
-  { id: 's3', uri: '', sample: require('../../assets/showcase/plus.jpg') },
-];
+type Shot = { id: string; uri: string };
 
 /** iOS reports limited access separately from `granted`. */
 const usable = (p: { granted: boolean; accessPrivileges?: 'all' | 'limited' | 'none' }) => p.granted || p.accessPrivileges === 'limited';
@@ -59,21 +52,21 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
 
   if (Platform.OS === 'web') return null;
   const loading = allowed === null || (allowed && shots === null);
-  const list = allowed && shots && shots.length ? shots : SAMPLES;
+  const list = allowed ? shots ?? [] : [];
 
   return (
     <View style={{ gap: 10 }}>
       <View style={styles.head}>
         <GroupLabel>Recent screenshots</GroupLabel>
-        <TextButton label="All photos" tone="muted" onPress={() => onPick('')} />
+        <TextButton label="All photos" tone="muted" disabled={disabled} onPress={() => onPick('')} />
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip} style={styles.stripWrap}>
+      {loading || list.length > 0 ? <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip} style={styles.stripWrap}>
         {loading ? <SkeletonShots /> : list.map((s) => (
-          <Press key={s.id} accessibilityRole="button" accessibilityLabel={s.sample ? 'Choose a screenshot' : 'Use this screenshot'} haptic="tap" disabled={disabled} onPress={() => onPick(s.uri)} scale={0.96} style={[styles.shot, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
-            <Image source={s.sample ?? { uri: s.uri }} style={styles.img} accessibilityIgnoresInvertColors />
+          <Press key={s.id} accessibilityRole="button" accessibilityLabel="Use this screenshot" haptic="tap" disabled={disabled} onPress={() => onPick(s.uri)} scale={0.96} style={[styles.shot, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
+            <Image source={{ uri: s.uri }} style={styles.img} accessibilityIgnoresInvertColors />
           </Press>
         ))}
-      </ScrollView>
+      </ScrollView> : !notice ? <T token="caption" color={c.inkSecondary}>{allowed ? 'No recent screenshots. Choose All photos to pick a photo or screenshot.' : 'Choose All photos to select a screenshot to import.'}</T> : null}
       {notice ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{notice}</T> : null}
     </View>
   );

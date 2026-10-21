@@ -45,6 +45,8 @@ export default function DataScreen() {
   const applyPlan = useStore((s) => s.applyPlan);
   // Signed in, the account keeps the setup answers and only the plan is cleared; a guest starts over.
   const signedIn = useSession((s) => !!accountOf(s.session));
+  const cloud = useStore((s) => s.settings.cloud);
+  const backupStatus = cloud.error ? 'Backup needs attention' : cloud.backedUpAt ? 'Backed up to your account' : 'Backup pending';
   const [confirm, setConfirm] = useState(false);
   const [allChanges, setAllChanges] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -104,7 +106,7 @@ export default function DataScreen() {
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
       <View style={styles.top}>
-        <T token="callout" color={c.inkSecondary}>{signedIn ? 'Account backup enabled' : 'Saved on this iPhone'}</T>
+        <T token="callout" color={c.inkSecondary}>{signedIn ? backupStatus : 'Saved on this iPhone'}</T>
         <T token="displayXl" tabular>{`${items.length} ${items.length === 1 ? 'item' : 'items'}`}</T>
         <T token="body" style={styles.line}>{summary}</T>
       </View>
@@ -117,7 +119,7 @@ export default function DataScreen() {
       <Group title="Recent changes">
         {batches.length === 0 ? (
           <View style={styles.empty}>
-            <T token="callout" color={c.inkSecondary}>Your imports and edits will appear here. You can undo them any time.</T>
+            <T token="callout" color={c.inkSecondary}>Your imports and edits will appear here, with options to undo recent changes.</T>
           </View>
         ) : (
           <Animated.View layout={layout}>
@@ -138,7 +140,7 @@ export default function DataScreen() {
         </Group>
       ) : null}
 
-      <Group title="Reset" footer={signedIn ? 'To remove your plan from this iPhone, sign out or delete your account in Account settings.' : eraseError ?? 'Export a backup before erasing your plan.'}>
+      <Group title="Reset" footer={signedIn ? 'To remove your plan from this iPhone while keeping your account backup, sign out in Account settings.' : eraseError ?? 'Export a backup before erasing your plan.'}>
         <Row label="Replay the intro" value="Keeps everything" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} last={signedIn} />
         {signedIn ? null : confirm ? (
           <Animated.View entering={enter.drop} exiting={exit.fade} style={styles.confirm} accessibilityRole="alert">

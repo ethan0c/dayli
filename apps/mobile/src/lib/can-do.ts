@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 
 import { accountOf, useSession } from '@/lib/supabase';
+import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { useNow } from '@/lib/now';
 import { useItemList, useScheduleList, useStore } from '@/store';
 
@@ -46,7 +47,7 @@ export function useCanDo(): CanDo[] {
       { id: 'undo', title: 'Undo any import', sub: 'Reverse an import from Recent changes in Your data.', done: batches.some((b) => b.undone), go: () => router.push('/settings/data') },
       { id: 'calendar', title: 'Export events to your calendar', sub: 'Add events to Apple or Google Calendar from an export file.', done: false, go: () => router.push('/settings/data') },
     ];
-    if (!signedIn) list.push({ id: 'account', title: 'Back up your plan', sub: 'Create a free account to save your plan for a new phone.', done: false, go: () => router.push('/auth') });
+    if (ACCOUNTS_ENABLED && !signedIn) list.push({ id: 'account', title: 'Back up your plan', sub: 'Create a free account to save your plan for a new phone.', done: false, go: () => router.push('/auth') });
     return list;
   }, [items, schedules, batches, settings, now, signedIn]);
 }
