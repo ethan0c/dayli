@@ -4,8 +4,9 @@
 Input: design/screenshots/raw/<name>.png, 1320 x 2868 captures from the iPhone 17 Pro Max
 simulator (dev build, light mode, 9:41 status bar; see docs/launch-guide.md, part 2).
 Output: design/screenshots/<nn>-<name>.png at 1320 x 2868, no alpha, ready for the
-6.9-inch slot. Geist Bold caption (variable font in design/fonts, tracked -2.5%, line height 1.06) with one ~accent~ word in lavender, Geist Medium subline,
-the site's iPhone frame bleeding off the bottom edge.
+6.9-inch slot. EB Garamond caption with one ~accent~ phrase in lavender, Geist Regular subline,
+the site's iPhone frame bleeding off the bottom edge. `--header` makes the product page header
+and the search results card on the same sky, in the same two faces.
 
 Since Oct 21, 2026 (founder's call, replacing the Oct 20 Geist Bold set): every shot shares one
 background, the morning sky from Today's header (design/backgrounds/sky-morning.jpg, Cuvii on
@@ -231,16 +232,18 @@ def sky(w: int, h: int) -> Image.Image:
     return Image.composite(Image.new("RGB", (w, h), PAPER), photo, wash.resize((w, h)))
 
 
-def ensure_light_contrast(img: Image.Image, box: tuple[int, int, int, int], colors, name: str, minimum: float = 4.5) -> Image.Image:
+def ensure_light_contrast(img: Image.Image, box: tuple[int, int, int, int], colors, name: str, minimum: float = 4.5, whole: bool = False) -> Image.Image:
     """The sky's twin of ensure_contrast: washes the caption band toward paper until every caption
-    color clears `minimum` against the darkest end of the band (5th percentile of patches)."""
+    color clears `minimum` against the darkest end of the band (5th percentile of patches).
+    `whole` washes the entire image evenly, for the wide assets where a band's edge would show."""
     x0, y0, x1, y1 = box
     fade = 220
-    band = Image.new("L", img.size, 0)
+    band = Image.new("L", img.size, 255 if whole else 0)
     d = ImageDraw.Draw(band)
-    d.rectangle((0, 0, img.width, y1), fill=255)
-    for i in range(fade):
-        d.line((0, y1 + i, img.width, y1 + i), fill=round(255 * (1 - i / fade)))
+    if not whole:
+        d.rectangle((0, 0, img.width, y1), fill=255)
+        for i in range(fade):
+            d.line((0, y1 + i, img.width, y1 + i), fill=round(255 * (1 - i / fade)))
     paper = Image.new("RGB", img.size, PAPER)
     for step in range(16):
         region = img.crop(box).resize((24, 12), Image.BOX)
@@ -307,16 +310,22 @@ def plain(text: str) -> str:
 
 def rich_block(draw: ImageDraw.ImageDraw, text: str, f: ImageFont.FreeTypeFont, x0: int, y: int, width: int, lead: int, color, accent, align: str = "left", canvas_w: int | None = None, tracking: float = TRACKING) -> int:
     """Wraps like `wrap`, then draws word by word, tracked, so the accent words take the accent color."""
-    words = rich(text)
+    # The accent phrase wraps as one unit, so a break falls before it, never inside it.
+    units: list[list[tuple[str, bool]]] = []
+    for w in rich(text):
+        if units and w[1] and units[-1][-1][1]:
+            units[-1].append(w)
+        else:
+            units.append([w])
     lines: list[list[tuple[str, bool]]] = []
     line: list[tuple[str, bool]] = []
-    for w in words:
-        trial = " ".join(t for t, _ in line + [w])
+    for u in units:
+        trial = " ".join(t for t, _ in line + u)
         if tracked_len(draw, trial, f, tracking) <= width or not line:
-            line.append(w)
+            line.extend(u)
         else:
             lines.append(line)
-            line = [w]
+            line = list(u)
     if line:
         lines.append(line)
     space = draw.textlength(" ", font=f) + tracking * f.size
@@ -483,24 +492,23 @@ SEARCH_SUB = "Drop in a syllabus or a work schedule. Semli tells you what matter
 
 
 def header_banner(out_dir: Path = HEADER_OUT) -> Path:
-    """3840 x 1646 product page header: the site hero. Autumn campus under a scrim, the white
-    wordmark and the serif tagline centered inside Apple's 1646 x 661 safe area."""
+    """3840 x 1646 product page header: the morning sky the screenshots stand on, the ink wordmark
+    and the serif tagline centered inside Apple's 1646 x 661 safe area."""
     w, h = 3840, 1646
-    img = background("autumn", w, h)
+    img = sky(w, h)
+    safe = ((w - 1646) // 2, (h - 661) // 2, (w + 1646) // 2, (h + 661) // 2)
+    img = ensure_light_contrast(img, safe, [INK, ACCENT], "header", whole=True)
     draw = ImageDraw.Draw(img)
     mark = Image.open(WORDMARK).convert("RGBA")
-    mw = 760
+    mw = 640
     mark = mark.resize((mw, round(mark.height * mw / mark.width)), Image.LANCZOS)
-    r, g, b, a = mark.split()
-    mark = Image.merge("RGBA", (Image.new("L", mark.size, 255), Image.new("L", mark.size, 255), Image.new("L", mark.size, 255), a))
-    tf = font(120, "Bold")
-    block = mark.height + 36 + 138
+    tf = serif(150, 400)
+    lead = 150
+    block = mark.height + 40 + lead
     y = (h - block) // 2
-    img = ensure_contrast(img, ((w - 1646) // 2, (h - 661) // 2, (w + 1646) // 2, (h + 661) // 2), [ON_PHOTO, DARK_ACCENT], "header")
-    draw = ImageDraw.Draw(img)
     img.paste(mark, ((w - mw) // 2, y), mark)
-    y += mark.height + 36
-    rich_block(draw, TAGLINE, tf, 0, y, w, 138, ON_PHOTO, DARK_ACCENT, "center", w)
+    y += mark.height + 40
+    rich_block(draw, TAGLINE, tf, 0, y, w, lead, INK, ACCENT, "center", w, tracking=SERIF_TRACKING)
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / f"header-{w}x{h}.png"
     img.save(out, "PNG", optimize=True)
@@ -508,25 +516,26 @@ def header_banner(out_dir: Path = HEADER_OUT) -> Path:
 
 
 def search_card(out_dir: Path = HEADER_OUT) -> Path:
-    """3840 x 2560 search results asset: the site hero again. Serif headline and subline on the
-    left in white, the Today phone on the right, inside the centered 2168 x 1030 safe area."""
+    """3840 x 2560 search results asset: the screenshots' sky and type. Serif headline in ink with
+    the accent word and a Geist subline on the left, the Today phone on the right, inside the
+    centered 2168 x 1030 safe area."""
     w, h = 3840, 2560
-    img = background("autumn", w, h)
-    draw = ImageDraw.Draw(img)
+    img = sky(w, h)
     left, text_w = 300, 1680
-    tf = font(208, "Bold")
-    lines = wrap(draw, plain(TAGLINE), tf, text_w)
-    sf = font(84, "Medium")
-    img = ensure_contrast(img, (left, 300, left + text_w, h - 300), [ON_PHOTO, DARK_ACCENT, ON_PHOTO_SECONDARY], "search")
+    tf = serif(232, 400)
+    lead = 232
+    sf = font(84, "Regular")
+    img = ensure_light_contrast(img, (left, 300, left + text_w, h - 300), [INK, ACCENT, SECONDARY], "search", whole=True)
     draw = ImageDraw.Draw(img)
+    lines = wrap(draw, plain(TAGLINE), tf, text_w)
     sub_lines = wrap(draw, SEARCH_SUB, sf, text_w)
-    block = len(lines) * 220 + 48 + len(sub_lines) * 100
+    block = len(lines) * lead + 64 + len(sub_lines) * 108
     y = (h - block) // 2 - 80
-    y = rich_block(draw, TAGLINE, tf, left, y, text_w, 220, ON_PHOTO, DARK_ACCENT)
-    y += 48
+    y = rich_block(draw, TAGLINE, tf, left, y, text_w, lead, INK, ACCENT, tracking=SERIF_TRACKING)
+    y += 64  # the serif's descenders need the room
     for line in sub_lines:
-        draw.text((left, y), line, font=sf, fill=ON_PHOTO_SECONDARY)
-        y += 100
+        draw.text((left, y), line, font=sf, fill=SECONDARY)
+        y += 108
     L = Layout("search", "left", PAPER, INK, SECONDARY, screen_w=1180)
     phone = device(Image.open(RAW / "today.png"), L)
     pad = L.shadow * 3

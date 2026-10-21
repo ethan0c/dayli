@@ -1,4 +1,5 @@
 import { File, Paths } from 'expo-file-system';
+import { useSyncExternalStore } from 'react';
 
 /**
  * Development only: a file named `dev-step.txt` in the app's Documents folder names an
@@ -50,8 +51,20 @@ export function setDevAutoConfirm(ms: number) {
   if (__DEV__) devAutoConfirmMs = ms;
 }
 
-/** Development only: Today opens its heavy-week moment with the spread list showing. Set by `spread`. */
-export let devSpreadOpen = false;
-export function setDevSpreadOpen(open: boolean) {
-  if (__DEV__) devSpreadOpen = open;
+/**
+ * Development only: how Today opens for a capture. `spreadOpen` (set by `spread`) opens the
+ * heavy-week moment with its spread list showing; `noMoment` (set by `list` and `hours`) shows the
+ * everyday header with the sky, whatever the sample data. Reactive, because the command runs after
+ * Today has mounted.
+ */
+type DevToday = { spreadOpen: boolean; noMoment: boolean };
+let devToday: DevToday = { spreadOpen: false, noMoment: false };
+const devTodayListeners = new Set<() => void>();
+export function setDevToday(next: Partial<DevToday>) {
+  if (!__DEV__) return;
+  devToday = { ...devToday, ...next };
+  devTodayListeners.forEach((l) => l());
+}
+export function useDevToday(): DevToday {
+  return useSyncExternalStore((l) => { devTodayListeners.add(l); return () => { devTodayListeners.delete(l); }; }, () => devToday);
 }

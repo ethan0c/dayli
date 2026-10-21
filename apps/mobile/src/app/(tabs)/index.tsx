@@ -21,7 +21,7 @@ import { Ticker } from '@/components/Ticker';
 import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
 import { profile, track } from '@/lib/analytics';
-import { devSpreadOpen } from '@/lib/dev';
+import { useDevToday } from '@/lib/dev';
 import { feedback } from '@/lib/feedback';
 import { momentFor } from '@/lib/moments';
 import { durations, enter, exit, layout } from '@/lib/motion';
@@ -77,11 +77,14 @@ export default function TodayScreen() {
   const conflictsToday = useMemo(() => findConflicts(weekAhead).filter((k) => items.find((i) => i.id === k.a)?.date === now.date).length, [weekAhead, items, now.date]);
   const nextWeekPending = schedules.length > 0 && pendingDates(schedules, addDays(now.date, 1), addDays(now.date, 7)).length > 0;
   const isSample = items.some((item) => item.sourceId === SAMPLE_SOURCE);
-  const moment = useMemo(() => momentFor(items, breaks ?? [], now.date), [items, breaks, now.date]);
+  const devToday = useDevToday();
+  const moment = useMemo(() => (__DEV__ && devToday.noMoment ? null : momentFor(items, breaks ?? [], now.date)), [items, breaks, now.date, devToday.noMoment]);
   // A moment that can spread its deadlines shows the start days first; nothing changes until "Sounds good".
   const spreadAction = moment?.action && 'spread' in moment.action ? moment.action : null;
   const spread = useMemo(() => spreadAction ? spreadWork(items, spreadAction.spread, now, workDates, spreadAction.until) : [], [spreadAction, items, now, workDates]);
-  const [spreadOpen, setSpreadOpen] = useState(() => __DEV__ && devSpreadOpen);
+  // Closed until opened; a `spread` capture opens it until the person chooses.
+  const [spreadChoice, setSpreadOpen] = useState<boolean | null>(null);
+  const spreadOpen = spreadChoice ?? (__DEV__ && devToday.spreadOpen);
   const spreadTasks = useStore((s) => s.spreadTasks);
   const showToast = useStore((s) => s.showToast);
   const featuredState = useMemo(() => featuredCommitment(items, now), [items, now]);

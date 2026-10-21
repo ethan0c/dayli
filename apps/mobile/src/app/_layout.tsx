@@ -20,7 +20,7 @@ import { useStorageStatus } from '@/lib/storage';
 import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
 import { PlanChoice } from '@/components/PlanChoice';
-import { devClock, devCommand, setDevAutoConfirm, setDevSpreadOpen } from '@/lib/dev';
+import { devClock, devCommand, setDevAutoConfirm, setDevToday } from '@/lib/dev';
 import { i18n } from '@/lib/i18n';
 import { SHOWCASE, SKY, preloadPhotos } from '@/lib/images';
 import { skySlot } from '@/lib/sky';
@@ -130,13 +130,14 @@ function RootLayout() {
       if (cmd === 'sample' || cmd === 'moment' || cmd === 'spread' || cmd === 'item' || cmd === 'review' || cmd === 'review-update' || cmd === 'hours' || cmd === 'list' || demo) {
         // Every first-time tip counts as seen, so the captures show the screens without them.
         store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', firsts: { overlap: true, urgent: true, canvas: true, reimport: true, hours: true, week: true }, ...(cmd === 'hours' || cmd === 'list' ? { todayView: cmd } : {}), breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
+        if (cmd === 'hours' || cmd === 'list') setDevToday({ noMoment: true });
         if (cmd === 'spread') {
           // Two weeks with a dense run of deadlines, so Today shows the heavy-week moment, its list open.
           if (Object.keys(store.items).length === 0) {
             const t = testFortnight(today);
             store.applyPlan(t.plan, 'Test data · next two weeks', { source: 'Test data', courses: t.courses });
           }
-          setDevSpreadOpen(true);
+          setDevToday({ spreadOpen: true });
         } else if (Object.keys(store.items).length === 0) {
           const week = sampleWeek(today, { student: true, preview: true });
           useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });

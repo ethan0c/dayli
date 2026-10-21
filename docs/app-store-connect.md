@@ -1,6 +1,6 @@
 # App Store Connect: every field, ready to paste
 
-October 20, 2026. App record **Semli: AI Student Planner**, Apple ID `6824600264`, bundle id `app.semli.mobile`. Character counts are in brackets where Apple has a limit. Where a field needs something only you have (a phone number, a demo account), it says **you**. Finished screenshots: `design/screenshots/` (6.9-inch), `design/screenshots/6.3-inch/`, `design/screenshots/2007x2853/` and the header and search card in `design/screenshots/header/`, all made by `design/render-screenshots.py`. Sidebar order follows App Store Connect: General → App Store → Trust & Safety → Growth & Marketing → Monetization.
+October 20, 2026. App record **Semli: AI Student Planner**, Apple ID `6824600264`, bundle id `app.semli.mobile`. Character counts are in brackets where Apple has a limit. Where a field needs something only you have (a phone number, a demo account), it says **you**. Finished screenshots: `design/screenshots/` (6.9-inch), `design/screenshots/6.3-inch/` and the header and search card in `design/screenshots/header/`, all made by `design/render-screenshots.py`. Sidebar order follows App Store Connect: General → App Store → Trust & Safety → Growth & Marketing → Monetization.
 
 ## 1. General → App Information
 
@@ -145,7 +145,7 @@ First release. Syllabus and work-schedule import, Canvas sync, reminders, and th
 | 8 | `08-add.png` | Type it or screenshot it |
 | 9 | `09-item.png` | Every detail one tap away (optional) |
 
-The set was rerendered Oct 20, 2026 with Geist Bold captions, one lavender accent word each, and the site's photos behind shots 1, 2, 6 and 9; re-upload all nine, the 6.3-inch copies, the header and the search card. Apple scales the 6.9-inch set to every other iPhone size. The 6.1"/6.3" slot (1206 × 2622) and the foldable inner-display slot (2007 × 2853) are optional; downscaled and re-laid-out copies are in `design/screenshots/6.3-inch/` and `design/screenshots/2007x2853/`. No iPad set (`supportsTablet: false`). App previews (video): none for 1.0.
+The set was rerendered Oct 21, 2026: ten shots on the morning sky with EB Garamond captions, one lavender accent phrase each, captured with the new main-tab headers; the header and search card moved to the same sky and faces. Re-upload all ten, the 6.3-inch copies, the header and the search card. Apple scales the 6.9-inch set to every other iPhone size. The 6.1"/6.3" slot (1206 × 2622) is optional; downscaled copies are in `design/screenshots/6.3-inch/`. The foldable set was dropped. No iPad set (`supportsTablet: false`). App previews (video): none for 1.0.
 
 **Growth & Marketing → Custom Product Pages / Asset Library** (optional, iOS 27): Header `design/screenshots/header/header-3840x1646.png` (wordmark and tagline centered); Search Results `design/screenshots/header/search-3840x2560.png` (tagline and the Today phone). Check both in the Preview tool; the crop differs per device.
 
