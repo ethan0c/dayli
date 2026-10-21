@@ -32,6 +32,7 @@ From `packages/tokens/src/motion.ts`:
 | `duration.fast` | 120 ms | Exits and dims |
 | `duration.base` | 220 ms | Fades and reveals |
 | `duration.slow` | 360 ms | Screen-level fades |
+| `pulse` | 700 ms | Each half of a skeleton's breath |
 | `easing` | cubic-bezier(0.2, 0, 0, 1) | The only timed curve |
 | `press` | scale 0.97, opacity 0.88 | Press feedback |
 | `stagger` | 45 ms | Delay between siblings entering together |

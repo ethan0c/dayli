@@ -179,14 +179,14 @@
 /* The day as a horizontal bar */
 .bar {
   position: relative;
-  height: 5px;
+  height: 6px;
   border-radius: 3px;
   background: var(--row);
 }
 .seg {
   position: absolute;
   top: 0;
-  height: 5px;
+  height: 6px;
   border-radius: 3px;
   background: var(--ink);
 }
@@ -198,9 +198,10 @@
 }
 .now {
   position: absolute;
-  top: -4px;
+  top: -5px;
   width: 1.5px;
-  height: 13px;
+  height: 16px;
+  margin-left: -0.75px;
   background: var(--ink);
 }
 .barLabels {
@@ -244,9 +245,9 @@
 .weekRing {
   position: absolute;
   left: 50%;
-  width: 11px;
-  height: 11px;
-  margin: -5.5px 0 0 -5.5px;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
   border-radius: 50%;
   background: var(--surface);
   border: 2px solid var(--chart-booked);
@@ -314,10 +315,10 @@
 }
 .termDot {
   position: absolute;
-  top: -0.5px;
-  width: 7px;
-  height: 7px;
-  margin-left: -3.5px;
+  top: -1px;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
   border-radius: 50%;
   background: var(--ink);
 }
@@ -326,10 +327,10 @@
 }
 .termRing {
   position: absolute;
-  top: -2.5px;
-  width: 11px;
-  height: 11px;
-  margin-left: -5.5px;
+  top: -3px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
   border-radius: 50%;
   background: var(--surface);
   border: 2px solid var(--ink);
@@ -578,6 +579,7 @@
   left: 28px;
   right: 0;
   height: 1.5px;
+  margin-top: -0.75px;
   background: var(--ink);
 }
 .hBlock {

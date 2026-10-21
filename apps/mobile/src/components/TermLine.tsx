@@ -1,6 +1,9 @@
 import { dayNumber } from '@dayli/core';
+import { chart } from '@dayli/tokens';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { Mark, NowLine } from '@/components/ChartMark';
 import { T } from '@/components/Text';
 import { useTheme } from '@/theme';
 
@@ -26,13 +29,17 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
   labels?: boolean;
 }) {
   const { c } = useTheme();
+  const [width, setWidth] = useState(0);
   const a = dayNumber(from);
   const span = Math.max(1, dayNumber(to) - a);
   const pct = (date: string) => Math.min(100, Math.max(0, ((dayNumber(date) - a) / span) * 100));
   const tones = { ink: c.chartBooked, red: c.conflict, green: c.added };
-  const labelled = marks.filter((m) => m.label);
+  const showToday = !!today && today >= from && today <= to;
+  // Dots first, rings over them, red over ink: the mark that matters most is the one you see.
+  const ordered = [...marks].sort((x, y) => rank(x) - rank(y));
+  const shown = placeLabels(marks.filter((m) => m.label).map((m) => ({ id: m.id, p: pct(m.date), label: m.label! })), showToday && pct(today!) < 8, width - INSET * 2);
   return (
-    <View style={{ gap: 8 }}>
+    <View style={{ gap: 8 }} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       {scale === 'months' ? (
         <View style={styles.scale}>
           {monthSpans(from, to).map((m) => (
@@ -45,26 +52,50 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
         </View>
       ) : null}
       <View style={[styles.track, { backgroundColor: c.row }]} accessible accessibilityRole="image" accessibilityLabel={`${marks.length} dates between ${from} and ${to}`}>
-        {today && today >= from && today <= to ? <View style={[styles.now, { left: `${pct(today)}%`, backgroundColor: c.inkPrimary }]} /> : null}
-        {marks.map((m) => {
-          const color = tones[m.tone ?? 'ink'];
-          return m.kind === 'ring'
-            ? <View key={m.id} style={[styles.ring, { left: `${pct(m.date)}%`, borderColor: color, backgroundColor: c.surface }]} />
-            : <View key={m.id} style={[styles.dot, { left: `${pct(m.date)}%`, backgroundColor: color }]} />;
-        })}
+        <View style={styles.plot} pointerEvents="none">
+          {showToday ? <NowLine at={{ x: pct(today!) }} color={c.inkPrimary} /> : null}
+          {ordered.map((m) => <Mark key={m.id} at={{ x: pct(m.date) }} kind={m.kind} color={tones[m.tone ?? 'ink']} />)}
+        </View>
       </View>
-      {labels && (labelled.length || today) ? (
+      {labels && (shown.length || showToday) ? (
         <View style={styles.labels}>
-          {today && today >= from && today <= to && pct(today) < 8 ? <T token="caption" color={c.inkSecondary} style={[styles.label, { left: 0 }]}>Today</T> : null}
-          {labelled.map((m) => {
-            const p = pct(m.date);
-            const pos = p < 8 ? { left: 0 } : p > 92 ? { right: 0 } : { left: `${p}%` as const, marginLeft: -36, width: 72, textAlign: 'center' as const };
+          {showToday && pct(today!) < 8 ? <T token="caption" color={c.inkSecondary} style={[styles.label, { left: -INSET }]}>Today</T> : null}
+          {shown.map((m) => {
+            const pos = m.p < 8 ? { left: -INSET } : m.p > 92 ? { right: -INSET } : { left: `${m.p}%` as const, marginLeft: -LABEL / 2, width: LABEL, textAlign: 'center' as const };
             return <T key={m.id} token="caption" color={c.inkSecondary} tabular style={[styles.label, pos]}>{m.label}</T>;
           })}
         </View>
       ) : null}
     </View>
   );
+}
+
+/** Half the largest mark: the plot sits this far inside the line, so no mark hangs off an end. */
+const INSET = chart.ring / 2;
+/** The slot a label under the line is centred in. */
+const LABEL = 72;
+
+function rank(m: TermMark): number {
+  return (m.kind === 'ring' ? 2 : 0) + (m.tone === 'red' ? 1 : 0);
+}
+
+/**
+ * Labels left to right, each kept only if it clears the one before by `chart.labelGap`.
+ * Before the width is known every label shows, as it did; a dropped label's mark stays.
+ */
+function placeLabels<L extends { p: number }>(labelled: L[], todayAtStart: boolean, plot: number): L[] {
+  if (plot <= 0) return labelled;
+  const box = (p: number) => {
+    const x = (p / 100) * plot;
+    return p < 8 ? [-INSET, LABEL - INSET] : p > 92 ? [plot + INSET - LABEL, plot + INSET] : [x - LABEL / 2, x + LABEL / 2];
+  };
+  let right = todayAtStart ? 40 - INSET : -Infinity;
+  return [...labelled].sort((x, y) => x.p - y.p).filter((l) => {
+    const [l0, l1] = box(l.p);
+    if (l0! < right + chart.labelGap) return false;
+    right = l1!;
+    return true;
+  });
 }
 
 /** Month labels sized to the days each month contributes to the span. */
@@ -85,12 +116,10 @@ function monthSpans(from: string, to: string): { key: string; label: string; pct
 }
 
 const styles = StyleSheet.create({
-  scale: { flexDirection: 'row' },
+  scale: { flexDirection: 'row', marginHorizontal: INSET },
   scaleLabel: { fontSize: 11, lineHeight: 14 },
-  track: { height: 6, borderRadius: 3, position: 'relative' },
-  now: { position: 'absolute', top: -5, width: 1.5, height: 16, marginLeft: -0.75 },
-  ring: { position: 'absolute', top: -3, width: 12, height: 12, marginLeft: -6, borderRadius: 6, borderWidth: 2 },
-  dot: { position: 'absolute', top: -1, width: 8, height: 8, marginLeft: -4, borderRadius: 4 },
-  labels: { position: 'relative', height: 16 },
+  track: { height: chart.track, borderRadius: chart.track / 2, position: 'relative' },
+  plot: { position: 'absolute', top: 0, bottom: 0, left: INSET, right: INSET },
+  labels: { position: 'relative', height: 16, marginHorizontal: INSET },
   label: { position: 'absolute', fontSize: 11, lineHeight: 14 },
 });

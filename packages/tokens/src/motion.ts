@@ -4,7 +4,8 @@
  *
  * Two springs: `snappy` for things under the finger (presses, toggles, checks,
  * segmented controls), `gentle` for things that move on their own (cards, rows
- * re-flowing, sheets, toasts). Three durations for fades and color changes.
+ * re-flowing, sheets, toasts). Three durations for fades and color changes, and
+ * one slow breath for skeletons.
  */
 export const motion = {
   spring: {
@@ -12,6 +13,8 @@ export const motion = {
     gentle: { damping: 26, stiffness: 190, mass: 1 },
   },
   duration: { fast: 120, base: 220, slow: 360 },
+  /** Each half of a skeleton's breath, dim then back; slow enough to read as waiting, not flicker. */
+  pulse: 700,
   /** The one easing curve for timed animations (CSS cubic-bezier form). */
   easing: [0.2, 0, 0, 1] as const,
   /** How far a control shrinks and dims while pressed. */

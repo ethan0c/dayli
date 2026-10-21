@@ -141,6 +141,15 @@ export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, x
 export const radius = { chip: 999, row: 14, card: 16, sheet: 28, pill: 999 } as const;
 
 /**
+ * Chart geometry, shared by every timeline in the app and the site mockups. A mark is
+ * centred on its value, never offset from it: `track` is the line's thickness, `dot` a due
+ * date, `ring` an exam (with `ringStroke`), `now` the now hairline that overhangs the track
+ * by `nowOverhang` on each side (`nowColumnOverhang` past a week column), `nowDot` the dot
+ * at its start in the hour view, `labelGap` the least space between two labels under a line.
+ */
+export const chart = { track: 6, column: 6, dot: 8, ring: 12, ringStroke: 2, now: 1.5, nowOverhang: 5, nowColumnOverhang: 2, nowDot: 7, labelGap: 8 } as const;
+
+/**
  * Geist, one face, four weights (apps/mobile/assets/fonts, OFL). Regular carries
  * large headings, numbers, section titles and text, Medium pills and primary labels,
  * and SemiBold emphasis. EB Garamond Regular (OFL) is the marketing

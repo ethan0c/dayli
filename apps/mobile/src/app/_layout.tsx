@@ -2,7 +2,7 @@ import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { AppState, Appearance, LogBox } from 'react-native';
 import { I18nProvider } from '@lingui/react';
 import { PostHogProvider } from 'posthog-react-native';
@@ -21,6 +21,8 @@ import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
 import { devClock, devCommand, setDevAutoConfirm } from '@/lib/dev';
 import { i18n } from '@/lib/i18n';
+import { SHOWCASE, SKY, preloadPhotos } from '@/lib/images';
+import { skySlot } from '@/lib/sky';
 import { useDateLocaleSync } from '@/lib/locale';
 import { setDevTime } from '@/lib/now';
 import { hideSplash } from '@/lib/splash';
@@ -76,7 +78,17 @@ function RootLayout() {
   const { c, dark } = useTheme();
   const pathname = usePathname();
   const photoPaywall = pathname === '/paywall' || pathname === '/settings/plan';
-  const ready = (fontsLoaded || !!fontError) && hydrated;
+  // Photos the first screen shows are decoded behind the splash, at most 300 ms: Today's sky for
+  // a returning person, the onboarding showcases and the Plus photo for a new one.
+  const [photosReady, setPhotosReady] = useState(false);
+  useEffect(() => {
+    if (!hydrated) return;
+    const sources = onboarded ? [SKY[skySlot(localParts(new Date()).time, dark)], SHOWCASE.plus] : [SHOWCASE.demo, SHOWCASE.headsup, SHOWCASE.plus];
+    void preloadPhotos(sources).finally(() => setPhotosReady(true));
+    // Once per launch: later sky changes fade in on their own.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
+  const ready = (fontsLoaded || !!fontError) && hydrated && photosReady;
   useDateLocaleSync(hydrated);
   useEffect(() => { if (fontError) reportError('fonts.load', fontError); }, [fontError]);
   useReminderSync();

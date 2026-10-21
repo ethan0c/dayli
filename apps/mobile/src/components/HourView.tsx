@@ -1,5 +1,6 @@
 import { dateLocale, eventLanes, formatHour, formatRange, formatTime, toMinutes } from '@dayli/core';
 import type { Item } from '@dayli/schema';
+import { chart } from '@dayli/tokens';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
@@ -64,8 +65,8 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
       </View>
       {nowMin >= fromHour * 60 && nowMin <= 24 * 60 ? (
         <>
-          <View style={[styles.nowLine, { top: nowY, backgroundColor: c.inkPrimary }]} />
-          <View style={[styles.nowDot, { top: nowY - 3, backgroundColor: c.inkPrimary }]} />
+          <View style={[styles.nowLine, { top: nowY - chart.now / 2, backgroundColor: c.inkPrimary }]} />
+          <View style={[styles.nowDot, { top: nowY - chart.nowDot / 2, backgroundColor: c.inkPrimary }]} />
           <T token="caption" color={c.inkPrimary} tabular style={[styles.nowLabel, { top: nowY - 7 }]}>{formatTime(now.time).replace(/ [ap]m$/, '')}</T>
         </>
       ) : null}
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
   block: { flex: 1, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', gap: 2, overflow: 'hidden' },
   blockText: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   blockTitle: { flexShrink: 1, fontSize: 12, lineHeight: 16 },
-  nowLine: { position: 'absolute', left: 40, right: 0, height: 1.5 },
-  nowDot: { position: 'absolute', left: 37, width: 7, height: 7, borderRadius: 4 },
+  nowLine: { position: 'absolute', left: 40, right: 0, height: chart.now },
+  nowDot: { position: 'absolute', left: 40 - chart.nowDot / 2, width: chart.nowDot, height: chart.nowDot, borderRadius: chart.nowDot / 2 },
   nowLabel: { position: 'absolute', left: 0, width: 34, textAlign: 'right', fontSize: 11, lineHeight: 14, fontFamily: undefined },
 });

@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { StyleSheet, View, type DimensionValue } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 
+import { motion } from '@dayli/tokens';
+
 import { ease } from '@/lib/motion';
 import { radius, useTheme } from '@/theme';
 
@@ -10,7 +12,7 @@ export function Skeleton({ width = '100%', height = 16, round = 8, style }: { wi
   const { c } = useTheme();
   const pulse = useSharedValue(1);
   useEffect(() => {
-    pulse.value = withRepeat(withSequence(withTiming(0.5, { duration: 700, easing: ease }), withTiming(1, { duration: 700, easing: ease })), -1, false);
+    pulse.value = withRepeat(withSequence(withTiming(0.5, { duration: motion.pulse, easing: ease }), withTiming(1, { duration: motion.pulse, easing: ease })), -1, false);
   }, [pulse]);
   const animated = useAnimatedStyle(() => ({ opacity: pulse.value }));
   return <Animated.View accessible={false} style={[{ width, height, borderRadius: round, backgroundColor: c.row }, animated, style]} />;

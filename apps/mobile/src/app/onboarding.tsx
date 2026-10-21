@@ -1,6 +1,6 @@
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Image, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
+import { ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -17,6 +17,8 @@ import { Reading } from "@/components/Reading";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
 import { profile as setProfile, track } from "@/lib/analytics";
+import { Photo } from "@/components/Photo";
+import { SHOWCASE } from "@/lib/images";
 import { requestExtraction } from "@/lib/api";
 import { requestImport } from "@/lib/import-auth";
 import { IMPORT_MESSAGES } from "@dayli/schema";
@@ -254,11 +256,7 @@ export default function OnboardingScreen() {
 }
 
 /** The same photos as the design boards. Stand-ins until the final set is sourced. */
-const PHOTOS = {
-  demo: require("../../assets/showcase/demo.jpg"),
-  headsup: require("../../assets/showcase/headsup.jpg"),
-  plus: require("../../assets/showcase/plus.jpg"),
-};
+const PHOTOS = SHOWCASE;
 
 const FADE_STEPS = 28;
 
@@ -274,7 +272,7 @@ function Backdrop({ source, height, fadeFrom = 0, full = false, dim = 0 }: { sou
   const fadeH = h - fadeTop;
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { height: h }]}>
-      <Image source={source} resizeMode="cover" style={{ width: "100%", height: h }} />
+      <Photo source={source} style={{ width: "100%", height: h }} />
       {full ? <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: screen * 0.3, backgroundColor: "rgba(21,21,21,0.15)" }} /> : null}
       {dim > 0 ? <View style={[StyleSheet.absoluteFill, { backgroundColor: dark, opacity: dim }]} /> : null}
       <View style={{ position: "absolute", left: 0, right: 0, top: fadeTop, height: fadeH }}>

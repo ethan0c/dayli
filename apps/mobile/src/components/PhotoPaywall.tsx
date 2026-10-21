@@ -1,9 +1,11 @@
 import { useRef } from 'react';
 import { PlanPicker } from '@/components/PlanPicker';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { palettes } from '@dayli/tokens';
 
+import { Photo } from '@/components/Photo';
+import { SHOWCASE } from '@/lib/images';
 import { SCREEN_GUTTER } from '@/theme';
 
 /** The same fireworks and fade used by the onboarding showcase, in either appearance. */
@@ -11,7 +13,7 @@ export function PaywallBackdrop() {
   const canvas = palettes.dark.canvas;
   return (
     <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={StyleSheet.absoluteFill}>
-      <Image source={require('../../assets/showcase/plus.jpg')} resizeMode="cover" style={styles.photo} />
+      <Photo source={SHOWCASE.plus} style={styles.photo} />
       <View style={[styles.photo, { backgroundColor: canvas, opacity: 0.3 }]} />
       <View style={styles.fade}>
         {Array.from({ length: 28 }, (_, i) => (

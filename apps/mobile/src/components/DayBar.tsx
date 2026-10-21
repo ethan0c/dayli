@@ -1,7 +1,9 @@
 import { dayNumber, findConflicts, intervalOf, toMinutes } from '@dayli/core';
 import type { Item } from '@dayli/schema';
+import { chart } from '@dayli/tokens';
 import { StyleSheet, View } from 'react-native';
 
+import { NowLine } from '@/components/ChartMark';
 import { T } from '@/components/Text';
 import { useTheme } from '@/theme';
 
@@ -50,7 +52,7 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
           <View key={b.id} style={[styles.block, { left: `${b.left}%`, width: `${b.width}%`, backgroundColor: b.color, opacity: b.dim ? 0.5 : 1 }]} />
         ))}
         {overlaps.map((span) => <View key={span.id} style={[styles.block, { left: `${span.left}%`, width: `${span.width}%`, backgroundColor: c.conflict }]} />)}
-        {!highlight && nowMin >= START && nowMin <= END ? <View style={[styles.now, { left: `${nowLeft}%`, backgroundColor: c.inkPrimary }]} /> : null}
+        {!highlight && nowMin >= START && nowMin <= END ? <NowLine at={{ x: nowLeft }} color={c.inkPrimary} /> : null}
       </View>
       {labels ? (
         <View style={styles.labels}>
@@ -65,8 +67,7 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
 
 const styles = StyleSheet.create({
   wrap: { gap: 8 },
-  track: { height: 6, borderRadius: 3, position: 'relative' },
-  block: { position: 'absolute', top: 0, height: 6, borderRadius: 3 },
-  now: { position: 'absolute', top: -5, width: 1.5, height: 16 },
+  track: { height: chart.track, borderRadius: chart.track / 2, position: 'relative' },
+  block: { position: 'absolute', top: 0, height: chart.track, borderRadius: chart.track / 2 },
   labels: { flexDirection: 'row', justifyContent: 'space-between' },
 });

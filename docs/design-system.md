@@ -108,6 +108,14 @@ Tokens in `packages/tokens/src/motion.ts`, presets in `apps/mobile/src/lib/motio
 ## Charts
 One chart, the timeline, at three zooms. `DayBar` is the day as a horizontal bar (with `highlight` for the item screen). `HourView` is the same day opened by the hour, behind the top-right toggle on Today. `WeekChart` is seven vertical day bars, the Plan header and the schedule review. `TermLine` is a span with dots and rings, the four-week map on School and the syllabus review. Marks everywhere: plum booked in light mode and lavender in dark mode, green done or new, terracotta overlap or dropped, dashed outline where a shift was, ring exam, dot due date, hairline now, amber outline needs a time.
 
+Every line and dot on a chart is placed, not drawn by eye (decided Oct 21, 2026):
+- One geometry. Sizes come from `chart` in `packages/tokens`: track 6, dot 8, ring 12 with a 2 stroke, now hairline 1.5 overhanging the track by 5, hour-view now dot 7. The site's mockups (`apps/web/components/mock.module.css`) use the same numbers. No mark picks its own size.
+- Centred on the value. Dots, rings and the now line go through `Mark` and `NowLine` (`components/ChartMark.tsx`), which hang each mark from a zero-size anchor at its value and centre it by half its own size. Never position a mark with a hand-tuned `top` or `marginLeft`.
+- Nothing hangs off the end. A line with marks insets its plot by half a ring, and its scale and labels share that inset, so a mark on the first or last day sits inside the rounded cap. Column marks clamp inside the column.
+- One stacking order: track, blocks, overlap spans, now hairline, then dots and rings, with rings over dots and red over ink. Rings knock out the track under them (surface fill), so a ring never reads as a dot.
+- Collisions resolve, never pile up. When two labels under a line would touch, the later one is dropped and its mark stays; labels keep at least `labelGap` (8) between them. Two marks on one date show the more important one on top.
+- Straight, flat and quiet: no hand-drawn SVG paths, curves, glows, shadows, gradients or decorative gridlines. Hour rules are hairlines in `line`; axis labels are caption at 11 in the secondary ink, sentence case.
+
 ## Deleting and editing
 One tap deletes, the toast carries Undo, and Your data keeps it undoable after. Rows swipe right to complete and left to delete (`SwipeRow`). A repeating item asks the scope inline under Delete: Just this one, This week, From now on. Review never blocks: untimed shifts go in with an amber "Add a time" pill, undated items are skipped by default ("Add 14 · skip 2"), a class with no end date asks "Until when?" with a 15-week default.
 

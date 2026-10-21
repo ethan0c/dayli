@@ -3,8 +3,11 @@ import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
+import { chart } from '@dayli/tokens';
+
 import { springs } from '@/lib/motion';
 
+import { clampY, Mark, NowLine } from '@/components/ChartMark';
 import { T } from '@/components/Text';
 import { useTheme } from '@/theme';
 
@@ -89,14 +92,11 @@ function DayColumn({ day, selected, today, height, onSelect, onWeek }: { day: We
               b.outline ? { borderWidth: 1.5, borderColor: color, borderStyle: b.outline } : { backgroundColor: color }]} />
           );
         })}
+        {today ? <NowLine at={{ y: nowTop(height) }} color={c.inkPrimary} /> : null}
         {(day.marks ?? []).map((m) => {
-          const top = ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height;
-          const color = m.tone === 'red' ? c.conflict : c.chartBooked;
-          return m.kind === 'ring'
-            ? <View key={m.id} style={[styles.ring, { top: top - 5, borderColor: color, backgroundColor: c.surface }]} />
-            : <View key={m.id} style={[styles.dot, { top: top - 4, backgroundColor: color }]} />;
+          const y = ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height;
+          return <Mark key={m.id} at={{ y: clampY(y, height, m.kind) }} kind={m.kind} color={m.tone === 'red' ? c.conflict : c.chartBooked} />;
         })}
-        {today ? <View style={[styles.now, { backgroundColor: c.inkPrimary, top: nowTop(height) }]} /> : null}
       </View>
       {day.label ? <T token="caption" color={labelColor} tabular style={[styles.label, day.labelTone && day.labelTone !== 'grey' ? { fontFamily: undefined } : null, day.labelStrike ? { textDecorationLine: 'line-through' } : null]}>{day.label}</T> : null}
     </>
@@ -135,10 +135,7 @@ const styles = StyleSheet.create({
   col: { flex: 1, alignItems: 'center', gap: 6 },
   weekday: { fontSize: 11, lineHeight: 14 },
   num: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  track: { width: '100%', borderRadius: 6, position: 'relative', overflow: 'visible' },
-  block: { position: 'absolute', left: 0, right: 0, borderRadius: 6 },
-  ring: { position: 'absolute', left: '50%', marginLeft: -5, width: 10, height: 10, borderRadius: 5, borderWidth: 2 },
-  dot: { position: 'absolute', left: '50%', marginLeft: -4, width: 8, height: 8, borderRadius: 4 },
-  now: { position: 'absolute', left: -2, right: -2, height: 1.5 },
+  track: { width: '100%', borderRadius: chart.column, position: 'relative', overflow: 'visible' },
+  block: { position: 'absolute', left: 0, right: 0, borderRadius: chart.column },
   label: { fontSize: 11, lineHeight: 14, textAlign: 'center' },
 });
