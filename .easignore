@@ -1,0 +1,50 @@
+# What EAS uploads for a build. When this file exists EAS ignores .gitignore, so every rule from the
+# repo's .gitignore files is repeated here, then the marketing folders the app never reads are added.
+
+# From .gitignore
+node_modules/
+.env
+.env.local
+.DS_Store
+dist/
+evals/inputs/public/
+evals/reports/
+supabase/.temp/
+
+# From apps/mobile/.gitignore
+apps/mobile/.expo/
+apps/mobile/web-build/
+apps/mobile/expo-env.d.ts
+apps/mobile/ios/
+apps/mobile/android/
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.env*.local
+*.tsbuildinfo
+apps/mobile/example
+.env.sentry-build-plugin
+.env.production
+
+# From apps/web/.gitignore
+apps/web/.next/
+apps/web/out/
+apps/web/build
+apps/web/coverage
+apps/web/.vercel
+apps/web/.env*
+
+# Not part of the app: store art, clips, docs and the site's photos (the workspace stays, for npm ci)
+design/
+docs/
+apps/web/public/
+.git/
