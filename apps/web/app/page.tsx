@@ -69,7 +69,7 @@ export default function Home() {
           </div>
           <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
         </div>
-        <Shot name="today" width={372} priority className={styles.heroShot} label="Today: 6 hours 19 minutes until the next shift, then the day's plan" />
+        <Shot name="today" width={372} priority className={styles.heroShot} label="Today: 1 hour 19 minutes until Psych lecture, a full day on one bar, then seven things on the list" />
       </section>
 
       <TryIt />
@@ -129,7 +129,7 @@ export default function Home() {
           <p className="lede">Bring class times, exams, and assignment dates out of the PDF and into your plan. Connect Canvas for assignments, with Plus to keep due dates in sync.</p>
           <Link className="textlink" href="/syllabus-to-calendar">How syllabus imports work</Link>
         </div>
-        <div className={styles.single} data-reveal style={stagger(1)}><Stage><Screen name="school" width={340} height={500} label="School: the next assignment due in 3 days, the next four weeks on one line, your courses" /></Stage></div>
+        <div className={styles.single} data-reveal style={stagger(1)}><Stage><Screen name="school" width={340} height={500} label="School: the next assignment due today, four courses over the next four weeks, your courses" /></Stage></div>
       </section>
 
       <section className={styles.switch} aria-labelledby="switch-title">

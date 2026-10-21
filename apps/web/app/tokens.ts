@@ -45,8 +45,8 @@ function colorVars(p: Palette): Record<string, string> {
 
 /** Site-only surfaces, still built from the palette: the purple band and the dark band. */
 const bandVars = {
-  light: { '--lav-500': lavender[500], '--band-purple': lavender[600], '--band-ink': palettes.light.inkPrimary },
-  dark: { '--lav-500': lavender[500], '--band-purple': lavender[800], '--band-ink': '#0F0F12' },
+  light: { '--band-purple': lavender[600], '--band-ink': palettes.light.inkPrimary },
+  dark: { '--band-purple': lavender[800], '--band-ink': '#0F0F12' },
 };
 
 const typeVars: Record<string, string> = {};

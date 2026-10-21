@@ -235,6 +235,22 @@
   border-radius: 5px;
   background: var(--row);
 }
+.dayNum {
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.weekRing {
+  position: absolute;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+}
 .trackUnknown {
   background: var(--changed-bg);
   border: 1.5px solid var(--changed);
@@ -602,6 +618,7 @@
 }
 .termDot,
 .termRing,
+.weekRing,
 .termTick {
   animation: pop var(--dur-base) var(--ease) both;
   animation-delay: calc(var(--i, 0) * var(--stagger));

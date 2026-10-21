@@ -6,14 +6,15 @@ export const SAMPLE_SOURCE = 'sample';
 const EMPLOYER = 'Campus Café';
 
 type Seed = Omit<Item, 'id' | 'createdAt' | 'sourceId' | 'batchId' | 'courseId' | 'completedAt' | 'notes'> & {
-  course?: 0 | 1;
+  course?: 0 | 1 | 2 | 3;
   seriesId?: string;
 };
 
 /**
- * The week from the design boards, placed around `today`: Campus Café shifts, a Stats
- * lecture that repeats, a study group that overlaps a shift, a reading due today, an
- * exam on Friday. The same content the screenshots and the canvas show.
+ * A full student week placed around `today`: four courses with lectures that repeat, a lab,
+ * office hours, Campus Café shifts, a study group that overlaps a shift, the gym, readings
+ * and posts due today, an exam on Friday. Deadlines stay spread out so no heavy-week moment
+ * takes over Today. The same content the screenshots show.
  *
  * `preview` marks the rows as real imports (a screenshot and a syllabus) so they show in
  * every list; the default marks them as the sample, which the lists hide.
@@ -29,18 +30,26 @@ export function sampleWeek(today: string, options: { student?: boolean; preview?
     ? [
         { id: 'sample-course-0', code: 'STAT 200', title: 'Statistics', instructor: 'Dr. Mehta', sourceId: pdf },
         { id: 'sample-course-1', code: 'PSYC 101', title: 'Intro to Psychology', instructor: 'Dr. Alvarez', sourceId: pdf },
+        { id: 'sample-course-2', code: 'BIOL 110', title: 'General Biology', instructor: 'Dr. Chen', sourceId: pdf },
+        { id: 'sample-course-3', code: 'ENGL 102', title: 'Composition II', instructor: 'Prof. Reyes', sourceId: pdf },
       ]
     : [];
 
   const work = (date: string, start: string, end: string): Seed => ({
     kind: 'event', title: 'Café shift', category: 'work', icon: 'work', date, start, end, isDeadline: false, done: false, employer: EMPLOYER,
   });
-  const lecture = (date: string): Seed => ({
-    kind: 'event', title: 'Stats lecture', category: 'school', icon: 'school', date, start: '09:00', end: '10:15', isDeadline: false, done: date < today, employer: null, course: 0, seriesId: 'sample-series-stats',
-  });
+  const series = (title: string, course: 0 | 1 | 2 | 3, start: string, end: string, days: string[]): Seed[] =>
+    [0, 7, 14].flatMap((w) => days.map((d) => addDays(d, w))).map((date) => ({
+      kind: 'event', title, category: 'school', icon: 'school', date, start, end, isDeadline: false, done: date < today, employer: null, course, seriesId: `sample-series-${course}`,
+    }));
   const school: Seed[] = student
     ? [
-        lecture(mon), lecture(wed), lecture(addDays(mon, 7)), lecture(addDays(wed, 7)), lecture(addDays(mon, 14)), lecture(addDays(wed, 14)),
+        ...series('Stats lecture', 0, '09:00', '10:15', [mon, wed]),
+        ...series('Psych lecture', 1, '11:00', '12:15', [tue, thu]),
+        ...series('Bio lecture', 2, '10:30', '11:20', [mon, wed, fri]),
+        ...series('Composition seminar', 3, '13:30', '14:45', [mon, wed]),
+        { kind: 'event', title: 'Bio lab', category: 'school', icon: 'school', date: tue, start: '13:00', end: '15:30', isDeadline: false, done: false, employer: null, course: 2 },
+        { kind: 'event', title: 'Office hours, Dr. Mehta', category: 'school', icon: 'school', date: wed, start: '15:00', end: '15:45', isDeadline: false, done: false, employer: null, course: 0 },
         { kind: 'event', title: 'Study group', category: 'school', icon: 'book', date: mon, start: '19:00', end: '20:00', isDeadline: false, done: false, employer: null, course: 0 },
         { kind: 'event', title: 'Stats exam 2', category: 'school', icon: 'exam', date: fri, start: '09:00', end: '10:30', isDeadline: true, done: false, employer: null, course: 0 },
         { kind: 'task', title: 'Read chapter 6', category: 'school', icon: 'book', date: mon, start: null, end: null, isDeadline: true, done: false, employer: null, course: 1 },
@@ -48,6 +57,13 @@ export function sampleWeek(today: string, options: { student?: boolean; preview?
         { kind: 'task', title: 'Midterm paper', category: 'school', icon: 'pen', date: addDays(fri, 21), start: null, end: null, isDeadline: true, done: false, employer: null, course: 1 },
         { kind: 'task', title: 'Problem set 4', category: 'school', icon: 'pen', date: addDays(fri, 14), start: null, end: null, isDeadline: true, done: false, employer: null, course: 0 },
         { kind: 'task', title: 'Quiz 1', category: 'school', icon: 'check', date: mon, start: null, end: null, isDeadline: true, done: true, employer: null, course: 1 },
+        { kind: 'task', title: 'Pre-lab worksheet', category: 'school', icon: 'pen', date: today, start: null, end: null, isDeadline: true, done: false, employer: null, course: 2 },
+        { kind: 'task', title: 'Discussion post 4', category: 'school', icon: 'pen', date: today, start: '23:59', end: null, isDeadline: true, done: false, employer: null, course: 3 },
+        { kind: 'task', title: 'Watch lecture 9 recording', category: 'school', icon: 'book', date: today, start: null, end: null, isDeadline: false, done: true, employer: null, course: 1 },
+        { kind: 'task', title: 'Essay outline', category: 'school', icon: 'pen', date: thu, start: '23:59', end: null, isDeadline: true, done: false, employer: null, course: 3 },
+        { kind: 'task', title: 'Lab report 3', category: 'school', icon: 'pen', date: addDays(thu, 7), start: '13:00', end: null, isDeadline: true, done: false, employer: null, course: 2 },
+        { kind: 'task', title: 'Essay draft', category: 'school', icon: 'pen', date: addDays(thu, 14), start: '23:59', end: null, isDeadline: true, done: false, employer: null, course: 3 },
+        { kind: 'task', title: 'Read chapters 7 and 8', category: 'school', icon: 'book', date: addDays(mon, 7), start: null, end: null, isDeadline: false, done: false, employer: null, course: 1 },
       ]
     : [
         { kind: 'event', title: 'Gym', category: 'personal', icon: 'heart', date: tue, start: '07:00', end: '08:00', isDeadline: false, done: false, employer: null },
@@ -63,6 +79,16 @@ export function sampleWeek(today: string, options: { student?: boolean; preview?
     work(sat, '09:00', '15:00'),
     work(sun, '11:00', '17:00'),
     { kind: 'task', title: 'Return library book', category: 'personal', icon: 'bag', date: mon, start: null, end: null, isDeadline: false, done: false, employer: null },
+    { kind: 'task', title: 'Submit timesheet', category: 'work', icon: 'work', date: today, start: null, end: null, isDeadline: true, done: false, employer: EMPLOYER },
+    { kind: 'task', title: 'Pick up groceries', category: 'personal', icon: 'bag', date: today, start: null, end: null, isDeadline: false, done: false, employer: null },
+    ...(student
+      ? ([
+          { kind: 'event', title: 'Gym', category: 'personal', icon: 'heart', date: tue, start: '07:00', end: '08:00', isDeadline: false, done: tue <= today, employer: null },
+          { kind: 'event', title: 'Gym', category: 'personal', icon: 'heart', date: thu, start: '07:00', end: '08:00', isDeadline: false, done: thu <= today, employer: null },
+          { kind: 'event', title: 'Pre-nursing club', category: 'personal', icon: 'heart', date: wed, start: '18:30', end: '19:30', isDeadline: false, done: false, employer: null },
+          { kind: 'task', title: 'Call mom', category: 'personal', icon: 'heart', date: sun, start: null, end: null, isDeadline: false, done: false, employer: null },
+        ] satisfies Seed[])
+      : []),
   ];
   const items: Item[] = seeds.map((s, i) => {
     const { course, seriesId, ...rest } = s;

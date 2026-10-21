@@ -95,7 +95,11 @@ export function DayBar({ segments, now, labels = true, style }: { segments: Segm
 export type Block = { top: number; height: number; tone?: 'ink' | 'green' | 'red'; outline?: 'dashed' | 'dropped'; half?: boolean };
 export type Day = {
   label: string;
+  /** Day of the month, under the weekday, as on Plan. */
+  num?: number;
   blocks?: Block[];
+  /** Rings at an exam or deadline's time, as a percent of the day. */
+  rings?: number[];
   /** The source gave no time: an amber outlined bar. */
   unknown?: boolean;
   /** Text under the bar: "4–10p", "off", "time?". */
@@ -110,6 +114,7 @@ export function WeekChart({ days, height = 88, style, label }: { days: Day[]; he
       {days.map((d, i) => (
         <div key={i} className={m.day} style={{ '--i': i } as CSSProperties}>
           {d.label}
+          {d.num !== undefined ? <span className={m.dayNum}>{d.num}</span> : null}
           <span className={`${m.track} ${d.unknown ? m.trackUnknown : ''}`.trim()}>
             {(d.blocks ?? []).map((b, j) => (
               <span
@@ -120,6 +125,7 @@ export function WeekChart({ days, height = 88, style, label }: { days: Day[]; he
                 style={{ top: `${b.top}%`, height: `${b.height}%` }}
               />
             ))}
+            {(d.rings ?? []).map((top, j) => <span key={`r${j}`} className={m.weekRing} style={{ top: `${top}%` }} />)}
           </span>
           {d.under !== undefined ? <span className={TONE_TEXT[d.underTone ?? 'grey']}>{d.under}</span> : null}
         </div>

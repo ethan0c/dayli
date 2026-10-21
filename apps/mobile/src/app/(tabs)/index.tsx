@@ -1,8 +1,9 @@
-import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary } from '@dayli/core';
+import { addDays, conflictIds, deadlineReason, deadlineWindow, diffDays, findConflicts, formatRange, formatTime, featuredCommitment, monthDay, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong } from '@dayli/core';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GroupLabel, IconButton, ListRow, SectionTitle, TextButton } from '@/components/Controls';
 import { DayBar } from '@/components/DayBar';
@@ -33,6 +34,7 @@ function countdown(mins: number): string {
 
 export default function TodayScreen() {
   const { c } = useTheme();
+  const insets = useSafeAreaInsets();
   const now = useNow();
   const items = useItemList();
   const schedules = useScheduleList();
@@ -120,14 +122,30 @@ export default function TodayScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">
-      <TabHeader date={now.date} label={timingLabel ?? 'Your day'} title={featured ? 'Now' : 'Clear'}
-        value={big ? <Ticker value={big} token="displayXl" /> : undefined}
-        trailing={viewToggle}
+      {/* On a moment day the photo runs from the top edge, the moment takes the big number, and the day's header steps down to display size. */}
+      {moment ? (
+        <View style={styles.moment}>
+          <PhotoHeader source={moment.image} height={330} to={c.canvas} fadeFrom={0.5} />
+          <View style={[styles.momentToggle, { top: insets.top + 20 }]}>{viewToggle}</View>
+          <T token="callout" color={c.inkSecondary}>{moment.lead}</T>
+          <T token="displayXl" tabular>{moment.big}</T>
+          <View style={styles.momentLine}>
+            <T token="body">{moment.line}</T>
+            {moment.action ? <TextButton label={moment.action.label} onPress={() => router.push(moment.action!.href as '/plan')} /> : null}
+          </View>
+        </View>
+      ) : null}
+
+      <TabHeader date={now.date} label={timingLabel ?? 'Your day'} title={featured ? 'Now' : 'Clear'} inset={!moment}
+        context={moment ? <T token="callout" color={c.inkSecondary} numberOfLines={1}>{`${weekdayLong(now.date)}, ${monthDay(now.date)} · ${(timingLabel ?? 'Your day').toLowerCase()}`}</T> : undefined}
+        value={moment ? (big ? <Ticker value={big} token="display" /> : <T token="display" accessibilityRole="header">{featured ? 'Now' : 'Clear'}</T>)
+          : big ? <Ticker value={big} token="displayXl" /> : undefined}
+        trailing={moment ? undefined : viewToggle}
         onPress={featured ? () => router.push(`/item/${featured.id}`) : undefined}
         accessibilityLabel={featured ? `${timingLabel ?? 'Now'} ${big ?? ''}, ${nextTitle}` : undefined}
         details={featured ? <>
-          <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{nextTitle}</T>
-          {featuredWhere ? <T token="callout" color={c.inkSecondary}>{featuredWhere}</T> : null}
+          <T token="body" style={moment ? undefined : { fontSize: 18, lineHeight: 26 }}>{nextTitle}</T>
+          {featuredWhere && !moment ? <T token="callout" color={c.inkSecondary}>{featuredWhere}</T> : null}
         </> : <T token="callout" color={c.inkSecondary}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>} />
 
       <Animated.View layout={layout}>
@@ -144,18 +162,6 @@ export default function TodayScreen() {
           </Animated.View>
         )}
       </Animated.View>
-
-      {moment ? (
-        <View style={styles.moment}>
-          <PhotoHeader source={moment.image} height={330} to={c.canvas} />
-          <T token="callout" color={c.inkSecondary}>{moment.lead}</T>
-          <T token="display" tabular>{moment.big}</T>
-          <View style={styles.momentLine}>
-            <T token="body">{moment.line}</T>
-            {moment.action ? <TextButton label={moment.action.label} onPress={() => router.push(moment.action!.href as '/plan')} /> : null}
-          </View>
-        </View>
-      ) : null}
 
       {/* One thing explained at the moment it first matters, in place of a tour (see components/Firsts). */}
       <TodayFirst items={items} now={now} timedToday={timedToday} style={styles.section} />
@@ -265,6 +271,7 @@ const styles = StyleSheet.create({
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   inlineAction: { paddingLeft: 34 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 20 },
-  moment: { position: 'relative', marginTop: 24, paddingHorizontal: SCREEN_GUTTER, paddingTop: 206, paddingBottom: 12, gap: 8 },
+  moment: { position: 'relative', paddingHorizontal: SCREEN_GUTTER, paddingTop: 206, paddingBottom: 18, gap: 2 },
+  momentToggle: { position: 'absolute', right: SCREEN_GUTTER },
   momentLine: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingTop: 6 },
 });

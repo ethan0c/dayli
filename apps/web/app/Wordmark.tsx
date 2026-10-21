@@ -13,7 +13,7 @@ export function Wordmark({ width = 120 }: { width?: number }) {
       style={{ display: 'block' }}>
       <path d={wordmark.letters} fill="currentColor" />
       {wordmark.dots.map((d, i) => (
-        <circle key={i} cx={d.cx} cy={d.cy} r={d.r} fill="var(--lav-500)" />
+        <circle key={i} cx={d.cx} cy={d.cy} r={d.r} fill="var(--accent)" />
       ))}
     </svg>
   );

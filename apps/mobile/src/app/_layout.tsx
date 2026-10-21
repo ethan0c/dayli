@@ -102,14 +102,16 @@ function RootLayout() {
   // Development: a command file in Documents seeds a state for screenshots (see lib/dev.ts).
   useEffect(() => {
     if (!ready) return;
-    void devClock().then(setDevTime);
-    void devCommand().then((cmd) => {
+    void Promise.all([devClock(), devCommand()]).then(([clock, cmd]) => {
+      setDevTime(clock);
       if (!cmd) return;
       const store = useStore.getState();
-      const today = localParts(new Date()).date;
+      // A clock with a day ("2026-10-19 09:41") seeds the week around that day.
+      const today = /^\d{4}-\d{2}-\d{2}/.exec(clock ?? '')?.[0] ?? localParts(new Date()).date;
       const demo = cmd === 'demo' || cmd === 'demo-syllabus';
       if (cmd === 'sample' || cmd === 'moment' || cmd === 'item' || cmd === 'review' || cmd === 'review-update' || cmd === 'hours' || cmd === 'list' || demo) {
-        store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', ...(cmd === 'hours' || cmd === 'list' ? { todayView: cmd } : {}), breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
+        // Every first-time tip counts as seen, so the captures show the screens without them.
+        store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', firsts: { overlap: true, urgent: true, canvas: true, reimport: true, hours: true }, ...(cmd === 'hours' || cmd === 'list' ? { todayView: cmd } : {}), breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
         if (Object.keys(store.items).length === 0) {
           const week = sampleWeek(today, { student: true, preview: true });
           useStore.setState({ items: Object.fromEntries(week.items.map((i) => [i.id, i])), courses: week.courses, schedules: week.schedules });
