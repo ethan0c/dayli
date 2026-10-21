@@ -127,8 +127,8 @@ export function deadlineReason(items: Item[], deadline: Item, now: LocalNow, win
   // Incomplete times cannot support confident free-time or shift-pressure claims.
   if (window.hasUnknownTimes) return `${due} · some times aren’t set yet.`;
   if (window.unbookedHours < 4) return `${due} · about ${window.unbookedHours} unbooked ${window.unbookedHours === 1 ? 'hour' : 'hours'} in the calendar before it.`;
-  if (window.workHours >= 4) return `${due} · ${window.workHours} hours of work booked in the lead-up.`;
-  return `${due} · make a start before it gets close.`;
+  if (window.workHours >= 4) return `${due} · ${window.workHours} hours of work scheduled before this deadline.`;
+  return `${due}.`;
 }
 
 /** Explainable heuristic, not an estimate of effort or an AI judgment about importance. */

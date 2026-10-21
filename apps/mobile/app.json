@@ -70,7 +70,7 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "Semli shows your recent screenshots so you can add a schedule in one tap. Nothing leaves your phone until you confirm.",
+          "photosPermission": "Semli uses photo access to show recent screenshots for schedule imports.",
           "granularPermissions": [
             "photo"
           ]
@@ -80,7 +80,7 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Semli listens so you can say what’s coming up instead of typing it.",
+          "microphonePermission": "Semli uses the microphone to transcribe events and tasks you dictate.",
           "speechRecognitionPermission": "Semli turns what you say into text on this phone."
         }
       ]

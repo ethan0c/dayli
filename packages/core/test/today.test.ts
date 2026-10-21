@@ -115,7 +115,7 @@ describe('calendar pressure and recommendations', () => {
     const shift = event({ id: 'shift', date: '2026-10-21', category: 'work', start: '10:00', end: '17:00' });
     const suggestions = startTodaySuggestions([later, nearer, shift], now);
     expect(suggestions.map((s) => s.item.id)).toEqual(['later', 'near']);
-    expect(suggestions[0]!.reason).toContain('7 hours of work booked');
+    expect(suggestions[0]!.reason).toContain('7 hours of work scheduled before this deadline');
   });
 
   it('limits recommendations to two and excludes done, overdue, already planned, or dismissed items', () => {

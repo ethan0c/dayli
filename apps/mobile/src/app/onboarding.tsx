@@ -623,9 +623,9 @@ function PlusStep({ onFinish }: { onFinish: () => void }) {
     const classes = courses.length;
     const n = (k: number, one: string, many: string) => `${k} ${k === 1 ? one : many}`;
     if (canvas) return "Keep Canvas in sync with Plus.";
-    if (classes && shifts) return `Keep your ${n(classes, "class", "classes")} and ${n(shifts, "shift", "shifts")} in one plan.`;
-    if (classes) return `One plan for all ${n(classes, "class", "classes")}.`;
-    if (shifts) return `One plan for this week’s ${n(shifts, "shift", "shifts")}.`;
+    if (classes && shifts) return `Import class and work schedules without limits.`;
+    if (classes) return `Unlimited imports for your ${n(classes, "class", "classes")}.`;
+    if (shifts) return `Compare changes to your ${n(shifts, "shift", "shifts")} this week.`;
     return undefined;
   }, [items, courses, canvas]);
   useEffect(() => {

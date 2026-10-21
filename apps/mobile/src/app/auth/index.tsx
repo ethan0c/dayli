@@ -69,7 +69,7 @@ export default function AuthWelcomeScreen() {
           </Animated.View>
           <Animated.View entering={active ? undefined : enter.fade} style={[styles.copy, reveal]}>
             <T token="displaySerif" style={styles.center} accessibilityRole="header">The daily planner for college students.</T>
-            <T token="callout" color={c.inkSecondary} style={styles.center}>Drop in a syllabus, a work schedule, or a text. Semli tells you what matters today.</T>
+            <T token="callout" color={c.inkSecondary} style={styles.center}>Import a syllabus or work schedule, then see your events and deadlines for the day.</T>
           </Animated.View>
         </View>
         <Animated.View entering={active ? undefined : enter.rise} style={[styles.actions, reveal]}>
