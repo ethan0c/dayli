@@ -49,7 +49,7 @@ body::before {
 @media (prefers-color-scheme: dark) {
   body::before {
     background-image: url('/photos/clouds-night.webp');
-    opacity: 0.4;
+    opacity: 0.3;
   }
 }
 /* A themed scope (the dark Plus card, the dark band) swaps the variables; text must re-resolve inside it. */
