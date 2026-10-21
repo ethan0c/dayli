@@ -27,7 +27,7 @@ function QrCode({ qr }: { qr: Qr }) {
   const { size, hole } = qr;
   const s = hole.size / MARK_BOX.size;
   return (
-    <svg viewBox={`-4 -4 ${size + 8} ${size + 8}`} role="img" aria-label="QR code to get the iPhone app">
+    <svg viewBox={`-4 -4 ${size + 8} ${size + 8}`} role="img" aria-label={APP_STORE_LIVE ? 'QR code to get the iPhone app' : 'QR code to join the iPhone beta waitlist'}>
       <path className="qr-ink" d={qr.dots} fill="currentColor" />
       <Eye x={0} y={0} />
       <Eye x={size - 7} y={0} />
@@ -87,20 +87,24 @@ export function GetAppDialog({ open, onClose, qr }: { open: boolean; onClose: ()
             <div className="getapp-sub">{APP_STORE_LIVE ? 'AI student planner · Free' : 'AI student planner · iPhone beta'}</div>
           </div>
         </div>
-        <p className="getapp-kicker">You’ve used your previews on the site.</p>
+        <p className="getapp-kicker">You’ve reached the preview limit.</p>
         <h2 id="getapp-title" className="getapp-title">
-          Keep going in the <span className="getapp-word">app</span>.
+          {APP_STORE_LIVE ? <>Keep planning in the <span className="getapp-word">app</span>.</> : <>Join the <span className="getapp-word">iPhone beta</span>.</>}
         </h2>
-        <p className="getapp-text">Semli reads your syllabus, schedule or message and adds it to your plan, next to your classes and shifts.</p>
+        <p className="getapp-text">
+          {APP_STORE_LIVE
+            ? 'Turn syllabi, work schedules, and messages into one plan. Review the dates, then add them alongside your classes and shifts.'
+            : 'Keep classes, shifts, and deadlines in one plan. Join the waitlist and we’ll email you when the beta opens.'}
+        </p>
         <a className="btn getapp-btn" href={GET_APP_HREF}>
-          {APP_STORE_LIVE ? 'Get the iPhone app' : 'Join the iPhone beta'}
+          {APP_STORE_LIVE ? 'Get the iPhone app' : 'Join the waitlist'}
         </a>
       </div>
       <div className="getapp-qr">
         <div className="getapp-code">
           <QrCode qr={qr} />
         </div>
-        <span>Scan with your iPhone camera</span>
+        <span>{APP_STORE_LIVE ? 'Scan with your iPhone to get the app' : 'Scan with your iPhone to join the waitlist'}</span>
       </div>
     </dialog>
   );

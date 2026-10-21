@@ -25,7 +25,7 @@ export function qrCode(text: string): Qr {
   let dots = '';
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      if (modules[y * size + x] && !inEye(x, y) && !inHole(x, y)) dots += `M${x + 0.01} ${y + 0.5}a.49 .49 0 1 0 .98 0a.49 .49 0 1 0-.98 0`;
+      if (modules[y * size + x] && !inEye(x, y) && !inHole(x, y)) dots += `M${x + 0.04} ${y + 0.5}a.46 .46 0 1 0 .92 0a.46 .46 0 1 0-.92 0`;
     }
   }
   return { size, dots, hole: { at, size: holeSize } };
