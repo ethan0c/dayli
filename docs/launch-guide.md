@@ -88,24 +88,27 @@ Sanity check: a sandbox purchase in the dev build shows up in RevenueCat → Cus
 - PNG or JPEG, no alpha, no status-bar fakery (Apple allows real status bars). Device frames and captions are allowed and expected.
 
 ### 2.2 The screenshots, in order
-Raw capture name, caption on the image (sentence case, Geist Medium 136px), and the 60px subline. The first three carry the message in search results.
+Raw capture name, caption on the image, and the subline. Since Oct 21, 2026 every shot shares one background, the morning sky from Today's header, and the caption is the site's h1 face (EB Garamond Regular, 150px, centered, ink, one lavender accent word) with a Geist Regular subline; this replaces the Oct 20 Geist Bold set on mixed backgrounds. Each capture is filled with the sample fortnight (You → Your data → Fill the next two weeks in a dev build, or the `spread` dev command). The first three carry the message in search results.
 
-| # | Raw | Caption | Subline |
-|---|---|---|---|
-| 1 | `school` | A semester in two minutes | Drop in a syllabus. Semli reads every exam and due date. |
-| 2 | `review-update` | Screenshot your shifts | New, moved, and dropped shifts, before anything is saved. |
-| 3 | `today-mon` | Know what matters today | The next thing, the day as a bar, and your list under it. |
-| 4 | `plan` | School and work in one week | Green is done, red is an overlap, a ring is an exam. |
-| 5 | `review` | Nothing saves until you say so | Missing a time? Add it or skip it. Undo is one tap away. |
-| 6 | `paywall` | The planner stays free | Calendar, to-dos, and reminders stay free. Plus adds unlimited imports. |
-| 7 | `today-mon-hours` | Hour by hour | Shifts, classes, and overlaps in red, on one timeline. |
-| 8 | `add` | Type it or screenshot it | Semli reads work schedules, syllabi, and messages from class. |
-| 9 | `item` | Every detail one tap away | Time, course, reminder, and the overlap, with a way out. Optional; Apple allows ten. |
+| # | Raw | Caption | Subline | How to capture |
+|---|---|---|---|---|
+| 1 | `today` | Know what matters today | The next thing, the day as a bar, and your list under it. | `sample`, Today in list view |
+| 2 | `review` | A semester in two minutes | Drop in a syllabus. Semli reads every exam and due date. | `review` with the syllabus (`demo-syllabus` stops on it) |
+| 3 | `review-update` | Screenshot your shifts | New, moved, and dropped shifts, before anything is saved. | `review-update` |
+| 4 | `plan` | School and work in one week | Every class in its own color, overlaps in red, exams ringed. | `sample`, `semli://plan` |
+| 5 | `spread` | A heavy week, spread out | Semli finds the light days before each deadline. One tap to plan them. | `spread` |
+| 6 | `today-hours` | Your day, hour by hour | Classes, shifts, and the gaps between them on one timeline. | `hours` |
+| 7 | `school` | Every class, every exam | Courses, due dates, and the weeks left in the term. | `sample`, `semli://school` |
+| 8 | `item` | Reminders that ring | A nudge before class, or an alarm for the things you can't miss. | `item` |
+| 9 | `canvas` | Canvas, kept in sync | Connect once. New assignments land in your plan on their own. | `sample`, `semli://settings/canvas` |
+| 10 | `paywall` | The planner stays free | Calendar, to-dos, and reminders stay free. Plus adds unlimited imports. | `semli://paywall` |
+
+Render with `python3 design/render-screenshots.py` (all ten, sky and serif by default); a shot without its raw capture is skipped.
 
 The captions live in `design/render-screenshots.py` (`SHOTS`). Listing text: [app-store-connect.md](app-store-connect.md). An earlier six-image set in `design/screenshots/out/` (from `design/screenshots/compose.py`, 92px Light captions, whole phone visible) is superseded by this one.
 
 ### 2.3 How to produce them
-1. On the booted **iPhone 17 Pro Max** simulator with the dev client and Metro running, write the dev files into the app's Documents folder (`C=$(xcrun simctl get_app_container booted app.semli.mobile data)`): `dev-clock.txt` holds `09:41`, or `2026-10-19 09:41` to also fix the day (Monday has the overlap, the due reading and the lecture); `dev-command.txt` holds `sample`, `hours`, `list`, `review`, `review-update`, `item`, `plus` or `moment`. Then relaunch: `xcrun simctl terminate booted app.semli.mobile; xcrun simctl openurl booted "semli://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"` and wait 16–20 s.
+1. On the booted **iPhone 17 Pro Max** simulator with the dev client and Metro running, write the dev files into the app's Documents folder (`C=$(xcrun simctl get_app_container booted app.semli.mobile data)`): `dev-clock.txt` holds `09:41`, or `2026-10-19 09:41` to also fix the day (Monday has the overlap, the due reading and the lecture); `dev-command.txt` holds `sample`, `hours`, `list`, `review`, `review-update`, `item`, `plus`, `moment` or `spread`. Then relaunch: `xcrun simctl terminate booted app.semli.mobile; xcrun simctl openurl booted "semli://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"` and wait 16–20 s.
 2. Light mode, 9:41 status bar: `xcrun simctl status_bar booted override --time 9:41 --batteryLevel 100 --cellularBars 4`.
 3. Open a screen by deep link (`xcrun simctl openurl booted semli://plan`, `semli://school`, `semli://add`, `semli://paywall`) and capture with `xcrun simctl io booted screenshot design/screenshots/raw/<name>.png` (1320 × 2868). Look at every capture: the dev build often restores the previous screen on relaunch, a deep link right after launch can leave a grey overlay on the status bar, and switching the Today view on launch leaves a ghost of the old view (relaunch once more).
 4. Compose: `python3 design/render-screenshots.py` (needs Pillow) writes `design/screenshots/NN-<name>.png` at 1320 × 2868: a Geist Bold caption, tracked 2.5% tight, with one lavender accent word (`~word~` in `SHOTS`), a Geist subline, and the site's iPhone frame (`apps/web/public/phones/`) bleeding off the bottom edge. Each shot names its background in `SHOTS`: `paper`, `soft` (lavender paper) or one of the site's photos under a scrim (`autumn`, `cafe`, `fireworks`, `golden`), so the set alternates photo posters and paper the way Opal, Bevel and Fantastical do. Newsreader was tried for the captions and rejected the same day (`Layout.serif`, variable font in `design/fonts/`). A contrast guard deepens the scrim over the caption band until white and lavender clear 3.5:1 against the photo, so no background can hide the type. Rerendered Oct 20, 2026 (fonts, accent word, photo backgrounds). `--bg paper` forces plain paper everywhere; `--layout bezel|center|ink|medium` are the alternatives that were considered; `--canvas 2007x2853 --out design/screenshots/2007x2853 --layout wide` makes the foldable inner-display set. The 6.1"/6.3" slot (1206 × 2622) takes a plain downscale, kept in `design/screenshots/6.3-inch/`.

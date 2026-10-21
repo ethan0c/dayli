@@ -21,6 +21,7 @@ import { Ticker } from '@/components/Ticker';
 import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
 import { profile, track } from '@/lib/analytics';
+import { devSpreadOpen } from '@/lib/dev';
 import { feedback } from '@/lib/feedback';
 import { momentFor } from '@/lib/moments';
 import { durations, enter, exit, layout } from '@/lib/motion';
@@ -72,7 +73,7 @@ export default function TodayScreen() {
   // A moment that can spread its deadlines shows the start days first; nothing changes until "Sounds good".
   const spreadAction = moment?.action && 'spread' in moment.action ? moment.action : null;
   const spread = useMemo(() => spreadAction ? spreadWork(items, spreadAction.spread, now, workDates, spreadAction.until) : [], [spreadAction, items, now, workDates]);
-  const [spreadOpen, setSpreadOpen] = useState(false);
+  const [spreadOpen, setSpreadOpen] = useState(() => __DEV__ && devSpreadOpen);
   const spreadTasks = useStore((s) => s.spreadTasks);
   const showToast = useStore((s) => s.showToast);
   const featuredState = useMemo(() => featuredCommitment(items, now), [items, now]);

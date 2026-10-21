@@ -5,11 +5,14 @@ Input: design/screenshots/raw/<name>.png, 1320 x 2868 captures from the iPhone 1
 simulator (dev build, light mode, 9:41 status bar; see docs/launch-guide.md, part 2).
 Output: design/screenshots/<nn>-<name>.png at 1320 x 2868, no alpha, ready for the
 6.9-inch slot. Geist Bold caption (variable font in design/fonts, tracked -2.5%, line height 1.06) with one ~accent~ word in lavender, Geist Medium subline,
-the site's iPhone frame bleeding off the bottom edge. Each shot names its background: paper, soft
-lavender, or one of the site's photos darkened under a scrim (the autumn campus, the café, the
-Plus fireworks, the golden park), the way Opal, Bevel and Flighty open with a photo poster and
-Fantastical alternates backgrounds for rhythm. A contrast guard deepens the caption band until
-the type clears 3.5:1. Decided Oct 20, 2026; a serif caption was tried the same day and rejected.
+the site's iPhone frame bleeding off the bottom edge.
+
+Since Oct 21, 2026 (founder's call, replacing the Oct 20 Geist Bold set): every shot shares one
+background, the morning sky from Today's header (design/backgrounds/sky-morning.jpg, Cuvii on
+Unsplash), and the caption is the site's h1 face, EB Garamond Regular, in ink with one ~accent~
+word in lavender. A light guard washes the caption band toward paper until the type clears 4.5:1.
+The older backgrounds (paper, soft lavender, the site's photos under a dark scrim) stay available
+through --bg for experiments.
 
     python3 design/render-screenshots.py                 # all, default layout
     python3 design/render-screenshots.py today-mon plan  # a subset, by raw name
@@ -64,7 +67,10 @@ BACKGROUNDS = {
     "cafe": "cafe-shift.jpg",
     "fireworks": "plus-fireworks.jpg",
     "campus": "campus.jpg",
+    "sky": "SKY",  # light: ink type over a paper wash, not white type under a dark scrim
 }
+SKY = ROOT / "design" / "backgrounds" / "sky-morning.jpg"  # 1600 wide from the 5152 x 7728 original
+SERIF_TRACKING = -0.015  # the site's .serif letter-spacing
 DARK_SECONDARY = (180, 180, 172)
 BEZEL = (16, 16, 16)
 BEZEL_EDGE = (58, 58, 54)
@@ -102,20 +108,24 @@ LAYOUTS = {
     "bezel": Layout("bezel", "left", PAPER, INK, SECONDARY, frame=False, screen_w=1120),
     # For the 2007 x 2853 foldable canvas: type and phone scaled up so they hold the same share of the width.
     "wide": Layout("wide", "center", PAPER, INK, SECONDARY, title_size=172, title_lead=182, sub_size=80, sub_lead=98, margin=140, device_top=960, screen_w=1320),
+    # The default since Oct 21, 2026: the site's h1 (EB Garamond Regular), centered, over the sky.
+    "serif": Layout("serif", "center", PAPER, INK, SECONDARY, title_size=150, title_lead=150, serif=True, sub_size=60, sub_lead=76, sub_weight="Regular", margin=104),
 }
 
-# Order matters: the first three show in search results. Titles fit two lines at 136px.
-# ~word~ marks the one accent word; it is the only lavender on the image.
+# Order matters: the first three show in search results. Ten, the store's limit, one capability each,
+# every capture filled with the sample fortnight (You -> Your data -> Fill the next two weeks).
+# ~word~ marks the one accent word; it is the only lavender on the image. Background: the sky (--bg).
 SHOTS: list[tuple[str, str, str, str]] = [
-    ("school", "A semester in ~two minutes~.", "Drop in a syllabus. Semli reads every exam and due date.", "autumn"),
-    ("review-update", "~Screenshot~ your shifts.", "New, moved, and dropped shifts, before anything is saved.", "cafe"),
-    ("today-mon", "Know what matters ~today~.", "The next thing, the day as a bar, and your list under it.", "paper"),
-    ("plan", "School and work in ~one week~.", "Green is done, red is an overlap, a ring is an exam.", "soft"),
-    ("review", "Nothing saves until ~you say so~.", "Missing a time? Add it or skip it. Undo is one tap away.", "paper"),
-    ("paywall", "The planner stays ~free~.", "Calendar, to-dos, and reminders stay free. Plus adds unlimited imports.", "fireworks"),
-    ("today-mon-hours", "~Hour by hour~.", "Shifts, classes, and overlaps in red, on one timeline.", "soft"),
-    ("add", "Type it or ~screenshot~ it.", "Semli reads work schedules, syllabi, and messages from class.", "paper"),
-    ("item", "Every detail ~one tap~ away.", "Time, course, reminder, and the overlap, with a way out.", "golden"),
+    ("today", "Know what matters ~today~.", "The next thing, the day as a bar, and your list under it.", "sky"),
+    ("review", "A semester in ~two minutes~.", "Drop in a syllabus. Semli reads every exam and due date.", "sky"),
+    ("review-update", "~Screenshot~ your shifts.", "New, moved, and dropped shifts, before anything is saved.", "sky"),
+    ("plan", "School and work in ~one week~.", "Every class in its own color, overlaps in red, exams ringed.", "sky"),
+    ("spread", "A heavy week, ~spread out~.", "Semli finds the light days before each deadline. One tap to plan them.", "sky"),
+    ("today-hours", "Your day, ~hour by hour~.", "Classes, shifts, and the gaps between them on one timeline.", "sky"),
+    ("school", "Every class, every ~exam~.", "Courses, due dates, and the weeks left in the term.", "sky"),
+    ("item", "Reminders that ~ring~.", "A nudge before class, or an alarm for the things you can't miss.", "sky"),
+    ("canvas", "Canvas, ~kept in sync~.", "Connect once. New assignments land in your plan on their own.", "sky"),
+    ("paywall", "The planner stays ~free~.", "Calendar, to-dos, and reminders stay free. Plus adds unlimited imports.", "sky"),
 ]
 
 # Per storefront: only the captions that change. Local words, same accent and line lengths.
@@ -203,12 +213,52 @@ def ensure_contrast(img: Image.Image, box: tuple[int, int, int, int], colors, na
 
 
 def is_photo(bg: str) -> bool:
-    return isinstance(BACKGROUNDS[bg], str)
+    """A dark photo: white type under a scrim. The sky is a photo but carries ink type."""
+    return isinstance(BACKGROUNDS[bg], str) and bg != "sky"
+
+
+def sky(w: int, h: int) -> Image.Image:
+    """The morning sky, cover-cropped from the top, with a paper wash over the caption band."""
+    photo = Image.open(SKY).convert("RGB")
+    scale = max(w / photo.width, h / photo.height)
+    photo = photo.resize((round(photo.width * scale), round(photo.height * scale)), Image.LANCZOS)
+    left = (photo.width - w) // 2
+    photo = photo.crop((left, 0, left + w, h))
+    wash = Image.new("L", (1, h))
+    px = wash.load()
+    for y in range(h):  # 45% paper behind the caption, gone by a third of the way down
+        px[0, y] = round(255 * 0.45 * max(0.0, 1 - y / (h * 0.36)))
+    return Image.composite(Image.new("RGB", (w, h), PAPER), photo, wash.resize((w, h)))
+
+
+def ensure_light_contrast(img: Image.Image, box: tuple[int, int, int, int], colors, name: str, minimum: float = 4.5) -> Image.Image:
+    """The sky's twin of ensure_contrast: washes the caption band toward paper until every caption
+    color clears `minimum` against the darkest end of the band (5th percentile of patches)."""
+    x0, y0, x1, y1 = box
+    fade = 220
+    band = Image.new("L", img.size, 0)
+    d = ImageDraw.Draw(band)
+    d.rectangle((0, 0, img.width, y1), fill=255)
+    for i in range(fade):
+        d.line((0, y1 + i, img.width, y1 + i), fill=round(255 * (1 - i / fade)))
+    paper = Image.new("RGB", img.size, PAPER)
+    for step in range(16):
+        region = img.crop(box).resize((24, 12), Image.BOX)
+        dark = sorted(region.getdata(), key=luminance)[int(0.05 * (24 * 12 - 1))]
+        worst = min(contrast(c, dark) for c in colors)
+        if worst >= minimum:
+            if step:
+                print(f"  {name}: caption band lightened {step} step(s), contrast {worst:.1f}")
+            return img
+        img = Image.composite(Image.blend(img, paper, 0.1), img, band)
+    return img
 
 
 def background(bg: str, w: int, h: int) -> Image.Image:
     """A solid, or a site photo cover-cropped and darkened under a scrim so white type reads."""
     value = BACKGROUNDS[bg]
+    if bg == "sky":
+        return sky(w, h)
     if not isinstance(value, str):
         return Image.new("RGB", (w, h), value)
     photo = Image.open(PHOTOS / value).convert("RGB")
@@ -391,6 +441,9 @@ def render(name: str, title: str, sub: str, bg: str, index: int, L: Layout, out_
     if photo:  # before anything is drawn, so the scrim never dims the wordmark or the type
         img = ensure_contrast(img, (L.margin, L.title_top, W - L.margin, L.device_top), [ink_color, accent, secondary], name)
         draw = ImageDraw.Draw(img)
+    elif bg == "sky":
+        img = ensure_light_contrast(img, (L.margin, L.title_top, W - L.margin, L.device_top), [ink_color, accent, secondary], name)
+        draw = ImageDraw.Draw(img)
 
     y = L.title_top
     if wordmark and WORDMARK.exists():
@@ -403,10 +456,10 @@ def render(name: str, title: str, sub: str, bg: str, index: int, L: Layout, out_
         img.paste(mark, (x, y - 24), mark)
         y += mark.height + 44
 
-    tf = serif(L.title_size) if L.serif else font(L.title_size, L.title_weight)
+    tf = serif(L.title_size, 400) if L.serif else font(L.title_size, L.title_weight)
     accent = DARK_ACCENT if dark else ACCENT
-    y = rich_block(draw, title, tf, L.margin, y, width, L.title_lead, ink_color, accent, L.align)
-    y += 30
+    y = rich_block(draw, title, tf, L.margin, y, width, L.title_lead, ink_color, accent, L.align, tracking=SERIF_TRACKING if L.serif else TRACKING)
+    y += 56 if L.serif else 30  # the serif's descenders need the room
     sf = font(L.sub_size, L.sub_weight)
     y = text_block(draw, wrap(draw, sub, sf, width), sf, y, L.sub_lead, secondary, L)
 
@@ -487,10 +540,10 @@ def search_card(out_dir: Path = HEADER_OUT) -> Path:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("names", nargs="*", help="raw capture names to render (default: all)")
-    ap.add_argument("--layout", choices=sorted(LAYOUTS), default="left")
+    ap.add_argument("--layout", choices=sorted(LAYOUTS), default="serif")
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--header", action="store_true", help="render the product page header (3840x1646) and the search results card (3840x2560) instead of screenshots")
-    ap.add_argument("--bg", choices=sorted(BACKGROUNDS), help="force one background for every shot (default: each shot's own)")
+    ap.add_argument("--bg", choices=sorted(BACKGROUNDS), default="sky", help="one background for every shot (default: the morning sky)")
     ap.add_argument("--locale", choices=["en-US", "en-CA", *sorted(LOCALE_CAPTIONS)], default="en-US", help="storefront captions; non-US output goes to <out>/<locale>")
     ap.add_argument("--canvas", help="WIDTHxHEIGHT of the output, default 1320x2868 (6.9-inch); e.g. 2007x2853 for the foldable's inner display")
     args = ap.parse_args()

@@ -29,13 +29,13 @@ Meaning: filled terracotta pill for due today / overdue; terracotta text on a gr
 ## Type
 Geist carries product text: normal / Regular 400 for all large headings, the one big number, section titles and text; Medium 500 for pills and the primary label; and SemiBold 600 for emphasis. All display tokens share `largeHeadingWeight` in the tokens package; large headings use these tokens rather than local font-family or bold overrides. Onboarding follows this same normal-weight rule. The separate outlined wordmark uses Onest SemiBold. Tabular numerals wherever a number can change. Sentence case always.
 
-EB Garamond Regular is the marketing voice: the serif was decided Oct 20, 2026 (Newsreader), and switched to EB Garamond Regular on Oct 21, 2026. It appears only through `displaySerif` (34 / 40) on lines that speak to the student: the paywall tagline, the Plus welcome, the auth welcome and the two dark onboarding showcases. On the site it is the `.serif` class on the hero, pricing and closing headlines. It was tried on the App Store captions on Oct 20, 2026 and rejected; store captions are Geist Bold, tracked 2.5% tight, with one lavender accent word (`design/render-screenshots.py`). It never carries a number, a row, a form heading, a question step or a section title; if every heading were serif, none would be special.
+EB Garamond Regular is the marketing voice: the serif was decided Oct 20, 2026 (Newsreader), and switched to EB Garamond Regular on Oct 21, 2026. It appears only through `displaySerif` (34 / 40) on lines that speak to the student: the paywall tagline, the Plus welcome, the auth welcome and the two dark onboarding showcases. On the site it is the `.serif` class on the hero, pricing and closing headlines. On Oct 20, 2026 the App Store captions were Geist Bold; on Oct 21, 2026 the founder moved them to the serif, the site's h1 face (Regular, tracked 1.5% tight, centered, ink with one lavender accent word), all ten on one background, the morning sky from Today's header (`design/render-screenshots.py`). It never carries a number, a row, a form heading, a question step or a section title; if every heading were serif, none would be special.
 
 | Token | Size / line | Weight | Use |
 |---|---|---|---|
 | displayXl | 56 / 60 | 400 | The one big number (countdown, price, moment) |
 | display | 34 / 40 | 400 | Screen heading on covers |
-| displaySerif | 34 / 40 | EB Garamond 400 | Paywall tagline, Plus welcome, auth welcome, onboarding showcases |
+| displaySerif | 34 / 40 | EB Garamond 400 | Paywall tagline, Plus welcome, auth welcome, onboarding showcases (App Store captions use the same face) |
 | displaySm | 30 / 36 | 400 | Onboarding questions and editable item titles |
 | title | 24 / 30 | 400 | Section titles with a chevron |
 | headline | 16 / 22 | 500 | Button labels |

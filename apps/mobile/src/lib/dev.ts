@@ -16,7 +16,7 @@ export async function devStep(): Promise<string | null> {
   }
 }
 
-/** Reads the dev file as a command: "sample", "moment", "item", "hours", "list", "plus", "review", or "review-update". */
+/** Reads the dev file as a command: "sample", "moment", "spread", "item", "hours", "list", "plus", "review", or "review-update". */
 export async function devCommand(): Promise<string | null> {
   if (!__DEV__) return null;
   try {
@@ -47,4 +47,10 @@ export async function devClock(): Promise<string | null> {
 export let devAutoConfirmMs = 0;
 export function setDevAutoConfirm(ms: number) {
   if (__DEV__) devAutoConfirmMs = ms;
+}
+
+/** Development only: Today opens its heavy-week moment with the spread list showing. Set by `spread`. */
+export let devSpreadOpen = false;
+export function setDevSpreadOpen(open: boolean) {
+  if (__DEV__) devSpreadOpen = open;
 }
