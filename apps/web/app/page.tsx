@@ -181,10 +181,7 @@ export default function Home() {
         </Reveal>
       </section>
 
-      <section className={`${styles.band} ${styles.photoBand} ${styles.plans}`} aria-labelledby="price-title">
-        <div className={styles.bandPhoto} aria-hidden>
-          <Image src={table} alt="" fill placeholder="blur" sizes="100vw" />
-        </div>
+      <section className={`${styles.band} ${styles.soft} ${styles.plans}`} aria-labelledby="price-title">
         <Reveal className={styles.plansHead}>
           <h2 id="price-title" className="section-title">Start free. Add more with Plus.</h2>
           <p className="lede">Everything you need to plan the week is free. Plus is for when you import a lot.</p>
@@ -218,12 +215,12 @@ export default function Home() {
       {/* The close and the beta are one panel: the last line, then the one thing to do. */}
       <section id={APP_STORE_LIVE ? undefined : 'beta'} className={`${styles.band} ${styles.photoBand} ${styles.closing}`} aria-labelledby="final-title">
         <div className={styles.bandPhoto} aria-hidden>
-          <Image src={campus} alt="" fill placeholder="blur" sizes="100vw" />
+          <Image src={heroAutumn} alt="" fill placeholder="blur" sizes="100vw" />
         </div>
         <Reveal as="h2" id="final-title" className="section-title serif">One less thing to keep in your head.</Reveal>
         {APP_STORE_LIVE ? (
           <Reveal className={styles.ctas} style={stagger(1)}>
-            <GetApp className="btn accent" />
+            <GetApp />
           </Reveal>
         ) : (
           <Reveal className={styles.closingBeta} style={stagger(1)}>

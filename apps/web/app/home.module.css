@@ -289,14 +289,7 @@
   flex-direction: column;
   padding: 32px;
   border-radius: 24px;
-  background: #ffffff;
-  --ink: #222320;
-  --ink-2: #686963;
-  --accent-ink: #7057bd;
-  color: var(--ink);
-}
-.planCard :global(.btn.accent) {
-  color: #ffffff;
+  background: var(--surface);
 }
 .planName {
   font-size: var(--type-headline-size);
@@ -328,12 +321,9 @@
   list-style: none;
   border-top: 1px solid var(--line);
 }
-.planList {
-  border-top-color: #e5e4de;
-}
 .planList li {
   padding: 14px 0;
-  border-bottom: 1px solid #e5e4de;
+  border-bottom: 1px solid var(--line);
   font-size: 15px;
   line-height: 22px;
 }
@@ -374,17 +364,24 @@
   justify-content: center;
   margin-top: 28px;
 }
+/* On the photo the field is frosted glass and the one action is the solid white pill: paper on
+   dark, the photo's version of an ink button. */
 .closingBeta .waitlistInput {
-  border-color: transparent;
-  background: #ffffff;
-  color: #222320;
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .closingBeta .waitlistInput::placeholder {
-  color: #686963;
+  color: rgba(255, 255, 255, 0.72);
 }
-.closingBeta :global(.btn) {
+.closingBeta .waitlistInput:focus {
+  border-color: #ffffff;
+}
+.closing :global(.btn) {
   background: #ffffff;
-  color: #1c1b21;
+  color: #222320;
 }
 .closingBeta .waitlistError {
   color: #ffd9d5;
