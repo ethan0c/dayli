@@ -136,8 +136,15 @@ interface State {
   applyPlan: (plan: CommitPlan, label: string, extra?: { source?: string; course?: Course; courses?: Course[] }) => string;
   undoBatch: (id: string) => void;
 
-  clearAll: () => void;
+  /**
+   * `plan` erases what the person added (items, classes, shifts, breaks) and keeps their setup
+   * answers. `everything` also resets those answers, so the next screen is the welcome; it keeps
+   * only this device's preferences and the trial, which belong to the phone, not the person.
+   */
+  clearAll: (scope: 'plan' | 'everything') => void;
 }
+
+const DEFAULT_SETTINGS: Settings = { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null } };
 
 export const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 const nowIso = () => new Date().toISOString();
@@ -156,7 +163,7 @@ export const useStore = create<State>()(
       suggestionDismissals: { date: '', ids: [] },
       captureDraft: '',
       selectedPlanDate: null,
-      settings: { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null } },
+      settings: DEFAULT_SETTINGS,
       usage: { month: '', imports: 0 },
 
       setHydrated: () => set({ hydrated: true }),
@@ -334,7 +341,15 @@ export const useStore = create<State>()(
         });
       },
 
-      clearAll: () => set({ items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null, taskWorkDates: {}, suggestionDismissals: { date: '', ids: [] }, captureDraft: '', selectedPlanDate: null }),
+      clearAll: (scope) => {
+        const { settings: s } = get();
+        set({
+          items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null, taskWorkDates: {}, suggestionDismissals: { date: '', ids: [] }, captureDraft: '', selectedPlanDate: null,
+          settings: scope === 'plan'
+            ? { ...s, breaks: [] }
+            : { ...DEFAULT_SETTINGS, apiUrl: s.apiUrl, appearance: s.appearance, cardStyle: s.cardStyle, todayView: s.todayView, sounds: s.sounds, haptics: s.haptics, trial: s.trial },
+        });
+      },
     }),
     {
       name: 'semli',
