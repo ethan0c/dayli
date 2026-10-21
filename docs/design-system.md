@@ -11,6 +11,7 @@ Robinhood's 2024 identity is the reference: neutrals first, one accent used spar
 - Pills act, rectangles hold. Every action is fully round; rows, cards, fields and composers keep corners.
 - Planner screens use plain rows, with no decorative cards or icon tiles. Photography belongs on moment days and showcase pages; the Plus welcome and guide can use small accent icon badges.
 - Marketing surfaces (the site, the paywall, the App Store screenshots, the header and search card, the emails) may be more playful than planner screens: a site photo under a scrim, soft lavender paper, one accent word per headline, always bold and large enough to read over the background. The in-app rules above still hold on Today, Plan, School and every row. Decided Oct 20, 2026.
+- The website in light mode uses white paper (#FFFFFF) and neutral grey panels (#F4F4F5) instead of the app's cream, and its hero is solid brand purple (lavender 600) with white copy, so the purple reads rich rather than faded. Site only; the app keeps its paper. Decided Oct 21, 2026 (`apps/web/app/tokens.ts`).
 
 ## Brand
 - Mark: two dots (big = today, small accent = next), ratio 240 : 102 on a fixed diagonal. `design/icon-b-dots.svg`.

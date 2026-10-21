@@ -4,12 +4,12 @@ The five editorial photos are Unsplash photos under the [Unsplash License](https
 
 | File | Used on | Photographer | Source |
 |---|---|---|---|
-| hero-autumn.jpg | Home hero, the autumn campus behind the headline and the phone (2,721 × 2,133, downloaded Oct 20, 2026) | Austin | https://unsplash.com/photos/8wL0dsEsf_g |
-| hero-golden.jpg | Unused since Oct 20 (replaced in the hero by hero-autumn.jpg) | Vadim Fomenok | https://unsplash.com/photos/JhLASVqq1Jg |
-| library.jpg | Unused since Oct 20 (the proof section is on paper now) | Johan Mouchet | https://unsplash.com/photos/PjpRF0LhBB8 |
-| cafe-shift.jpg | Home "Your work schedule, updated" (dark band) | Long Chung | https://unsplash.com/photos/barista-working-behind-a-coffee-counter-H7PLuaYW6UQ |
-| campus.jpg | Home beta card, in purple monochrome under the copy | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |
-| table.jpg | Home pricing band | Alexis Brown | https://unsplash.com/photos/omeaHbEFlN4 |
+| hero-autumn.jpg | Unused since Oct 21 (the hero is lavender paper now; 2,721 × 2,133, downloaded Oct 20, 2026) | Austin | https://unsplash.com/photos/8wL0dsEsf_g |
+| hero-golden.jpg | Home "See the week at a glance" row, under the week card (since Oct 21) | Vadim Fomenok | https://unsplash.com/photos/JhLASVqq1Jg |
+| library.jpg | Home "Your syllabus, laid out" row, under the term card (since Oct 21) | Johan Mouchet | https://unsplash.com/photos/PjpRF0LhBB8 |
+| cafe-shift.jpg | Home "Your work schedule, updated" row, under the changes card (since Oct 21) | Long Chung | https://unsplash.com/photos/barista-working-behind-a-coffee-counter-H7PLuaYW6UQ |
+| campus.jpg | Unused since Oct 21 (the beta card is a grey panel now) | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |
+| table.jpg | Unused since Oct 21 (pricing is Free and Plus cards now) | Alexis Brown | https://unsplash.com/photos/omeaHbEFlN4 |
 | plus-fireworks.jpg | Plus pricing panel, matching the app paywall | Existing app asset | `apps/mobile/assets/showcase/plus.jpg` |
 
 ## Quality review, Oct 20

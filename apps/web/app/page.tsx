@@ -1,15 +1,13 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { CountUp } from '@/components/CountUp';
-import { Screen, Stage } from '@/components/Screen';
-import { Shot } from '@/components/Shot';
+import { FeatureCard } from '@/components/FeatureCard';
+import { Pill, Row, TermLine, WeekChart } from '@/components/Mock';
 import cafeShift from '@/public/photos/cafe-shift.jpg';
-import campus from '@/public/photos/campus.jpg';
-import heroAutumn from '@/public/photos/hero-autumn.jpg';
-import table from '@/public/photos/table.jpg';
-import { faqJsonLd, pageMetadata } from '@/lib/seo';
+import heroGolden from '@/public/photos/hero-golden.jpg';
+import library from '@/public/photos/library.jpg';
 import { GET_APP_QR } from '@/lib/qr';
+import { faqJsonLd, pageMetadata } from '@/lib/seo';
 import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
 import { TryIt } from './TryIt';
 import { Waitlist } from './Waitlist';
@@ -24,17 +22,12 @@ const PROOF = [
   { n: '65%', q: 'want reminders on their phone' },
 ];
 
-/** Explain how Semli fits an existing workflow without unverified competitor or speed claims. */
-const SWITCH = [
-  { from: 'Apple Reminders and Notes', adds: 'Bring dates out of syllabi, screenshots, and messages. See them alongside your classes and shifts in a daily or weekly view.' },
-  { from: 'Structured', adds: 'Add class times, deadlines, and work shifts from the schedules you already have. Review each import before adding it to your plan.' },
-  { from: 'MyStudyLife', adds: 'Start with your syllabus. Check the class times and assignment dates Semli finds, then add them to your semester.' },
-  { from: 'Google Calendar', adds: 'Use Semli to read your schedules, then export the dates as a calendar file for your existing calendar.' },
-];
+/** Free and Plus side by side; the full table lives on /pricing. */
+const FREE = ['Calendar, to-dos, and the Today screen', 'Reminders', `${FREE_IMPORTS_PER_MONTH} AI imports a month`, 'Canvas assignments, imported once', 'Export your data'];
+const PLUS = ['Unlimited AI imports', 'Canvas assignments kept in sync', 'Changes to your work schedule, compared', 'Suggested times when plans overlap', 'Urgent items that ring like an alarm'];
 
 const FAQS = [
   { q: 'What can I send to Semli?', a: 'A message, screenshot, photo, or PDF. Try a syllabus, class timetable, work schedule, or a date from your group chat. Files can be up to 20 MB.' },
-  { q: 'Can I check the dates first?', a: 'Yes. Review the dates and times Semli finds, fill in anything missing, and confirm what you want to add. You can undo an import later.' },
   { q: 'Does it work with Canvas?', a: 'Yes. Paste your Canvas calendar feed link to bring in assignments. Plus keeps them in sync when due dates change. You can also import a syllabus PDF or a screenshot of your Canvas to-do list.' },
   { q: 'What happens to my uploads?', a: 'Semli sends your upload to our AI provider to read the dates; our servers don’t save the upload or its response. The plan you confirm stays on your phone, with cloud backup if you create an account. See our privacy policy for details.' },
   { q: 'What’s free?', a: `The calendar, to-dos, reminders, and ${FREE_IMPORTS_PER_MONTH} AI imports a month, for as long as you like. Plus adds unlimited imports, Canvas sync, and schedule-change comparisons.` },
@@ -42,38 +35,64 @@ const FAQS = [
 ];
 
 /** Photos are Unsplash, recorded in public/photos/SOURCES.md. They are decorative: empty alt, text carries the meaning.
- *  Static imports give each one a blurred placeholder, so a band never flashes empty while its photo loads. */
-const PHOTO_SIZES = '100vw';
+ *  Static imports give each one a blurred placeholder, so a card never flashes empty while its photo loads. */
+
+/* The floating cards on the feature photos: one moment each, drawn from the mockup pieces. */
+const SHIFT = { top: 56, height: 33 } as const; // 4–10 pm
+const PLAN_WEEK = [
+  { label: 'Mon', blocks: [{ top: 17, height: 7, tone: 'green' as const }, SHIFT, { top: 72, height: 5, tone: 'red' as const, half: true }] },
+  { label: 'Tue', blocks: [{ top: 6, height: 44 }] },
+  { label: 'Wed', blocks: [{ top: 17, height: 7 }, SHIFT] },
+  { label: 'Thu' },
+  { label: 'Fri', blocks: [SHIFT] },
+  { label: 'Sat', blocks: [{ top: 17, height: 33 }] },
+  { label: 'Sun', blocks: [{ top: 28, height: 33 }] },
+];
+const SYL_MARKS = [
+  { left: 4, kind: 'dot' as const },
+  { left: 17, kind: 'ring' as const },
+  { left: 31, kind: 'dot' as const },
+  { left: 44, kind: 'dot' as const },
+  { left: 58, kind: 'ring' as const },
+  { left: 73, kind: 'dot' as const },
+  { left: 85, kind: 'dot' as const },
+  { left: 100, kind: 'ring' as const },
+];
+const SYL_MONTHS = [{ label: 'Sep', left: 0 }, { label: 'Oct', left: 27 }, { label: 'Nov', left: 56 }, { label: 'Dec', left: 86 }];
 /** A stagger index for siblings revealing together; globals.css multiplies it by the stagger token. */
 const stagger = (i: number) => ({ '--i': i } as React.CSSProperties);
 
-function GetApp({ ghost = false }: { ghost?: boolean }) {
-  const cls = `btn${ghost ? ' ghost' : ''}`;
-  return APP_STORE_LIVE ? <a className={cls} href={APP_STORE_URL}>Get the iPhone app</a> : <Link className={cls} href="/#beta">Join the iPhone beta</Link>;
+function GetApp({ className = 'btn' }: { className?: string }) {
+  return APP_STORE_LIVE ? <a className={className} href={APP_STORE_URL}>Get the iPhone app</a> : <Link className={className} href="/#beta">Join the iPhone beta</Link>;
 }
 
 export default function Home() {
   const fromMonthly = money(Math.round((plan('yearly').student / 12) * 100) / 100);
   return (
     <main className={`page ${styles.home}`}>
+      {/* The hero is the product: the headline and the paste box on the left, what Semli finds on the right. */}
       <section className={styles.hero} aria-labelledby="home-title">
-        <div className={styles.heroPhoto} aria-hidden>
-          <Image src={heroAutumn} alt="" fill priority placeholder="blur" sizes="100vw" />
-        </div>
-        <div className={styles.heroCopy}>
-          <p className="eyebrow">The daily planner for college students</p>
-          <h1 id="home-title" className="serif">Your week, already organized.</h1>
-          <p className={styles.heroSub}>Classes, shifts, and deadlines in one plan. Add a syllabus, work schedule, or message, then see what’s next.</p>
-          <div className={styles.ctas}>
-            <a className="btn accent" href="#try">Try it with your schedule</a>
-            <GetApp ghost />
-          </div>
-          <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
-        </div>
-        <Shot name="today" width={372} priority className={styles.heroShot} label="Today: 1 hour 19 minutes until Psych lecture, a full day on one bar, then seven things on the list" />
+        <TryIt
+          qr={GET_APP_QR}
+          bare
+          intro={
+            <div className={styles.heroCopy}>
+              <p className="eyebrow">The daily planner for college students</p>
+              <h1 id="home-title" className="serif">Your week, already <span className={styles.accentWord}>organized</span>.</h1>
+              <p className={styles.heroSub}>Paste a message, a work schedule, or a syllabus. Semli turns it into your week.</p>
+            </div>
+          }
+          after={
+            <p className={styles.note}>
+              {APP_STORE_LIVE ? (
+                <>Free on iPhone. <a className="textlink" href={APP_STORE_URL}>Get the app</a></>
+              ) : (
+                <>The iPhone beta opens soon. <Link className="textlink" href="/#beta">Join the waitlist</Link></>
+              )}
+            </p>
+          }
+        />
       </section>
-
-      <TryIt qr={GET_APP_QR} />
 
       <section className={styles.proof} aria-label="What students told us">
         <p className={styles.bandEyebrow} data-reveal>What students told us</p>
@@ -88,38 +107,39 @@ export default function Home() {
         <p className={styles.source} data-reveal>From a survey of more than 50 college students, spring 2026.</p>
       </section>
 
-      <section className={`${styles.band} ${styles.soft} ${styles.bleed}`} aria-labelledby="how-title">
-        <div className={styles.bandInner}>
-          <h2 id="how-title" className="section-title" data-reveal>From a screenshot to your schedule.</h2>
-          <div className={styles.how}>
-            <figure data-reveal style={stagger(0)}><figcaption><strong>Send what you have.</strong> Choose a screenshot, upload a PDF, or paste a message.</figcaption><Screen name="add" width={320} height={420} label="Add: type, paste, or drop in a screenshot; your recent screenshots are right there" /></figure>
-            <figure data-reveal style={stagger(1)}><figcaption><strong>Check the details.</strong> Review the dates and times, and fill in anything missing.</figcaption><Screen name="review" width={320} height={420} label="Review: 6 shifts found, the week as seven day bars, one shift asking for a time" /></figure>
-            <figure data-reveal style={stagger(2)}><figcaption><strong>Make it your plan.</strong> Edit an event anytime, or undo the import.</figcaption><Screen name="item" width={320} height={420} label="An event in your plan: the time, the day around it, reminder and flexibility switches" /></figure>
-          </div>
-        </div>
-      </section>
-
       <section className={styles.feature} aria-labelledby="week-title">
         <div className={styles.featureCopy} data-reveal>
           <p className="eyebrow">Your whole week</p>
           <h2 id="week-title" className="section-title">See the week at a glance.</h2>
           <p className="lede">See where classes, shifts, and deadlines fit together. Plan the week, look at today by the hour, and spot overlaps in red.</p>
+          <Link className="textlink" href="/work-and-school-schedule-planner">Work and school in one plan</Link>
         </div>
-        <div className={styles.single} data-reveal style={stagger(1)}><Stage><Screen name="plan" width={340} height={500} label="Plan: the week as seven bars, today's agenda and the rest of the week" /></Stage></div>
+        <div className={styles.single} data-reveal style={stagger(1)}>
+          <FeatureCard photo={heroGolden} position="62% 40%" label="This week: 31 things and 30 work hours, as seven day bars">
+            <div className={styles.cardBig}>31 things</div>
+            <div className={styles.cardSub}>30 work hours · 1 overlap</div>
+            <WeekChart days={PLAN_WEEK} height={64} style={{ marginTop: 12 }} />
+          </FeatureCard>
+        </div>
       </section>
 
-      <section className={`${styles.band} ${styles.dark}`} aria-labelledby="diff-title">
-        <div className={`${styles.bandPhoto} ${styles.workPhoto}`} aria-hidden>
-          <Image src={cafeShift} alt="" fill placeholder="blur" sizes={PHOTO_SIZES} quality={85} />
+      <section className={`${styles.feature} ${styles.flip}`} aria-labelledby="diff-title">
+        <div className={styles.featureCopy} data-reveal>
+          <p className="eyebrow">For your work week</p>
+          <h2 id="diff-title" className="section-title">Your work schedule, updated.</h2>
+          <p className="lede">With Plus, compare an updated schedule with the shifts already in your plan. See what’s new, moved, or removed, then choose which changes to keep.</p>
+          <Link className="textlink" href="/pricing">What Plus adds</Link>
         </div>
-        <div className={`${styles.bandInner} ${styles.feature} ${styles.flip}`}>
-          <div className={styles.featureCopy} data-reveal>
-            <p className="eyebrow">For your work week</p>
-            <h2 id="diff-title" className="section-title">Your work schedule, updated.</h2>
-            <p className="lede">With Plus, compare an updated schedule with the shifts already in your plan. See what’s new, moved, or removed, then choose which changes to keep.</p>
-            <Link className="textlink" href="/work-and-school-schedule-planner">Work and school in one plan</Link>
-          </div>
-          <div className={styles.single} data-reveal style={stagger(1)}><Shot name="review-update" label="Compared with what you have: 3 changes, one new shift, one moved, one dropped" /></div>
+        <div className={styles.single} data-reveal style={stagger(1)}>
+          <FeatureCard photo={cafeShift} position="72% center" hang="left" label="Compared with what you have: 3 changes, one new shift, one moved, one dropped">
+            <div className={styles.cardBig}>3 changes</div>
+            <div className={styles.cardSub}>Campus Café · next week</div>
+            <div style={{ marginTop: 6 }}>
+              <Row lead="dot" title="Thu 22 · 5–9 pm" trailing={<Pill tone="green">New</Pill>} />
+              <Row lead="dot" title="Sat 24 · 9 am–3 pm" trailing={<Pill>Moved</Pill>} />
+              <Row lead="dot" title="Sun 25 · 11–5" strike muted trailing={<Pill tone="red">Dropped</Pill>} last />
+            </div>
+          </FeatureCard>
         </div>
       </section>
 
@@ -130,40 +150,33 @@ export default function Home() {
           <p className="lede">Bring class times, exams, and assignment dates out of the PDF and into your plan. Connect Canvas for assignments, with Plus to keep due dates in sync.</p>
           <Link className="textlink" href="/syllabus-to-calendar">How syllabus imports work</Link>
         </div>
-        <div className={styles.single} data-reveal style={stagger(1)}><Stage><Screen name="school" width={340} height={500} label="School: the next assignment due today, four courses over the next four weeks, your courses" /></Stage></div>
-      </section>
-
-      <section className={styles.switch} aria-labelledby="switch-title">
-        <div data-reveal>
-          <h2 id="switch-title" className="section-title">Already using Structured, Reminders, or Notes?</h2>
-          <p className="lede">Keep what you like. Here is what Semli adds.</p>
+        <div className={styles.single} data-reveal style={stagger(1)}>
+          <FeatureCard photo={library} position="50% 55%" label="STAT 200 from the syllabus: 8 dates over the semester, three of them exams">
+            <div className={styles.cardBig}>8 dates</div>
+            <div className={styles.cardSub}>STAT 200 · 3 exams, 5 due dates</div>
+            <TermLine months={SYL_MONTHS} marks={SYL_MARKS} style={{ marginTop: 14 }} />
+          </FeatureCard>
         </div>
-        <dl className={styles.switchList}>
-          {SWITCH.map((s, i) => (
-            <div key={s.from} className={styles.switchRow} data-reveal style={stagger(i)}>
-              <dt>{s.from}</dt>
-              <dd>{s.adds}</dd>
-            </div>
-          ))}
-        </dl>
       </section>
 
-      <section className={`${styles.band} ${styles.soft}`} aria-labelledby="price-title">
-        <div className={`${styles.bandInner} ${styles.teaser}`}>
-          <div className={styles.teaserCopy} data-reveal>
-            <p className="eyebrow">Semli Plus</p>
-            <h2 id="price-title" className="section-title">Start free. Add more with Plus.</h2>
-            <p className="lede">
-              Your calendar, to-dos, reminders, and {FREE_IMPORTS_PER_MONTH} imports a month are free. Plus adds unlimited imports, Canvas sync, and work-schedule comparisons.
-            </p>
-            <div className={styles.priceLine}>
-              <span className={styles.priceBig}>{fromMonthly}</span>
-              <span className={styles.priceUnit}>a month for students, billed yearly. Or {money(plan('semester').student)} every six months.</span>
-            </div>
-            <Link className="btn accent" href="/pricing">See pricing</Link>
+      <section className={`${styles.band} ${styles.soft} ${styles.plans}`} aria-labelledby="price-title">
+        <div className={styles.plansHead} data-reveal>
+          <h2 id="price-title" className="section-title">Start free. Add more with Plus.</h2>
+          <p className="lede">Everything you need to plan the week is free. Plus is for when you import a lot.</p>
+        </div>
+        <div className={styles.planCards}>
+          <div className={styles.planCard} data-reveal>
+            <h3 className={styles.planName}>Free</h3>
+            <p className={styles.planPrice}>$0</p>
+            <p className={styles.planNote}>No time limit. No account needed.</p>
+            <ul className={styles.planList}>{FREE.map((f) => <li key={f}>{f}</li>)}</ul>
           </div>
-          <div className={styles.teaserPhoto} aria-hidden data-reveal style={stagger(1)}>
-            <Image src={table} alt="" fill placeholder="blur" sizes="(max-width: 820px) 100vw, 45vw" />
+          <div className={styles.planCard} data-reveal style={stagger(1)}>
+            <h3 className={styles.planName}>Plus</h3>
+            <p className={styles.planPrice}>{fromMonthly}<span> a month</span></p>
+            <p className={styles.planNote}>For students, billed yearly. Or {money(plan('semester').student)} every six months.</p>
+            <ul className={styles.planList}>{PLUS.map((f) => <li key={f}>{f}</li>)}</ul>
+            <Link className={`btn accent ${styles.planBtn}`} href="/pricing">See pricing</Link>
           </div>
         </div>
       </section>
@@ -177,25 +190,19 @@ export default function Home() {
         <div className="faq-list" data-reveal style={stagger(1)}>{FAQS.map(({ q, a }) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
       </section>
 
-      {!APP_STORE_LIVE ? (
-        <section id="beta" className={`${styles.band} ${styles.purple} ${styles.beta}`} aria-labelledby="beta-title">
-          <div className={styles.bandPhoto} aria-hidden>
-            <Image src={campus} alt="" fill placeholder="blur" sizes={PHOTO_SIZES} />
+      {/* The close and the beta are one panel: the last line, then the one thing to do. */}
+      <section id={APP_STORE_LIVE ? undefined : 'beta'} className={`${styles.band} ${styles.soft} ${styles.closing}`} aria-labelledby="final-title">
+        <h2 id="final-title" className="section-title serif" data-reveal>One less thing to keep in your head.</h2>
+        {APP_STORE_LIVE ? (
+          <div className={styles.ctas} data-reveal style={stagger(1)}>
+            <GetApp className="btn accent" />
           </div>
-          <div className={styles.bandInner} data-reveal>
-            <h2 id="beta-title" className="section-title">The iPhone beta opens soon.</h2>
-            <p className="lede">Help shape Semli before launch. Join the first 200 testers on TestFlight, try it with your week, and send feedback directly to the developer.</p>
+        ) : (
+          <div className={styles.closingBeta} data-reveal style={stagger(1)}>
+            <p className="lede">The iPhone beta opens soon. Join the first 200 testers on TestFlight, try it with your week, and send feedback directly to the developer.</p>
             <Waitlist />
           </div>
-        </section>
-      ) : null}
-
-      <section className={styles.closing} aria-labelledby="final-title">
-        <h2 id="final-title" className="section-title serif" data-reveal>One less thing to keep in your head.</h2>
-        <div className={styles.ctas} data-reveal style={stagger(1)}>
-          <a className="btn accent" href="#try">Try it with your schedule</a>
-          <GetApp ghost />
-        </div>
+        )}
       </section>
     </main>
   );

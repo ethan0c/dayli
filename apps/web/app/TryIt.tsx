@@ -2,7 +2,7 @@
 
 import { addDays, errorDiagnostic, localParts, toDrafts, weekOf } from '@dayli/core';
 import { ExtractResponse, IMPORT_MESSAGES, friendlyImportError, importErrorForStatus, type ExtractRequest, type Extraction } from '@dayli/schema';
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Pill, Roll, Row, TermLine, WeekChart } from '@/components/Mock';
 import { feedback } from '@/lib/feedback';
 import type { Qr } from '@/lib/qr';
@@ -74,8 +74,10 @@ async function fileToBase64(file: globalThis.File): Promise<string> {
 /**
  * The try-it box: the app's composer on the left, the app's review on the right
  * (the big number, the week or the term as a chart, rows only for what needs input).
+ * `bare` is the home hero: the page's headline (`intro`) above the composer instead of this
+ * box's own heading, `after` under it, and the result as a card beside them.
  */
-export function TryIt({ qr }: { qr: Qr }) {
+export function TryIt({ qr, bare = false, intro, after }: { qr: Qr; bare?: boolean; intro?: ReactNode; after?: ReactNode }) {
   const [text, setText] = useState('');
   const [file, setFile] = useState<globalThis.File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -212,10 +214,16 @@ export function TryIt({ qr }: { qr: Qr }) {
   }
 
   return (
-    <section className={`try${busy ? ' busy' : ''}`} id="try" aria-labelledby="try-title">
-      <div>
-        <h2 id="try-title" className="section-title">Try it with your week.</h2>
-        <p className="lede">Paste a message or upload a screenshot or syllabus PDF. Preview the dates and times Semli finds. No account needed.</p>
+    <section className={`try${bare ? ' try-bare' : ''}${busy ? ' busy' : ''}`} id="try" aria-labelledby={bare ? undefined : 'try-title'} aria-label={bare ? 'Try Semli' : undefined}>
+      <div className="try-compose">
+        {bare ? (
+          intro
+        ) : (
+          <>
+            <h2 id="try-title" className="section-title">Try it with your week.</h2>
+            <p className="lede">Paste a message or upload a screenshot or syllabus PDF. Preview the dates and times Semli finds. No account needed.</p>
+          </>
+        )}
         <form
           onSubmit={submit}
           className={`try-box${drag ? ' drag' : ''}`}
@@ -281,6 +289,7 @@ export function TryIt({ qr }: { qr: Qr }) {
             {error}
           </div>
         ) : null}
+        {after}
       </div>
 
       <div className="try-stage">

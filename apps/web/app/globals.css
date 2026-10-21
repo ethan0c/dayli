@@ -277,6 +277,30 @@ textarea {
   gap: 48px;
   align-items: start;
 }
+/* In the home hero: the page's headline over a compact composer, the result card beside it. */
+.try-bare {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 64px;
+  align-items: center;
+}
+.try-bare .try-compose .try-box {
+  margin-top: 32px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(40, 24, 90, 0.08);
+}
+.try-bare .try-box textarea {
+  min-height: 84px;
+}
+.try-bare .try-stage {
+  padding: 0;
+  background: none;
+  justify-content: flex-end;
+}
+.try-bare .try-result {
+  width: 420px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 32px 64px rgba(40, 24, 90, 0.16);
+}
 .try-box {
   margin-top: 28px;
   border-radius: 20px;
@@ -1312,6 +1336,12 @@ textarea {
   }
   .try {
     gap: 32px;
+  }
+  .try-bare {
+    gap: 32px;
+  }
+  .try-bare .try-stage {
+    justify-content: center;
   }
   .try-stage {
     padding: 24px 16px;

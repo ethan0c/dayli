@@ -43,6 +43,12 @@ function colorVars(p: Palette): Record<string, string> {
   };
 }
 
+/**
+ * The site in light mode is white paper and neutral grey, not the app's cream, so the purple
+ * reads rich against it (decided Oct 21, 2026; docs/design-system.md). The app is unchanged.
+ */
+const siteLight = { '--canvas': '#FFFFFF', '--header': '#FFFFFF', '--row': '#F4F4F5', '--line': '#E7E7EA' };
+
 /** Site-only surfaces, still built from the palette: the purple band and the dark band. */
 const bandVars = {
   light: { '--band-purple': lavender[600], '--band-ink': palettes.light.inkPrimary },
@@ -78,7 +84,7 @@ const block = (vars: Record<string, string>) =>
     .join(';');
 
 export const TOKENS_CSS = [
-  `:root{${block({ ...colorVars(palettes.light), ...bandVars.light, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
+  `:root{${block({ ...colorVars(palettes.light), ...siteLight, ...bandVars.light, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
   `@media (prefers-color-scheme: dark){:root{${block({ ...colorVars(palettes.dark), ...bandVars.dark })};color-scheme:dark}}`,
   `[data-semli-theme="dark"]{${block(colorVars(palettes.dark))};color-scheme:dark}`,
 ].join('\n');
