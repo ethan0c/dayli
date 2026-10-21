@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { CountUp } from '@/components/CountUp';
 import { FeatureCard } from '@/components/FeatureCard';
 import { Pill, Row, TermLine, WeekChart } from '@/components/Mock';
-import { QrCode } from '@/components/QrCode';
 import { Shot } from '@/components/Shot';
 import cafeShift from '@/public/photos/cafe-shift.jpg';
 import campus from '@/public/photos/campus.jpg';
@@ -71,28 +70,38 @@ const SYL_MONTHS = [{ label: 'Sep', left: 0 }, { label: 'Oct', left: 27 }, { lab
 /** A stagger index for siblings revealing together; globals.css multiplies it by the stagger token. */
 const stagger = (i: number) => ({ '--i': i } as React.CSSProperties);
 
+/** The Apple mark, the way Bevel and Cluely put it in their one button. */
+function AppleMark() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+      <path d="M16.37 12.63c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.83-.81-3-.79-1.55.02-2.97.9-3.77 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.35 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.39 0 1.78.74 3 .72 1.24-.02 2.02-1.12 2.78-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.4-3.69zM14.08 5.88c.63-.77 1.06-1.84.94-2.9-.91.04-2.01.6-2.66 1.37-.58.68-1.1 1.77-.96 2.81 1.01.08 2.05-.52 2.68-1.28z" />
+    </svg>
+  );
+}
+
 function GetApp({ className = 'btn' }: { className?: string }) {
-  return APP_STORE_LIVE ? <a className={className} href={APP_STORE_URL}>Get the iPhone app</a> : <Link className={className} href="/#beta">Join the iPhone beta</Link>;
+  return APP_STORE_LIVE
+    ? <a className={className} href={APP_STORE_URL}><AppleMark />Get the iPhone app</a>
+    : <Link className={className} href="/#beta"><AppleMark />Join the iPhone beta</Link>;
 }
 
 export default function Home() {
   const fromMonthly = money(Math.round((plan('yearly').student / 12) * 100) / 100);
   return (
     <main className={`page ${styles.home}`}>
-      {/* The hero: copy on the left, the real app on the right with a code to scan. */}
+      {/* The hero: one card, a light wash over the campus, the headline centred, one button, the app rising from the edge. */}
       <section className={styles.hero} aria-labelledby="home-title">
+        <div className={styles.heroPhoto} aria-hidden>
+          <Image src={heroAutumn} alt="" fill priority placeholder="blur" sizes="100vw" />
+        </div>
         <div className={styles.heroCopy}>
           <h1 id="home-title" className="serif">Your week, already <span className={styles.accentWord}>organized</span>.</h1>
           <p className={styles.heroSub}>Classes, shifts, and deadlines in one plan. Add a syllabus, a work schedule, or a message, and Semli lays out what’s next.</p>
           <GetApp />
-          <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
+          <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone. No account needed.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
         </div>
         <div className={styles.heroShot}>
-          <Shot name="today" width={400} priority label="Today: 1 hour 19 minutes until Psych lecture, a full day on one bar, then seven things on the list" />
-          <div className={styles.heroQr}>
-            <QrCode qr={GET_APP_QR} label={APP_STORE_LIVE ? 'QR code to get the iPhone app' : 'QR code to join the iPhone beta'} />
-            <span>{APP_STORE_LIVE ? 'Scan to get the app' : 'Scan to join the beta'}</span>
-          </div>
+          <Shot name="today" width={440} priority label="Today: 1 hour 19 minutes until Psych lecture, a full day on one bar, then seven things on the list" />
         </div>
       </section>
 
