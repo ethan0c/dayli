@@ -141,3 +141,49 @@ export function tomorrowSummary(items: Item[], now: LocalNow, workDates: WorkDat
   const labels = tomorrow.slice(0, 3).map((item) => `${item.title}${item.kind === 'event' && item.date < addDays(now.date, 1) && item.end ? ` until ${formatTime(item.end, true)}` : item.date === addDays(now.date, 1) && item.start ? ` at ${formatTime(item.start, true)}` : item.isDeadline ? ' due' : ''}`);
   return `Tomorrow: ${labels.join(' · ')}${tomorrow.length > 3 ? ` · +${tomorrow.length - 3} more` : ''}`;
 }
+
+export interface SpreadStep {
+  item: Item;
+  date: string;
+}
+
+/** Waking hours (7 am–11 pm, from now on today) not taken by an event. */
+function freeHoursOn(busy: ReturnType<typeof union>, date: string, now: LocalNow): number {
+  const day = dayNumber(date) * 1440;
+  const waking = { start: Math.max(day + 7 * 60, date === now.date ? absoluteMinute(now.date, now.time) : 0), end: day + 23 * 60 };
+  if (waking.end <= waking.start) return 0;
+  return (waking.end - waking.start - busy.reduce((minutes, iv) => minutes + overlap(waking, iv), 0)) / 60;
+}
+
+/**
+ * A start day for each task in a run of deadlines: the lightest day in the four before it is due
+ * (most unbooked hours, fewest other tasks), never before today and, with `until`, before that day.
+ * Exams and other events have nothing to move; tasks that already have a work day keep it.
+ * Due dates never change; the start day is a work date, like "Work on it today".
+ */
+export function spreadWork(items: Item[], ids: string[], now: LocalNow, workDates: WorkDates = {}, until?: string): SpreadStep[] {
+  const busy = union(items.filter((item) => item.kind === 'event' && !item.done).map(intervalOf).filter((iv) => iv !== null));
+  const load = new Map<string, number>();
+  for (const item of items) {
+    if (item.kind !== 'task' || item.done) continue;
+    const day = workDates[item.id] ?? item.date;
+    load.set(day, (load.get(day) ?? 0) + 1);
+  }
+  const wanted = new Set(ids);
+  const tasks = items.filter((item) => wanted.has(item.id) && item.kind === 'task' && !item.done && !(workDates[item.id] && workDates[item.id]! >= now.date))
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? '').localeCompare(b.start ?? ''));
+  const steps: SpreadStep[] = [];
+  for (const item of tasks) {
+    let last = addDays(item.date, -1);
+    if (until && addDays(until, -1) < last) last = addDays(until, -1);
+    let best: { date: string; score: number } | null = null;
+    for (let day = [addDays(item.date, -4), now.date].sort()[1]!; day <= last; day = addDays(day, 1)) {
+      const score = freeHoursOn(busy, day, now) - 2 * (load.get(day) ?? 0);
+      if (!best || score > best.score) best = { date: day, score };
+    }
+    if (!best) continue;
+    load.set(best.date, (load.get(best.date) ?? 0) + 1);
+    steps.push({ item, date: best.date });
+  }
+  return steps;
+}

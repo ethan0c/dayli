@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from '@dayli/schema';
-import { countdownLine, deadlineReason, deadlineWindow, featuredCommitment, nowSummary, overdueTasks, startTodaySuggestions, todayItems, tomorrowSummary } from '../src/today';
+import { countdownLine, deadlineReason, deadlineWindow, featuredCommitment, nowSummary, overdueTasks, spreadWork, startTodaySuggestions, todayItems, tomorrowSummary } from '../src/today';
 
 const date = '2026-10-19';
 const now = { date, time: '10:00' };
@@ -159,5 +159,31 @@ describe('countdown line', () => {
   it('drops a time it does not have', () => {
     expect(countdownLine({ title: 'Shift', start: '16:00', end: null }, 'ends')).toBe('until Shift ends');
     expect(countdownLine({ title: 'Dentist', start: '16:00', end: null }, 'now')).toBe('Dentist · 4:00 pm');
+  });
+});
+
+describe('spreading a heavy week', () => {
+  it('starts each task on the lightest day before it, one task per light day', () => {
+    // Monday 19th: a full day of shifts; Tuesday and Wednesday are open.
+    const items = [
+      event({ id: 'shift', date, start: '10:00', end: '22:00', category: 'work' }),
+      item({ id: 'essay', date: '2026-10-22', isDeadline: true }),
+      item({ id: 'pset', date: '2026-10-22', start: '09:00', isDeadline: true }),
+      event({ id: 'exam', date: '2026-10-23', isDeadline: true }),
+    ];
+    const steps = spreadWork(items, ['essay', 'pset', 'exam'], now);
+    expect(steps.map((s) => [s.item.id, s.date])).toEqual([['essay', '2026-10-20'], ['pset', '2026-10-21']]);
+  });
+
+  it('keeps work days already chosen, never starts before today, and stops before a break', () => {
+    const items = [
+      item({ id: 'chosen', date: '2026-10-23', isDeadline: true }),
+      item({ id: 'soon', date: '2026-10-20', isDeadline: true }),
+      item({ id: 'in-break', date: '2026-10-26', isDeadline: true }),
+    ];
+    const steps = spreadWork(items, ['chosen', 'soon', 'in-break'], now, { chosen: '2026-10-21' }, '2026-10-24');
+    expect(steps.find((s) => s.item.id === 'chosen')).toBeUndefined();
+    expect(steps.find((s) => s.item.id === 'soon')?.date).toBe(date);
+    expect(steps.find((s) => s.item.id === 'in-break')!.date <= '2026-10-23').toBe(true);
   });
 });

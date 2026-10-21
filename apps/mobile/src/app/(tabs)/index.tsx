@@ -1,4 +1,4 @@
-import { addDays, conflictIds, countdownLine, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, type CountdownState } from '@dayli/core';
+import { addDays, conflictIds, countdownLine, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, type CountdownState } from '@dayli/core';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -12,6 +12,7 @@ import { HourView } from '@/components/HourView';
 import { TodayFirst } from '@/components/Firsts';
 import { ItemRow } from '@/components/ItemRow';
 import { PhotoHeader } from '@/components/PhotoHeader';
+import { Press } from '@/components/Press';
 import { SkyHeader } from '@/components/SkyHeader';
 import { T } from '@/components/Text';
 import { Ticker } from '@/components/Ticker';
@@ -66,6 +67,12 @@ export default function TodayScreen() {
   const nextWeekPending = schedules.length > 0 && pendingDates(schedules, addDays(now.date, 1), addDays(now.date, 7)).length > 0;
   const isSample = items.some((item) => item.sourceId === SAMPLE_SOURCE);
   const moment = useMemo(() => momentFor(items, breaks ?? [], now.date), [items, breaks, now.date]);
+  // A moment that can spread its deadlines shows the start days first; nothing changes until "Sounds good".
+  const spreadAction = moment?.action && 'spread' in moment.action ? moment.action : null;
+  const spread = useMemo(() => spreadAction ? spreadWork(items, spreadAction.spread, now, workDates, spreadAction.until) : [], [spreadAction, items, now, workDates]);
+  const [spreadOpen, setSpreadOpen] = useState(false);
+  const spreadTasks = useStore((s) => s.spreadTasks);
+  const showToast = useStore((s) => s.showToast);
   const featuredState = useMemo(() => featuredCommitment(items, now), [items, now]);
   const featured = featuredState?.item;
   const ongoing = featuredState?.ongoing ?? false;
@@ -100,6 +107,14 @@ export default function TodayScreen() {
     feedback('select');
   }
 
+  function confirmSpread() {
+    const days = new Set(spread.map((step) => step.date)).size;
+    const id = spreadTasks(spread.map((step) => ({ id: step.item.id, date: step.date })), `Spread ${spread.length} ${spread.length === 1 ? 'task' : 'tasks'}`);
+    feedback('success');
+    setSpreadOpen(false);
+    showToast(`${spread.length} ${spread.length === 1 ? 'task' : 'tasks'} across ${days} ${days === 1 ? 'day' : 'days'}.`, id);
+  }
+
   function markAllDone(ids: string[]) {
     feedback('complete');
     for (const id of ids) toggleDone(id);
@@ -128,14 +143,31 @@ export default function TodayScreen() {
       {/* On a moment day the photo runs from the top edge, the moment takes the big number, and the day's header steps down to display size. */}
       {moment ? (
         <View style={styles.moment}>
-          <PhotoHeader source={moment.image} height={330} to={c.canvas} fadeFrom={0.5} />
+          <PhotoHeader source={moment.image} height={330} to={c.canvas} fadeFrom={0.28} solidAt={MOMENT_TEXT_TOP - 6} />
           <View style={[styles.momentToggle, { top: insets.top + 20 }]}>{viewToggle}</View>
           <T token="callout" color={c.inkSecondary}>{moment.lead}</T>
           <T token="displayXl" tabular>{moment.big}</T>
           <View style={styles.momentLine}>
             <T token="body">{moment.line}</T>
-            {moment.action ? <TextButton label={moment.action.label} onPress={() => router.push(moment.action!.href as '/plan')} /> : null}
+            {moment.action && 'href' in moment.action ? <TextButton label={moment.action.label} onPress={() => router.push((moment.action as { href: string }).href as '/plan')} /> : null}
+            {spreadAction && spread.length && !spreadOpen ? <TextButton label={spreadAction.label} onPress={() => setSpreadOpen(true)} /> : null}
           </View>
+          {spreadOpen && spread.length ? (
+            <Animated.View entering={enter.drop} exiting={exit.fade} style={styles.spread}>
+              {spread.map(({ item, date }) => (
+                <View key={item.id} style={styles.spreadRow}>
+                  <T token="body" numberOfLines={1} style={{ flex: 1 }}>{item.title}</T>
+                  <T token="callout" color={c.inkSecondary}>{date === now.date ? 'Start today' : date === addDays(now.date, 1) ? 'Start tomorrow' : `Start ${weekdayLong(date)}`}</T>
+                </View>
+              ))}
+              <View style={[styles.actions, { paddingTop: 10 }]}>
+                <Press accessibilityRole="button" haptic="tap" onPress={confirmSpread} style={[styles.pill, { backgroundColor: c.controlFill }]}>
+                  <T token="headline" color={c.controlInk}>Sounds good</T>
+                </Press>
+                <TextButton label="Not now" tone="muted" onPress={() => setSpreadOpen(false)} />
+              </View>
+            </Animated.View>
+          ) : null}
         </View>
       ) : <SkyHeader time={now.time} />}
 
@@ -271,6 +303,9 @@ export default function TodayScreen() {
   );
 }
 
+/** Where the moment's first line starts; its photo has fully faded into the page above this. */
+const MOMENT_TEXT_TOP = 206;
+
 const styles = StyleSheet.create({
   bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
   hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 18 },
@@ -278,7 +313,10 @@ const styles = StyleSheet.create({
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   inlineAction: { paddingLeft: 34 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 20 },
-  moment: { position: 'relative', paddingHorizontal: SCREEN_GUTTER, paddingTop: 206, paddingBottom: 18, gap: 2 },
+  spread: { paddingTop: 12, gap: 8 },
+  spreadRow: { flexDirection: 'row', alignItems: 'baseline', gap: 12 },
+  pill: { minHeight: 44, paddingHorizontal: 20, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  moment: { position: 'relative', paddingHorizontal: SCREEN_GUTTER, paddingTop: MOMENT_TEXT_TOP, paddingBottom: 18, gap: 2 },
   momentToggle: { position: 'absolute', right: SCREEN_GUTTER },
   momentLine: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingTop: 6 },
 });

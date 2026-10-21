@@ -1,5 +1,5 @@
-import { addDays, weekOf } from '@dayli/core';
-import type { Course, Extraction, Item, ScheduleVersion } from '@dayli/schema';
+import { addDays, weekdayOf, weekOf, type CommitPlan } from '@dayli/core';
+import type { Course, Extraction, Item, ScheduleVersion, Weekday } from '@dayli/schema';
 
 /** Marker on sample rows so the app can label and clear them. */
 export const SAMPLE_SOURCE = 'sample';
@@ -108,6 +108,64 @@ export function sampleWeek(today: string, options: { student?: boolean; preview?
     { id: 'sample-sched', employer: EMPLOYER, coversFrom: mon, coversTo: addDays(mon, 6), sourceId: shots, createdAt },
   ];
   return { items, courses, schedules };
+}
+
+/**
+ * Development only: two weeks of a student's life from `today`, as one undoable import into
+ * whichever account is signed in, so real screens can be tried on a full plan. Lectures repeat,
+ * shifts and the gym fill the evenings, and every deadline has its own title. Today has a few
+ * open tasks and one done, so the done state and the completed list can be tried straight away.
+ */
+export function testFortnight(today: string): { plan: CommitPlan; courses: Course[] } {
+  const run = Date.now().toString(36);
+  const courses: Course[] = [
+    { id: `test-${run}-0`, code: 'STAT 200', title: 'Statistics', instructor: 'Dr. Mehta', sourceId: null },
+    { id: `test-${run}-1`, code: 'PSYC 101', title: 'Intro to Psychology', instructor: 'Dr. Alvarez', sourceId: null },
+    { id: `test-${run}-2`, code: 'BIOL 110', title: 'General Biology', instructor: 'Dr. Chen', sourceId: null },
+    { id: `test-${run}-3`, code: 'ENGL 102', title: 'Composition II', instructor: 'Prof. Reyes', sourceId: null },
+  ];
+  type Row = CommitPlan['create'][number];
+  const base = { start: null, end: null, isDeadline: false, done: false, completedAt: null, courseId: null, employer: null, notes: null, seriesId: null } as const;
+  const lecture = (title: string, course: number, start: string, end: string): Omit<Row, 'date'> =>
+    ({ ...base, kind: 'event', title, category: 'school', icon: 'school', start, end, courseId: courses[course]!.id, seriesId: `test-${run}-series-${course}` });
+  const shift = (start: string, end: string): Omit<Row, 'date'> =>
+    ({ ...base, kind: 'event', title: 'Café shift', category: 'work', icon: 'work', start, end, employer: EMPLOYER });
+  const gym: Omit<Row, 'date'> = { ...base, kind: 'event', title: 'Gym', category: 'personal', icon: 'heart', start: '07:00', end: '08:00' };
+  const week: Record<Weekday, Omit<Row, 'date'>[]> = {
+    mon: [lecture('Stats lecture', 0, '09:00', '10:15'), lecture('Bio lecture', 2, '10:30', '11:20'), lecture('Composition seminar', 3, '13:30', '14:45'), shift('16:00', '22:00')],
+    tue: [gym, lecture('Psych lecture', 1, '11:00', '12:15'), { ...lecture('Bio lab', 2, '13:00', '15:30'), seriesId: null }, shift('16:00', '22:00')],
+    wed: [lecture('Stats lecture', 0, '09:00', '10:15'), lecture('Bio lecture', 2, '10:30', '11:20'), lecture('Composition seminar', 3, '13:30', '14:45'),
+      { ...base, kind: 'event', title: 'Pre-nursing club', category: 'personal', icon: 'heart', start: '18:30', end: '19:30' }],
+    thu: [gym, lecture('Psych lecture', 1, '11:00', '12:15'), shift('16:00', '22:00')],
+    fri: [lecture('Bio lecture', 2, '10:30', '11:20')],
+    sat: [shift('09:00', '15:00')],
+    sun: [shift('11:00', '17:00'), { ...base, kind: 'task', title: 'Call mom', category: 'personal', icon: 'heart' }],
+  };
+  const task = (day: number, title: string, icon: Row['icon'], course: number | null, due: string | null = null, done = false): Row => ({
+    ...base, kind: 'task', title, category: course === null ? 'personal' : 'school', icon, date: addDays(today, day), start: due,
+    isDeadline: course !== null, done, completedAt: done ? new Date().toISOString() : null, courseId: course === null ? null : courses[course]!.id,
+  });
+  const create: Row[] = [
+    ...Array.from({ length: 14 }, (_, d) => addDays(today, d)).flatMap((date) => week[weekdayOf(date)].map((r) => ({ ...r, date }))),
+    task(0, 'Watch lecture 9 recording', 'book', 1, null, true),
+    task(0, 'Pre-lab worksheet', 'pen', 2),
+    task(0, 'Discussion post 4', 'pen', 3, '23:59'),
+    task(0, 'Pick up groceries', 'bag', null),
+    task(1, 'Read chapter 6', 'book', 1),
+    task(2, 'Essay outline', 'pen', 3, '23:59'),
+    task(3, 'Stats exam 2', 'exam', 0, '09:00'),
+    task(3, 'Return library book', 'bag', null),
+    task(5, 'Problem set 4', 'pen', 0, '23:59'),
+    task(6, 'Lab report 3', 'pen', 2, '13:00'),
+    task(7, 'Read chapters 7 and 8', 'book', 1),
+    task(8, 'Discussion post 5', 'pen', 3, '23:59'),
+    task(9, 'Quiz 2', 'exam', 1, '09:00'),
+    task(10, 'Renew car registration', 'check', null),
+    task(11, 'Essay draft', 'pen', 3, '23:59'),
+    task(12, 'Problem set 5', 'pen', 0, '23:59'),
+    task(13, 'Bio quiz 3', 'exam', 2, '10:30'),
+  ];
+  return { plan: { create, update: [], remove: [], skipped: 0 }, courses };
 }
 
 /**

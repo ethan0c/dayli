@@ -16,6 +16,7 @@ import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { accountOf, useSession } from '@/lib/supabase';
 import { useCourseList, useItemList, useScheduleList, useStore, type Batch } from '@/store';
+import { testFortnight } from '@/store/sample';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 const RECENT = 3;
@@ -42,6 +43,7 @@ export default function DataScreen() {
   const undoBatch = useStore((s) => s.undoBatch);
   const clearAll = useStore((s) => s.clearAll);
   const setSettings = useStore((s) => s.setSettings);
+  const applyPlan = useStore((s) => s.applyPlan);
   const canvasConnected = useStore((s) => !!s.settings.canvas.feedUrl);
   // Signed in, the account keeps the setup answers and only the plan is cleared; a guest starts over.
   const signedIn = useSession((s) => !!accountOf(s.session));
@@ -93,7 +95,7 @@ export default function DataScreen() {
         accessibilityLabel={`${b.label}, ${whenLabel(b)}${b.undone ? ', undone' : ''}`}
         trailing={b.undone
           ? <StatusPill label="Undone" />
-          : b.changes.length > 0 ? <TextButton label="Undo" haptic="undo" onPress={() => undoBatch(b.id)} accessibilityLabel={`Undo ${b.label}`} /> : null} />
+          : b.changes.length > 0 || b.workDatesBefore ? <TextButton label="Undo" haptic="undo" onPress={() => undoBatch(b.id)} accessibilityLabel={`Undo ${b.label}`} /> : null} />
     </Animated.View>
   );
 
@@ -127,6 +129,12 @@ export default function DataScreen() {
           </Animated.View>
         )}
       </Group>
+
+      {__DEV__ ? (
+        <Group title="Development" footer="Two weeks of classes, shifts and deadlines from today, as one import. Undo it from Recent changes.">
+          <Row label="Fill the next two weeks" onPress={() => { const t = testFortnight(now.date); applyPlan(t.plan, 'Test data · next two weeks', { source: 'Test data', courses: t.courses }); feedback('success'); }} last />
+        </Group>
+      ) : null}
 
       <Group title="Start again" footer={signedIn ? 'Your account backs up this phone, so clearing here clears the backup too.' : 'Nothing here leaves the phone unless you export it.'}>
         <Row label="Replay the intro" value="Keeps everything" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} />

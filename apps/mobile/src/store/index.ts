@@ -30,6 +30,8 @@ export interface Batch {
   /** Courses and schedules this batch removed, so Undo can put them back. */
   removedCourses?: StoredCourse[];
   removedSchedules?: (ScheduleVersion & { batchId?: string })[];
+  /** Work days this batch set, with what each task had before (null: none), so Undo can put them back. */
+  workDatesBefore?: Record<string, string | null>;
 }
 
 export interface Pending {
@@ -129,6 +131,8 @@ interface State {
   recordImport: () => void;
   planTasks: (ids: string[], date: string) => void;
   unplanTask: (id: string) => void;
+  /** Gives several tasks their own start days as one undoable change. */
+  spreadTasks: (steps: { id: string; date: string }[], label: string) => string;
   dismissSuggestion: (id: string, date: string) => void;
   setCaptureDraft: (text: string) => void;
   setSelectedPlanDate: (date: string) => void;
@@ -195,6 +199,16 @@ export const useStore = create<State>()(
         const taskWorkDates = { ...get().taskWorkDates };
         delete taskWorkDates[id];
         set({ taskWorkDates });
+      },
+      spreadTasks: (steps, label) => {
+        const b: Batch = { ...batch(label, []), workDatesBefore: {} };
+        const taskWorkDates = { ...get().taskWorkDates };
+        for (const { id, date } of steps) {
+          b.workDatesBefore![id] = taskWorkDates[id] ?? null;
+          taskWorkDates[id] = date;
+        }
+        set({ taskWorkDates, batches: [b, ...get().batches] });
+        return b.id;
       },
       dismissSuggestion: (id, date) => {
         const previous = get().suggestionDismissals;
@@ -342,8 +356,14 @@ export const useStore = create<State>()(
           if (ch.op === 'create' && ch.after) delete items[ch.after.id];
           else if (ch.before) items[ch.before.id] = ch.before;
         }
+        const taskWorkDates = { ...get().taskWorkDates };
+        for (const [task, before] of Object.entries(b.workDatesBefore ?? {})) {
+          if (before) taskWorkDates[task] = before;
+          else delete taskWorkDates[task];
+        }
         set({
           items,
+          taskWorkDates,
           schedules: [...get().schedules.filter((s) => s.batchId !== id), ...(b.removedSchedules ?? [])],
           courses: [...get().courses.filter((c) => c.batchId !== id), ...(b.removedCourses ?? [])],
           batches: get().batches.map((x) => (x.id === id ? { ...x, undone: true } : x)),
