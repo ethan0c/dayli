@@ -7,7 +7,7 @@ import Animated from 'react-native-reanimated';
 
 import { GroupLabel, TextButton } from '@/components/Controls';
 import { T } from '@/components/Text';
-import { track } from '@/lib/analytics';
+import { profile, track } from '@/lib/analytics';
 import { enter, exit, layout } from '@/lib/motion';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore, type FirstKind } from '@/store';
@@ -82,9 +82,21 @@ export function FirstCanvas() {
   );
 }
 
-/** At most one note on Today at a time: the overlap first, then a close deadline, then Canvas. */
-export function TodayFirst({ items, now, style }: { items: Item[]; now: { date: string; time: string }; style?: StyleProp<ViewStyle> }) {
+/** The first busy day on the list view: the toggle to the day by the hour is an icon, so say it once. */
+export function FirstHours({ timed }: { timed: number }) {
+  const setSettings = useStore((s) => s.setSettings);
+  return (
+    <FirstNote kind="hours" label="A full day"
+      body={`${timed} things with times today.`}
+      detail="The button at the top shows the day by the hour instead, where gaps and overlaps are easier to see. Switch back any time."
+      action="Show the hours" onAction={() => { setSettings({ todayView: 'hours' }); track('today_view_changed', { view: 'hours', timed, source: 'first' }); profile({ today_view: 'hours', today_view_source: 'first' }); }} />
+  );
+}
+
+/** At most one note on Today at a time: the overlap first, then a close deadline, then Canvas, then the hour view. */
+export function TodayFirst({ items, now, timedToday, style }: { items: Item[]; now: { date: string; time: string }; timedToday: number; style?: StyleProp<ViewStyle> }) {
   const firsts = useStore((s) => s.settings.firsts);
+  const todayView = useStore((s) => s.settings.todayView);
   const lms = useStore((s) => s.settings.lms);
   const canvasConnected = useStore((s) => !!s.settings.canvas.feedUrl);
   const overlap = useMemo(() => (firsts.overlap ? null : movableOverlap(items, now)), [firsts.overlap, items, now]);
@@ -94,6 +106,7 @@ export function TodayFirst({ items, now, style }: { items: Item[]; now: { date: 
   const note = overlap ? <FirstOverlap overlap={overlap} today={now.date} />
     : deadline ? <FirstUrgent item={deadline} today={now.date} />
     : !firsts.canvas && lms === 'canvas' && !canvasConnected ? <FirstCanvas />
+    : !firsts.hours && todayView === 'list' && timedToday >= 3 ? <FirstHours timed={timedToday} />
     : null;
   if (!note) return null;
   return <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={style}>{note}</Animated.View>;

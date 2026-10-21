@@ -15,6 +15,7 @@ import { T } from '@/components/Text';
 import { Ticker } from '@/components/Ticker';
 import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
+import { profile, track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
 import { momentFor } from '@/lib/moments';
 import { enter, exit, layout } from '@/lib/motion';
@@ -64,6 +65,7 @@ export default function TodayScreen() {
   const featuredState = useMemo(() => featuredCommitment(items, now), [items, now]);
   const featured = featuredState?.item;
   const ongoing = featuredState?.ongoing ?? false;
+  const timedToday = todays.filter((item) => item.kind === 'event' && item.start).length;
   const completed = todays.filter((item) => item.done);
   const openItems = todays.filter((item) => !item.done);
   const tightDeadlines = useMemo(() => new Map(items
@@ -111,7 +113,7 @@ export default function TodayScreen() {
     <Animated.View key={hours ? 'list' : 'chart'} entering={enter.fade} exiting={exit.fade}>
       <IconButton icon={hours ? 'list' : 'chart'} tone="glass" size={44} haptic="select"
         label={hours ? 'Show the list' : 'Show the day by the hour'}
-        onPress={() => setSettings({ todayView: hours ? 'list' : 'hours' })} />
+        onPress={() => { const view = hours ? 'list' : 'hours'; setSettings({ todayView: view }); track('today_view_changed', { view, timed: timedToday, source: 'toggle' }); profile({ today_view: view, today_view_source: 'toggle' }); }} />
     </Animated.View>
   );
   const todayDetail = `${todays.length} ${todays.length === 1 ? 'thing' : 'things'}${conflictsToday ? ` · ${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : ''}`;
@@ -156,7 +158,7 @@ export default function TodayScreen() {
       ) : null}
 
       {/* One thing explained at the moment it first matters, in place of a tour (see components/Firsts). */}
-      <TodayFirst items={items} now={now} style={styles.section} />
+      <TodayFirst items={items} now={now} timedToday={timedToday} style={styles.section} />
 
       <Animated.View layout={layout} style={styles.section}>
         <SectionTitle title="On your list" onPress={() => router.push('/plan')} detail={conflictsToday ? `${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : undefined} />

@@ -16,7 +16,7 @@ import { PlanPicker } from "@/components/PlanPicker";
 import { Reading } from "@/components/Reading";
 import { Button } from "@/components/Sheet";
 import { T } from "@/components/Text";
-import { track } from "@/lib/analytics";
+import { profile as setProfile, track } from "@/lib/analytics";
 import { requestExtraction } from "@/lib/api";
 import { requestImport } from "@/lib/import-auth";
 import { IMPORT_MESSAGES } from "@dayli/schema";
@@ -126,8 +126,11 @@ export default function OnboardingScreen() {
     setSettings({ name: name.trim(), weekKinds: kinds, isStudent: student, major: student ? (major ?? "other") : null });
 
   const finish = () => {
-    setSettings({ onboarded: true, seeded: true, onboardingImportDone: false });
+    // Working people start on the day by the hour, where shifts and overlaps read best; students on the list.
+    const todayView = role === "student" ? "list" : "hours";
+    setSettings({ onboarded: true, seeded: true, onboardingImportDone: false, todayView });
     track("onboarding_completed", { role, major: student ? (major ?? "other") : null, sample: usedSample });
+    setProfile({ role, major: student ? (major ?? "other") : null, lms: lms ?? null, today_view: todayView, today_view_source: "role" });
     feedback("success");
     showToast(usedSample ? "Your preview is ready. Add your own details any time." : "You're set.");
     router.replace("/");

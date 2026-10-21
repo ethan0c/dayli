@@ -57,7 +57,8 @@ export type AnalyticsEvent =
   | 'can_do'
   | 'voice_started'
   | 'voice_stopped'
-  | 'voice_failed';
+  | 'voice_failed'
+  | 'today_view_changed';
 
 export function track(event: AnalyticsEvent, properties: Record<string, string | number | boolean | null> = {}): void {
   if (posthog) {
@@ -65,6 +66,12 @@ export function track(event: AnalyticsEvent, properties: Record<string, string |
   } else if (__DEV__) {
     console.log(`[analytics] ${event}`, properties);
   }
+}
+
+/** Person properties for cohorts (role, field, Today view); never names or content. */
+export function profile(properties: Record<string, string | number | boolean | null>): void {
+  if (posthog) void posthog.capture('$set', { $set: properties });
+  else if (__DEV__) console.log('[analytics] $set', properties);
 }
 
 export function screen(name: string): void {
