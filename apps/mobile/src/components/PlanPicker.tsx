@@ -21,7 +21,7 @@ import { useTheme, type Palette } from '@/theme';
 const TERMS = [
   { key: 'monthly', label: 'Monthly', period: '/ month', billed: 'a month', months: 1, pick: (o: PurchasesOffering | null) => o?.monthly ?? null },
   // Apple has no four-month term: the semester plan is a six-month subscription and every price line says so.
-  { key: 'semester', label: 'Semester', period: '/ 6 months', billed: 'every 6 months', months: 6, pick: (o: PurchasesOffering | null) => o?.sixMonth ?? null },
+  { key: 'semester', label: '6 months', period: '/ 6 months', billed: 'every 6 months', months: 6, pick: (o: PurchasesOffering | null) => o?.sixMonth ?? null },
   { key: 'yearly', label: 'Yearly', period: '/ year', billed: 'a year', months: 12, pick: (o: PurchasesOffering | null) => o?.annual ?? null },
 ] as const;
 
