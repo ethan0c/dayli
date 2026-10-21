@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { CountUp } from '@/components/CountUp';
 import { FeatureCard } from '@/components/FeatureCard';
 import { Pill, Row, TermLine, WeekChart } from '@/components/Mock';
+import { QrCode } from '@/components/QrCode';
 import { Reveal } from '@/components/Reveal';
 import { Shot } from '@/components/Shot';
 import cafeShift from '@/public/photos/cafe-shift.jpg';
@@ -16,7 +17,6 @@ import table from '@/public/photos/table.jpg';
 import { GET_APP_QR } from '@/lib/qr';
 import { faqJsonLd, pageMetadata } from '@/lib/seo';
 import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
-import { TryIt } from './TryIt';
 import { Waitlist } from './Waitlist';
 import styles from './home.module.css';
 
@@ -38,7 +38,7 @@ const FAQS = [
   { q: 'Does it work with Canvas?', a: 'Yes. Paste your Canvas calendar feed link to bring in assignments. Plus keeps them in sync when due dates change. You can also import a syllabus PDF or a screenshot of your Canvas to-do list.' },
   { q: 'What happens to my uploads?', a: 'Semli sends your upload to our AI provider to read the dates; our servers don’t save the upload or its response. The plan you confirm stays on your phone, with cloud backup if you create an account. See our privacy policy for details.' },
   { q: 'What’s free?', a: `The calendar, to-dos, reminders, and ${FREE_IMPORTS_PER_MONTH} AI imports a month, for as long as you like. Plus adds unlimited imports, Canvas sync, and schedule-change comparisons.` },
-  { q: 'Is there an Android app?', a: 'Not yet. We’re starting with iPhone. You can try importing a schedule on this website without an account.' },
+  { q: 'Is there an Android app?', a: 'Not yet. We’re starting with iPhone. You can try importing a syllabus on the syllabus-to-calendar page without an account.' },
 ];
 
 /** Photos are Unsplash, recorded in public/photos/SOURCES.md. They are decorative: empty alt, text carries the meaning.
@@ -104,10 +104,30 @@ export default function Home() {
         </div>
         <div className={styles.heroShot}>
           <Shot name="today" width={440} priority label="Today: 34 minutes until Stats lecture ends, a full day on one bar, then the list with one overlap" />
+          {/* Desktop only: what Semli does on the left, the way to get it on the right. */}
+          <div className={styles.heroCards}>
+            <a className={styles.heroCard} href="#term-title" aria-label="Syllabus imports: STAT 200, 8 dates over the semester, three of them exams">
+              <div className={styles.cardBig}>8 dates</div>
+              <div className={styles.cardSub}>STAT 200 · 3 exams, 5 due dates</div>
+              <TermLine months={SYL_MONTHS} marks={SYL_MARKS} style={{ marginTop: 14 }} />
+            </a>
+            <a className={styles.heroCard} href="#diff-title" aria-label="Work schedule updates: Campus Café next week, 3 changes, one new shift and one moved">
+              <div className={styles.cardBig}>3 changes</div>
+              <div className={styles.cardSub}>Campus Café · next week</div>
+              <div style={{ marginTop: 6 }}>
+                <Row lead="dot" title="Thu 22 · 5–9 pm" trailing={<Pill tone="green">New</Pill>} />
+                <Row lead="dot" title="Sat 24 · 9 am–3 pm" trailing={<Pill>Moved</Pill>} last />
+              </div>
+            </a>
+          </div>
+          <div className={styles.heroQr}>
+            <div className="getapp-code">
+              <QrCode qr={GET_APP_QR} label={APP_STORE_LIVE ? 'QR code to get the iPhone app' : 'QR code to join the iPhone beta'} />
+            </div>
+            <p>{APP_STORE_LIVE ? 'Scan with your iPhone to get the app' : 'Scan with your iPhone to join the beta'}</p>
+          </div>
         </div>
       </section>
-
-      <TryIt qr={GET_APP_QR} />
 
       <section className={styles.proof} aria-label="What students told us">
         <Reveal className={styles.faces} aria-hidden>

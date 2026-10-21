@@ -19,8 +19,8 @@ export function SiteHeader() {
           <Link href="/pricing" aria-current={path === '/pricing' ? 'page' : undefined}>
             Pricing
           </Link>
-          <Link href="/#try" className="nav-try">
-            Try it
+          <Link href="/contact" className="nav-contact" aria-current={path === '/contact' ? 'page' : undefined}>
+            Contact
           </Link>
           {APP_STORE_LIVE ? (
             <a className="btn" href={APP_STORE_URL}>

@@ -21,7 +21,9 @@ html {
 }
 #try,
 #pricing,
-#app {
+#app,
+#term-title,
+#diff-title {
   scroll-margin-top: 24px;
 }
 
@@ -1422,8 +1424,8 @@ textarea {
   .cmp tbody th {
     width: 44%;
   }
-  /* The hero's own "Try it" button is right there; the bar keeps Pricing and the one action. */
-  .nav-try {
+  /* On a phone the bar keeps Pricing and the one action; Contact is in the footer. */
+  .nav-contact {
     display: none;
   }
   .nav {
