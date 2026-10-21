@@ -13,8 +13,8 @@
   --inset: 8px;
 }
 
-/* The hero's copy arrives in order, one stagger apart; the result card rises on its own.
-   All on the tokens; reduced motion collapses it to a fade. */
+/* The hero arrives in order: each line of copy one stagger apart, then the phone. All on the
+   tokens; reduced motion collapses it to a fade. */
 @keyframes heroRise {
   from {
     opacity: 0;
@@ -33,43 +33,52 @@
   .heroCopy > :nth-child(1) { --i: 0; }
   .heroCopy > :nth-child(2) { --i: 1; }
   .heroCopy > :nth-child(3) { --i: 2; }
+  .heroCopy > :nth-child(4) { --i: 3; }
+  .heroShot {
+    animation: heroRise calc(var(--dur-slow) * 1.5) var(--ease) both;
+    animation-delay: calc(var(--dur-base) + 3 * var(--stagger) * 2);
+  }
 }
 
-/* Hero: the brand purple, solid, with white copy; the paste box and the result card stay white
-   on it. Everything in the first screen. */
+/* Hero: white paper, copy on the left, the phone on the right. Nothing under it but the page. */
 .hero {
-  margin-inline: calc(50% - 50vw + var(--inset));
-  margin-top: calc(64px + var(--inset) - var(--nav-clear));
-  padding: 88px calc(50vw - 50% - var(--inset));
-  border-radius: var(--radius-sheet);
-  background: var(--band-purple);
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 48px;
+  align-items: center;
+  padding-top: 8px;
 }
-/* Only the copy on the purple turns white; the composer and the card keep the page's ink. */
-.heroCopy,
-.hero .note {
-  --ink: #ffffff;
-  --ink-2: rgba(255, 255, 255, 0.82);
-  --accent-ink: #ffffff;
-  color: var(--ink);
-}
-.hero .note :global(.textlink) {
-  text-decoration-color: rgba(255, 255, 255, 0.6);
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  max-width: 560px;
 }
 .heroCopy h1 {
-  font-size: clamp(46px, 5.6vw, 80px);
-  line-height: 1;
+  font-size: clamp(42px, 4.8vw, 68px);
+  line-height: 1.02;
   text-wrap: balance;
-  max-width: 11ch;
+  max-width: 13ch;
 }
 .accentWord {
-  color: #dcd4fb;
+  color: var(--accent-ink);
 }
 .heroSub {
   margin-top: 20px;
-  font-size: 19px;
-  line-height: 28px;
+  font-size: 18px;
+  line-height: 27px;
   color: var(--ink-2);
-  max-width: 34ch;
+  max-width: 42ch;
+}
+.heroCopy :global(.btn) {
+  margin-top: 28px;
+}
+.note {
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ink-2);
 }
 .ctas {
   display: flex;
@@ -78,15 +87,38 @@
   gap: 10px;
   margin-top: 28px;
 }
-.note {
-  margin-top: 16px;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--ink-2);
+.heroShot {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
 }
-.note :global(.textlink) {
-  font-size: 14px;
-  margin-left: 4px;
+/* The code to scan, a small white card over the phone's lower corner. */
+.heroQr {
+  position: absolute;
+  right: 0;
+  bottom: 56px;
+  width: 148px;
+  padding: 10px 10px 8px;
+  border-radius: 18px;
+  background: #fff;
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 20px 40px rgba(0, 0, 0, 0.16);
+}
+.heroQr svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+.heroQr span {
+  display: block;
+  margin-top: 6px;
 }
 
 /* Panels: grey cards reaching 64px past the content column, padding back so content lines up.
@@ -105,11 +137,36 @@
   background: var(--row);
 }
 
-/* Proof: three survey numbers on paper, ink only */
+/* Proof: a fan of students, then three survey numbers on paper, ink only */
 .proof {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 40px;
+}
+.faces {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.face {
+  position: relative;
+  width: 112px;
+  aspect-ratio: 4 / 5;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--row);
+  transform: rotate(var(--r, 0deg)) translateY(var(--y, 0));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+.face img {
+  object-fit: cover;
+}
+.stat p {
+  margin-inline: auto;
 }
 .bandEyebrow {
   font-size: var(--type-overline-size);
@@ -338,8 +395,26 @@
     padding-block: 56px;
   }
   .hero {
-    margin-top: calc(56px + var(--inset) - var(--nav-clear));
-    padding-block: 48px 24px;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+  .heroCopy {
+    align-items: center;
+    max-width: 100%;
+  }
+  .heroShot :global(.phone) {
+    width: 300px !important;
+  }
+  .heroQr {
+    display: none;
+  }
+  .face {
+    width: 64px;
+    border-radius: 12px;
+  }
+  .faces {
+    gap: 8px;
   }
   .feature {
     gap: 40px;

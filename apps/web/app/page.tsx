@@ -1,11 +1,17 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { CountUp } from '@/components/CountUp';
 import { FeatureCard } from '@/components/FeatureCard';
 import { Pill, Row, TermLine, WeekChart } from '@/components/Mock';
+import { QrCode } from '@/components/QrCode';
+import { Shot } from '@/components/Shot';
 import cafeShift from '@/public/photos/cafe-shift.jpg';
+import campus from '@/public/photos/campus.jpg';
+import heroAutumn from '@/public/photos/hero-autumn.jpg';
 import heroGolden from '@/public/photos/hero-golden.jpg';
 import library from '@/public/photos/library.jpg';
+import table from '@/public/photos/table.jpg';
 import { GET_APP_QR } from '@/lib/qr';
 import { faqJsonLd, pageMetadata } from '@/lib/seo';
 import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
@@ -36,6 +42,9 @@ const FAQS = [
 
 /** Photos are Unsplash, recorded in public/photos/SOURCES.md. They are decorative: empty alt, text carries the meaning.
  *  Static imports give each one a blurred placeholder, so a card never flashes empty while its photo loads. */
+
+/** The fan of students over the survey numbers. */
+const FACES = [heroAutumn, table, campus, heroGolden, library];
 
 /* The floating cards on the feature photos: one moment each, drawn from the mockup pieces. */
 const SHIFT = { top: 56, height: 33 } as const; // 4–10 pm
@@ -70,31 +79,33 @@ export default function Home() {
   const fromMonthly = money(Math.round((plan('yearly').student / 12) * 100) / 100);
   return (
     <main className={`page ${styles.home}`}>
-      {/* The hero is the product: the headline and the paste box on the left, what Semli finds on the right. */}
+      {/* The hero: copy on the left, the real app on the right with a code to scan. */}
       <section className={styles.hero} aria-labelledby="home-title">
-        <TryIt
-          qr={GET_APP_QR}
-          bare
-          intro={
-            <div className={styles.heroCopy}>
-              <p className="eyebrow">The daily planner for college students</p>
-              <h1 id="home-title" className="serif">Your week, already <span className={styles.accentWord}>organized</span>.</h1>
-              <p className={styles.heroSub}>Paste a message, a work schedule, or a syllabus. Semli turns it into your week.</p>
-            </div>
-          }
-          after={
-            <p className={styles.note}>
-              {APP_STORE_LIVE ? (
-                <>Free on iPhone. <a className="textlink" href={APP_STORE_URL}>Get the app</a></>
-              ) : (
-                <>The iPhone beta opens soon. <Link className="textlink" href="/#beta">Join the waitlist</Link></>
-              )}
-            </p>
-          }
-        />
+        <div className={styles.heroCopy}>
+          <h1 id="home-title" className="serif">Your week, already <span className={styles.accentWord}>organized</span>.</h1>
+          <p className={styles.heroSub}>Classes, shifts, and deadlines in one plan. Add a syllabus, a work schedule, or a message, and Semli lays out what’s next.</p>
+          <GetApp />
+          <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
+        </div>
+        <div className={styles.heroShot}>
+          <Shot name="today" width={400} priority label="Today: 1 hour 19 minutes until Psych lecture, a full day on one bar, then seven things on the list" />
+          <div className={styles.heroQr}>
+            <QrCode qr={GET_APP_QR} label={APP_STORE_LIVE ? 'QR code to get the iPhone app' : 'QR code to join the iPhone beta'} />
+            <span>{APP_STORE_LIVE ? 'Scan to get the app' : 'Scan to join the beta'}</span>
+          </div>
+        </div>
       </section>
 
+      <TryIt qr={GET_APP_QR} />
+
       <section className={styles.proof} aria-label="What students told us">
+        <div className={styles.faces} aria-hidden data-reveal>
+          {FACES.map((photo, i) => (
+            <div key={i} className={styles.face} style={{ '--r': `${(i - 2) * 4}deg`, '--y': `${Math.abs(i - 2) * 10}px` } as React.CSSProperties}>
+              <Image src={photo} alt="" fill placeholder="blur" sizes="120px" />
+            </div>
+          ))}
+        </div>
         <p className={styles.bandEyebrow} data-reveal>What students told us</p>
         <div className={styles.stats}>
           {PROOF.map((p, i) => (
