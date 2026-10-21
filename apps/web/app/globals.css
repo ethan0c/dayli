@@ -136,9 +136,10 @@ textarea {
   color: var(--ink);
 }
 .nav .btn {
-  height: 40px;
-  padding: 0 18px;
+  height: 38px;
+  padding: 0 16px;
   margin-left: 4px;
+  font-size: 15px;
 }
 
 /* ---------- Type ---------- */
@@ -194,15 +195,16 @@ textarea {
 
 /* ---------- Buttons: pills act ---------- */
 .btn {
-  height: 52px;
-  padding: 0 24px;
+  height: 46px;
+  padding: 0 20px;
   border-radius: var(--radius-pill);
   border: 0;
   background: var(--control-fill);
   color: var(--control-ink);
-  font-size: var(--type-headline-size);
-  line-height: var(--type-headline-line);
-  font-weight: var(--type-headline-weight);
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -210,14 +212,26 @@ textarea {
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
+  /* A hairline of light along the top and a soft drop, so the pill sits on the page instead of lying flat. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 1px 2px rgba(0, 0, 0, 0.12),
+    0 6px 16px rgba(0, 0, 0, 0.1);
 }
 .btn.ghost {
   background: var(--row);
   color: var(--ink);
+  box-shadow:
+    inset 0 0 0 1px var(--line),
+    0 1px 2px rgba(0, 0, 0, 0.04);
 }
 .btn.accent {
   background: var(--accent);
   color: var(--on-accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 6px 16px rgba(112, 87, 189, 0.24);
 }
 .btn:disabled {
   opacity: 0.4;
@@ -1463,11 +1477,16 @@ textarea {
     .topbar {
       animation: nav-settle linear both;
       animation-timeline: scroll(root);
-      animation-range: 0 48px;
+      animation-range: 0 64px;
     }
   }
 }
+/* At the top the bar is clear glass over the hero's sky; it turns to paper as the page scrolls under it. */
 @keyframes nav-settle {
+  from {
+    background: transparent;
+    border-bottom-color: transparent;
+  }
   to {
     border-bottom-color: var(--line);
   }

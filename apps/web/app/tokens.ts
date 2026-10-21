@@ -49,6 +49,12 @@ function colorVars(p: Palette): Record<string, string> {
  */
 const siteLight = { '--canvas': '#FFFFFF', '--header': '#FFFFFF', '--row': '#F4F4F5', '--line': '#E7E7EA' };
 
+/** How much paper lies over the hero's sky: a thin veil on light, a heavier one on dark so copy reads. */
+const heroVeil = {
+  light: { '--hero-veil-top': '22%', '--hero-veil-mid': '30%' },
+  dark: { '--hero-veil-top': '56%', '--hero-veil-mid': '66%' },
+};
+
 /** Site-only surfaces, still built from the palette: the purple band and the dark band. */
 const bandVars = {
   light: { '--band-purple': lavender[600], '--band-ink': palettes.light.inkPrimary },
@@ -84,7 +90,7 @@ const block = (vars: Record<string, string>) =>
     .join(';');
 
 export const TOKENS_CSS = [
-  `:root{${block({ ...colorVars(palettes.light), ...siteLight, ...bandVars.light, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
-  `@media (prefers-color-scheme: dark){:root{${block({ ...colorVars(palettes.dark), ...bandVars.dark })};color-scheme:dark}}`,
-  `[data-semli-theme="dark"]{${block(colorVars(palettes.dark))};color-scheme:dark}`,
+  `:root{${block({ ...colorVars(palettes.light), ...siteLight, ...heroVeil.light, ...bandVars.light, ...typeVars, ...motionVars, ...shapeVars })};color-scheme:light}`,
+  `@media (prefers-color-scheme: dark){:root{${block({ ...colorVars(palettes.dark), ...heroVeil.dark, ...bandVars.dark })};color-scheme:dark}}`,
+  `[data-semli-theme="dark"]{${block({ ...colorVars(palettes.dark), ...heroVeil.dark, ...bandVars.dark })};color-scheme:dark}`,
 ].join('\n');

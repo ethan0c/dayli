@@ -10,6 +10,7 @@ import campus from '@/public/photos/campus.jpg';
 import heroAutumn from '@/public/photos/hero-autumn.jpg';
 import heroGolden from '@/public/photos/hero-golden.jpg';
 import library from '@/public/photos/library.jpg';
+import sky from '@/public/photos/sky.jpg';
 import table from '@/public/photos/table.jpg';
 import { GET_APP_QR } from '@/lib/qr';
 import { faqJsonLd, pageMetadata } from '@/lib/seo';
@@ -89,10 +90,10 @@ export default function Home() {
   const fromMonthly = money(Math.round((plan('yearly').student / 12) * 100) / 100);
   return (
     <main className={`page ${styles.home}`}>
-      {/* The hero: one card, a light wash over the campus, the headline centred, one button, the app rising from the edge. */}
+      {/* The hero: one card, a pastel sky, the headline centred, one button, the app rising from the edge. */}
       <section className={styles.hero} aria-labelledby="home-title">
         <div className={styles.heroPhoto} aria-hidden>
-          <Image src={heroAutumn} alt="" fill priority placeholder="blur" sizes="100vw" />
+          <Image src={sky} alt="" fill priority placeholder="blur" sizes="100vw" />
         </div>
         <div className={styles.heroCopy}>
           <h1 id="home-title" className="serif">Your week, already <span className={styles.accentWord}>organized</span>.</h1>

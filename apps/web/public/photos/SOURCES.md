@@ -4,12 +4,13 @@ The five editorial photos are Unsplash photos under the [Unsplash License](https
 
 | File | Used on | Photographer | Source |
 |---|---|---|---|
-| hero-autumn.jpg | Unused since Oct 21 (the hero is lavender paper now; 2,721 × 2,133, downloaded Oct 20, 2026) | Austin | https://unsplash.com/photos/8wL0dsEsf_g |
+| hero-autumn.jpg | Home, first of the five student photos over the survey numbers (2,721 × 2,133, downloaded Oct 20, 2026) | Austin | https://unsplash.com/photos/8wL0dsEsf_g |
 | hero-golden.jpg | Home "See the week at a glance" row, under the week card (since Oct 21) | Vadim Fomenok | https://unsplash.com/photos/JhLASVqq1Jg |
 | library.jpg | Home "Your syllabus, laid out" row, under the term card (since Oct 21) | Johan Mouchet | https://unsplash.com/photos/PjpRF0LhBB8 |
 | cafe-shift.jpg | Home "Your work schedule, updated" row, under the changes card (since Oct 21) | Long Chung | https://unsplash.com/photos/barista-working-behind-a-coffee-counter-H7PLuaYW6UQ |
 | campus.jpg | Unused since Oct 21 (the beta card is a grey panel now) | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |
 | table.jpg | Unused since Oct 21 (pricing is Free and Plus cards now) | Alexis Brown | https://unsplash.com/photos/omeaHbEFlN4 |
+| sky.jpg | Home hero, the pink and blue clouds edge to edge behind the headline (3,000 × 4,000, downloaded Oct 21, 2026) | Skyler Smith | https://unsplash.com/photos/pink-and-blue-clouds-in-the-sky-lrPrDZm46Ns |
 | plus-fireworks.jpg | Plus pricing panel, matching the app paywall | Existing app asset | `apps/mobile/assets/showcase/plus.jpg` |
 
 ## Quality review, Oct 20

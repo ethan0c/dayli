@@ -40,8 +40,8 @@
   }
 }
 
-/* Hero: one card inset from the viewport, the campus photo under a light wash of the page's own
-   paper, the headline centred, one button, and the phone standing up from the card's bottom edge. */
+/* Hero: the sky edge to edge and up under the bar, the headline centred on it, the phone rising
+   from the bottom edge. The sky keeps its colour; only the bottom hands over to paper. */
 .hero {
   position: relative;
   isolation: isolate;
@@ -49,10 +49,9 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-inline: calc(50% - 50vw + var(--inset));
-  margin-top: calc(64px + var(--inset) - var(--nav-clear));
-  padding: 80px calc(50vw - 50% - var(--inset)) 0;
-  border-radius: var(--radius-sheet);
+  margin-inline: calc(50% - 50vw);
+  margin-top: calc(-1 * var(--nav-clear));
+  padding: calc(var(--nav-clear) + 40px) calc(50vw - 50%) 0;
   background: var(--row);
   overflow: hidden;
 }
@@ -63,15 +62,14 @@
 }
 .heroPhoto img {
   object-fit: cover;
-  object-position: 50% 30%;
+  object-position: 50% 42%;
 }
-/* The wash: the photo shows through as light and colour, never as detail behind the words,
-   and hands over to solid paper where the phone stands. */
+/* A thin veil so ink reads on the brightest pink, fading to paper where the phone stands. */
 .heroPhoto::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--canvas) 64%, transparent) 0%, color-mix(in srgb, var(--canvas) 74%, transparent) 50%, var(--canvas) 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--canvas) var(--hero-veil-top), transparent) 0%, color-mix(in srgb, var(--canvas) var(--hero-veil-mid), transparent) 55%, var(--canvas) 100%);
 }
 .heroCopy {
   display: flex;
@@ -94,7 +92,8 @@
   margin-top: 20px;
   font-size: 19px;
   line-height: 28px;
-  color: var(--ink-2);
+  color: var(--ink);
+  opacity: 0.8;
   max-width: 44ch;
 }
 .heroCopy :global(.btn) {
@@ -104,7 +103,8 @@
   margin-top: 14px;
   font-size: 13px;
   line-height: 18px;
-  color: var(--ink-2);
+  color: var(--ink);
+  opacity: 0.7;
 }
 .ctas {
   display: flex;
@@ -397,8 +397,7 @@
     padding-block: 56px;
   }
   .hero {
-    margin-top: calc(56px + var(--inset) - var(--nav-clear));
-    padding-top: 56px;
+    padding-top: calc(var(--nav-clear) + 16px);
   }
   .heroShot {
     height: 300px;
