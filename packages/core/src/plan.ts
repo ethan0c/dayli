@@ -1,5 +1,5 @@
 import type { Extraction, ExtractedItem, IconName, Item } from '@dayli/schema';
-import { WEEKDAYS, addDays, dayNumber, isLocalDate, isLocalTime, weekdayOf } from './dates';
+import { WEEKDAYS, addDays, dayNumber, isLocalDate, isLocalTime, typicalTermEnd, weekdayOf } from './dates';
 import { diffSchedule, type ScheduleDiff } from './diff';
 
 /** An extracted item after validation, ready for the review screen. */
@@ -53,9 +53,9 @@ export function toDrafts(extraction: Extraction, today: string): Draft[] {
   extraction.items.forEach((raw, idx) => {
     const base = normalize(raw, today);
     if (raw.repeat_weekdays.length > 0 && base.date) {
-      // A repeating class with no end date gets a 15-week term; the review asks "Until when?".
+      // A repeating class with no end date runs to the typical end of its term; the review asks "Until when?".
       const endUnknown = !isLocalDate(raw.repeat_until);
-      const until = endUnknown ? addDays(base.date, DEFAULT_TERM_DAYS) : raw.repeat_until!;
+      const until = endUnknown ? typicalTermEnd(base.date).date : raw.repeat_until!;
       const days = new Set(raw.repeat_weekdays);
       const seriesId = `series-${idx}-${base.date}`;
       let n = 0;

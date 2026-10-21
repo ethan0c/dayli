@@ -1,6 +1,7 @@
 import {
   WEEKDAYS, conflictIds, formatTime, isLocalDate, localParts, monthDay, planCommit, toDrafts, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort,
   type CommitPlan, type DatedDraft, type Draft,
+ typicalTermEnd,
 } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -430,7 +431,7 @@ export default function ReviewScreen() {
     const finalExam = exams.filter((e) => e.date >= s.first.date).at(-1);
     const suggested = finalExam
       ? { date: finalExam.date, label: `${monthDay(finalExam.date)} · ${/final/i.test(finalExam.title) ? 'The final' : 'The last exam'}` }
-      : { date: s.first.seriesUntil ?? s.last.date, label: `${monthDay(s.first.seriesUntil ?? s.last.date)} · 15 weeks` };
+      : { date: s.first.seriesUntil ?? s.last.date, label: `${monthDay(s.first.seriesUntil ?? s.last.date)} · Typical ${typicalTermEnd(s.first.date).term} semester end` };
     const when = s.first.start && s.first.end ? `${s.weekdays} ${longRange(s.first.start, s.first.end)}` : s.weekdays;
     const unknown = s.first.seriesEndUnknown;
     return (
