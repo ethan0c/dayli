@@ -8,6 +8,7 @@ import { ListRow, StatusPill, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { Group, Row } from '@/components/Settings';
 import { T } from '@/components/Text';
+import { backUpNow } from '@/lib/cloud';
 import { buildBackup, buildIcs, shareText } from '@/lib/export';
 import { friendlyError } from '@/lib/errors';
 import { feedback } from '@/lib/feedback';
@@ -69,7 +70,8 @@ export default function DataScreen() {
   const clear = () => {
     clearAll(signedIn ? 'plan' : 'everything');
     setConfirm(false);
-    if (!signedIn) router.dismissTo('/');
+    if (signedIn) backUpNow();
+    else router.dismissTo('/');
   };
   const clearWarning = signedIn
     ? `Clear your plan? Every item, class, shift and break you added is erased here and from your account’s backup. Your answers from setup stay.${canvasConnected ? ' Canvas stays connected, so its due dates come back on the next sync.' : ''} This cannot be undone.`

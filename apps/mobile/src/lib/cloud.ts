@@ -45,6 +45,18 @@ export async function saveToCloud(force = false): Promise<void> {
 const SAVE_DELAY_MS = 4000;
 const BACKUP_FAILED = 'Couldn’t back up. We’ll try again after your next change.';
 
+function noteBackupFailure(error: unknown) {
+  reportError('cloud.backup', error);
+  const { settings, setSettings } = useStore.getState();
+  // Setting the same message twice would schedule another save; set it once.
+  if (settings.cloud.error !== BACKUP_FAILED) setSettings({ cloud: { ...settings.cloud, error: BACKUP_FAILED } });
+}
+
+/** Save now rather than after the usual delay: for a clear, so the backup cannot outlive the plan. */
+export function backUpNow() {
+  void saveToCloud(true).catch(noteBackupFailure);
+}
+
 /** While signed in, save a few seconds after the plan changes. Failures wait for the next change. */
 export function CloudBackup() {
   const userId = useSession((s) => accountOf(s.session)?.user.id);
@@ -56,12 +68,7 @@ export function CloudBackup() {
       if (!s.hydrated || (s.items === prev.items && s.courses === prev.courses && s.schedules === prev.schedules && s.taskWorkDates === prev.taskWorkDates && s.settings === prev.settings)) return;
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => {
-        void saveToCloud().catch((error: unknown) => {
-          reportError('cloud.backup', error);
-          const { settings, setSettings } = useStore.getState();
-          // Setting the same message twice would schedule another save; set it once.
-          if (settings.cloud.error !== BACKUP_FAILED) setSettings({ cloud: { ...settings.cloud, error: BACKUP_FAILED } });
-        });
+        void saveToCloud().catch(noteBackupFailure);
       }, SAVE_DELAY_MS);
     });
     return () => { unsubscribe(); if (timer) clearTimeout(timer); };
