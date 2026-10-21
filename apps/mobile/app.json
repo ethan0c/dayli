@@ -3,6 +3,12 @@
     "name": "Semli",
     "slug": "semli",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/629299e1-defe-46c5-8110-0b0e9c787ffc"
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "semli",
