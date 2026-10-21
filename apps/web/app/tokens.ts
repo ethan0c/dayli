@@ -51,13 +51,13 @@ const siteLight = { '--canvas': '#FFFFFF', '--header': '#FFFFFF', '--row': '#F4F
 
 /**
  * The home hero's sky sits under a dusk veil in both modes, with white copy and a pale lavender
- * accent word (3.9:1 on the veiled photo; the link purple vanishes there).
+ * accent word (3.1:1 on the veiled photo; the link purple vanishes there).
  */
 const heroVars = {
   '--hero-veil-top': 'rgba(28, 18, 40, 0.34)',
   '--hero-veil-mid': 'rgba(28, 18, 40, 0.4)',
   '--hero-ink': '#FFFFFF',
-  '--hero-accent': lavender[200],
+  '--hero-accent': lavender[300],
   '--hero-glass': 'rgba(28, 18, 40, 0.28)',
 };
 
