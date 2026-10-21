@@ -150,7 +150,7 @@ export default function CreateScreen() {
           ) : null}
         </View>
 
-        <TextInput accessibilityLabel="Notes" value={draft.notes} onChangeText={(notes) => patch({ notes })} placeholder="Notes, optional" placeholderTextColor={c.inkSecondary}
+        <TextInput accessibilityLabel="Notes" value={draft.notes} onChangeText={(notes) => patch({ notes })} placeholder="Notes, optional. Use - for a list, - [ ] for a tick." placeholderTextColor={c.inkSecondary}
           onFocus={() => setFocus('notes')} onBlur={() => setFocus((f) => (f === 'notes' ? null : f))}
           multiline style={[styles.notes, textStyle('body', c.inkPrimary), focus === 'notes' ? { backgroundColor: c.surface, borderColor: c.inkPrimary } : { backgroundColor: c.row, borderColor: 'transparent' }]} />
       </ScrollView>

@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native
 import Animated from 'react-native-reanimated';
 
 import { GroupLabel, SectionTitle, StatusPill, TextButton, itemStatus } from '@/components/Controls';
+import { Notes } from '@/components/Notes';
 import { DayBar } from '@/components/DayBar';
 import { ItemRow } from '@/components/ItemRow';
 import { DateField, NativeToggle, TimeField } from '@/components/Native';
@@ -269,9 +270,7 @@ export default function ItemScreen() {
         <View style={{ gap: 6 }}>
           <GroupLabel>Notes</GroupLabel>
           {item.notes && editing !== 'notes' ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Notes, tap to edit" onPress={() => setEditing('notes')}>
-              <T token="body" color={c.inkSecondary}>{item.notes}</T>
-            </Pressable>
+            <Notes text={item.notes} onEdit={() => setEditing('notes')} onChange={(next) => { setNotes(next); updateItem(item.id, { notes: next }); }} />
           ) : editing === 'notes' ? (
             <Animated.View entering={enter.drop}>
               <TextInput
@@ -281,7 +280,7 @@ export default function ItemScreen() {
                 value={notes}
                 onChangeText={setNotes}
                 onBlur={() => { const next = notes.trim() || null; if (next !== item.notes) updateItem(item.id, { notes: next }); setEditing(null); }}
-                placeholder="Anything to remember"
+                placeholder="Anything to remember. Use - for a list, - [ ] for a tick, # for a heading."
                 placeholderTextColor={c.inkTertiary}
                 style={[textStyle('body', c.inkPrimary), styles.notes, { backgroundColor: c.row }]}
               />
