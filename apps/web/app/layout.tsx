@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { EB_Garamond, Geist } from 'next/font/google';
+import { NoSave } from '@/components/NoSave';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { HOME_TITLE, pageMetadata } from '@/lib/seo';
@@ -83,6 +84,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           {children}
           <SiteFooter />
         </div>
+        <NoSave />
       </body>
     </html>
   );

@@ -11,8 +11,6 @@ The five editorial photos are Unsplash photos under the [Unsplash License](https
 | campus.jpg | One of the five student photos over the survey numbers | Brelyn Bashrum | https://unsplash.com/photos/MUiv880yORo |
 | table.jpg | One of the five student photos over the survey numbers (the Free and Plus panel dropped its photo Oct 21) | Alexis Brown | https://unsplash.com/photos/omeaHbEFlN4 |
 | sky.jpg | Home hero, the pink and blue clouds edge to edge behind the headline (3,000 × 4,000, downloaded Oct 21, 2026) | Skyler Smith | https://unsplash.com/photos/pink-and-blue-clouds-in-the-sky-lrPrDZm46Ns |
-| clouds-day.webp | The faint clouds behind every page in light mode (`body::before`), cropped from the store art's morning sky | Cuvii | https://unsplash.com/photos/soft-white-clouds-against-a-pale-blue-sky-dmQhktXQ0ew |
-| clouds-night.webp | The same layer in dark mode, from the app's night sky | Cici Hung | https://unsplash.com/photos/a-dark-sky-with-clouds-chWryC7O0H8 |
 | plus-fireworks.jpg | Plus pricing panel, matching the app paywall | Existing app asset | `apps/mobile/assets/showcase/plus.jpg` |
 
 ## Quality review, Oct 20

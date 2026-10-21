@@ -19,6 +19,22 @@ body {
 html {
   scroll-behavior: smooth;
 }
+/* No rubber-band past the top or bottom: the floating bar and the hero's sky stay pinned to the edge.
+   On the root only: body is a scroll container here (overflow-x above), and on it this rule would
+   stop the wheel from ever reaching the page. */
+html {
+  overscroll-behavior-y: none;
+}
+/* Our photos, captures and codes are not for saving: no dragging them out, no long-press save on
+   iPhone, no accidental selection. The context menu is stopped in components/NoSave.tsx. */
+img,
+svg,
+video,
+picture {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
 #try,
 #pricing,
 #app,
@@ -36,23 +52,6 @@ body {
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-}
-/* Faint clouds behind the whole page, the sky from Today and the store art: morning by day, night
-   in dark mode. Fixed, so the page scrolls over one sky; cards and photos cover it as they are. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: url('/photos/clouds-day.webp') center / cover no-repeat;
-  opacity: 0.22;
-}
-@media (prefers-color-scheme: dark) {
-  body::before {
-    background-image: url('/photos/clouds-night.webp');
-    opacity: 0.3;
-  }
 }
 /* A themed scope (the dark Plus card, the dark band) swaps the variables; text must re-resolve inside it. */
 [data-semli-theme] {
