@@ -20,6 +20,7 @@ import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
 import { devClock, devCommand, setDevAutoConfirm } from '@/lib/dev';
 import { setDevTime } from '@/lib/now';
+import { hideSplash } from '@/lib/splash';
 import { sampleScheduleExtraction, sampleScheduleUpdate, sampleSyllabusExtraction, sampleWeek } from '@/store/sample';
 import { configureNotifications, useReminderSync } from '@/lib/notifications';
 
@@ -34,6 +35,7 @@ import { posthog, posthogLogs } from '@/lib/analytics';
 if (__DEV__) LogBox.ignoreLogs([/^The action '(PRELOAD|ROUTE_NAMES_CHANGED)'/]);
 
 SplashScreen.preventAutoHideAsync();
+const SPLASH_FALLBACK_MS = 1500;
 configureNotifications();
 
 export { AppErrorBoundary as ErrorBoundary };
@@ -90,7 +92,11 @@ function RootLayout() {
   useEffect(() => {
     if (!ready) return;
     posthogLogs.info('app_ready', { app_state: 'hydrated' });
-    SplashScreen.hideAsync();
+    if (useStore.getState().settings.onboarded) { hideSplash(); return; }
+    // A new install opens on the welcome, which hides the splash once its own logo sits exactly
+    // under it. The timer only covers a launch that lands somewhere else, such as a deep link.
+    const fallback = setTimeout(hideSplash, SPLASH_FALLBACK_MS);
+    return () => clearTimeout(fallback);
   }, [ready]);
 
   // Development: a command file in Documents seeds a state for screenshots (see lib/dev.ts).
@@ -174,7 +180,8 @@ function RootLayout() {
             contentStyle: { backgroundColor: c.canvas },
           }}>
           {/* Auth is the fallback for a new install; existing planners still resolve / to tabs. */}
-          <Stack.Screen name="auth" options={{ presentation: 'fullScreenModal' }} />
+          {/* On a new install it is the first screen and takes over the splash logo, so it must not slide up. */}
+          <Stack.Screen name="auth" options={{ presentation: 'fullScreenModal', animation: onboarded ? 'default' : 'none' }} />
           {/* Review is a full-screen cover: it can be reached from onboarding too, so it sits outside the guards. */}
           <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false, headerShown: true, ...navigationButtonOptions('close') }} />
           <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', headerShown: true, headerTransparent: true, headerStyle: { backgroundColor: 'transparent' }, contentStyle: { backgroundColor: palettes.dark.canvas }, title: '', headerTintColor: palettes.dark.inkPrimary, ...navigationButtonOptions('close') }} />
