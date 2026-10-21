@@ -35,6 +35,23 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
+/* Faint clouds behind the whole page, the sky from Today and the store art: morning by day, night
+   in dark mode. Fixed, so the page scrolls over one sky; cards and photos cover it as they are. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url('/photos/clouds-day.webp') center / cover no-repeat;
+  opacity: 0.22;
+}
+@media (prefers-color-scheme: dark) {
+  body::before {
+    background-image: url('/photos/clouds-night.webp');
+    opacity: 0.4;
+  }
+}
 /* A themed scope (the dark Plus card, the dark band) swaps the variables; text must re-resolve inside it. */
 [data-semli-theme] {
   color: var(--ink);
@@ -939,9 +956,10 @@ textarea {
   line-height: 1.02;
   letter-spacing: -0.015em;
 }
-/* The headline's one accent word: Plus, in the link purple, as it is on the Plus card. */
+/* The headline's one accent word: Plus, in the link purple and italic, as in the store art. */
 .pricing-page .accent-word {
   color: var(--accent-ink);
+  font-style: italic;
 }
 .pricing-page .page-head .lede {
   margin-inline: auto;

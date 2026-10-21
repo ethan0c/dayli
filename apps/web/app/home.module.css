@@ -91,6 +91,7 @@
 }
 .accentWord {
   color: var(--accent-ink);
+  font-style: italic;
 }
 .heroSub {
   margin-top: 20px;

@@ -103,7 +103,7 @@ export default function Home() {
           <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone. No account needed.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
         </div>
         <div className={styles.heroShot}>
-          <Shot name="today" width={440} priority label="Today: 1 hour 19 minutes until Psych lecture, a full day on one bar, then seven things on the list" />
+          <Shot name="today" width={440} priority label="Today: 34 minutes until Stats lecture ends, a full day on one bar, then the list with one overlap" />
         </div>
       </section>
 
