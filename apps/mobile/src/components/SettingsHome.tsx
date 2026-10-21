@@ -15,7 +15,7 @@ import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
 import { profileFor } from '@/lib/majors';
 import { useCanDo } from '@/lib/can-do';
 import { useNow } from '@/lib/now';
-import { FREE_IMPORTS_PER_MONTH } from '@/lib/plans';
+import { freeImportAllowance } from '@/lib/plans';
 import { PRO_ENTITLEMENT, customerCenterEnabled } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
@@ -33,8 +33,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const email = useSession((s) => { const account = accountOf(s.session); return account ? account.user.email ?? '' : null; });
   const setSettings = useStore((s) => s.setSettings);
   const usage = useStore((s) => s.usage);
-  const month = new Date().toISOString().slice(0, 7);
-  const used = usage.month === month ? usage.imports : 0;
+  const allowance = freeImportAllowance(usage);
   const canDo = useCanDo();
   const [linkNote, setLinkNote] = useState<string | null>(null);
   const [openedAt] = useState(() => Date.now());
@@ -48,7 +47,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
     ? trialEnds !== null && trialEnds > 0 && entitlement?.periodType === 'TRIAL'
       ? { label: `Plus · Trial, ${trialEnds} ${trialEnds === 1 ? 'day' : 'days'} left`, tone: 'green' as const }
       : { label: 'Plus', tone: 'green' as const }
-    : { label: `Free · ${used} of ${FREE_IMPORTS_PER_MONTH} imports`, tone: 'grey' as const };
+    : { label: `Free · ${allowance.used} of ${allowance.allowed} imports${allowance.toStart ? ' to start' : ''}`, tone: 'grey' as const };
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: inTab ? NAV_INSET : 48 }} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior={inTab ? 'never' : 'automatic'}>

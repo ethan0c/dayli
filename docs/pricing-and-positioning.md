@@ -53,7 +53,7 @@ Takeaway: the student planner market has settled at **$30–40 per year**, with 
 ## 5. Pricing (recommended)
 
 ### Free
-Calendar, tasks, Today, reminders, repeating classes, manual add, **3 AI imports per month** (text, screenshot, or PDF). Enough to feel it work; not enough to run a semester. Never meter the basics: Structured's single loudest complaint (Oct 2026 reviews) is recurring events locked behind Pro. Say "always free" in the listing.
+Calendar, tasks, Today, reminders, repeating classes, manual add, voice capture, the first Canvas pull, and **5 AI imports in the first 30 days, then 3 a month** (text, voice, screenshot, or PDF). Five loads a semester's syllabi so the first wall lands in week three or four, after a full week of the planner working, not on syllabus four in week one; three a month afterwards is what one weekly work schedule uses up. Decided Oct 21, 2026. Enough to feel it work; not enough to run a semester. Never meter the basics: Structured's single loudest complaint (Oct 2026 reviews) is recurring events locked behind Pro. Say "always free" in the listing.
 
 ### Semli Plus
 | Plan | Student | Regular | Student effective | Why |
@@ -73,12 +73,12 @@ Plus includes unlimited AI imports, work-schedule update comparisons, suggested 
 | Feature | Access and enforcement |
 |---|---|
 | Calendar, Today, Plan, courses, to-dos, repeating events, reminders, manual edits, export and Undo | Free; no subscription check |
-| Text, screenshot, camera and PDF imports, including syllabi | Three successful reads per UTC month. Add and onboarding share `usePlusAccess`; imports beyond the allowance require the active RevenueCat `semli_pro` entitlement. Failed/empty reads do not count. Cancelling review still counts a successful read. |
+| Text, voice, screenshot, camera and PDF imports, including syllabi | Five successful reads in the 30 days after the first one, then three per UTC month (`lib/plans.ts`). Add and onboarding share `usePlusAccess`; imports beyond the allowance require the active RevenueCat `semli_pro` entitlement. Failed/empty reads do not count. Cancelling review still counts a successful read. |
 | Updating an existing work schedule | Review shows a preview; committing a comparison requires Plus. A first schedule or a new week without existing shifts uses the normal import allowance. Manual shift edits remain free. Cancelling the paywall preserves the pending review. |
 | Overlap detection and named warnings | Free on both events, including the detail graph and agenda. |
 | Suggested rescheduling | Plus; active entitlement checked again before applying. Fixed times stay fixed by default. A suggestion moves only the selected occurrence and is undoable. |
-| Urgent items and ringing alarms | Plus. The Urgent switch in Create and item details asks for Plus before turning on; turning off is free. Alarm sync schedules nothing without an active entitlement and leaves existing alarms alone until the store has answered, so a lapse cancels alarms and a restore brings them back. Standard reminders are free. |
-| Canvas sync | Not implemented or advertised as available. |
+| Urgent items and ringing alarms | Plus. A free first urgent item was considered Oct 21, 2026 and deferred: the alarm sync refuses to schedule without an active entitlement (`alarms.ts`), so a freebie needs a per-item exception in code that has not yet run on a device. Revisit after the first device pass. | The Urgent switch in Create and item details asks for Plus before turning on; turning off is free. Alarm sync schedules nothing without an active entitlement and leaves existing alarms alone until the store has answered, so a lapse cancels alarms and a restore brings them back. Standard reminders are free. |
+| Canvas sync | Connecting and the first pull are free (`settings/canvas.tsx`); Sync now and the automatic resync require Plus (`canvas-sync.ts`). The first pull is the onboarding import for the 71% on Canvas; staying in sync when a professor moves a date is the daily reason to pay. |
 
 The subscription source of truth is RevenueCat's active entitlement, including an active store trial; saved trial dates and plan preferences grant no access. Store errors do not unlock paid actions. Existing entitlement tests cover inactive/wrong entitlements, cancellation, and restores.
 

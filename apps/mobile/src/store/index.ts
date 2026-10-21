@@ -1,4 +1,5 @@
 import type { CommitPlan } from '@dayli/core';
+import type { ImportUsage } from '@/lib/plans';
 import type { Course, Extraction, Item, ScheduleVersion } from '@dayli/schema';
 import { COURSE_TINTS, type TintName } from '@dayli/tokens';
 import { useMemo } from 'react';
@@ -98,10 +99,7 @@ export interface CanvasSettings {
 }
 
 /** AI imports used this calendar month (free tier allows a few). */
-interface Usage {
-  month: string;
-  imports: number;
-}
+type Usage = ImportUsage;
 
 interface State {
   hydrated: boolean;
@@ -201,7 +199,7 @@ export const useStore = create<State>()(
       recordImport: () => {
         const month = nowIso().slice(0, 7);
         const u = get().usage;
-        set({ usage: { month, imports: u.month === month ? u.imports + 1 : 1 } });
+        set({ usage: { month, imports: u.month === month ? u.imports + 1 : 1, firstImportAt: u.firstImportAt ?? new Date().toISOString(), total: (u.total ?? u.imports) + 1 } });
       },
 
       toggleDone: (id) => {
