@@ -3,7 +3,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router, usePathname } fr
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState, type ReactNode } from 'react';
-import { AppState, Appearance, LogBox } from 'react-native';
+import { AppState, Appearance, LogBox, Platform } from 'react-native';
 import { I18nProvider } from '@lingui/react';
 import { PostHogProvider } from 'posthog-react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -178,7 +178,9 @@ function RootLayout() {
   }, [ready]);
 
   // Native views (tab bar, SwiftUI pickers) follow this; our tokens follow it through useTheme.
+  // The web has no native views and react-native-web has no setColorScheme.
   useEffect(() => {
+    if (Platform.OS === 'web') return;
     Appearance.setColorScheme(appearance === 'system' ? 'unspecified' : appearance);
   }, [appearance]);
 
