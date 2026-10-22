@@ -1,5 +1,12 @@
 import { File, Paths } from 'expo-file-system';
 import { useSyncExternalStore } from 'react';
+import { Platform } from 'react-native';
+
+/** On the web there is no Documents folder: the same commands come from the URL (`?dev=sample&clock=09:41`). */
+function webParam(name: string): string | null {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return null;
+  return new URLSearchParams(window.location.search).get(name)?.trim() || null;
+}
 
 /**
  * Development only: a file named `dev-step.txt` in the app's Documents folder names an
@@ -9,6 +16,7 @@ import { useSyncExternalStore } from 'react';
  */
 export async function devStep(): Promise<string | null> {
   if (!__DEV__) return null;
+  if (Platform.OS === 'web') return webParam('step');
   try {
     const f = new File(Paths.document, 'dev-step.txt');
     if (!f.exists) return null;
@@ -21,6 +29,7 @@ export async function devStep(): Promise<string | null> {
 /** Reads the dev file as a command: "sample", "moment", "spread", "item", "hours", "list", "plus", "review", or "review-update". */
 export async function devCommand(): Promise<string | null> {
   if (!__DEV__) return null;
+  if (Platform.OS === 'web') return webParam('dev');
   try {
     const f = new File(Paths.document, 'dev-command.txt');
     if (!f.exists) return null;
@@ -33,6 +42,7 @@ export async function devCommand(): Promise<string | null> {
 /** Development only: `dev-clock.txt` holds an HH:mm the app shows as now, so screenshots match the 9:41 status bar. */
 export async function devClock(): Promise<string | null> {
   if (!__DEV__) return null;
+  if (Platform.OS === 'web') return webParam('clock');
   try {
     const f = new File(Paths.document, 'dev-clock.txt');
     if (!f.exists) return null;
