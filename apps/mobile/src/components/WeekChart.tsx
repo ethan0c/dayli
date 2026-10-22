@@ -1,6 +1,6 @@
 import { monthDay, toMinutes, weekdayShort } from '@dayli/core';
-import { useEffect } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { memo, useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { chart } from '@dayli/tokens';
@@ -8,6 +8,7 @@ import { chart } from '@dayli/tokens';
 import { enter, springs } from '@/lib/motion';
 
 import { clampY, Mark, NowLine, type MarkShape } from '@/components/ChartMark';
+import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { useTheme } from '@/theme';
 
@@ -64,7 +65,8 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, height = 12
   );
 }
 
-function DayColumn({ day, selected, today, height, animate, onSelect, onWeek }: { day: WeekDay; selected: boolean; today: boolean; height: number; animate?: boolean; onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void }) {
+// Memoised so a tap re-renders only the two columns whose selection changed.
+const DayColumn = memo(function DayColumn({ day, selected, today, height, animate, onSelect, onWeek }: { day: WeekDay; selected: boolean; today: boolean; height: number; animate?: boolean; onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void }) {
   const { c } = useTheme();
   const tones = { ink: c.chartBooked, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
   const labelColor = day.labelTone ? tones[day.labelTone] : c.inkSecondary;
@@ -74,6 +76,7 @@ function DayColumn({ day, selected, today, height, animate, onSelect, onWeek }: 
     sel.value = withSpring(selected ? 1 : 0, springs.snappy);
   }, [selected, sel]);
   const pill = useAnimatedStyle(() => ({ opacity: sel.value, transform: [{ scale: 0.6 + 0.4 * sel.value }] }));
+  const ring = useAnimatedStyle(() => ({ opacity: sel.value }));
   const column = (
     <>
       <T token="caption" color={today ? c.accentInk : c.inkSecondary} style={styles.weekday}>{weekdayShort(day.date)}</T>
@@ -82,6 +85,8 @@ function DayColumn({ day, selected, today, height, animate, onSelect, onWeek }: 
         <T token="subhead" color={selected ? c.controlInk : c.inkPrimary} tabular style={{ fontSize: 13 }}>{String(Number(day.date.slice(-2)))}</T>
       </View>
       <View style={[styles.track, { height, backgroundColor: day.unknown ? c.changedBg : c.row, borderWidth: day.unknown ? 1.5 : 0, borderColor: c.changed }]}>
+        {/* The chosen day's column carries the same ink focus ring as a picked mark. */}
+        <Animated.View pointerEvents="none" style={[styles.focus, { borderColor: c.inkPrimary }, ring]} />
         {day.unknown ? <T token="subhead" color={c.changed} style={{ alignSelf: 'center', marginTop: height / 2 - 9 }}>?</T> : null}
         {day.blocks.map((b) => {
           const s = Math.max(START, toMinutes(b.start));
@@ -106,15 +111,15 @@ function DayColumn({ day, selected, today, height, animate, onSelect, onWeek }: 
   );
   if (!onSelect) return <View style={styles.col}>{column}</View>;
   return (
-    <Pressable onPress={() => onSelect(day.date)} accessibilityRole="button" accessibilityState={{ selected }}
+    <Press onPress={() => onSelect(day.date)} accessibilityRole="button" accessibilityState={{ selected }}
       accessibilityLabel={`${weekdayShort(day.date)}, ${monthDay(day.date)}${today ? ', today' : ''}, ${day.blocks.length} ${day.blocks.length === 1 ? 'block' : 'blocks'}`}
       accessibilityActions={onWeek ? [{ name: 'next', label: 'Next week' }, { name: 'previous', label: 'Previous week' }] : undefined}
       onAccessibilityAction={onWeek ? (e) => onWeek(e.nativeEvent.actionName === 'next' ? 1 : -1) : undefined}
-      style={({ pressed }) => [styles.col, { opacity: pressed ? 0.7 : 1 }]}>
+      style={styles.col}>
       {column}
-    </Pressable>
+    </Press>
   );
-}
+});
 
 function nowTop(height: number): number {
   const d = new Date();
@@ -140,5 +145,7 @@ const styles = StyleSheet.create({
   num: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   track: { width: '100%', borderRadius: chart.column, position: 'relative', overflow: 'visible' },
   block: { position: 'absolute', left: 0, right: 0, borderRadius: chart.column },
+  focus: { position: 'absolute', top: -(chart.focusGap + chart.now), bottom: -(chart.focusGap + chart.now), left: -(chart.focusGap + chart.now), right: -(chart.focusGap + chart.now),
+    borderWidth: chart.now, borderRadius: chart.column + chart.focusGap + chart.now },
   label: { fontSize: 11, lineHeight: 14, textAlign: 'center' },
 });

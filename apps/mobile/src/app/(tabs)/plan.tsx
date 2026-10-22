@@ -1,7 +1,7 @@
 import { addDays, assessment, conflictIds, diffDays, formatTime, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { PanResponder, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -52,9 +52,15 @@ export default function PlanScreen() {
   const updateItem = useStore((s) => s.updateItem);
   const [selected, updateSelected] = useState(useStore.getState().selectedPlanDate ?? now.date);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  // The chart answers the tap at once; the agenda below follows as a deferred render.
+  const shown = useDeferredValue(selected);
+  const selectedRef = useRef(selected);
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
+  // Only this screen reads the saved date, on mount, so save it on the way out, not on every tap
+  // (each store write re-serialises the whole plan).
+  useEffect(() => () => useStore.getState().setSelectedPlanDate(selectedRef.current), []);
   const setSelected = useCallback((date: string) => {
     updateSelected(date);
-    useStore.getState().setSelectedPlanDate(date);
     setCalendarOpen(false);
   }, []);
   /** Which untimed shifts have a time picker open, per field. */
@@ -74,10 +80,15 @@ export default function PlanScreen() {
   // The swipe hint under the chart shows until the person has moved by week once; the key stays.
   const legendSeen = useStore((s) => s.settings.firsts.week);
   const moveWeek = useCallback((step: 1 | -1) => {
-    setSelected(addDays(selected, step * 7));
+    updateSelected((date) => addDays(date, step * 7));
+    setCalendarOpen(false);
     const { settings, setSettings } = useStore.getState();
     if (!settings.firsts.week) setSettings({ firsts: { ...settings.firsts, week: true } });
-  }, [selected, setSelected]);
+  }, []);
+  const selectDay = useCallback((date: string) => {
+    if (date !== selectedRef.current) feedback('select');
+    setSelected(date);
+  }, [setSelected]);
 
   // Swipe the chart for the previous or next week, the way the week strip did.
   const swipe = useMemo(() => PanResponder.create({
@@ -107,23 +118,23 @@ export default function PlanScreen() {
   }), [week, weekItems, weekConflicts, now.date, nowMin]);
 
   const dayItems = useMemo(() => {
-    const list = items.filter((i) => i.date === selected);
+    const list = items.filter((i) => i.date === shown);
     const untimed = list.filter((i) => !i.start);
     const timed = list.filter((i) => i.start).sort((a, b) => a.start!.localeCompare(b.start!));
     return [...untimed, ...timed].sort((a, b) => Number(a.done) - Number(b.done));
-  }, [items, selected]);
-  const conflicts = useMemo(() => conflictIds(items.filter((i) => i.date === selected || i.date === addDays(selected, -1))), [items, selected]);
+  }, [items, shown]);
+  const conflicts = useMemo(() => conflictIds(items.filter((i) => i.date === shown || i.date === addDays(shown, -1))), [items, shown]);
   const dayOverlaps = dayItems.filter((i) => conflicts.has(i.id)).length;
-  const rest = useMemo(() => weekItems.filter((i) => !i.done && i.date > selected).slice(0, 4), [weekItems, selected]);
+  const rest = useMemo(() => weekItems.filter((i) => !i.done && i.date > shown).slice(0, 4), [weekItems, shown]);
   // The week after this one has no schedule yet, and this one is at least partly covered.
   const nextWeekPending = schedules.length > 0
     && pendingDates(schedules, weekStart, weekEnd).length < 7
     && pendingDates(schedules, addDays(weekEnd, 1), addDays(weekEnd, 7)).length > 0;
   const nextDeadline = useMemo(() => items
-    .filter((i) => i.isDeadline && !i.done && diffDays(selected, i.date) >= 1 && diffDays(selected, i.date) <= 2)
-    .sort((a, b) => a.date.localeCompare(b.date))[0], [items, selected]);
+    .filter((i) => i.isDeadline && !i.done && diffDays(shown, i.date) >= 1 && diffDays(shown, i.date) <= 2)
+    .sort((a, b) => a.date.localeCompare(b.date))[0], [items, shown]);
   const starting = items.length === 0 && schedules.length === 0;
-  const isToday = selected === now.date;
+  const isToday = shown === now.date;
 
   const where = (it: Item) => courses.find((k) => k.id === it.courseId)?.code ?? it.employer ?? (it.category === 'school' ? 'Coursework' : it.category === 'work' ? 'Work' : 'Personal');
 
@@ -192,7 +203,7 @@ export default function PlanScreen() {
         {header}
         <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined}
           style={styles.chart} {...swipe.panHandlers}>
-          <WeekChart days={days} selected={selected} today={now.date} onWeek={moveWeek} onSelect={(date) => { if (date !== selected) feedback('select'); setSelected(date); }} />
+          <WeekChart days={days} selected={selected} today={now.date} onWeek={moveWeek} onSelect={selectDay} />
         </Animated.View>
         <View style={styles.legend}>
           <T token="callout" color={c.inkSecondary} tabular>{`${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}</T>
@@ -206,10 +217,10 @@ export default function PlanScreen() {
         </View>
 
         <Animated.View layout={layout} style={styles.section}>
-          <SectionTitle title={isToday ? 'Today' : weekdayLong(selected)}
+          <SectionTitle title={isToday ? 'Today' : weekdayLong(shown)}
             detail={isToday
               ? dayItems.length ? `${dayItems.length} ${dayItems.length === 1 ? 'thing' : 'things'}${dayOverlaps ? ` · ${dayOverlaps} ${dayOverlaps === 1 ? 'overlap' : 'overlaps'}` : ''}` : undefined
-              : relativeDay(now.date, selected)} />
+              : relativeDay(now.date, shown)} />
           {dayItems.length ? dayItems.map((it) => (
             <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
               {isUntimedEvent(it) || timing[it.id] ? renderShift(it) : (
@@ -220,16 +231,16 @@ export default function PlanScreen() {
               )}
             </Animated.View>
           )) : (
-            <Animated.View key={selected} entering={enter.fade} exiting={exit.fade}>
+            <Animated.View key={shown} entering={enter.fade} exiting={exit.fade}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 4 }}>
                 <Icon name="calendar" size={24} color={c.inkTertiary} />
                 <T token="body">No plans for this day.</T>
               </View>
               <T token="callout" color={c.inkSecondary} style={{ paddingTop: 2 }}>
-                {nextDeadline ? `${nextDeadline.title} is due ${diffDays(selected, nextDeadline.date) === 1 ? 'the next day' : 'in two days'}.` : 'Add an event or task below.'}
+                {nextDeadline ? `${nextDeadline.title} is due ${diffDays(shown, nextDeadline.date) === 1 ? 'the next day' : 'in two days'}.` : 'Add an event or task below.'}
               </T>
               <View style={styles.actions}>
-                <TextButton label="Add something" onPress={() => router.push({ pathname: '/create', params: { kind: 'task', date: selected } })} />
+                <TextButton label="Add something" onPress={() => router.push({ pathname: '/create', params: { kind: 'task', date: shown } })} />
                 <TextButton label="Add from a screenshot" onPress={openCapture} />
               </View>
             </Animated.View>
