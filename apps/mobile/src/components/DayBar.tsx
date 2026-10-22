@@ -10,6 +10,8 @@ import { useTheme } from '@/theme';
 const START = 6 * 60;
 const END = 24 * 60;
 const SPAN = END - START;
+/** The empty track: 14% of the ink, as hex alpha. */
+const TRACK_ALPHA = '24';
 const AXIS = (['6 am', 'Noon', '6 pm', 'Midnight'] as const).map((l, i) => [l, (i * 6 * 60 / SPAN) * 100] as const);
 
 /**
@@ -48,7 +50,8 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
   const nowLeft = Math.min(100, Math.max(0, ((nowMin - START) / SPAN) * 100));
   return (
     <View style={styles.wrap} accessible accessibilityLabel={`Day timeline, ${blocks.length} ${blocks.length === 1 ? 'block' : 'blocks'}, ${overlaps.length} ${overlaps.length === 1 ? 'overlap' : 'overlaps'}`}>
-      <View style={[styles.track, { backgroundColor: c.row }]}>
+      {/* Ink at low alpha, not the row grey: Today's bar sits on the sky, and a tint reads on cloud and paper alike. */}
+      <View style={[styles.track, { backgroundColor: `${c.inkPrimary}${TRACK_ALPHA}` }]}>
         {blocks.map((b) => (
           <View key={b.id} style={[styles.block, { left: `${b.left}%`, width: `${b.width}%`, backgroundColor: b.color, opacity: b.dim ? 0.5 : 1 }]} />
         ))}
