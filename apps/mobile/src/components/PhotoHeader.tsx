@@ -7,8 +7,12 @@ import { Photo } from '@/components/Photo';
 import { isDecoded } from '@/lib/images';
 import { durations, ease } from '@/lib/motion';
 
-/** Stops along the fade, eased (opacity = t^1.3) so the photo lets go gradually, then all at once. */
-const STOPS = Array.from({ length: 12 }, (_, i) => (i + 1) / 12);
+/**
+ * Stops along the fade, on a smoothstep (opacity = t²(3 − 2t)): flat at both ends, so the photo
+ * leaves without an edge where the paper takes over. t^1.3 ended steep and drew a line there.
+ */
+const STOPS = Array.from({ length: 24 }, (_, i) => (i + 1) / 24);
+const smoothstep = (t: number) => t * t * (3 - 2 * t);
 
 /**
  * A full-bleed photo at the top of a screen that fades into the page color, for moment days and
@@ -37,7 +41,7 @@ export function PhotoHeader({ source, height, to, fadeFrom = 0.45, solidAt, dim 
         <Defs>
           <LinearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
             {[<Stop key={0} offset={0} stopColor={to} stopOpacity={0} />,
-              ...STOPS.map((t) => <Stop key={t} offset={t} stopColor={to} stopOpacity={Math.min(1, Math.pow(t, 1.3))} />)]}
+              ...STOPS.map((t) => <Stop key={t} offset={t} stopColor={to} stopOpacity={smoothstep(t)} />)]}
           </LinearGradient>
         </Defs>
         <Rect x={0} y={0} width="100%" height="100%" fill="url(#fade)" />
