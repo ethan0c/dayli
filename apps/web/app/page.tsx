@@ -34,12 +34,12 @@ const FREE = ['Calendar, to-dos, and the Today screen', 'Reminders', `${FREE_IMP
 const PLUS = ['Unlimited AI imports', 'Canvas assignments kept in sync', 'Changes to your work schedule, compared', 'Suggested times when plans overlap', 'Urgent items that ring like an alarm'];
 
 const FAQS = [
-  { q: 'What can I send to Semli?', a: 'A message, screenshot, photo, or PDF. Try a syllabus, class timetable, work schedule, or a date from your group chat. Files can be up to 20 MB.' },
-  { q: 'Does it work with Canvas?', a: 'Yes. Paste your Canvas calendar feed link to bring in assignments. Plus keeps them in sync when due dates change. You can also import a syllabus PDF or a screenshot of your Canvas to-do list.' },
-  { q: 'Can I add my due dates to my phone’s calendar?', a: 'Yes. In Semli, go to You, then Your data, then Add to Calendar. It exports every event and every to-do with a date, due dates marked “Due:”, as a file Apple Calendar or Google Calendar can import. It’s a one-time copy, so export again after big changes; live calendar sync isn’t available yet.' },
-  { q: 'What happens to my uploads?', a: 'Semli sends your upload to our AI provider to read the dates; our servers don’t save the upload or its response. The plan you confirm stays on your phone, with cloud backup if you create an account. See our privacy policy for details.' },
-  { q: 'What’s free?', a: `The calendar, to-dos, reminders, and ${FREE_IMPORTS_PER_MONTH} AI imports a month, for as long as you like. Plus adds unlimited imports, Canvas sync, and schedule-change comparisons.` },
-  { q: 'Is there an Android app?', a: 'Not yet. We’re starting with iPhone. You can try importing a syllabus on the syllabus-to-calendar page without an account.' },
+  { q: 'What can I add to Semli?', a: 'Paste a message or upload a screenshot, photo, or PDF up to 20 MB. Try a syllabus, class timetable, work schedule, or a deadline from your group chat. Review the dates Semli finds before adding them to your plan.' },
+  { q: 'Does Semli work with Canvas?', a: 'Yes. Paste your Canvas calendar feed link to import assignments. With Plus, their due dates stay in sync with Canvas. You can also upload a syllabus PDF or a screenshot of your Canvas to-do list.' },
+  { q: 'Can I use my plan in Apple Calendar or Google Calendar?', a: 'Yes. Go to You → Your data → Add to Calendar to export your events and dated to-dos, then import the file into Apple Calendar or Google Calendar. This creates a one-time copy. Changes in Semli won’t sync automatically, so export again when you need an updated copy.' },
+  { q: 'What happens to my uploads?', a: 'Our AI provider reads your upload to find dates and schedule details. Semli’s servers don’t save the upload or the AI response. The plan you confirm stays on your phone, with cloud backup if you create an account. Our privacy policy explains how the AI provider handles your data.' },
+  { q: 'What can I do for free?', a: `Use the calendar, to-dos, reminders, and ${FREE_IMPORTS_PER_MONTH} AI imports a month with no time limit. Plus adds unlimited imports, Canvas sync, and comparisons when your work schedule changes.` },
+  { q: 'Is Semli available on Android?', a: 'Not yet. Semli is coming to iPhone first. In the meantime, you can try the syllabus import demo on our website without an account.' },
 ];
 
 /** Photos are Unsplash, recorded in public/photos/SOURCES.md. They are decorative: empty alt, text carries the meaning.
