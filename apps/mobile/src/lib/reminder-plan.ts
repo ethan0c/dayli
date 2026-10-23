@@ -101,7 +101,7 @@ function dayLine(items: Item[], date: string): string {
 }
 
 /** A repeating class: reminded only when the person turns class reminders on, or marks it urgent. */
-const isClass = (it: Item) => !!it.seriesId && it.category === 'school' && !it.isDeadline && !it.urgent;
+export const isClass = (it: Pick<Item, 'seriesId' | 'category' | 'isDeadline' | 'urgent'>) => !!it.seriesId && it.category === 'school' && !it.isDeadline && !it.urgent;
 
 /**
  * Everything that should be scheduled right now, in delivery order, capped for iOS.

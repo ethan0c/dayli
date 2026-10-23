@@ -18,6 +18,7 @@ import { feedback } from '@/lib/feedback';
 import { defaultTimes } from '@/lib/times';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
+import { isClass } from '@/lib/reminder-plan';
 import { usePlusAccess } from '@/lib/plus-access';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
@@ -141,8 +142,11 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
   const dayItems = todayItems(items, item.date);
   const showDay = dayItems.some((it) => it.kind === 'event' && it.start);
 
+  const lead = reminders.eventLead === 60 ? '1 hour' : `${reminders.eventLead} min`;
   const reminderLine = reminders.enabled
-    ? isEvent && item.start ? `Reminder ${reminders.eventLead} min before` : item.isDeadline ? 'Reminder the evening before and the morning of' : 'Included in the daily summary'
+    ? isEvent && item.start
+      ? isClass(item) && !reminders.classReminders ? 'No reminder before repeating classes · Turn them on in You' : `Reminder ${lead} before`
+      : item.isDeadline ? (reminders.briefing ? 'Reminder the evening before, and in the morning summary' : 'Reminder the evening before and the morning of') : 'Included in the daily summary'
     : 'Reminders are off · Turn them on in You';
 
   const shorten = (date: string) => {
