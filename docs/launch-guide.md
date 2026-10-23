@@ -149,7 +149,7 @@ Tier 3, blog posts that earn links: "How to organize a rotating work schedule as
 
 ### 3.4 App Store SEO (ASO)
 - Name + subtitle as in 1.4. **Keyword field** (100 chars, commas, no spaces, no words already in name/subtitle): `college,schedule,assignment,tracker,class,work,semester,homework,calendar,nursing,organizer,todo`.
-- Promotional text (170 chars, editable without a release): "Drop in a syllabus or a screenshot of your work schedule. Semli reads the dates and tells you what matters today. Free to start."
+- Promotional text (170 chars, editable without a release): "Turn your syllabus and work schedules into one plan for classes, shifts, and deadlines. Review the dates, then see what’s next." No "free" here (the Oct 23, 2026 rejection); the source of truth is `apps/mobile/store.config.json`.
 - Ratings: ask with the system prompt (`expo-store-review`) after the **second** confirmed import, never on first launch. Phase 2 if not before beta.
 - Apple Search Ads (Part 4) also feeds the ranking through installs.
 
