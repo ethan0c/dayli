@@ -101,9 +101,8 @@ Raw capture name, caption on the image, and the subline. Since Oct 21, 2026 ever
 | 7 | `school` | Every class, every exam | Courses, due dates, and the weeks left in the term. | `sample`, `semli://school` |
 | 8 | `item` | Reminders that ring | A nudge before class, or an alarm for the things you can't miss. | `item` |
 | 9 | `canvas` | Canvas, kept in sync | Connect once. New assignments land in your plan on their own. | `sample`, `semli://settings/canvas` |
-| 10 | `paywall` | The planner stays free | Calendar, to-dos, and reminders stay free. Plus adds unlimited imports. | `semli://paywall` |
 
-Render with `python3 design/render-screenshots.py` (all ten, sky and serif by default); a shot without its raw capture is skipped.
+Render with `python3 design/render-screenshots.py` (all nine, sky and serif by default); a shot without its raw capture is skipped. No paywall shot: prices, trials and "free" are not allowed in store screenshots (guideline 2.3.7), and 1.0 was rejected for it on Oct 23, 2026. `raw/paywall.png` stays for the website only.
 
 The captions live in `design/render-screenshots.py` (`SHOTS`). Listing text: [app-store-connect.md](app-store-connect.md). The earlier six-image set (`design/screenshots/out/`) and the foldable 2007 × 2853 set were removed Oct 21, 2026; Apple scales the 6.9-inch set.
 
