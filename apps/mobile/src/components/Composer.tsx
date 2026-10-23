@@ -5,7 +5,7 @@ import Animated, { interpolate, useAnimatedStyle, type SharedValue } from 'react
 import { IconButton } from '@/components/Controls';
 import { T } from '@/components/Text';
 import type { VoiceState, VoiceTranscript } from '@/lib/voice';
-import { corner, radius, textStyle, useTheme } from '@/theme';
+import { corner, radius, textStyle, useTheme, space } from '@/theme';
 
 /** The mic grows with the voice: a whisper leaves it still, a normal voice lifts it a tenth. */
 const MIC_GROWTH = 0.12;
@@ -96,6 +96,6 @@ function Mic({ voice, disabled }: { voice: ComposerVoice; disabled: boolean }) {
 
 const styles = StyleSheet.create({
   composer: { ...corner(radius.field), borderWidth: 1 },
-  input: { minHeight: 112, maxHeight: 240, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6, textAlignVertical: 'top' },
-  toolbar: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 8, paddingBottom: 8, paddingTop: 2 },
+  input: { minHeight: 112, maxHeight: 240, paddingHorizontal: space.md, paddingTop: space.sm, paddingBottom: space.snug, textAlignVertical: 'top' },
+  toolbar: { flexDirection: 'row', alignItems: 'center', gap: space.hair, paddingHorizontal: space.xs, paddingBottom: space.xs, paddingTop: space.hair },
 });

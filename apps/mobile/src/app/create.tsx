@@ -16,7 +16,7 @@ import { feedback } from '@/lib/feedback';
 import { usePlusAccess } from '@/lib/plus-access';
 import { buildManualItem, defaultManualTimes, type ManualDraft } from '@/lib/manual-item';
 import { courseTint, useCourseList, useStore } from '@/store';
-import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size, space } from '@/theme';
 
 const categories: { key: Category; label: string }[] = [
   { key: 'personal', label: 'Personal' }, { key: 'school', label: 'School' }, { key: 'work', label: 'Work' },
@@ -180,14 +180,14 @@ function FieldPill({ label, onPress, accessibilityLabel }: { label: string; onPr
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, paddingBottom: 24, gap: 22 },
-  pillField: { height: 52, borderRadius: 999, paddingHorizontal: 20, paddingVertical: 0, borderWidth: 1.5 },
-  rows: { marginTop: -2 },
-  row: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  rowNote: { paddingTop: 8 },
-  section: { gap: 10 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  courseChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, height: 40, borderRadius: 999 },
-  pill: { height: size.pill, paddingHorizontal: 14, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  notes: { minHeight: 96, paddingVertical: 14, paddingHorizontal: 16, ...corner(radius.field), borderWidth: 1.5, textAlignVertical: 'top' },
+  content: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.sm, paddingBottom: space.xl, gap: space.xl },
+  pillField: { height: 52, borderRadius: 999, paddingHorizontal: space.lg, paddingVertical: 0, borderWidth: 1.5 },
+  rows: { marginTop: -space.hair },
+  row: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  rowNote: { paddingTop: space.xs },
+  section: { gap: space.sm },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
+  courseChip: { flexDirection: 'row', alignItems: 'center', gap: space.xs, paddingHorizontal: space.sm, height: 40, borderRadius: 999 },
+  pill: { height: size.pill, paddingHorizontal: space.sm, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  notes: { minHeight: 96, paddingVertical: space.sm, paddingHorizontal: space.md, ...corner(radius.field), borderWidth: 1.5, textAlignVertical: 'top' },
 });

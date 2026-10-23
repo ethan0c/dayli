@@ -19,7 +19,7 @@ import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { courseTint, useCourseList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, radius, useTheme, screen, fade, iconSize } from '@/theme';
+import { SCREEN_GUTTER, radius, useTheme, screen, fade, iconSize, space } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 
@@ -74,7 +74,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
   if (!course) {
     return (
       <Sheet title="Course unavailable" nav="push" inline={!!onClose} onClose={onClose}>
-        <T token="callout" color={c.inkSecondary} style={{ padding: 20, paddingHorizontal: SCREEN_GUTTER }}>
+        <T token="callout" color={c.inkSecondary} style={{ padding: space.lg, paddingHorizontal: SCREEN_GUTTER }}>
           We couldn’t find this course. It may have been removed. Go back to return to School.
         </T>
       </Sheet>
@@ -159,7 +159,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
           <T token="displayXl" tabular>{big}</T>
           {next
             ? <T token="lead" style={styles.line}>{`${next.title} · ${when}`}</T>
-            : <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>Nothing due</T>}
+            : <T token="callout" color={c.inkSecondary} style={{ paddingTop: space.snug }}>Nothing due</T>}
         </Press>
 
         <Animated.View layout={layout} style={styles.rows}>
@@ -200,7 +200,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
             <View accessible accessibilityRole="image" accessibilityLabel={`This term from ${longMonthDay(from)} to ${longMonthDay(to)}: ${deadlines.map((it) => `${it.title} ${monthDay(it.date)}${it.done ? ' done' : ''}`).join(', ') || 'no deadlines'}.`}>
               <TermLine from={from} to={to} marks={marks} today={now.date} scale="months" />
             </View>
-            <ChartKey entries={markKey(marks, c)} style={{ paddingTop: 12 }} />
+            <ChartKey entries={markKey(marks, c)} style={{ paddingTop: space.sm }} />
           </View>
         ) : null}
 
@@ -234,13 +234,13 @@ const SWATCH = 22;
 const TINT_LABELS: Record<TintName, string> = { lavender: 'Lavender', sky: 'Sky', rose: 'Clay', butter: 'Butter', mint: 'Mint', apricot: 'Apricot' };
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24 },
-  top: { gap: 2 },
-  line: { paddingTop: 6 },
-  rows: { paddingTop: 18, gap: 14 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 28, paddingHorizontal: 4 },
-  pickers: { flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap', paddingHorizontal: 4 },
-  swatches: { flexDirection: 'row', gap: 4 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xs, paddingBottom: space.xl },
+  top: { gap: space.hair },
+  line: { paddingTop: space.snug },
+  rows: { paddingTop: space.md, gap: space.sm },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 28, paddingHorizontal: space.xxs },
+  pickers: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap', paddingHorizontal: space.xxs },
+  swatches: { flexDirection: 'row', gap: space.xxs },
   swatch: { width: SWATCH + (chart.focusGap + chart.now) * 2, height: SWATCH + (chart.focusGap + chart.now) * 2, borderRadius: 999, borderWidth: chart.now, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
   swatchDot: { width: SWATCH, height: SWATCH, borderRadius: SWATCH / 2 },
   section: screen.section,

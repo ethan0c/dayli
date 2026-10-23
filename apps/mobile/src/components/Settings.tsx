@@ -5,7 +5,7 @@ import { GroupLabel, ListRow, Radio } from '@/components/Controls';
 import { Icon, type IconKey } from '@/components/Icon';
 import { NativeToggle } from '@/components/Native';
 import { T } from '@/components/Text';
-import { textStyle, useTheme } from '@/theme';
+import { textStyle, useTheme, space, size } from '@/theme';
 
 /** A sentence-case label and a run of hairline rows on the paper. No card, no icon tiles. Pass `label` to draw your own. */
 export function Group({ title, label, footer, children }: { title?: string; label?: ReactNode; footer?: string; children: ReactNode }) {
@@ -72,7 +72,7 @@ export function FieldRow({ label, value, onChange, placeholder, last }: { label:
 }
 
 const styles = StyleSheet.create({
-  group: { gap: 4 },
-  footer: { paddingTop: 8 },
-  fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56 },
+  group: { gap: space.xxs },
+  footer: { paddingTop: space.xs },
+  fieldRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.row },
 });

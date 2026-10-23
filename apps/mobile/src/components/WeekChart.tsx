@@ -1,16 +1,17 @@
 import { mergeMarks, monthDay, toMinutes, weekdayShort } from '@dayli/core';
-import { memo, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { memo, useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSpring, withTiming, type SharedValue } from 'react-native-reanimated';
 
-import { chart } from '@dayli/tokens';
+import { chart, motion } from '@dayli/tokens';
 
-import { enter, springs } from '@/lib/motion';
+import { durations, ease, enter, springs } from '@/lib/motion';
 
 import { clampY, Mark, NowLine, type MarkShape } from '@/components/ChartMark';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
-import { useTheme } from '@/theme';
+import { textStyle, useTheme } from '@/theme';
 
 const START = 6 * 60;
 const END = 24 * 60;
@@ -51,43 +52,110 @@ export type WeekDay = {
 /**
  * The week as seven vertical day bars, 6 am to midnight. The same timeline as DayBar,
  * stood up. Used as the Plan header and in the schedule review.
+ *
+ * One ink pill and one focus ring mark the chosen day and slide between days on the snappy
+ * spring, the way a segmented control's thumb does; each day's number turns to the pill's ink
+ * exactly as the pill passes under it. Rest a finger on the chart for a moment and drag to scrub:
+ * the choice follows the finger a day at a time, each with a selection tick from the caller.
  */
-export function WeekChart({ days, selected, today, onSelect, onWeek, height = 120, animate, accessibilityLabel }: {
+export function WeekChart({ days, selected, today, onSelect, onWeek, onScrub, height = 120, animate, accessibilityLabel }: {
   days: WeekDay[]; selected?: string; today: string; onSelect?: (date: string) => void;
   /** Blocks and marks fade in as they are added, for a chart that fills while you watch. */
   animate?: boolean;
   /** VoiceOver's way to the next or previous week, where touch swipes. */
-  onWeek?: (step: 1 | -1) => void; height?: number; accessibilityLabel?: string;
+  onWeek?: (step: 1 | -1) => void;
+  /** True while a finger scrubs the chart, so the page can stop scrolling under it. */
+  onScrub?: (active: boolean) => void;
+  height?: number; accessibilityLabel?: string;
 }) {
+  const { c } = useTheme();
+  const [width, setWidth] = useState(0);
+  const [geo, setGeo] = useState<Geometry | null>(null);
+  const step = width > 0 ? (width - GAP * (days.length - 1)) / days.length + GAP : 0;
+  const index = days.findIndex((d) => d.date === selected);
+
+  // Where the pill sits, in columns, and whether there is a chosen day in this week at all.
+  const x = useSharedValue(Math.max(0, index));
+  const shown = useSharedValue(index >= 0 ? 1 : 0);
+  const was = useRef(index);
+  useEffect(() => {
+    if (index >= 0) x.value = was.current >= 0 ? withSpring(index, springs.snappy) : index;
+    shown.value = withTiming(index >= 0 ? 1 : 0, { duration: durations.fast, easing: ease });
+    was.current = index;
+  }, [index, x, shown]);
+  const pill = useAnimatedStyle(() => ({ opacity: shown.value, transform: [{ translateX: x.value * step }] }));
+
+  // Scrub: hold, then drag. Runs on the JS thread; it only picks days.
+  const scrubbed = useRef(-1);
+  const pick = (at: number) => {
+    if (!onSelect || step <= 0) return;
+    const i = Math.max(0, Math.min(days.length - 1, Math.floor((at + GAP / 2) / step)));
+    if (i === scrubbed.current) return;
+    scrubbed.current = i;
+    onSelect(days[i]!.date);
+  };
+  const scrub = usePanGesture({
+    enabled: !!onSelect,
+    runOnJS: true,
+    activateAfterLongPress: motion.hold,
+    onActivate: (e) => { scrubbed.current = -1; onScrub?.(true); pick(e.x); },
+    onUpdate: (e) => pick(e.x),
+    onFinalize: () => { onScrub?.(false); },
+  });
+
+  const colW = step - GAP;
+  const ringPad = chart.focusGap + chart.now;
   return (
-    <View style={styles.row} accessible={!onSelect} accessibilityRole={onSelect ? undefined : 'image'} accessibilityLabel={accessibilityLabel}>
-      {days.map((day) => <DayColumn key={day.date} day={day} selected={day.date === selected} today={day.date === today} height={height} animate={animate} onSelect={onSelect} onWeek={onWeek} />)}
-    </View>
+    <GestureDetector gesture={scrub}>
+      <View style={styles.row} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+        accessible={!onSelect} accessibilityRole={onSelect ? undefined : 'image'} accessibilityLabel={accessibilityLabel}>
+        {geo && step > 0 ? (
+          <>
+            <Animated.View pointerEvents="none" style={[styles.pill, { top: geo.numY, left: (colW - NUM) / 2, backgroundColor: c.controlFill }, pill]} />
+            <Animated.View pointerEvents="none" style={[styles.focus, { top: geo.trackY - ringPad, left: -ringPad, width: colW + ringPad * 2, height: geo.trackH + ringPad * 2, borderColor: c.inkPrimary }, pill]} />
+          </>
+        ) : null}
+        {days.map((day, i) => (
+          <DayColumn key={day.date} day={day} index={i} x={x} shown={shown} selected={i === index} today={day.date === today} height={height} animate={animate}
+            onSelect={onSelect} onWeek={onWeek} onMeasure={i === 0 ? setGeo : undefined} />
+        ))}
+      </View>
+    </GestureDetector>
   );
 }
 
+const GAP = 6;
+const NUM = 28;
+type Geometry = { numY: number; trackY: number; trackH: number };
+
+const AnimatedText = Animated.createAnimatedComponent(Text);
+
 // Memoised so a tap re-renders only the two columns whose selection changed.
-const DayColumn = memo(function DayColumn({ day, selected, today, height, animate, onSelect, onWeek }: { day: WeekDay; selected: boolean; today: boolean; height: number; animate?: boolean; onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void }) {
+const DayColumn = memo(function DayColumn({ day, index, x, shown, selected, today, height, animate, onSelect, onWeek, onMeasure }: {
+  day: WeekDay; index: number; x: SharedValue<number>; shown: SharedValue<number>; selected: boolean; today: boolean; height: number; animate?: boolean;
+  onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void; onMeasure?: (geo: Geometry) => void;
+}) {
   const { c } = useTheme();
   const tones = { ink: c.chartBooked, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
   const labelColor = day.labelTone ? tones[day.labelTone] : c.inkSecondary;
-  // The ink pill behind the number pops in on a spring when this day is chosen.
-  const sel = useSharedValue(selected ? 1 : 0);
-  useEffect(() => {
-    sel.value = withSpring(selected ? 1 : 0, springs.snappy);
-  }, [selected, sel]);
-  const pill = useAnimatedStyle(() => ({ opacity: sel.value, transform: [{ scale: 0.6 + 0.4 * sel.value }] }));
-  const ring = useAnimatedStyle(() => ({ opacity: sel.value }));
+  // How much of the sliding pill is under this number: 1 when it sits here, 0 a column away.
+  const number = useAnimatedStyle(() => ({
+    color: interpolateColor(Math.max(0, 1 - Math.abs(x.value - index)) * shown.value, [0, 1], [c.inkPrimary, c.controlInk]),
+  }));
+  const ys = useRef({ numY: 0, trackY: 0, trackH: 0, got: 0 });
+  const measured = (key: 'num' | 'track') => onMeasure ? (e: LayoutChangeEvent) => {
+    const { y, height: h } = e.nativeEvent.layout;
+    if (key === 'num') ys.current.numY = y; else { ys.current.trackY = y; ys.current.trackH = h; }
+    ys.current.got |= key === 'num' ? 1 : 2;
+    if (ys.current.got === 3) onMeasure({ numY: ys.current.numY, trackY: ys.current.trackY, trackH: ys.current.trackH });
+  } : undefined;
   const column = (
     <>
       <T token="axis" color={today ? c.accentInk : c.inkSecondary}>{weekdayShort(day.date)}</T>
-      <View style={styles.num}>
-        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: 14, backgroundColor: c.controlFill }, pill]} />
-        <T token="subhead" color={selected ? c.controlInk : c.inkPrimary} tabular style={{ fontSize: 13 }}>{String(Number(day.date.slice(-2)))}</T>
+      <View style={styles.num} onLayout={measured('num')}>
+        <AnimatedText style={[textStyle('subhead', c.inkPrimary), { fontSize: 13, fontVariant: ['tabular-nums'] }, number]}>{String(Number(day.date.slice(-2)))}</AnimatedText>
       </View>
-      <View style={[styles.track, { height, backgroundColor: day.unknown ? c.changedBg : c.row, borderWidth: day.unknown ? 1.5 : 0, borderColor: c.changed }]}>
-        {/* The chosen day's column carries the same ink focus ring as a picked mark. */}
-        <Animated.View pointerEvents="none" style={[styles.focus, { borderColor: c.inkPrimary }, ring]} />
+      <View onLayout={measured('track')} style={[styles.track, { height, backgroundColor: day.unknown ? c.changedBg : c.row, borderWidth: day.unknown ? 1.5 : 0, borderColor: c.changed }]}>
         {day.unknown ? <T token="subhead" color={c.changed} style={{ alignSelf: 'center', marginTop: height / 2 - 9 }}>?</T> : null}
         {day.blocks.map((b) => {
           const s = Math.max(START, toMinutes(b.start));
@@ -111,8 +179,9 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
     </>
   );
   if (!onSelect) return <View style={styles.col}>{column}</View>;
+  // No shrink: the sliding pill is the answer to the tap, and a column that shrank would leave it behind.
   return (
-    <Press onPress={() => onSelect(day.date)} accessibilityRole="button" accessibilityState={{ selected }}
+    <Press onPress={() => onSelect(day.date)} scale={1} dim={1} accessibilityRole="button" accessibilityState={{ selected }}
       accessibilityLabel={`${weekdayShort(day.date)}, ${monthDay(day.date)}${today ? ', today' : ''}, ${blockCount(day.blocks)}${day.marks?.length ? `, ${day.marks.length} due` : ''}`}
       accessibilityActions={onWeek ? [{ name: 'next', label: 'Next week' }, { name: 'previous', label: 'Previous week' }] : undefined}
       onAccessibilityAction={onWeek ? (e) => onWeek(e.nativeEvent.actionName === 'next' ? 1 : -1) : undefined}
@@ -149,12 +218,12 @@ export function compactRange(start: string, end: string): string {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 6 },
+  row: { flexDirection: 'row', gap: GAP },
   col: { flex: 1, alignItems: 'center', gap: 6 },
-  num: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  num: { width: NUM, height: NUM, alignItems: 'center', justifyContent: 'center' },
+  pill: { position: 'absolute', width: NUM, height: NUM, borderRadius: NUM / 2 },
   track: { width: '100%', borderRadius: chart.column, position: 'relative', overflow: 'visible' },
   block: { position: 'absolute', left: 0, right: 0, borderRadius: chart.column },
-  focus: { position: 'absolute', top: -(chart.focusGap + chart.now), bottom: -(chart.focusGap + chart.now), left: -(chart.focusGap + chart.now), right: -(chart.focusGap + chart.now),
-    borderWidth: chart.now, borderRadius: chart.column + chart.focusGap + chart.now },
+  focus: { position: 'absolute', borderWidth: chart.now, borderRadius: chart.column + chart.focusGap + chart.now },
   label: { textAlign: 'center' },
 });

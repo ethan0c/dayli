@@ -7,7 +7,7 @@ import { motion } from '@dayli/tokens';
 import { GLASS, GlassCircle } from '@/components/Glass';
 import { Icon } from '@/components/Icon';
 import { Press } from '@/components/Press';
-import { useTheme, iconSize } from '@/theme';
+import { useTheme, iconSize, space, size } from '@/theme';
 
 /** The parent navigator can handle Back even when this is the first screen in a nested stack. */
 export function backOrHome() {
@@ -57,5 +57,5 @@ export function BackButton({ onPress }: { onPress?: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  button: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -6 },
+  button: { minWidth: 44, minHeight: size.target, alignItems: 'center', justifyContent: 'center', marginLeft: -space.snug },
 });

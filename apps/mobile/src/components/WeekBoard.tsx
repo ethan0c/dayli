@@ -9,7 +9,7 @@ import { T } from '@/components/Text';
 import { chart } from '@dayli/tokens';
 import { feedback } from '@/lib/feedback';
 import { courseTint, useCourseList, useStore } from '@/store';
-import { corner, radius, useTheme } from '@/theme';
+import { corner, radius, useTheme, space } from '@/theme';
 
 const START = 6 * 60;
 const SPAN = 18 * 60;
@@ -81,7 +81,7 @@ export function WeekBoard({ week, items, today, conflicts, openId, onOpen }: {
                 );
               })}
             </View>
-            {day.length ? null : <T token="caption" color={c.inkTertiary} style={{ paddingTop: 2 }}>Nothing yet</T>}
+            {day.length ? null : <T token="caption" color={c.inkTertiary} style={{ paddingTop: space.hair }}>Nothing yet</T>}
           </View>
         );
       })}
@@ -90,17 +90,17 @@ export function WeekBoard({ week, items, today, conflicts, openId, onOpen }: {
 }
 
 const styles = StyleSheet.create({
-  board: { flexDirection: 'row', paddingTop: 18 },
-  col: { flex: 1, minWidth: 0, gap: 10, paddingHorizontal: 10, paddingTop: 10, paddingBottom: 16, borderRadius: 0 },
-  head: { gap: 2, paddingHorizontal: 2 },
+  board: { flexDirection: 'row', paddingTop: space.md },
+  col: { flex: 1, minWidth: 0, gap: space.sm, paddingHorizontal: space.sm, paddingTop: space.sm, paddingBottom: space.md, borderRadius: 0 },
+  head: { gap: space.hair, paddingHorizontal: space.hair },
   dateRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  num: { minWidth: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginLeft: -4 },
+  num: { minWidth: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginLeft: -space.xxs },
   track: { height: chart.track, borderRadius: chart.track / 2, position: 'relative', overflow: 'hidden' },
   block: { position: 'absolute', top: 0, bottom: 0, borderRadius: chart.track / 2 },
-  row: { flexDirection: 'row', gap: 8, paddingVertical: 9, paddingHorizontal: 6, marginHorizontal: -6, ...corner(radius.small) },
+  row: { flexDirection: 'row', gap: space.xs, paddingVertical: 9, paddingHorizontal: space.snug, marginHorizontal: -space.snug, ...corner(radius.small) },
   lead: { width: 22, alignItems: 'center', paddingTop: 1 },
   // The dot centres on the title's first line (subhead, 20 tall).
   dotLead: { height: 20, paddingTop: 0, justifyContent: 'center' },
-  text: { flex: 1, minWidth: 0, gap: 2 },
-  pill: { alignSelf: 'flex-start', paddingTop: 4 },
+  text: { flex: 1, minWidth: 0, gap: space.hair },
+  pill: { alignSelf: 'flex-start', paddingTop: space.xxs },
 });

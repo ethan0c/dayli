@@ -22,7 +22,7 @@ import { isClass } from '@/lib/reminder-plan';
 import { usePlusAccess } from '@/lib/plus-access';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size, fade } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size, fade, space } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 
@@ -81,7 +81,7 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
   if (!item) {
     return (
       <Sheet title="Item unavailable" nav="push" inline={!!onClose} onClose={onClose}>
-        <T token="callout" color={c.inkSecondary} style={{ padding: 20, paddingHorizontal: SCREEN_GUTTER }}>
+        <T token="callout" color={c.inkSecondary} style={{ padding: space.lg, paddingHorizontal: SCREEN_GUTTER }}>
           We couldn’t find this item. It may have been deleted. Go back to return to your plan.
         </T>
       </Sheet>
@@ -261,7 +261,7 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
           </View>
         ) : null}
 
-        <View style={{ gap: 6 }}>
+        <View style={{ gap: space.snug }}>
           <GroupLabel>Notes</GroupLabel>
           {item.notes && editing !== 'notes' ? (
             <Notes text={item.notes} onEdit={() => setEditing('notes')} onChange={(next) => { setNotes(next); updateItem(item.id, { notes: next }); }} />
@@ -303,16 +303,16 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24, gap: 14 },
-  head: { gap: 12, paddingBottom: 8 },
-  eyebrowRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
-  time: { fontSize: 44, lineHeight: 48, letterSpacing: -1.4, paddingTop: 4 },
-  addTime: { alignSelf: 'flex-start', height: size.pill, borderRadius: radius.pill, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
-  pickers: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 8, flexWrap: 'wrap' },
-  rows: { gap: 14 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 28, paddingHorizontal: 4 },
-  around: { gap: 8, paddingTop: 10 },
-  notes: { ...corner(radius.field), padding: 14, minHeight: 88, textAlignVertical: 'top' },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xs, paddingBottom: space.xl, gap: space.sm },
+  head: { gap: space.sm, paddingBottom: space.xs },
+  eyebrowRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: space.sm },
+  time: { fontSize: 44, lineHeight: 48, letterSpacing: -1.4, paddingTop: space.xxs },
+  addTime: { alignSelf: 'flex-start', height: size.pill, borderRadius: radius.pill, paddingHorizontal: space.sm, alignItems: 'center', justifyContent: 'center', marginTop: space.xs },
+  pickers: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingTop: space.xs, flexWrap: 'wrap' },
+  rows: { gap: space.sm },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 28, paddingHorizontal: space.xxs },
+  around: { gap: space.xs, paddingTop: space.sm },
+  notes: { ...corner(radius.field), padding: space.sm, minHeight: 88, textAlignVertical: 'top' },
   scope: { alignSelf: 'stretch' },
-  scopeRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 48, borderBottomWidth: StyleSheet.hairlineWidth },
+  scopeRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.compact, borderBottomWidth: StyleSheet.hairlineWidth },
 });

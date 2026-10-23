@@ -9,7 +9,7 @@ import { T } from '@/components/Text';
 import { COLUMN, useWebLayout } from '@/lib/layout';
 import { SettingsPane, isSettingKey, type SettingKey } from '@/lib/settings-pane';
 import { useWebShortcuts } from '@/lib/shortcuts';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, space } from '@/theme';
 import AppearanceScreen from '../settings/appearance';
 import CanDoScreen from '../settings/can-do';
 import CanvasScreen from '../settings/canvas';
@@ -76,6 +76,6 @@ export default function YouTab() {
 const styles = StyleSheet.create({
   panes: { flex: 1, flexDirection: 'row' },
   pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 4 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: space.xs, paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xxs },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },
 });

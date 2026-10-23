@@ -9,7 +9,7 @@ import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme, screen } from '@/theme';
+import { SCREEN_GUTTER, useTheme, screen, space, size } from '@/theme';
 
 /**
  * Today and Plan before anything is added: three ways to start as rows, then two
@@ -55,7 +55,7 @@ export function TodayStart({ date, tab = 'Today', header }: { date: string; tab?
             <StatusPill label="Due today" tone="red" tabular={false} />
           </View>
         </View>
-        <T token="caption" color={c.inkSecondary} style={{ paddingTop: 10 }}>Example items only. They aren’t saved and won’t send reminders.</T>
+        <T token="caption" color={c.inkSecondary} style={{ paddingTop: space.sm }}>Example items only. They aren’t saved and won’t send reminders.</T>
       </View>
     </View>
   );
@@ -64,7 +64,7 @@ export function TodayStart({ date, tab = 'Today', header }: { date: string; tab?
 const styles = StyleSheet.create({
   section: { paddingHorizontal: SCREEN_GUTTER, ...screen.section },
   examples: { opacity: 0.55 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, borderBottomWidth: StyleSheet.hairlineWidth },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.item, borderBottomWidth: StyleSheet.hairlineWidth },
   lead: { width: 22, alignItems: 'center', justifyContent: 'center' },
-  text: { flex: 1, minWidth: 0, gap: 2 },
+  text: { flex: 1, minWidth: 0, gap: space.hair },
 });

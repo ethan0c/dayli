@@ -5,7 +5,7 @@ import Animated, { cancelAnimation, makeMutable, useAnimatedStyle, withRepeat, w
 import { motion } from '@dayli/tokens';
 
 import { ease } from '@/lib/motion';
-import { radius, useTheme } from '@/theme';
+import { radius, useTheme, space, size } from '@/theme';
 
 /**
  * One breath for every placeholder on screen, so a page of them dims and returns as one
@@ -46,7 +46,7 @@ export function SkeletonRows({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }, (_, i) => (
         <View key={i} style={[styles.row, i < count - 1 ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line } : null]}>
           <Skeleton width={44} height={12} />
-          <View style={{ flex: 1, gap: 8 }}>
+          <View style={{ flex: 1, gap: space.xs }}>
             <Skeleton width={i % 2 ? '58%' : '74%'} height={14} />
             <Skeleton width="38%" height={11} />
           </View>
@@ -65,7 +65,7 @@ export function SkeletonCard({ height = 72 }: { height?: number }) {
 /** The day bar before it has a day: the track and its four labels. */
 export function SkeletonDayBar({ labels = true }: { labels?: boolean }) {
   return (
-    <View style={{ gap: 8 }} accessible={false}>
+    <View style={{ gap: space.xs }} accessible={false}>
       <Skeleton height={6} round={3} />
       {labels ? <View style={styles.between}>{[36, 30, 30, 48].map((w, i) => <Skeleton key={i} width={w} height={11} round={5} />)}</View> : null}
     </View>
@@ -91,7 +91,7 @@ export function SkeletonWeekChart({ height = 120 }: { height?: number }) {
 /** The term line before its dates are known. */
 export function SkeletonTermLine() {
   return (
-    <View style={{ gap: 8 }} accessible={false}>
+    <View style={{ gap: space.xs }} accessible={false}>
       <View style={styles.between}>{[24, 28, 24].map((w, i) => <Skeleton key={i} width={w} height={11} round={5} />)}</View>
       <Skeleton height={6} round={3} />
       <View style={styles.between}>{[34, 40, 30].map((w, i) => <Skeleton key={i} width={w} height={11} round={5} />)}</View>
@@ -119,8 +119,8 @@ export function SkeletonHourView({ hours = 8 }: { hours?: number }) {
  */
 export function SkeletonReview({ chart = 'week' }: { chart?: 'week' | 'term' }) {
   return (
-    <View style={{ gap: 24 }} accessible={false}>
-      <View style={{ gap: 8 }}>
+    <View style={{ gap: space.xl }} accessible={false}>
+      <View style={{ gap: space.xs }}>
         <Skeleton width={150} height={12} round={6} />
         <Skeleton width={190} height={48} round={12} />
         <Skeleton width={220} height={14} round={7} />
@@ -134,16 +134,16 @@ export function SkeletonReview({ chart = 'week' }: { chart?: 'week' | 'term' }) 
 /** The recent-screenshots strip before the photo library answers. */
 export function SkeletonShots({ count = 4 }: { count?: number }) {
   return (
-    <View style={{ flexDirection: 'row', gap: 8 }} accessible={false}>
+    <View style={{ flexDirection: 'row', gap: space.xs }} accessible={false}>
       {Array.from({ length: count }, (_, i) => <Skeleton key={i} width={104} height={150} round={radius.field} />)}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 10 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.item, paddingVertical: space.sm },
   between: { flexDirection: 'row', justifyContent: 'space-between' },
-  week: { flexDirection: 'row', gap: 6 },
-  weekCol: { flex: 1, alignItems: 'center', gap: 6 },
-  hourRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  week: { flexDirection: 'row', gap: space.snug },
+  weekCol: { flex: 1, alignItems: 'center', gap: space.snug },
+  hourRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
 });

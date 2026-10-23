@@ -4,7 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
-import { corner, radius, textStyle, useTheme, fade } from '@/theme';
+import { corner, radius, textStyle, useTheme, fade, space, size } from '@/theme';
 
 export function GoogleButton({ onPress, disabled = false }: { onPress: () => void; disabled?: boolean }) {
   return (
@@ -29,7 +29,7 @@ export function AuthField({ label, error, password = false, inputRef, ...props }
   const { c } = useTheme();
   const [visible, setVisible] = useState(false);
   return (
-    <View style={{ gap: 8 }}>
+    <View style={{ gap: space.xs }}>
       <T token="callout" color={c.inkSecondary}>{label}</T>
       <View style={[styles.field, { backgroundColor: c.row, borderColor: error ? c.conflict : c.line }]}>
         <TextInput {...props} ref={inputRef} accessibilityLabel={label} secureTextEntry={password && !visible}
@@ -46,8 +46,8 @@ export function AuthField({ label, error, password = false, inputRef, ...props }
 }
 
 const styles = StyleSheet.create({
-  google: { minHeight: 52, paddingHorizontal: 20, paddingVertical: 14, borderRadius: 999, borderWidth: 1, borderColor: '#747775', backgroundColor: '#FFFFFF', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, alignSelf: 'stretch' },
-  field: { minHeight: 56, ...corner(radius.field), borderWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', paddingLeft: 18, paddingRight: 6 },
-  input: { flex: 1, minWidth: 0, paddingVertical: 16 },
-  visibility: { minWidth: 52, minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
+  google: { minHeight: 52, paddingHorizontal: space.lg, paddingVertical: space.sm, borderRadius: 999, borderWidth: 1, borderColor: '#747775', backgroundColor: '#FFFFFF', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm, alignSelf: 'stretch' },
+  field: { minHeight: size.row, ...corner(radius.field), borderWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', paddingLeft: space.md, paddingRight: space.snug },
+  input: { flex: 1, minWidth: 0, paddingVertical: space.md },
+  visibility: { minWidth: 52, minHeight: size.target, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space.xs },
 });

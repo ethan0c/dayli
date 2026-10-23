@@ -30,7 +30,7 @@ import { defaultTimes } from '@/lib/times';
 import { useReschedule } from '@/lib/use-reschedule';
 import { useSettling } from '@/lib/use-settling';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, NAV_INSET, useTheme, shadow, screen, radius, size } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, useTheme, shadow, screen, radius, size, space } from '@/theme';
 
 /** "HH:MM" plus some minutes, capped at midnight. */
 function addMinutes(time: string, mins: number): string {
@@ -227,7 +227,7 @@ export default function PlanScreen() {
             </Press>
           )}
           {copy ? (
-            <TextButton label={`Same as ${weekdayLong(copy.date)}`} style={{ marginLeft: 6 }} accessibilityLabel={`Same times as ${weekdayLong(copy.date)}`}
+            <TextButton label={`Same as ${weekdayLong(copy.date)}`} style={{ marginLeft: space.snug }} accessibilityLabel={`Same times as ${weekdayLong(copy.date)}`}
               onPress={() => updateItem(it.id, { start: copy.start, end: copy.end })} />
           ) : null}
         </View>
@@ -280,11 +280,11 @@ export default function PlanScreen() {
             </Animated.View>
           )) : (
             <Animated.View key={shown} entering={enter.fade} exiting={exit.fade}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingTop: space.xxs }}>
                 <Icon name="calendar" size={24} color={c.inkTertiary} />
                 <T token="body">No plans for this day.</T>
               </View>
-              <T token="callout" color={c.inkSecondary} style={{ paddingTop: 2 }}>
+              <T token="callout" color={c.inkSecondary} style={{ paddingTop: space.hair }}>
                 {nextDeadline ? `${nextDeadline.title} is due ${diffDays(shown, nextDeadline.date) === 1 ? 'the next day' : 'in two days'}.` : 'Add an event or task below.'}
               </T>
               <View style={styles.actions}>
@@ -344,19 +344,19 @@ export default function PlanScreen() {
 }
 
 const styles = StyleSheet.create({
-  chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
-  calendar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12 },
-  trailing: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.md },
+  calendar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.sm },
+  trailing: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   over: { position: 'absolute', top: 0, right: 0, bottom: 0, width: 460, boxShadow: shadow.pane },
   boardWrap: { paddingHorizontal: SCREEN_GUTTER },
   pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
   paneEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },
-  legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, gap: 8 },
+  legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xs, gap: space.xs },
   section: { paddingHorizontal: SCREEN_GUTTER, ...screen.section },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 24, paddingTop: 4 },
-  move: { gap: 12, paddingTop: 14 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.xl, paddingTop: space.xxs },
+  move: { gap: space.sm, paddingTop: space.sm },
   shift: { borderBottomWidth: StyleSheet.hairlineWidth },
   lead: { width: 22, alignItems: 'center', justifyContent: 'center' },
-  timeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingLeft: 34, paddingBottom: 14 },
-  timePill: { height: size.pill, borderRadius: radius.pill, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
+  timeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.xs, paddingLeft: space.xxl, paddingBottom: space.sm },
+  timePill: { height: size.pill, borderRadius: radius.pill, paddingHorizontal: space.sm, alignItems: 'center', justifyContent: 'center' },
 });

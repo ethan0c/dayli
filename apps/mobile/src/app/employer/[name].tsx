@@ -1,4 +1,4 @@
-import { addDays, diffDays, formatRange, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekOf, weekdayLong, hoursMinutes, spanMinutes, monthName , count } from '@dayli/core';
+import { addDays, diffDays, formatRange, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekOf, weekdayLong, hoursMinutes, spanMinutes, monthName, count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -14,7 +14,7 @@ import { feedback } from '@/lib/feedback';
 import { enter, exit } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { useItemList, useScheduleList, useStore } from '@/store';
-import { SCREEN_GUTTER, radius, useTheme, fade } from '@/theme';
+import { SCREEN_GUTTER, radius, useTheme, fade, space, size } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 /** Hours to the nearest half: 30, 7.5, 1. */
@@ -129,13 +129,13 @@ export default function EmployerScreen() {
           <T token="displayXl" tabular>{big}</T>
           {line
             ? <T token="lead" style={styles.line}>{line}</T>
-            : <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>No shifts coming up</T>}
+            : <T token="callout" color={c.inkSecondary} style={{ paddingTop: space.snug }}>No shifts coming up</T>}
         </Press>
 
         <View style={styles.chart}>
           <WeekChart days={days} today={now.date} height={96}
             accessibilityLabel={`This week's shifts as seven day bars: ${days.map((d) => `${weekdayLong(d.date)} ${d.label}`).join(', ')}.`} />
-          <T token="caption" color={c.inkSecondary} tabular>{`${hours(thisWeekMins)} ${hours(thisWeekMins) === 1 ? 'hour' : 'hours'} this week · ${hours(nextWeekMins)} next week`}</T>
+          <T token="caption" color={c.inkSecondary} tabular>{`${count(hours(thisWeekMins), 'hour')} this week · ${hours(nextWeekMins)} next week`}</T>
         </View>
 
         <View style={styles.rows}>
@@ -155,11 +155,11 @@ export default function EmployerScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24 },
-  top: { gap: 2 },
-  line: { paddingTop: 6 },
-  chart: { paddingTop: 22, gap: 8 },
-  rows: { paddingTop: 18 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xs, paddingBottom: space.xl },
+  top: { gap: space.hair },
+  line: { paddingTop: space.snug },
+  chart: { paddingTop: space.xl, gap: space.xs },
+  rows: { paddingTop: space.md },
   scope: { alignSelf: 'stretch' },
-  scopeRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 48, borderBottomWidth: StyleSheet.hairlineWidth },
+  scopeRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.compact, borderBottomWidth: StyleSheet.hairlineWidth },
 });

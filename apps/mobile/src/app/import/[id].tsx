@@ -13,7 +13,7 @@ import { PressRow } from '@/components/Press';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useStore, type Change } from '@/store';
-import { SCREEN_GUTTER, corner, radius, useTheme, screen, size, fade } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, screen, size, space } from '@/theme';
 
 const isShot = (source: string | null | undefined) => /^(screenshot|photo)$/i.test(source ?? '');
 
@@ -72,7 +72,7 @@ export default function ImportScreen() {
   if (!batch) {
     return (
       <Sheet title="Import unavailable" nav="push">
-        <T token="callout" color={c.inkSecondary} style={{ padding: 20, paddingHorizontal: SCREEN_GUTTER }}>
+        <T token="callout" color={c.inkSecondary} style={{ padding: space.lg, paddingHorizontal: SCREEN_GUTTER }}>
           We couldn’t find this import. Go back to return to your plan.
         </T>
       </Sheet>
@@ -113,7 +113,7 @@ export default function ImportScreen() {
       footer={
         <>
           {batch.undone
-            ? <View style={{ minHeight: 44, justifyContent: 'center' }}><StatusPill label="Undone" /></View>
+            ? <View style={{ minHeight: size.target, justifyContent: 'center' }}><StatusPill label="Undone" /></View>
             : <TextButton label="Undo this import" tone="danger" haptic="tap" onPress={undo} />}
           {!batch.undone ? <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>{caption}</T> : null}
         </>
@@ -149,7 +149,7 @@ export default function ImportScreen() {
               </Animated.View>
             );
           })}
-          {batch.changes.length === 0 ? <T token="callout" color={c.inkSecondary} style={{ paddingVertical: 10 }}>Nothing was added or changed.</T> : null}
+          {batch.changes.length === 0 ? <T token="callout" color={c.inkSecondary} style={{ paddingVertical: space.sm }}>Nothing was added or changed.</T> : null}
         </Animated.View>
       </ScrollView>
     </Sheet>
@@ -157,16 +157,16 @@ export default function ImportScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24 },
-  top: { flexDirection: 'row', alignItems: 'flex-start', gap: 16 },
-  topText: { flex: 1, minWidth: 0, gap: 2 },
-  line: { paddingTop: 6 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xs, paddingBottom: space.xl },
+  top: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md },
+  topText: { flex: 1, minWidth: 0, gap: space.hair },
+  line: { paddingTop: space.snug },
   thumb: { width: 84, height: 122, ...corner(radius.field), overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   section: screen.section,
-  change: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52 },
+  change: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 52 },
   well: { width: 22, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 6, height: 6, borderRadius: 3 },
   ring: { width: 12, height: 12, borderRadius: 6, borderWidth: 2 },
   struck: { textDecorationLine: 'line-through' },
-  mutedPill: { height: size.chip, paddingHorizontal: 10, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  mutedPill: { height: size.chip, paddingHorizontal: space.sm, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
 });

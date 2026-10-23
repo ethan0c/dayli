@@ -9,7 +9,7 @@ import { friendlyError } from '@/lib/errors';
 import { usePlusAccess } from '@/lib/plus-access';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
-import { useTheme } from '@/theme';
+import { useTheme, space } from '@/theme';
 
 export function RingingAlarmInfo({ timed = true, itemID, draft = false, settings = false }: {
   timed?: boolean; itemID?: string; draft?: boolean; settings?: boolean;
@@ -50,7 +50,7 @@ export function RingingAlarmInfo({ timed = true, itemID, draft = false, settings
     } catch (failure) { setError(friendlyError(failure, 'We couldn’t update ringing alarms. Please try again.', 'alarms.update')); }
     finally { setBusy(false); }
   }
-  return <View style={{ gap: 6, paddingVertical: 10 }}>
+  return <View style={{ gap: space.snug, paddingVertical: space.sm }}>
     <T token="caption" color={c.inkSecondary}>{message}</T>
     {state.error || error ? <T token="caption" color={c.conflict} accessibilityRole="alert">{error ?? state.error}</T> : null}
     {!isPlus ? <TextButton label={busy ? 'One moment…' : 'Get Semli Plus'} onPress={() => void act()} tone="muted" style={{ alignSelf: 'flex-start' }} />

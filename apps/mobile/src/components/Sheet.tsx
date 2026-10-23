@@ -11,7 +11,7 @@ import { T } from '@/components/Text';
 import { useWebLayout } from '@/lib/layout';
 import { enter, exit } from '@/lib/motion';
 import { useWebShortcuts } from '@/lib/shortcuts';
-import { SCREEN_GUTTER, corner, radius, useTheme, shadow, size, fade } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, shadow, size, fade, space } from '@/theme';
 
 /** Height of the native navigation bar below the status bar. */
 const NAV_BAR = 44;
@@ -105,18 +105,18 @@ export function Button({ label, onPress, disabled, variant = 'primary', block = 
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  inlineHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: SCREEN_GUTTER, paddingTop: 16, paddingBottom: 4 },
-  subtitle: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, paddingBottom: 20 },
+  inlineHead: { flexDirection: 'row', alignItems: 'center', gap: space.xs, paddingHorizontal: SCREEN_GUTTER, paddingTop: space.md, paddingBottom: space.xxs },
+  subtitle: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.sm, paddingBottom: space.lg },
   body: { flex: 1 },
-  footer: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, gap: 8, alignItems: 'center' },
-  btn: { alignSelf: 'stretch', height: size.control, paddingHorizontal: 22, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  fit: { alignSelf: 'auto', height: 40, paddingHorizontal: 20 },
+  footer: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.sm, gap: space.xs, alignItems: 'center' },
+  btn: { alignSelf: 'stretch', height: size.control, paddingHorizontal: space.xl, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  fit: { alignSelf: 'auto', height: 40, paddingHorizontal: space.lg },
   // On a wide window the actions sit at the right; the first (the primary) comes last in reading order.
-  footerWide: { flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingBottom: 24 },
+  footerWide: { flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingBottom: space.xl },
   dialogRoot: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  dialog: { width: 520, maxWidth: '92%', maxHeight: '86%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, paddingTop: 18, paddingBottom: 18, boxShadow: shadow.dialog },
-  dialogHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 24, paddingBottom: 4 },
-  dialogSub: { paddingHorizontal: 24 },
+  dialog: { width: 520, maxWidth: '92%', maxHeight: '86%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, paddingTop: space.md, paddingBottom: space.md, boxShadow: shadow.dialog },
+  dialogHead: { flexDirection: 'row', alignItems: 'center', gap: space.xs, paddingHorizontal: space.xl, paddingBottom: space.xxs },
+  dialogSub: { paddingHorizontal: space.xl },
   dialogBody: { flexShrink: 1, minHeight: 0 },
-  dialogFoot: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8, paddingHorizontal: 24, paddingTop: 14 },
+  dialogFoot: { flexDirection: 'row-reverse', alignItems: 'center', gap: space.xs, paddingHorizontal: space.xl, paddingTop: space.sm },
 });

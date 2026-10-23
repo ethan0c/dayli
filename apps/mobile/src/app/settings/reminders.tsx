@@ -13,7 +13,7 @@ import { openSystemSettings } from '@/lib/links';
 import { notificationsAllowed, requestNotifications, sendTestNotification, syncReminders } from '@/lib/notifications';
 import type { ReminderPrefs } from '@/lib/reminder-plan';
 import { useStore } from '@/store';
-import { useTheme, screen } from '@/theme';
+import { useTheme, screen, space } from '@/theme';
 
 type LeadKey = '10' | '30' | '60';
 const LEADS: { key: LeadKey; label: string }[] = [
@@ -149,6 +149,6 @@ export default function RemindersScreen() {
 
 const styles = StyleSheet.create({
   body: screen.settingsBody,
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, paddingVertical: 6 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 52, paddingVertical: space.snug },
   segment: { width: 212 },
 });

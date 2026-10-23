@@ -12,7 +12,7 @@ import { T } from '@/components/Text';
 import { useWebLayout } from '@/lib/layout';
 import { durations, ease, springs } from '@/lib/motion';
 import { courseTint, useStore } from '@/store';
-import { textStyle, useTheme } from '@/theme';
+import { textStyle, useTheme, space, size } from '@/theme';
 
 type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date' | 'urgent'> & { id?: string; courseId?: string | null; employer?: string | null };
 type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: string; onPress?: () => void; onToggle?: () => void; onDelete?: () => void; last?: boolean };
@@ -130,12 +130,12 @@ const CHECK = 22;
 const GAP = 12;
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: GAP, minHeight: 64 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: GAP, minHeight: size.item },
   // Above the main area, whose press highlight reaches under it.
-  checkTarget: { width: CHECK, minHeight: 48, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
-  main: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: GAP, paddingVertical: 10 },
-  text: { flex: 1, minWidth: 0, gap: 2 },
-  sub: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  checkTarget: { width: CHECK, minHeight: size.compact, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
+  main: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: GAP, paddingVertical: space.sm },
+  text: { flex: 1, minWidth: 0, gap: space.hair },
+  sub: { flexDirection: 'row', alignItems: 'center', gap: space.snug },
   subText: { flexShrink: 1 },
   done: { textDecorationLine: 'line-through' },
   strike: { position: 'absolute', top: 0, left: 0, bottom: 0, overflow: 'hidden' },

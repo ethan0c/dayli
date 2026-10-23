@@ -7,7 +7,7 @@ import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { Press, PressRow } from '@/components/Press';
 import { T } from '@/components/Text';
 import { enter, exit, layout } from '@/lib/motion';
-import { useTheme, radius, size, fade } from '@/theme';
+import { useTheme, radius, size, space } from '@/theme';
 
 /*
  * The small parts of the review screen: a hairline row with a glyph column, the 36-high
@@ -93,14 +93,14 @@ export function ReviewDisclosure({ label, open, onPress }: { label: string; open
 
 const styles = StyleSheet.create({
   row: { borderBottomWidth: StyleSheet.hairlineWidth },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingVertical: 8 },
-  text: { flex: 1, minWidth: 0, gap: 2 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.row, paddingVertical: space.xs },
+  text: { flex: 1, minWidth: 0, gap: space.hair },
   struck: { textDecorationLine: 'line-through' },
   glyph: { width: 22, alignItems: 'center', justifyContent: 'center' },
   ring: { width: 12, height: 12, borderRadius: 6, borderWidth: 2 },
-  below: { paddingLeft: 34, paddingBottom: 14 },
-  pills: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
-  pill: { height: size.pill, paddingHorizontal: 14, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  slot: { minHeight: size.pill, paddingHorizontal: 4, borderRadius: radius.pill, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
-  disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  below: { paddingLeft: space.xxl, paddingBottom: space.sm },
+  pills: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: space.xs },
+  pill: { height: size.pill, paddingHorizontal: space.sm, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  slot: { minHeight: size.pill, paddingHorizontal: space.xxs, borderRadius: radius.pill, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  disclosure: { minHeight: size.target, flexDirection: 'row', alignItems: 'center', gap: space.xs },
 });

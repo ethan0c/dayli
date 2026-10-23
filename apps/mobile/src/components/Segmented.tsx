@@ -6,7 +6,7 @@ import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { springs } from '@/lib/motion';
-import { useTheme } from '@/theme';
+import { useTheme, space } from '@/theme';
 
 /** A grey track with a theme-colored pill that slides to the chosen option and shows a tick, unless `tick` is off for a tight row. */
 export function Segmented<K extends string>({ options, value, onChange, label, size = 'regular', tick = true }: {
@@ -45,5 +45,5 @@ export function Segmented<K extends string>({ options, value, onChange, label, s
 const styles = StyleSheet.create({
   track: { flexDirection: 'row', borderRadius: 999, position: 'relative' },
   pill: { position: 'absolute', borderRadius: 999 },
-  seg: { flex: 1, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 8 },
+  seg: { flex: 1, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.snug, paddingHorizontal: space.xs },
 });

@@ -8,7 +8,7 @@ import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { durations, ease, enter, springs } from '@/lib/motion';
 import type { Palette } from '@/theme';
-import { corner, radius, size, iconSize } from '@/theme';
+import { corner, radius, size, iconSize, space } from '@/theme';
 
 /** Where each Plus feature starts. Every row does the thing; none of them only describes it. */
 export type PlusDestination = 'import' | 'shifts' | 'canvas';
@@ -26,9 +26,9 @@ export function PlusFeatures({ c, onGo }: { c: Palette; onGo: (to: PlusDestinati
       {FEATURES.map(({ icon, title, detail, to }, i) => (
         <Pressable key={to} accessibilityRole="button" accessibilityLabel={`${title}. ${detail}`} onPress={() => onGo(to)}
           style={({ pressed }) => [styles.row, i < FEATURES.length - 1 ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null,
-            pressed ? { backgroundColor: c.row, marginHorizontal: -8, paddingHorizontal: 8, ...corner(radius.small) } : null]}>
+            pressed ? { backgroundColor: c.row, marginHorizontal: -space.xs, paddingHorizontal: space.xs, ...corner(radius.small) } : null]}>
           <Icon name={icon} size={20} color={c.inkPrimary} />
-          <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+          <View style={{ flex: 1, minWidth: 0, gap: space.hair }}>
             <T token="body" color={c.inkPrimary}>{title}</T>
             <T token="caption" color={c.inkSecondary}>{detail}</T>
           </View>
@@ -49,8 +49,8 @@ export function PlusWelcome({ celebrate, trialEndsAt, onGo, onDone, c }: {
 }) {
   const trialDate = trialEndsAt ? monthDay(localParts(new Date(trialEndsAt)).date) : null;
   return (
-    <Animated.View entering={enter.rise} style={{ gap: 32 }}>
-      <View style={{ gap: 12 }}>
+    <Animated.View entering={enter.rise} style={{ gap: space.xxl }}>
+      <View style={{ gap: space.sm }}>
         <View style={styles.seal}>
           {celebrate ? <Burst c={c} /> : null}
           <Tick c={c} animate={celebrate} />
@@ -61,11 +61,11 @@ export function PlusWelcome({ celebrate, trialEndsAt, onGo, onDone, c }: {
           {trialDate ? `Your free trial ends ${trialDate}. Manage your subscription in You → Your plan.` : 'Your subscription includes the features below.'}
         </T>
       </View>
-      <View style={{ gap: 8 }}>
+      <View style={{ gap: space.xs }}>
         <T token="subhead" color={c.inkSecondary}>Included with Plus</T>
         <PlusFeatures c={c} onGo={onGo} />
       </View>
-      <View style={{ gap: 12 }}>
+      <View style={{ gap: space.sm }}>
         <Press haptic="tap" accessibilityRole="button" onPress={onDone} style={[styles.cta, { backgroundColor: c.controlFill }]}>
           <T token="headline" color={c.controlInk}>Done</T>
         </Press>
@@ -116,9 +116,9 @@ function Particle({ index, color }: { index: number; color: string }) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, paddingVertical: 12 },
-  seal: { width: 64, height: 64, marginBottom: 8, alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.item, paddingVertical: space.sm },
+  seal: { width: 64, height: 64, marginBottom: space.xs, alignItems: 'center', justifyContent: 'center' },
   tick: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
   particle: { position: 'absolute', left: 29.5, top: 27, width: 5, height: 10, borderRadius: 2 },
-  cta: { minHeight: size.control, paddingVertical: 14, paddingHorizontal: 20, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  cta: { minHeight: size.control, paddingVertical: space.sm, paddingHorizontal: space.lg, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
 });

@@ -9,7 +9,7 @@ import { T } from '@/components/Text';
 import { enter, exit } from '@/lib/motion';
 import { chooseFileForAdd } from '@/lib/web-drop';
 import { useCourseList, useStore } from '@/store';
-import { corner, radius, textStyle, useTheme, shadow } from '@/theme';
+import { corner, radius, textStyle, useTheme, shadow, space, size } from '@/theme';
 
 type Action = { id: string; label: string; hint: string; run: () => void };
 
@@ -87,6 +87,6 @@ export function QuickAdd({ onClose }: { onClose: () => void }) {
 const styles = StyleSheet.create({
   scrim: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 20, alignItems: 'center', paddingTop: 110 },
   box: { width: 620, maxWidth: '92%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden', boxShadow: shadow.dialog },
-  input: { paddingHorizontal: 20, paddingVertical: 18, borderBottomWidth: StyleSheet.hairlineWidth, outlineStyle: 'none' } as never,
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 46, paddingHorizontal: 20 },
+  input: { paddingHorizontal: space.lg, paddingVertical: space.md, borderBottomWidth: StyleSheet.hairlineWidth, outlineStyle: 'none' } as never,
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.compact, paddingHorizontal: space.lg },
 });

@@ -6,7 +6,7 @@ import Animated from 'react-native-reanimated';
 import { GroupLabel } from '@/components/Controls';
 import { T } from '@/components/Text';
 import { enter, exit, layout } from '@/lib/motion';
-import { mobileFonts, useTheme } from '@/theme';
+import { mobileFonts, useTheme, space, size } from '@/theme';
 
 /**
  * What the composer has heard so far: one row per clause that names a day or a time, rising in
@@ -29,7 +29,7 @@ export function Heard({ text }: { text: string }) {
           <T token="caption" color={c.inkSecondary} tabular>{row.label}</T>
         </Animated.View>
       ))}
-      <T token="caption" color={c.inkSecondary} style={{ paddingTop: 6 }}>Send to review the dates and times before adding them.</T>
+      <T token="caption" color={c.inkSecondary} style={{ paddingTop: space.snug }}>Send to review the dates and times before adding them.</T>
     </Animated.View>
   );
 }
@@ -48,7 +48,7 @@ function spans(text: string, cues: { start: number; end: number }[]) {
 }
 
 const styles = StyleSheet.create({
-  root: { gap: 2 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 48, paddingVertical: 6 },
+  root: { gap: space.hair },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.compact, paddingVertical: space.snug },
   dot: { width: 6, height: 6, borderRadius: 3 },
 });

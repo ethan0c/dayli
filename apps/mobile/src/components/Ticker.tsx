@@ -1,53 +1,174 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, type TextStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { LayoutAnimationConfig, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
-import { springs } from '@/lib/motion';
+import { durations, ease, enter, exit, layout, springs } from '@/lib/motion';
 import { textStyle, useTheme, type TypeToken } from '@/theme';
 
-const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+/** Each digit's strip: 0 to 9 and 0 again, so a roll past 9 has a cell to land on. */
+const CELLS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+/** How far a changing word travels, as a share of its line, while it fades. */
+const TRAVEL = 0.6;
+
+type Direction = 1 | -1;
+type Common = { token?: TypeToken; color?: string; style?: TextStyle; accessibilityLabel?: string; maxFontSizeMultiplier?: number };
 
 /**
- * A number that rolls to its new value, one digit column at a time, the way a
- * brokerage balance does. Non-digit characters (":", "·", letters) sit still.
- * Digits are tabular, so columns never shift width.
+ * Text that changes in place, the way a brokerage balance does. Every number rolls to its new
+ * value one digit column at a time, all columns the way the number moved (up for more, down for
+ * fewer); a column that appears or goes fades while the rest glide to make room. Words that
+ * change slide out and in along the same direction. Digits are tabular, so columns never shift.
+ * `direction` sets the way for text with no number to compare, like a month after a swipe.
  */
-export function Ticker({ value, token = 'body', color, style, accessibilityLabel, maxFontSizeMultiplier }: { value: string; token?: TypeToken; color?: string; style?: TextStyle; accessibilityLabel?: string; maxFontSizeMultiplier?: number }) {
+export function Ticker({ value, direction, token = 'body', color, style, accessibilityLabel, maxFontSizeMultiplier }: Common & { value: string; direction?: Direction }) {
   const { c } = useTheme();
   const base: TextStyle = { ...textStyle(token, color ?? c.inkPrimary), fontVariant: ['tabular-nums'], ...style };
-  const line = base.lineHeight ?? (base.fontSize ?? 16) * 1.2;
+  const line = lineOf(base);
+  const dir = useDirection(value, direction);
   return (
-    <View style={styles.row} accessible accessibilityRole="text" accessibilityLabel={accessibilityLabel ?? value}>
-      {[...value].map((ch, i) =>
-        DIGITS.includes(ch) ? (
-          <Digit key={`${i}-${value.length}`} digit={Number(ch)} line={line} style={base} maxFontSizeMultiplier={maxFontSizeMultiplier} />
-        ) : (
-          <Text key={`${i}-${ch}`} maxFontSizeMultiplier={maxFontSizeMultiplier} style={[base, { lineHeight: line }]}>
-            {ch}
-          </Text>
-        ),
-      )}
+    <LayoutAnimationConfig skipEntering>
+      <View style={styles.row} accessible accessibilityRole="text" accessibilityLabel={accessibilityLabel ?? value}>
+        {pieces(value).map((p, i) => (
+          <Animated.View key={`${i}-${p.kind}`} layout={layout} entering={enter.fade} exiting={exit.fade}>
+            {p.kind === 'number'
+              ? <Digits text={p.text} dir={dir} line={line} style={base} maxFontSizeMultiplier={maxFontSizeMultiplier} />
+              : <Slide text={p.text} dir={dir} line={line} style={base} maxFontSizeMultiplier={maxFontSizeMultiplier} />}
+          </Animated.View>
+        ))}
+      </View>
+    </LayoutAnimationConfig>
+  );
+}
+
+/**
+ * A whole label that slides to its next wording, for pills and short lines with no number to
+ * roll ("Due today" → "Done"). The box eases to the new width while the words cross.
+ */
+export function Swap({ value, direction = 1, token = 'body', color, style, numberOfLines = 1, maxFontSizeMultiplier }: Common & { value: string; direction?: Direction; numberOfLines?: number }) {
+  const { c } = useTheme();
+  const base: TextStyle = { ...textStyle(token, color ?? c.inkPrimary), ...style };
+  return <Slide text={value} dir={direction} line={lineOf(base)} style={base} numberOfLines={numberOfLines} maxFontSizeMultiplier={maxFontSizeMultiplier} />;
+}
+
+function lineOf(style: TextStyle): number {
+  return style.lineHeight ?? (style.fontSize ?? 16) * 1.2;
+}
+
+type Piece = { kind: 'number' | 'text'; text: string };
+
+/** "5 plans · 12 work hours" → numbers, words and the spaces between, so each can change alone. */
+function pieces(value: string): Piece[] {
+  return value.split(/(\d+|\s+)/).filter(Boolean).map((text) => ({ kind: /^\d+$/.test(text) ? 'number' : 'text', text }));
+}
+
+/** The way the text moved: the given direction, else the first number that changed, else up. */
+function useDirection(value: string, direction?: Direction): Direction {
+  const last = useRef(value);
+  const dir = useRef<Direction>(direction ?? 1);
+  if (last.current !== value) {
+    dir.current = direction ?? numberDirection(last.current, value);
+    last.current = value;
+  }
+  return dir.current;
+}
+
+/** Which way an ISO date just moved: 1 when it went later, -1 when earlier. Pass it as a Ticker's `direction`. */
+export function useDateDirection(date: string): Direction {
+  const last = useRef(date);
+  const dir = useRef<Direction>(1);
+  if (last.current !== date) {
+    dir.current = date > last.current ? 1 : -1;
+    last.current = date;
+  }
+  return dir.current;
+}
+
+function numberDirection(before: string, after: string): Direction {
+  const a = before.match(/\d+/g) ?? [];
+  const b = after.match(/\d+/g) ?? [];
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    if (a[i] !== b[i]) return Number(b[i]) > Number(a[i]) ? 1 : -1;
+  }
+  return b.length < a.length ? -1 : 1;
+}
+
+/** A run of digits. Columns are keyed from the right, so the ones column stays put when a tens column arrives. */
+function Digits({ text, dir, line, style, maxFontSizeMultiplier }: { text: string; dir: Direction; line: number; style: TextStyle; maxFontSizeMultiplier?: number }) {
+  const digits = [...text];
+  return (
+    <View style={styles.row}>
+      {digits.map((d, i) => (
+        <Animated.View key={`c${digits.length - i}`} layout={layout} entering={enter.fade} exiting={exit.fade}>
+          <Digit digit={+d} dir={dir} line={line} style={style} maxFontSizeMultiplier={maxFontSizeMultiplier} />
+        </Animated.View>
+      ))}
     </View>
   );
 }
 
-function Digit({ digit, line, style, maxFontSizeMultiplier }: { digit: number; line: number; style: TextStyle; maxFontSizeMultiplier?: number }) {
-  const y = useSharedValue(-digit * line);
+/**
+ * One digit column on the gentle spring. Its position counts cells without wrapping, so a roll
+ * can go either way any number of times; the strip shows that position modulo ten.
+ */
+function Digit({ digit, dir, line, style, maxFontSizeMultiplier }: { digit: number; dir: Direction; line: number; style: TextStyle; maxFontSizeMultiplier?: number }) {
+  const at = useRef(digit);
+  const y = useSharedValue(digit);
   useEffect(() => {
-    y.value = withSpring(-digit * line, springs.gentle);
-  }, [digit, line, y]);
-  const animated = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
+    const from = ((at.current % 10) + 10) % 10;
+    if (from === digit) return;
+    at.current += dir > 0 ? (digit - from + 10) % 10 : -((from - digit + 10) % 10);
+    y.value = withSpring(at.current, springs.gentle);
+  }, [digit, dir, y]);
+  const strip = useAnimatedStyle(() => ({ transform: [{ translateY: -(((y.value % 10) + 10) % 10) * line }] }));
   return (
     <View style={{ height: line, overflow: 'hidden' }}>
-      <Animated.View style={animated}>
-        {DIGITS.map((d) => (
-          <Text key={d} maxFontSizeMultiplier={maxFontSizeMultiplier} style={[style, { lineHeight: line }]}>
-            {d}
-          </Text>
+      <Animated.View style={strip}>
+        {CELLS.map((d, i) => (
+          <Text key={i} maxFontSizeMultiplier={maxFontSizeMultiplier} style={[style, { lineHeight: line }]}>{d}</Text>
         ))}
       </Animated.View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({ row: { flexDirection: 'row', alignItems: 'flex-end' } });
+/**
+ * Text that slides when it changes: the old wording leaves the way the change went and fades,
+ * the new one arrives from the other side, over `base` on the one curve. The leaving copy is
+ * lifted out of layout, so the box takes the new width at once and the `layout` transition eases it.
+ */
+function Slide({ text, dir, line, style, numberOfLines, maxFontSizeMultiplier }: { text: string; dir: Direction; line: number; style: TextStyle; numberOfLines?: number; maxFontSizeMultiplier?: number }) {
+  const [shown, setShown] = useState({ gen: 0, text, prev: null as string | null, dir });
+  if (shown.text !== text) setShown({ gen: shown.gen + 1, text, prev: shown.text, dir });
+  const leg = { line, style, numberOfLines, maxFontSizeMultiplier, dir: shown.dir };
+  return (
+    <Animated.View layout={layout} style={styles.clip}>
+      {shown.prev !== null ? <Leg key={`out${shown.gen}`} mode="out" text={shown.prev} {...leg} /> : null}
+      <Leg key={`in${shown.gen}`} mode={shown.gen === 0 ? 'still' : 'in'} text={shown.text} {...leg} />
+    </Animated.View>
+  );
+}
+
+function Leg({ mode, text, dir, line, style, numberOfLines, maxFontSizeMultiplier }: {
+  mode: 'still' | 'in' | 'out'; text: string; dir: Direction; line: number; style: TextStyle; numberOfLines?: number; maxFontSizeMultiplier?: number;
+}) {
+  const p = useSharedValue(mode === 'still' ? 1 : 0);
+  useEffect(() => {
+    if (mode !== 'still') p.value = withTiming(1, { duration: durations.base, easing: ease });
+  }, [mode, p]);
+  const travel = line * TRAVEL;
+  const animated = useAnimatedStyle(() => mode === 'out'
+    ? { opacity: 1 - p.value, transform: [{ translateY: -dir * travel * p.value }] }
+    : { opacity: p.value, transform: [{ translateY: dir * travel * (1 - p.value) }] });
+  return (
+    <Animated.View style={[mode === 'out' ? styles.leaving : styles.staying, animated]}>
+      <Text numberOfLines={numberOfLines} maxFontSizeMultiplier={maxFontSizeMultiplier} style={[style, { lineHeight: line }]}>{text}</Text>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'flex-end' },
+  clip: { overflow: 'hidden', flexShrink: 1 },
+  staying: { flexShrink: 1 },
+  leaving: { position: 'absolute', top: 0, left: 0 },
+});

@@ -5,7 +5,7 @@ import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
-import { useTheme } from '@/theme';
+import { useTheme, space } from '@/theme';
 
 const WIDTH = 88;
 
@@ -53,5 +53,5 @@ export function SwipeRow({ children, onDelete, onComplete, completeLabel = 'Done
 }
 
 const styles = StyleSheet.create({
-  action: { width: WIDTH, justifyContent: 'center', paddingHorizontal: 16, gap: 4 },
+  action: { width: WIDTH, justifyContent: 'center', paddingHorizontal: space.md, gap: space.xxs },
 });

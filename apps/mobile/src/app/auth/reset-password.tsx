@@ -9,7 +9,7 @@ import { authErrorMessage, validateAuthForm } from '@/lib/auth';
 import { authClient, leaveAuth } from '@/lib/auth-client';
 import { accountOf, useSession } from '@/lib/supabase';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, space } from '@/theme';
 
 /** After the reset code: the person is signed in, so they only choose the new password. */
 export default function ResetPasswordScreen() {
@@ -53,6 +53,6 @@ export default function ResetPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40, gap: 28 },
-  hero: { gap: 12 },
+  body: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xxxl, gap: space.xl },
+  hero: { gap: space.sm },
 });

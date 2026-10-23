@@ -2,7 +2,7 @@ import { GlassContainer, GlassView, isLiquidGlassAvailable } from 'expo-glass-ef
 import type { ReactNode } from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme, space } from '@/theme';
 
 /** True on iOS 26 and later built with the iOS 26 SDK: chrome buttons sit in Liquid Glass there. */
 export const GLASS = Platform.OS === 'ios' && isLiquidGlassAvailable();
@@ -37,5 +37,5 @@ export function GlassGroup({ children, style }: { children: ReactNode; style?: S
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
-  group: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  group: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
 });

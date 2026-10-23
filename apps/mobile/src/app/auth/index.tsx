@@ -20,7 +20,7 @@ import { durations, ease, enter, springs } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { hideSplash, splashShowing } from '@/lib/splash';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, space, size } from '@/theme';
 
 const LOGO = 192;
 /** The native splash draws the wordmark 240 points wide, centred on white (app.json). */
@@ -162,13 +162,13 @@ function useLaunchHandoff() {
 }
 
 const styles = StyleSheet.create({
-  page: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, gap: 32 },
+  page: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, gap: space.xxl },
   // On a wide web window the sky spans the page and the words and buttons keep a phone's measure.
   measure: { width: '100%', maxWidth: 520, alignSelf: 'center' },
   launchLogo: { position: 'absolute', top: '50%', left: '50%', width: LOGO, height: LOGO / WORDMARK_RATIO, marginLeft: -LOGO / 2, marginTop: -LOGO / WORDMARK_RATIO / 2 },
-  hero: { flex: 1, minHeight: 320, alignItems: 'center', justifyContent: 'center', gap: 32 },
-  copy: { gap: 14, maxWidth: 330 },
+  hero: { flex: 1, minHeight: 320, alignItems: 'center', justifyContent: 'center', gap: space.xxl },
+  copy: { gap: space.sm, maxWidth: 330 },
   center: { textAlign: 'center' },
-  actions: { gap: 14 },
-  textAction: { alignSelf: 'center', minHeight: 44 },
+  actions: { gap: space.sm },
+  textAction: { alignSelf: 'center', minHeight: size.target },
 });

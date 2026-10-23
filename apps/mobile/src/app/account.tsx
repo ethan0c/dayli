@@ -16,7 +16,7 @@ import { accountOf, useSession } from '@/lib/supabase';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
 import { THIS_DEVICE } from '@/lib/web';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, space } from '@/theme';
 
 /**
  * Account settings. Two states: a guest's plan is only on this iPhone; a signed-in plan is backed
@@ -123,6 +123,6 @@ export default function AccountScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40, gap: 30 },
-  hero: { gap: 14 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xxxl, gap: space.xxl },
+  hero: { gap: space.sm },
 });

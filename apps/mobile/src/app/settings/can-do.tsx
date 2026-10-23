@@ -6,7 +6,7 @@ import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
 import { useCanDo } from '@/lib/can-do';
 import { feedback } from '@/lib/feedback';
-import { useTheme, screen } from '@/theme';
+import { useTheme, screen, space } from '@/theme';
 
 /** A list of things to try, each opening the real screen; ticked once the person's own plan shows it happened. */
 export default function CanDoScreen() {
@@ -34,6 +34,6 @@ export default function CanDoScreen() {
 
 const styles = StyleSheet.create({
   body: screen.settingsBody,
-  top: { gap: 2 },
-  line: { paddingTop: 6 },
+  top: { gap: space.hair },
+  line: { paddingTop: space.snug },
 });

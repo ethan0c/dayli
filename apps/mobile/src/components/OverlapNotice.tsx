@@ -9,7 +9,7 @@ import { Button } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { useNow } from '@/lib/now';
 import { useReschedule } from '@/lib/use-reschedule';
-import { useTheme } from '@/theme';
+import { useTheme, space, size } from '@/theme';
 
 /** Free conflict facts, with an explicitly confirmed Plus suggestion for the flexible event. */
 export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
@@ -66,9 +66,9 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
 }
 
 const styles = StyleSheet.create({
-  root: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 16, paddingBottom: 6, gap: 12 },
-  heading: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  fact: { gap: 2 },
-  link: { alignSelf: 'flex-start', minHeight: 44 },
-  suggestion: { gap: 12, paddingTop: 4 },
+  root: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: space.md, paddingBottom: space.snug, gap: space.sm },
+  heading: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
+  fact: { gap: space.hair },
+  link: { alignSelf: 'flex-start', minHeight: size.target },
+  suggestion: { gap: space.sm, paddingTop: space.xxs },
 });

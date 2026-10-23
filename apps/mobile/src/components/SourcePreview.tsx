@@ -3,7 +3,7 @@ import { createElement, useEffect, useMemo } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { T } from '@/components/Text';
-import { SCREEN_GUTTER, corner, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, space } from '@/theme';
 
 /** A PDF's bytes as a page the browser can show; revoked when the preview goes. */
 function useBlobUrl(base64: string | null, type: string): string | null {
@@ -34,7 +34,7 @@ export function SourcePreview({ input, source }: { input: ExtractRequest['input'
           {pdf ? createElement('iframe', { src: pdf, title: source, style: { border: 0, width: '100%', height: '100%', borderRadius: radius.field } }) : null}
         </View>
       ) : (
-        <ScrollView style={[styles.frame, { borderColor: c.line, backgroundColor: c.surface }]} contentContainerStyle={{ padding: 18 }}>
+        <ScrollView style={[styles.frame, { borderColor: c.line, backgroundColor: c.surface }]} contentContainerStyle={{ padding: space.md }}>
           <T token="body">{input.text}</T>
         </ScrollView>
       )}
@@ -43,7 +43,7 @@ export function SourcePreview({ input, source }: { input: ExtractRequest['input'
 }
 
 const styles = StyleSheet.create({
-  pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth, paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 24, gap: 10 },
+  pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth, paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xl, gap: space.sm },
   label: { },
   frame: { flex: 1, borderWidth: StyleSheet.hairlineWidth, ...corner(radius.field), overflow: 'hidden' },
 });

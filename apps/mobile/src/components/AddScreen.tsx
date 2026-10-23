@@ -25,7 +25,7 @@ import { useNow } from '@/lib/now';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { useStore } from '@/store';
 import { diffDays, localParts, monthDay, relativeDay , count } from '@dayli/core';
-import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
+import { NAV_INSET, SCREEN_GUTTER, useTheme, space } from '@/theme';
 
 /**
  * Add, the fifth tab: a composer with the attachments inside it, the recent screenshots,
@@ -222,7 +222,7 @@ function RecentImports() {
   const imports = batches.filter((b) => b.source && !b.undone).slice(0, 8);
   return (
     <ScrollView style={[styles.pane, { borderLeftColor: c.line }]} contentContainerStyle={styles.paneBody}>
-      <T token="titleSm" accessibilityRole="header" style={{ paddingBottom: 8 }}>Recent imports</T>
+      <T token="titleSm" accessibilityRole="header" style={{ paddingBottom: space.xs }}>Recent imports</T>
       {imports.length ? imports.map((b, i) => {
         const at = localParts(new Date(b.createdAt));
         const day = Math.abs(diffDays(at.date, now.date)) <= 1 ? relativeDay(now.date, at.date) : monthDay(at.date);
@@ -237,7 +237,7 @@ function RecentImports() {
 const styles = StyleSheet.create({
   panes: { flex: 1, flexDirection: 'row' },
   pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
-  paneBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40 },
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 24, gap: 20 },
-  status: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
+  paneBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xxxl },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, gap: space.lg },
+  status: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: space.xxs },
 });

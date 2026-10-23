@@ -8,7 +8,7 @@ import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { authErrorMessage, type CodePurpose } from '@/lib/auth';
 import { authClient, leaveAuth } from '@/lib/auth-client';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, space, size } from '@/theme';
 
 /** Supabase sends 6 to 8 digits (Authentication → Providers → Email → Email OTP length). Accepting the
  * range means a dashboard change never locks anyone out; a full-length code submits on its own. */
@@ -80,7 +80,7 @@ export default function VerifyScreen() {
             setError(null);
             if (digits.length === CODE_MAX) void verify(digits);
           }} />
-        <View style={{ gap: 12 }}>
+        <View style={{ gap: space.sm }}>
           <Button label={busy ? 'Checking…' : 'Continue'} disabled={busy || code.length < CODE_MIN} onPress={() => void verify()} />
           {wait > 0
             ? <T token="caption" color={c.inkSecondary} style={styles.center}>{`Send a new code in ${wait}s`}</T>
@@ -93,8 +93,8 @@ export default function VerifyScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40, gap: 28 },
-  hero: { gap: 12 },
-  center: { textAlign: 'center', minHeight: 44, textAlignVertical: 'center' },
-  link: { alignSelf: 'center', minHeight: 44 },
+  body: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xxxl, gap: space.xl },
+  hero: { gap: space.sm },
+  center: { textAlign: 'center', minHeight: size.target, textAlignVertical: 'center' },
+  link: { alignSelf: 'center', minHeight: size.target },
 });

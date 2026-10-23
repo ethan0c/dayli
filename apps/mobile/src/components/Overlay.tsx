@@ -9,7 +9,7 @@ import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { enter, exit } from '@/lib/motion';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, radius, useTheme, space } from '@/theme';
 
 /** Lifts the toast off a light page; a light toast on a dark page needs none. */
 const shadow = { shadowColor: colors.ink, shadowOpacity: 0.16, shadowRadius: 20, shadowOffset: { width: 0, height: 6 } };
@@ -52,7 +52,7 @@ export function Toast({ offset }: { offset: number }) {
 
 const styles = StyleSheet.create({
   lane: { position: 'absolute', left: SCREEN_GUTTER, right: SCREEN_GUTTER, alignItems: 'center' },
-  toast: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 44, paddingVertical: 10, paddingLeft: 18, paddingRight: 16, borderRadius: radius.pill, maxWidth: '100%' },
+  toast: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 44, paddingVertical: space.sm, paddingLeft: space.md, paddingRight: space.md, borderRadius: radius.pill, maxWidth: '100%' },
   message: { flexShrink: 1 },
-  undo: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  undo: { flexDirection: 'row', alignItems: 'center', gap: space.xxs },
 });

@@ -12,7 +12,7 @@ import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
 import { SHARING_ENABLED } from '@/lib/auth';
 import { useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, corner, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, space, size } from '@/theme';
 
 const CATEGORIES: { key: Category; label: string }[] = [{ key: 'school', label: 'School' }, { key: 'work', label: 'Work' }, { key: 'personal', label: 'Personal' }];
 
@@ -60,7 +60,7 @@ function ShareSchedulePreview() {
             <T token="display" accessibilityRole="header">Your week, shared.</T>
             <T token="body" color={c.inkSecondary}>A friend or parent will be able to open a read-only link in their browser. No app download needed.</T>
           </View>
-          <View style={{ gap: 16 }}>
+          <View style={{ gap: space.md }}>
             <GroupLabel>Choose what they see</GroupLabel>
             <Segmented label="Schedule range" options={[{ key: 'day', label: 'Day' }, { key: 'week', label: 'Week' }]} value={range} onChange={setRange} />
             <View style={styles.dateRow}>
@@ -72,11 +72,11 @@ function ShareSchedulePreview() {
               {CATEGORIES.map(({ key, label }) => <Chip key={key} label={label} on={categories.includes(key)} onPress={() => setCategories((current) => current.includes(key) ? current.filter((category) => category !== key) : [...current, key])} />)}
             </View>
             <View style={[styles.toggle, { borderBottomColor: c.line }]}>
-              <View style={{ flex: 1, gap: 4 }}><T token="body">Show event names</T><T token="caption" color={c.inkSecondary}>Switch off to show “Busy” and “To-do” instead.</T></View>
+              <View style={{ flex: 1, gap: space.xxs }}><T token="body">Show event names</T><T token="caption" color={c.inkSecondary}>Switch off to show “Busy” and “To-do” instead.</T></View>
               <NativeToggle label="Show event names" value={showTitles} onChange={setShowTitles} />
             </View>
           </View>
-          <View style={{ gap: 12 }}>
+          <View style={{ gap: space.sm }}>
             <GroupLabel>Message preview</GroupLabel>
             <View style={[styles.linkPreview, { backgroundColor: c.surface, borderColor: c.line }]}>
               <Wordmark width={64} ink={c.inkPrimary} dot={c.accent} />
@@ -90,17 +90,17 @@ function ShareSchedulePreview() {
           <T token="display" accessibilityRole="header">{title}</T>
           <T token="body" color={c.inkSecondary}>{rangeLabel}, {preview.to.slice(0, 4)} · Read-only</T>
         </View>}
-        <View style={{ gap: 12 }}>
+        <View style={{ gap: space.sm }}>
           {!viewer ? <GroupLabel>Schedule preview</GroupLabel> : null}
           {dates.length ? dates.map((day) => <View key={day}>
-            <T token="headline" style={{ paddingVertical: 12 }}>{weekdayLong(day)}, {monthDay(day)}</T>
+            <T token="headline" style={{ paddingVertical: space.sm }}>{weekdayLong(day)}, {monthDay(day)}</T>
             {preview.entries.filter((entry) => displayDate(entry) === day).map((entry, index) => <View key={index} style={[styles.entry, { borderBottomColor: c.line }]}>
               <View style={[styles.dot, { backgroundColor: c.chartBooked }]} />
-              <View style={{ flex: 1, gap: 4 }}><T token="body">{entry.title}</T><T token="caption" color={c.inkSecondary}>{entry.date < preview.from && entry.end ? `Until ${formatTime(entry.end, true)} · from ${monthDay(entry.date)}` : entryTime(entry)}</T></View>
+              <View style={{ flex: 1, gap: space.xxs }}><T token="body">{entry.title}</T><T token="caption" color={c.inkSecondary}>{entry.date < preview.from && entry.end ? `Until ${formatTime(entry.end, true)} · from ${monthDay(entry.date)}` : entryTime(entry)}</T></View>
               {entry.isDeadline ? <StatusPill label="Due" tabular={false} /> : null}
             </View>)}
           </View>) : <T token="callout" color={c.inkSecondary}>{categories.length ? 'No plans in this date range. Choose another day or week.' : 'Choose at least one category to include in your preview.'}</T>}
-          <T token="caption" color={c.inkSecondary} style={{ paddingTop: 12 }}>Notes, source files, employer details and account information aren’t included in this preview.</T>
+          <T token="caption" color={c.inkSecondary} style={{ paddingTop: space.sm }}>Notes, source files, employer details and account information aren’t included in this preview.</T>
         </View>
       </ScrollView>
     </Sheet>
@@ -108,14 +108,14 @@ function ShareSchedulePreview() {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, paddingBottom: 32, gap: 28 },
-  previewNote: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  hero: { gap: 12 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.sm, paddingBottom: space.xxl, gap: space.xl },
+  previewNote: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  hero: { gap: space.sm },
   center: { textAlign: 'center', flexShrink: 1 },
-  dateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  toggle: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 16, borderBottomWidth: StyleSheet.hairlineWidth },
-  linkPreview: { borderWidth: StyleSheet.hairlineWidth, ...corner(radius.field), padding: 20, gap: 12 },
-  entry: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
+  dateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
+  toggle: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.md, borderBottomWidth: StyleSheet.hairlineWidth },
+  linkPreview: { borderWidth: StyleSheet.hairlineWidth, ...corner(radius.field), padding: space.lg, gap: space.sm },
+  entry: { minHeight: size.item, flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: space.sm, borderBottomWidth: StyleSheet.hairlineWidth },
   dot: { width: 6, height: 6, borderRadius: 3 },
 });

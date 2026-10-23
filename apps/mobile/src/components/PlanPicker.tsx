@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { dateLocale, fullDate, localParts } from '@dayli/core';
+import { dateLocale, fullDate, localParts, count } from '@dayli/core';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
@@ -18,7 +18,7 @@ import { notificationsAllowed, requestNotifications } from '@/lib/notifications'
 import { PLUS_ENTITLEMENT, customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
-import { useTheme, type Palette, radius, size, fade } from '@/theme';
+import { useTheme, type Palette, radius, size, fade, space } from '@/theme';
 
 /** The three Semli Plus terms. Packages come from RevenueCat; see docs/revenuecat-offerings-brief.md. */
 const TERMS = [
@@ -139,11 +139,11 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
 
   if (isPlus && !previewPlans) {
     return (
-      <View style={{ gap: 22 }}>
-        <View style={{ gap: 2 }}>
+      <View style={{ gap: space.xl }}>
+        <View style={{ gap: space.hair }}>
           <T token="callout" color={c.inkSecondary}>Semli <T token="callout" color={c.accentInk}>Plus</T> · Active</T>
           <T token="displayXl" color={c.inkPrimary}>Unlimited</T>
-          <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
+          <T token="callout" color={c.inkSecondary} style={{ paddingTop: space.xxs }}>
             {entitlement?.expirationDate ? `${entitlement.willRenew ? 'Renews' : 'Access until'} ${fullDate(localParts(new Date(entitlement.expirationDate)).date)}.` : 'Your Plus subscription is active.'}
           </T>
         </View>
@@ -163,9 +163,9 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
   }
 
   return (
-    <View style={{ gap: 28 }}>
+    <View style={{ gap: space.xl }}>
       {previewPlans ? <Press accessibilityRole="button" onPress={() => setPreviewPlans(false)} style={styles.textBtn}><T token="caption" color={c.accentInk}>End preview · purchases disabled</T></Press> : null}
-      <View style={{ gap: 12 }}>
+      <View style={{ gap: space.sm }}>
         <T token="displaySerif" color={c.inkPrimary}>{headline ?? 'Get Semli Plus.'}</T>
         <T token="callout" color={c.inkSecondary}>
           Semli <T token="callout" color={c.accentInk}>Plus</T>{days ? ` · ${days} days free, then` : ''}
@@ -175,10 +175,10 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
         ) : (
           <Animated.View key="price" entering={enter.fade} style={styles.priceRow}>
             <T token="displayXl" color={c.inkPrimary} tabular adjustsFontSizeToFit minimumFontScale={0.6} numberOfLines={1} style={{ flexShrink: 1 }}>{selected?.product.priceString ?? '—'}</T>
-            {current ? <T token="title" color={c.inkSecondary} style={{ paddingBottom: 6 }}>{current.period}</T> : null}
+            {current ? <T token="title" color={c.inkSecondary} style={{ paddingBottom: space.snug }}>{current.period}</T> : null}
           </Animated.View>
         )}
-        <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
+        <T token="callout" color={c.inkSecondary} style={{ paddingTop: space.xxs }}>
           Unlimited imports, Canvas sync, work schedule comparisons, suggested times for overlapping events, and alarms for urgent items. Your calendar, to-dos, reminders and overlap warnings are free.
         </T>
       </View>
@@ -212,7 +212,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
       </View>
 
       {days && selected && current ? (
-        <View style={{ gap: 16 }}>
+        <View style={{ gap: space.md }}>
           {[
             { when: 'Today', what: 'Your free trial starts.', color: c.added },
             { when: `Day ${Math.max(1, days - 2)}`, what: canRemind !== true ? 'Turn on notifications for a reminder before your trial ends.' : 'You’ll get a reminder before your trial ends.', color: c.changed, remind: canRemind !== true },
@@ -221,7 +221,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
             <View key={r.when} style={styles.timelineRow}>
               <View style={[styles.timelineDot, { backgroundColor: r.color }]} />
               <T token="subhead" color={c.inkPrimary} style={{ width: 54 }}>{r.when}</T>
-              <View style={{ flex: 1, gap: 2 }}>
+              <View style={{ flex: 1, gap: space.hair }}>
                 <T token="callout" color={c.inkSecondary}>{r.what}</T>
                 {'remind' in r && r.remind ? (
                   <Pressable accessibilityRole="button" onPress={() => { feedback('select'); requestNotifications().then(setCanRemind, () => setCanRemind(false)); }} style={styles.remind}>
@@ -239,7 +239,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
       ) : null}
       {unavailableReason || error || notice ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{unavailableReason ?? error ?? notice}</T> : null}
 
-      <View style={{ gap: 12, paddingTop: 4, alignItems: 'center' }}>
+      <View style={{ gap: space.sm, paddingTop: space.xxs, alignItems: 'center' }}>
         <Press haptic="tap" accessibilityRole="button" accessibilityState={{ disabled: disabled || !selected || previewPlans }} disabled={disabled || !selected || previewPlans} onPress={() => void buyPlan()}
           style={[styles.cta, { backgroundColor: c.controlFill, opacity: disabled || !selected || previewPlans ? 0.4 : 1 }]}>
           <T token="headline" color={c.controlInk}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
@@ -250,7 +250,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
         </T>
         {onContinueFree ? (
           <Pressable accessibilityRole="button" disabled={busy} onPress={onContinueFree} style={styles.textBtn}>
-            <T token="subhead" color={c.inkSecondary}>{`Continue free${freeImportsLeft !== undefined ? ` · ${freeImportsLeft} free ${freeImportsLeft === 1 ? 'import' : 'imports'} left` : ' · 5 imports to start, then 3 a month'}`}</T>
+            <T token="subhead" color={c.inkSecondary}>{`Continue free${freeImportsLeft !== undefined ? ` · ${count(freeImportsLeft, 'free import')} left` : ' · 5 imports to start, then 3 a month'}`}</T>
           </Pressable>
         ) : null}
         {!unavailableReason && (error || !offering) ? (
@@ -284,15 +284,15 @@ export function closePaywall() {
 }
 
 const styles = StyleSheet.create({
-  priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
-  cta: { alignSelf: 'stretch', minHeight: size.control, paddingVertical: 14, paddingHorizontal: 20, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingVertical: 12, flexWrap: 'wrap', borderBottomWidth: StyleSheet.hairlineWidth },
-  studentLink: { minHeight: 44, justifyContent: 'center', paddingTop: 8 },
+  priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space.xs },
+  cta: { alignSelf: 'stretch', minHeight: size.control, paddingVertical: space.sm, paddingHorizontal: space.lg, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  planRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.row, paddingVertical: space.sm, flexWrap: 'wrap', borderBottomWidth: StyleSheet.hairlineWidth },
+  studentLink: { minHeight: size.target, justifyContent: 'center', paddingTop: space.xs },
   remind: { minHeight: 32, justifyContent: 'center', alignSelf: 'flex-start' },
-  timelineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, minHeight: 32 },
-  timelineDot: { width: 8, height: 8, borderRadius: 4, marginTop: 6 },
+  timelineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm, minHeight: 32 },
+  timelineDot: { width: 8, height: 8, borderRadius: 4, marginTop: space.snug },
   center: { textAlign: 'center' },
-  textBtn: { minHeight: 44, justifyContent: 'center' },
+  textBtn: { minHeight: size.target, justifyContent: 'center' },
   links: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  link: { minHeight: 36, paddingHorizontal: 12, justifyContent: 'center' },
+  link: { minHeight: 36, paddingHorizontal: space.sm, justifyContent: 'center' },
 });

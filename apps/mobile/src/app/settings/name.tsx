@@ -30,5 +30,5 @@ export default function NameScreen() {
 
 const styles = StyleSheet.create({
   body: { ...screen.settingsBody, gap: space.sm },
-  field: { height: 52, borderRadius: 999, paddingHorizontal: 20 },
+  field: { height: 52, borderRadius: 999, paddingHorizontal: space.lg },
 });

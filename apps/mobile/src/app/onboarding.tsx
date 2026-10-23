@@ -36,7 +36,7 @@ import { sampleWeek } from "@/store/sample";
 import { motion, palettes } from "@dayli/tokens";
 import { localParts, monthDay, relativeDay, termSummary, weekOf, weekdayLong } from "@dayli/core";
 
-import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size, iconSize } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size, iconSize, space } from '@/theme';
 
 /**
  * Ask less, build their week, then ask (docs/conversion.md, decided Oct 21, 2026): two tap
@@ -306,7 +306,7 @@ function Choice({ label, hint, on, multi, onPress }: { label: string; hint?: str
       onPress={onPress}
       style={[styles.choice, { minHeight: hint ? 68 : 56, borderBottomColor: c.line }]}
     >
-      <View style={{ flex: 1, gap: 2 }}>
+      <View style={{ flex: 1, gap: space.hair }}>
         <T token="body">{label}</T>
         {hint ? <T token="caption" color={c.inkSecondary}>{hint}</T> : null}
       </View>
@@ -409,7 +409,7 @@ function OwnStep({ source, job, onSample }: { source: DeadlineSource; job: boole
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <ScrollView contentContainerStyle={[styles.page, { gap: space.lg }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={styles.titleBlock}>
         <T token="displaySm" accessibilityRole="header">{copy.title}</T>
         <T token="callout" color={c.inkSecondary}>{job && source !== "screenshots" ? `${copy.sub} You can add work shifts later.` : copy.sub}</T>
@@ -442,7 +442,7 @@ function OwnStep({ source, job, onSample }: { source: DeadlineSource; job: boole
       ) : null}
       {!busy ? <RecentShots onPick={(uri) => void openShot(uri)} /> : null}
       <View style={[styles.footer, { alignItems: "center" }]}>
-        <Press haptic="select" accessibilityRole="button" accessibilityHint={SAMPLE_HINT} disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center", alignItems: "center", gap: 2 }}>
+        <Press haptic="select" accessibilityRole="button" accessibilityHint={SAMPLE_HINT} disabled={!!busy} onPress={onSample} style={{ minHeight: size.target, justifyContent: "center", alignItems: "center", gap: space.hair }}>
           <T token="subhead" color={c.inkSecondary}>{copy.sample}</T>
           <T token="caption" color={c.inkTertiary} style={{ textAlign: "center" }}>{SAMPLE_HINT}</T>
         </Press>
@@ -525,7 +525,7 @@ function TermStep({ plate, onPlate, onReview, onCanvas, onType, onSample }: {
   const reading = files.some((f) => f.state === "reading");
 
   return (
-    <ScrollView contentContainerStyle={[styles.page, { gap: 18 }]} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={[styles.page, { gap: space.md }]} keyboardShouldPersistTaps="handled">
       <View style={styles.titleBlock}>
         <T token="displaySm" accessibilityRole="header">Bring in your term</T>
         <T token="callout" color={c.inkSecondary}>Drop every syllabus at once. Semli reads the classes, exams and due dates, and you check them before anything is saved.</T>
@@ -551,7 +551,7 @@ function TermStep({ plate, onPlate, onReview, onCanvas, onType, onSample }: {
         </Press>
       </View>
       {files.length ? (
-        <View style={{ gap: 8 }}>
+        <View style={{ gap: space.xs }}>
           {files.map((f, i) => (
             <View key={`${f.name}-${i}`} style={[styles.file, { borderColor: c.line, backgroundColor: c.surface }]}>
               <T token="subhead" numberOfLines={1} style={{ flex: 1 }}>{f.name}</T>
@@ -565,7 +565,7 @@ function TermStep({ plate, onPlate, onReview, onCanvas, onType, onSample }: {
         <Press haptic="select" accessibilityRole="button" onPress={onType} scale={1}><T token="subhead" color={c.accentInk}>Type it instead</T></Press>
       </View>
       <View style={[styles.footer, styles.footerRow]}>
-        <Press haptic="select" accessibilityRole="button" onPress={onSample} scale={1} style={{ minHeight: 40, justifyContent: "center" }}>
+        <Press haptic="select" accessibilityRole="button" onPress={onSample} scale={1} style={{ minHeight: size.target, justifyContent: "center" }}>
           <T token="subhead" color={c.inkSecondary}>Try a sample week</T>
           <T token="caption" color={c.inkTertiary}>{SAMPLE_HINT}</T>
         </Press>
@@ -589,20 +589,20 @@ function StatusLabel({ f }: { f: Read }) {
 function PhoneStep({ onDone }: { onDone: (scanned: boolean) => void }) {
   const { c } = useTheme();
   return (
-    <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]}>
+    <ScrollView contentContainerStyle={[styles.page, { gap: space.lg }]}>
       <View style={styles.titleBlock}>
         <T token="displaySm" accessibilityRole="header">Reminders ring on your iPhone</T>
         <T token="callout" color={c.inkSecondary}>Scan with your iPhone camera to get Semli. Sign in with the same account and your term is already there.</T>
       </View>
       <View style={styles.phone}>
         <QrCode text="https://www.semli.app/beta?r=web-onboarding" ink={c.inkPrimary} paper={c.surface} />
-        <View style={{ flex: 1, gap: 6 }}>
+        <View style={{ flex: 1, gap: space.snug }}>
           <T token="headline">Semli for iPhone</T>
           <T token="callout" color={c.inkSecondary}>Free · reminders the evening before each deadline, ringing alarms, the Today widget</T>
         </View>
       </View>
       <View style={[styles.footer, styles.footerRow]}>
-        <Press haptic="select" accessibilityRole="button" onPress={() => onDone(false)} scale={1} style={{ minHeight: 40, justifyContent: "center" }}>
+        <Press haptic="select" accessibilityRole="button" onPress={() => onDone(false)} scale={1} style={{ minHeight: size.target, justifyContent: "center" }}>
           <T token="subhead" color={c.inkSecondary}>Not now</T>
         </Press>
         <Button label="I’ve got it" onPress={() => onDone(true)} />
@@ -660,7 +660,7 @@ function CanvasStep({ onConnected, onInstead }: { onConnected: () => void; onIns
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <ScrollView contentContainerStyle={[styles.page, { gap: space.lg }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={styles.titleBlock}>
         <T token="displaySm" accessibilityRole="header">Connect Canvas.</T>
         <T token="callout" color={c.inkSecondary}>Paste your Canvas calendar link to add its dates to Semli. Your Canvas calendar stays unchanged.</T>
@@ -692,7 +692,7 @@ function CanvasStep({ onConnected, onInstead }: { onConnected: () => void; onIns
       ) : null}
       <View style={[styles.footer, { alignItems: "center" }]}>
         <Button label={busy ? "Reading Canvas…" : "Connect Canvas"} disabled={busy || !link.trim()} onPress={() => void connect()} />
-        <Press haptic="select" accessibilityRole="button" disabled={busy} onPress={onInstead} style={{ minHeight: 44, justifyContent: "center" }}>
+        <Press haptic="select" accessibilityRole="button" disabled={busy} onPress={onInstead} style={{ minHeight: size.target, justifyContent: "center" }}>
           <T token="subhead" color={c.inkSecondary}>Add another way</T>
         </Press>
       </View>
@@ -740,9 +740,9 @@ function ResultStep({ sample, onNext }: { sample: boolean; onNext: () => void })
       {sources.length ? (
         <View>
           {sources.map((r, i) => (
-            <Animated.View key={r.title} layout={layout} entering={enter.staggered(i)} style={[styles.fact, { borderBottomColor: c.line, justifyContent: "flex-start", gap: 12 }]}>
+            <Animated.View key={r.title} layout={layout} entering={enter.staggered(i)} style={[styles.fact, { borderBottomColor: c.line, justifyContent: "flex-start", gap: space.sm }]}>
               <Icon name={r.icon} size={20} color={c.inkPrimary} />
-              <View style={{ flex: 1, gap: 2 }}>
+              <View style={{ flex: 1, gap: space.hair }}>
                 <T token="body">{r.title}</T>
                 <T token="caption" color={c.inkSecondary} numberOfLines={1}>{r.sub}</T>
               </View>
@@ -750,7 +750,7 @@ function ResultStep({ sample, onNext }: { sample: boolean; onNext: () => void })
           ))}
         </View>
       ) : null}
-      <View style={{ gap: 2 }}>
+      <View style={{ gap: space.hair }}>
         <T token="displayXl" tabular>{String(s.deadlines)}</T>
         <T token="callout" color={c.inkSecondary}>
           {s.deadlines === 0 ? "No upcoming deadlines in this plan." : `${s.deadlines === 1 ? "deadline" : "deadlines"}${s.lastDate ? ` through ${monthDay(s.lastDate)}` : ""}`}
@@ -815,7 +815,7 @@ function RemindStep({ onDone }: { onDone: () => void }) {
       <View accessibilityRole="radiogroup">
         {REMIND.map((r) => (
           <Press key={r.id} haptic="select" scale={1} accessibilityRole="radio" accessibilityState={{ selected: choice === r.id }} onPress={() => setChoice(r.id)}
-            style={[styles.choice, { minHeight: 56, borderBottomColor: c.line }]}>
+            style={[styles.choice, { minHeight: size.row, borderBottomColor: c.line }]}>
             <T token="body" style={{ flex: 1 }}>{r.label}</T>
             <Radio on={choice === r.id} />
           </Press>
@@ -823,7 +823,7 @@ function RemindStep({ onDone }: { onDone: () => void }) {
       </View>
       <View style={[styles.footer, { alignItems: "center" }]}>
         <Button label={asking ? "Setting up reminders…" : "Remind me"} disabled={asking} onPress={() => void yes()} />
-        <Press haptic="select" accessibilityRole="button" disabled={asking} onPress={notNow} style={{ minHeight: 44, justifyContent: "center" }}>
+        <Press haptic="select" accessibilityRole="button" disabled={asking} onPress={notNow} style={{ minHeight: size.target, justifyContent: "center" }}>
           <T token="subhead" color={c.inkSecondary}>Not now</T>
         </Press>
       </View>
@@ -867,24 +867,24 @@ function PlusStep({ onFinish }: { onFinish: () => void }) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, paddingHorizontal: SCREEN_GUTTER },
-  header: { flexDirection: "row", alignItems: "center", gap: 10, paddingBottom: 24, minHeight: 36 },
-  back: { marginLeft: -8, alignItems: "center", justifyContent: "center" },
+  header: { flexDirection: "row", alignItems: "center", gap: space.sm, paddingBottom: space.xl, minHeight: 36 },
+  back: { marginLeft: -space.xs, alignItems: "center", justifyContent: "center" },
   progress: { flex: 1, flexDirection: "row", gap: 5 },
   bar: { flex: 1, height: 3, borderRadius: 2 },
-  page: { flexGrow: 1, gap: 24 },
-  titleBlock: { gap: 6 },
+  page: { flexGrow: 1, gap: space.xl },
+  titleBlock: { gap: space.snug },
   // On a wide web window the actions follow the content at the right, as desktop forms do.
-  footer: WIDE ? { paddingTop: 28, gap: 8, alignSelf: "stretch", alignItems: "flex-end" } : { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
-  choice: { flexDirection: "row", alignItems: "center", gap: 14, borderBottomWidth: StyleSheet.hairlineWidth },
+  footer: WIDE ? { paddingTop: space.xl, gap: space.xs, alignSelf: "stretch", alignItems: "flex-end" } : { marginTop: "auto", paddingTop: space.xl, gap: space.xs, alignSelf: "stretch" },
+  choice: { flexDirection: "row", alignItems: "center", gap: space.sm, borderBottomWidth: StyleSheet.hairlineWidth },
   box: { width: 22, height: 22, ...corner(radius.mark), borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
-  fact: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 16, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
-  input: { height: size.control, borderRadius: radius.pill, paddingHorizontal: 20 },
-  status: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 4 },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  chip: { minHeight: 36, paddingHorizontal: 14, borderRadius: 999, justifyContent: "center" },
-  drop: { borderWidth: 1.5, borderStyle: "dashed", ...corner(radius.field), paddingVertical: 30, paddingHorizontal: 20, alignItems: "center", gap: 6 },
-  file: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 44, paddingHorizontal: 14, ...corner(radius.small), borderWidth: StyleSheet.hairlineWidth },
-  links: { flexDirection: "row", flexWrap: "wrap", gap: 20 },
+  fact: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: space.md, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
+  input: { height: size.control, borderRadius: radius.pill, paddingHorizontal: space.lg },
+  status: { flexDirection: "row", alignItems: "center", gap: space.sm, paddingVertical: space.xxs },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: space.xs },
+  chip: { minHeight: 36, paddingHorizontal: space.sm, borderRadius: 999, justifyContent: "center" },
+  drop: { borderWidth: 1.5, borderStyle: "dashed", ...corner(radius.field), paddingVertical: space.xxl, paddingHorizontal: space.lg, alignItems: "center", gap: space.snug },
+  file: { flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: size.target, paddingHorizontal: space.sm, ...corner(radius.small), borderWidth: StyleSheet.hairlineWidth },
+  links: { flexDirection: "row", flexWrap: "wrap", gap: space.lg },
   footerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  phone: { flexDirection: "row", alignItems: "center", gap: 24 },
+  phone: { flexDirection: "row", alignItems: "center", gap: space.xl },
 });

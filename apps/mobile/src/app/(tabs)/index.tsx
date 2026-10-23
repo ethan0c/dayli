@@ -33,7 +33,7 @@ import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { accountOf, useSession } from '@/lib/supabase';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, NAV_INSET, useTheme, useTopInset, screen } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, useTheme, useTopInset, screen, space } from '@/theme';
 
 export default function TodayScreen() {
   const { c } = useTheme();
@@ -193,7 +193,7 @@ export default function TodayScreen() {
                   <T token="callout" color={c.inkSecondary}>{date === now.date ? 'Start today' : date === addDays(now.date, 1) ? 'Start tomorrow' : `Start ${weekdayLong(date)}`}</T>
                 </View>
               ))}
-              <View style={[styles.actions, { paddingTop: 10 }]}>
+              <View style={[styles.actions, { paddingTop: space.sm }]}>
                 <Press accessibilityRole="button" haptic="tap" onPress={confirmSpread} style={[styles.pill, { backgroundColor: c.controlFill }]}>
                   <T token="headline" color={c.controlInk}>Sounds good</T>
                 </Press>
@@ -221,7 +221,7 @@ export default function TodayScreen() {
         {hours ? (
           <Animated.View key="hours" entering={enter.fade} exiting={exit.fade} style={styles.hours}>
             <SectionTitle title="Today" detail={todayDetail} />
-            <View style={{ paddingTop: 4 }}>
+            <View style={{ paddingTop: space.xxs }}>
               <HourView items={todays} now={now} conflicts={conflictSet} onPress={(it) => openItem(it.id)} />
             </View>
           </Animated.View>
@@ -259,7 +259,7 @@ export default function TodayScreen() {
           );
         })}
         {openItems.length === 0 && completed.length ? (
-          <Animated.View entering={enter.fade} style={{ paddingVertical: 10, gap: 2 }}>
+          <Animated.View entering={enter.fade} style={{ paddingVertical: space.sm, gap: space.hair }}>
             <T token="headline" color={c.inkPrimary}>No tasks left today.</T>
             <T token="callout" color={c.inkSecondary}>{`${count(completed.length, 'task')} completed.`}</T>
           </Animated.View>
@@ -317,7 +317,7 @@ export default function TodayScreen() {
         <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.section}>
           <GroupLabel>Free your weekend</GroupLabel>
           <T token="body">{`${andList(weekend.items.map((i) => i.title))} ${weekend.items.length === 1 ? 'is' : 'are'} due ${weekend.by === 'monday' ? 'by Monday' : 'this weekend'}. You have ${weekend.freeHours} free hours tonight.`}</T>
-          <View style={[styles.inlineAction, { flexDirection: 'row', gap: 20 }]}>
+          <View style={[styles.inlineAction, { flexDirection: 'row', gap: space.lg }]}>
             <TextButton label={`Work on ${weekend.items.length === 1 ? 'it' : 'them'} tonight`} onPress={() => workOnToday(weekend.items.map((i) => i.id))} />
             <TextButton label="Not this weekend" tone="muted" onPress={() => { dismissSuggestion('weekend', now.date); feedback('select'); }} />
           </View>
@@ -330,7 +330,7 @@ export default function TodayScreen() {
           {suggestions.map(({ item, reason }, i) => (
             <View key={item.id}>
               <ListRow leading={<Icon name={item.icon} size={20} color={c.inkPrimary} />} title={item.kind === 'event' ? `Prepare for ${item.title}` : item.title} sub={reason} last={i === suggestions.length - 1} onPress={() => openItem(item.id)} />
-              <View style={[styles.inlineAction, { flexDirection: 'row', gap: 20 }]}>
+              <View style={[styles.inlineAction, { flexDirection: 'row', gap: space.lg }]}>
                 {item.kind === 'task' ? <TextButton label="Work on it today" onPress={() => workOnToday([item.id])} /> : null}
                 <TextButton label="Not today" tone="muted" onPress={() => { dismissSuggestion(item.id, now.date); feedback('select'); }} />
               </View>
@@ -350,7 +350,7 @@ export default function TodayScreen() {
             </Animated.View>
           ))}
           {upcoming.filter((item) => tightDeadlines.has(item.id)).slice(0, 1).map((item) => (
-            <T key={item.id} token="caption" color={c.inkSecondary} style={{ paddingTop: 6 }}>{deadlineReason(items, item, now, tightDeadlines.get(item.id))}</T>
+            <T key={item.id} token="caption" color={c.inkSecondary} style={{ paddingTop: space.snug }}>{deadlineReason(items, item, now, tightDeadlines.get(item.id))}</T>
           ))}
           {nextWeekPending ? <ListRow title="Next week's shifts" sub="Not added yet" last onPress={() => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } })} /> : null}
         </View>
@@ -403,21 +403,21 @@ function SavePlanRow({ onDismiss }: { onDismiss: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
+  bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl },
   panes: { flex: 1, flexDirection: 'row' },
   hourPane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
-  hourBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40, gap: 8 },
-  hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 18 },
+  hourBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xxxl, gap: space.xs },
+  hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.md },
   section: { paddingHorizontal: SCREEN_GUTTER, ...screen.section },
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  inlineAction: { paddingLeft: 34 },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 20 },
-  sampleLine: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  spread: { paddingTop: 12, gap: 8 },
-  empty: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
-  spreadRow: { flexDirection: 'row', alignItems: 'baseline', gap: 12 },
-  pill: { minHeight: 44, paddingHorizontal: 20, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  moment: { position: 'relative', paddingHorizontal: SCREEN_GUTTER, paddingTop: MOMENT_TEXT_TOP, paddingBottom: 18, gap: 2 },
+  inlineAction: { paddingLeft: space.xxl },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.lg },
+  sampleLine: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  spread: { paddingTop: space.sm, gap: space.xs },
+  empty: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: space.sm },
+  spreadRow: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm },
+  pill: { minHeight: 44, paddingHorizontal: space.lg, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  moment: { position: 'relative', paddingHorizontal: SCREEN_GUTTER, paddingTop: MOMENT_TEXT_TOP, paddingBottom: space.md, gap: space.hair },
   momentToggle: { position: 'absolute', right: SCREEN_GUTTER },
-  momentLine: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingTop: 6 },
+  momentLine: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.xs, paddingTop: space.snug },
 });

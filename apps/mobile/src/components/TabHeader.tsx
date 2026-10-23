@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { T } from '@/components/Text';
 import { Press } from '@/components/Press';
-import { SCREEN_GUTTER, useTheme, useTopInset, fade } from '@/theme';
+import { SCREEN_GUTTER, useTheme, useTopInset, fade, space, size } from '@/theme';
 
 /**
  * The top of every main tab: at most one small line above the big value, and the meaning under
@@ -52,9 +52,9 @@ export function TabHeader({ date, context, title, size = 'number', value, detail
 const FITS_XL = 9;
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: SCREEN_GUTTER, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  content: { flex: 1, minWidth: 0, gap: 6 },
-  line: { minHeight: 44, justifyContent: 'center' },
-  details: { paddingTop: 6, gap: 4 },
-  trailing: { paddingTop: 2, flexShrink: 0 },
+  root: { paddingHorizontal: SCREEN_GUTTER, flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
+  content: { flex: 1, minWidth: 0, gap: space.snug },
+  line: { minHeight: size.target, justifyContent: 'center' },
+  details: { paddingTop: space.snug, gap: space.xxs },
+  trailing: { paddingTop: space.hair, flexShrink: 0 },
 });

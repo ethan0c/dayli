@@ -27,7 +27,7 @@ import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { newId, nextCourseTint, useCourseList, useItemList, useStore } from '@/store';
 import { sampleScheduleExtraction } from '@/store/sample';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, space } from '@/theme';
 
 /*
  * Review: show the week (or the term), not the list. Only changes and things that need
@@ -530,9 +530,9 @@ export default function ReviewScreen() {
               <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>{note}</T>
             </View>
           ) : <T token="callout" color={c.inkSecondary}>{note}</T>}
-          {explainCompare ? <T token="callout" color={c.inkSecondary} style={{ paddingTop: 8 }}>Semli matched these shifts to your existing schedule. Review the marked changes before saving.</T> : null}
+          {explainCompare ? <T token="callout" color={c.inkSecondary} style={{ paddingTop: space.xs }}>Semli matched these shifts to your existing schedule. Review the marked changes before saving.</T> : null}
           {total === 0 ? (
-            <T token="callout" color={c.inkSecondary} style={{ paddingTop: 8 }}>
+            <T token="callout" color={c.inkSecondary} style={{ paddingTop: space.xs }}>
               {included.length === 0 ? 'Nothing has a date yet. Add one to bring it in.' : 'Already in your plan. Nothing to add.'}
             </T>
           ) : null}
@@ -654,13 +654,13 @@ function sourceNoun(source: string): string {
 }
 
 const styles = StyleSheet.create({
-  newCourse: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  newCourse: { flexDirection: 'row', alignItems: 'flex-start', gap: space.xs },
   newCourseDot: { height: 20, justifyContent: 'center' },
   panes: { flex: 1, flexDirection: 'row' },
-  list: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 16 },
-  hero: { gap: 12 },
-  chart: { paddingTop: 24, gap: 8 },
-  rows: { paddingTop: 20 },
+  list: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xs, paddingBottom: space.md },
+  hero: { gap: space.sm },
+  chart: { paddingTop: space.xl, gap: space.xs },
+  rows: { paddingTop: space.lg },
 });
 
 /** Development only: confirms the review after `devAutoConfirmMs` so a recording needs no tap. */

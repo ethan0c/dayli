@@ -18,7 +18,7 @@ import { accountOf, useSession } from '@/lib/supabase';
 import { useCourseList, useItemList, useScheduleList, useStore, type Batch } from '@/store';
 import { THIS_DEVICE } from '@/lib/web';
 import { testFortnight } from '@/store/sample';
-import { useTheme, screen } from '@/theme';
+import { useTheme, screen, space, size } from '@/theme';
 
 const RECENT = 3;
 
@@ -160,9 +160,9 @@ export default function DataScreen() {
 
 const styles = StyleSheet.create({
   body: screen.settingsBody,
-  top: { gap: 2 },
-  line: { paddingTop: 6 },
-  empty: { paddingVertical: 16 },
-  disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  confirm: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12, minHeight: 52, paddingVertical: 4 },
+  top: { gap: space.hair },
+  line: { paddingTop: space.snug },
+  empty: { paddingVertical: space.md },
+  disclosure: { minHeight: size.target, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  confirm: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: space.sm, minHeight: 52, paddingVertical: space.xxs },
 });

@@ -7,7 +7,7 @@ import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { reportError } from '@/lib/errors';
 import { APPLE_ON_WEB } from '@/lib/web';
-import { useTheme, fade } from '@/theme';
+import { useTheme, fade, space } from '@/theme';
 
 /** Apple's own control supplies the approved typography, logo, localization and accessibility. */
 export function AppleButton({ onPress, disabled = false }: { onPress: () => void; disabled?: boolean }) {
@@ -53,5 +53,5 @@ function WebAppleButton({ onPress, disabled }: { onPress: () => void; disabled: 
 }
 
 const styles = StyleSheet.create({
-  web: { minHeight: 52, paddingHorizontal: 20, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, alignSelf: 'stretch' },
+  web: { minHeight: 52, paddingHorizontal: space.lg, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm, alignSelf: 'stretch' },
 });

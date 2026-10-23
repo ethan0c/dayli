@@ -139,8 +139,8 @@ export const fade = { pressed: 0.6, disabled: 0.4 } as const;
 /** Icon sizes: `hero` a screen's lead icon, `row` a row's leading icon, `nav` back in its glass circle, `title` the chevron beside a section title, `disclosure` a row's trailing chevron, `inline` beside small text. */
 export const iconSize = { hero: 24, nav: 22, row: 20, title: 18, disclosure: 16, inline: 14 } as const;
 
-/** Control heights: `control` for primary and secondary buttons and pill fields, `pill` for in-row actions (a time, Add a time), `chip` for status pills, `target` the least tap height. */
-export const size = { control: 52, pill: 36, chip: 28, target: 44 } as const;
+/** Control heights: `control` for primary and secondary buttons and pill fields, `pill` for in-row actions (a time, Add a time), `chip` for status pills, `target` the least tap height; rows are `compact` 48 (a choice or scope row), `row` 56 (a settings or plan row) or `item` 64 (an agenda item). */
+export const size = { control: 52, pill: 36, chip: 28, target: 44, compact: 48, row: 56, item: 64 } as const;
 
 /** Shadows, only for things that float over the page; dark mode leans on the backdrop instead. */
 export const shadow = {
@@ -152,7 +152,8 @@ export const shadow = {
   pane: '-12px 0 32px rgba(0,0,0,0.10)',
 } as const;
 
-export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, xxxl: 40 } as const;
+/** Every padding, margin and gap. `hair` and `snug` are for the tight spots: a label to its value, an icon to its word. */
+export const space = { hair: 2, xxs: 4, snug: 6, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, xxxl: 40 } as const;
 
 /**
  * Corners grow with the thing (decided Oct 23, 2026). Every action is a `pill`. Rectangles take

@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { COLUMN, frameStyle, useWebLayout } from '@/lib/layout';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, space } from '@/theme';
 
 /** What `navigationButtonOptions` hands the desktop header: whether the screen closes or goes back, and how. */
 type WebBack = { kind: 'close' | 'back'; onPress: () => void };
@@ -61,13 +61,13 @@ function ColumnHeader({ kind, options, back, route }: NativeStackHeaderProps & {
 }
 
 const styles = StyleSheet.create({
-  bar: { paddingTop: 22, paddingBottom: 6 },
+  bar: { paddingTop: space.xl, paddingBottom: space.snug },
   over: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1, backgroundColor: 'transparent' },
   column: { width: '100%', maxWidth: COLUMN, alignSelf: 'center' },
   narrow: { width: '100%', maxWidth: 440, alignSelf: 'center' },
   // The gutter matches the screens', so the link and the title start at the content's left edge.
-  inner: { paddingHorizontal: SCREEN_GUTTER, gap: 6, alignItems: 'flex-start' },
-  link: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12, alignSelf: 'stretch' },
+  inner: { paddingHorizontal: SCREEN_GUTTER, gap: space.snug, alignItems: 'flex-start' },
+  link: { flexDirection: 'row', alignItems: 'center', gap: space.xxs },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, alignSelf: 'stretch' },
   title: { flex: 1, fontSize: 28, lineHeight: 34, letterSpacing: -0.5 },
 });

@@ -30,7 +30,7 @@ import { usePurchases } from '@/providers/PurchasesProvider';
 import { useOpenSetting } from '@/lib/settings-pane';
 import { SYSTEM_NAME } from '@/lib/web';
 import { useStore } from '@/store';
-import { NAV_INSET, SCREEN_GUTTER, useTheme, iconSize } from '@/theme';
+import { NAV_INSET, SCREEN_GUTTER, useTheme, iconSize, space } from '@/theme';
 
 /** Profile and preferences, shared by the You tab and /settings. */
 export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
@@ -131,7 +131,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
             <View style={[styles.mark, { backgroundColor: appIconColors.background }]}><View style={[styles.markBig, { backgroundColor: appIconColors.foreground }]} /><View style={[styles.markSmall, { backgroundColor: appIconColors.accent }]} /></View>
             <T token="caption" color={c.inkSecondary} tabular>Semli {Constants.expoConfig?.version ?? ''}</T>
           </View>
-          <View style={{ flexDirection: 'row', gap: 14 }}>
+          <View style={{ flexDirection: 'row', gap: space.sm }}>
             <TextButton label={t`Privacy`} tone="muted" onPress={() => void open(LINKS.privacy, t`Read it at semli.app/privacy.`)} />
             <TextButton label={t`Terms`} tone="muted" onPress={() => void open(LINKS.terms, t`Read it at semli.app/terms.`)} />
           </View>
@@ -142,15 +142,15 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 24, gap: 22 },
-  groupLabel: { paddingBottom: 2 },
-  plan: { alignSelf: 'flex-start', maxWidth: '100%', gap: 10, paddingVertical: 4 },
-  meter: { flexDirection: 'row', gap: 4 },
+  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, gap: space.xl },
+  groupLabel: { paddingBottom: space.hair },
+  plan: { alignSelf: 'flex-start', maxWidth: '100%', gap: space.sm, paddingVertical: space.xxs },
+  meter: { flexDirection: 'row', gap: space.xxs },
   segment: { width: 20, height: 4, borderRadius: 2 },
-  planLine: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  planLine: { flexDirection: 'row', alignItems: 'center', gap: space.xxs },
   planText: { flexShrink: 1 },
-  about: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', paddingTop: 8 },
-  markRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  about: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, alignItems: 'center', justifyContent: 'space-between', paddingTop: space.xs },
+  markRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   mark: { width: 24, height: 24, borderRadius: 6 },
   markBig: { position: 'absolute', left: 5, bottom: 4, width: 11, height: 11, borderRadius: 6 },
   markSmall: { position: 'absolute', right: 5, top: 5, width: 5, height: 5, borderRadius: 3 },

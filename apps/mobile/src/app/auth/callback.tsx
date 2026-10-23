@@ -6,7 +6,7 @@ import { Button } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { authErrorMessage } from '@/lib/auth';
 import { completeAuthFromUrl, leaveAuth } from '@/lib/auth-client';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, space } from '@/theme';
 
 /**
  * Where Google (and Apple, once set up) send the web back after sign-in. It trades the code in
@@ -35,5 +35,5 @@ export default function AuthCallback() {
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER, gap: 16, maxWidth: 480, width: '100%', alignSelf: 'center' },
+  page: { flex: 1, justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER, gap: space.md, maxWidth: 480, width: '100%', alignSelf: 'center' },
 });

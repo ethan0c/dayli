@@ -12,7 +12,7 @@ import { authErrorMessage, validateAuthForm, type AuthFieldErrors, type AuthMode
 import { authClient, leaveAuth } from '@/lib/auth-client';
 import { useLastAccount } from '@/lib/last-account';
 import { LINKS, openLink } from '@/lib/links';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, space, size } from '@/theme';
 
 const COPY = {
   login: { title: 'Sign in', heading: 'Sign in to Semli.', body: 'Access the plan saved to your account.', action: 'Sign in' },
@@ -91,7 +91,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           </View>
           <View style={styles.divider}><View style={[styles.line, { backgroundColor: c.line }]} /><T token="caption" color={c.inkTertiary}>{last?.provider === 'email' ? 'or with email · last used' : 'or with email'}</T><View style={[styles.line, { backgroundColor: c.line }]} /></View>
         </> : null}
-        <View style={{ gap: 20 }}>
+        <View style={{ gap: space.lg }}>
           {signup ? <AuthField label="Name (optional)" value={name} onChangeText={setName} placeholder="Your name" autoComplete="name" autoCapitalize="words"
             maxLength={80} returnKeyType="next" submitBehavior="submit" onSubmitEditing={() => emailRef.current?.focus()} editable={!busy} /> : null}
           <AuthField label="Email address" inputRef={emailRef} value={email} onChangeText={(value) => { setEmail(value); clear('email'); }}
@@ -104,7 +104,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           {mode === 'login' ? <TextButton label="Forgot password?" tone="muted" disabled={busy} onPress={() => { setPassword(''); router.push('/auth/forgot-password'); }} style={styles.start} /> : null}
         </View>
         {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert">{notice}</T> : null}
-        <View style={{ gap: 12 }}>
+        <View style={{ gap: space.sm }}>
           <Button block label={busy ? 'One moment…' : copy.action} disabled={busy} onPress={() => void submit()} />
           {signup ? <T token="caption" color={c.inkSecondary} style={styles.center}>By creating an account, you agree to our <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.terms)}>Terms</T> and <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.privacy)}>Privacy policy</T>.</T> : null}
           <TextButton label={forgot ? 'Back to sign in' : signup ? 'Already have an account? Sign in' : 'New to Semli? Sign up'} tone="muted"
@@ -118,13 +118,13 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 }
 
 const styles = StyleSheet.create({
-  body: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40, gap: 28 },
-  hero: { gap: 12, paddingBottom: 8 },
-  provider: { gap: 6 },
+  body: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xxxl, gap: space.xl },
+  hero: { gap: space.sm, paddingBottom: space.xs },
+  provider: { gap: space.snug },
   lastUsed: { alignSelf: 'flex-end' },
-  divider: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   line: { flex: 1, height: StyleSheet.hairlineWidth },
-  start: { alignSelf: 'flex-start', minHeight: 44 },
+  start: { alignSelf: 'flex-start', minHeight: size.target },
   center: { textAlign: 'center' },
-  footerLink: { alignSelf: 'center', minHeight: 44 },
+  footerLink: { alignSelf: 'center', minHeight: size.target },
 });

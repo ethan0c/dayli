@@ -7,7 +7,7 @@ import { motion } from '@dayli/tokens';
 import { SkeletonReview } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { ease } from '@/lib/motion';
-import { useTheme } from '@/theme';
+import { useTheme, space } from '@/theme';
 
 const LINES = ['Reading', 'Finding the dates', 'Sorting out your week', 'Checking what changed'];
 
@@ -38,9 +38,9 @@ export function Reading({ source, chart = 'week' }: { source: string; chart?: 'w
     return () => clearInterval(id);
   }, []);
   return (
-    <View style={{ gap: 16 }} accessibilityLiveRegion="polite">
+    <View style={{ gap: space.md }} accessibilityLiveRegion="polite">
       <ProgressLine />
-      <View style={{ gap: 4 }}>
+      <View style={{ gap: space.xxs }}>
         <T token="display">{LINES[line]}…</T>
         <T token="callout" color={c.inkSecondary}>
           {source[0]?.toUpperCase() + source.slice(1)} · Nothing is saved until you confirm.

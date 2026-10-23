@@ -5,7 +5,7 @@ import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { openLink } from '@/lib/links';
-import { corner, mobileFonts, radius, useTheme } from '@/theme';
+import { corner, mobileFonts, radius, useTheme, space } from '@/theme';
 
 /**
  * A note, read like a small Markdown file: headings, lists, ticks you can tap, bold, links.
@@ -45,12 +45,12 @@ export function Notes({ text, onChange, onEdit }: { text: string; onChange: (nex
 }
 
 const styles = StyleSheet.create({
-  root: { gap: 4 },
+  root: { gap: space.xxs },
   blank: { height: 8 },
-  heading: { paddingTop: 4 },
-  row: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, minHeight: 28, paddingVertical: 2 },
+  heading: { paddingTop: space.xxs },
+  row: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm, minHeight: 28, paddingVertical: space.hair },
   box: { width: 18, height: 18, ...corner(radius.mark), borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', marginTop: 3 },
-  dot: { width: 5, height: 5, borderRadius: 3, marginTop: 10, marginLeft: 6, marginRight: 7 },
+  dot: { width: 5, height: 5, borderRadius: 3, marginTop: space.sm, marginLeft: space.snug, marginRight: 7 },
   marker: { minWidth: 18, textAlign: 'right' },
   link: { textDecorationLine: 'underline' },
   done: { textDecorationLine: 'line-through' },

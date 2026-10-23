@@ -2,15 +2,14 @@ import { monthDay, weekdayLong } from '@dayli/core';
 import { motion } from '@dayli/tokens';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-
 import { IconButton, TextButton } from '@/components/Controls';
 import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { Press } from '@/components/Press';
-import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
+import { Ticker, useDateDirection } from '@/components/Ticker';
 import { calendarDays, calendarMonthLabel, moveCalendarMonth } from '@/lib/calendar';
 import { feedback } from '@/lib/feedback';
-import { useTheme, radius, size, fade, iconSize } from '@/theme';
+import { useTheme, radius, size, fade, iconSize, space } from '@/theme';
 
 /** "October", or "January 2027" when the selected month is not in this year. */
 function monthTitle(selected: string, today: string): string {
@@ -20,12 +19,13 @@ function monthTitle(selected: string, today: string): string {
 
 /** Plan's title: the selected month, which opens the month grid. Replaces the date lines and the week arrows. */
 export function PlanMonthTitle({ selected, today, expanded, onToggle }: { selected: string; today: string; expanded: boolean; onToggle: () => void }) {
-  const { c } = useTheme();
+  // The month slides up for a later week and down for an earlier one, the way the swipe went.
+  const direction = useDateDirection(selected);
   return (
     <Press accessibilityRole="button" accessibilityLabel={`Choose date, ${weekdayLong(selected)}, ${monthDay(selected)}, ${selected.slice(0, 4)}`}
       accessibilityState={{ expanded }} onPress={() => { feedback('select'); onToggle(); }}
       scale={1} dim={fade.pressed} style={styles.title}>
-      <T token="display" numberOfLines={1} style={{ flexShrink: 1 }}>{monthTitle(selected, today)}</T>
+      <View style={{ flexShrink: 1 }}><Ticker value={monthTitle(selected, today)} token="display" direction={direction} /></View>
       <DisclosureChevron expanded={expanded} size={iconSize.title} turn={MONTH_TURN} />
     </Press>
   );
@@ -91,12 +91,12 @@ export function PlanMonthCalendar({ selected, today, onSelect }: { selected: str
 }
 
 const styles = StyleSheet.create({
-  title: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start' },
-  pill: { minHeight: size.pill, paddingHorizontal: 14, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  calendar: { borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 12, marginBottom: 12, gap: 8 },
-  monthRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  title: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: space.xs, alignSelf: 'flex-start' },
+  pill: { minHeight: size.pill, paddingHorizontal: space.sm, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  calendar: { borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: space.sm, marginBottom: space.sm, gap: space.xs },
+  monthRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   monthTitle: { flex: 1, textAlign: 'center' },
-  weekdays: { flexDirection: 'row', paddingTop: 4 },
+  weekdays: { flexDirection: 'row', paddingTop: space.xxs },
   weekday: { flex: 1, textAlign: 'center' },
   week: { flexDirection: 'row' },
   day: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center' },

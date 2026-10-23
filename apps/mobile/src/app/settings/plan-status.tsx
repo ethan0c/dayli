@@ -10,7 +10,7 @@ import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { PLUS_ENTITLEMENT, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
-import { useTheme, screen } from '@/theme';
+import { useTheme, screen, space } from '@/theme';
 
 /**
  * What the store told the app, verbatim: the screen to screenshot when a purchase went through
@@ -87,7 +87,7 @@ function PlanDiagnosticsScreen() {
 
 const styles = StyleSheet.create({
   body: screen.settingsBody,
-  top: { gap: 2 },
-  line: { paddingTop: 6 },
-  actions: { flexDirection: 'row', gap: 20, alignItems: 'center' },
+  top: { gap: space.hair },
+  line: { paddingTop: space.snug },
+  actions: { flexDirection: 'row', gap: space.lg, alignItems: 'center' },
 });

@@ -11,7 +11,7 @@ import { profile, track } from '@/lib/analytics';
 import { enter, exit, layout } from '@/lib/motion';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore, type FirstKind } from '@/store';
-import { useTheme } from '@/theme';
+import { useTheme, space } from '@/theme';
 
 /**
  * Firsts: things Semli explains once, the first time they happen in a person's own plan, in
@@ -113,6 +113,6 @@ export function TodayFirst({ items, now, timedToday, style }: { items: Item[]; n
 }
 
 const styles = StyleSheet.create({
-  root: { gap: 6 },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: 20, paddingTop: 4 },
+  root: { gap: space.snug },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingTop: space.xxs },
 });

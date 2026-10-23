@@ -15,7 +15,7 @@ import { enter, exit } from '@/lib/motion';
 import { realRecords } from '@/lib/planner-preview';
 import { THIS_DEVICE, THIS_DEVICE_TITLE } from '@/lib/web';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, corner, radius, useTheme, shadow } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, shadow, space } from '@/theme';
 
 const dated = (iso: string | null) => (iso ? ` from ${monthDay(localParts(new Date(iso)).date)}` : '');
 
@@ -83,10 +83,10 @@ export function PlanChoice() {
 
 const styles = StyleSheet.create({
   page: { paddingHorizontal: SCREEN_GUTTER, justifyContent: 'space-between' },
-  copy: { gap: 14 },
-  actions: { gap: 12 },
+  copy: { gap: space.sm },
+  actions: { gap: space.sm },
   scrim: { alignItems: 'center', justifyContent: 'center' },
-  dialog: { width: 520, maxWidth: '92%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, padding: 24, gap: 12, boxShadow: shadow.dialog },
+  dialog: { width: 520, maxWidth: '92%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.sm, boxShadow: shadow.dialog },
   // The choice the person is most likely to want sits at the right, as the primary.
-  dialogActions: { flexDirection: 'row-reverse', gap: 8, paddingTop: 6 },
+  dialogActions: { flexDirection: 'row-reverse', gap: space.xs, paddingTop: space.snug },
 });
