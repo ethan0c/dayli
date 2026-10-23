@@ -34,6 +34,9 @@ Sentry token is.
 | `SUPABASE_URL`, `SUPABASE_KEY` | Import limits and the beta waitlist. Same project as the app. |
 | `REVENUECAT_SECRET_KEY` | Confirms a Plus subscriber before a paid import. Secret. Production only. |
 | `TESTFLIGHT_URL` | Set once the public TestFlight link exists; `semli.app/beta` then redirects there. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Reads and clears `email_outbox` for transactional email (`app/api/emails`). Secret; never in the app. |
+| `RESEND_API_KEY` | Sends transactional email. A send-only key is enough here. Secret. |
+| `CRON_SECRET` | Vercel sends it to the daily `/api/emails` cron (`vercel.json`); any long random string. Secret. |
 
 ## Tooling
 

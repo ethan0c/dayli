@@ -199,6 +199,9 @@ const supabaseClient: AuthClient = {
     if (viaApple && session) await revokeApple(session.access_token);
     const { error } = await supabase!.rpc('delete_account');
     if (error) throw error;
+    // The database queued the confirmation email; ask the site to send it now rather than at the
+    // next daily run. Best effort: the cron sends it anyway.
+    void fetch(`${useStore.getState().settings.apiUrl}/api/emails`, { method: 'POST' }).catch(() => {});
     await endSession();
     await forgetAccount();
   },
