@@ -11,8 +11,8 @@ const WIDTH = 88;
 
 /**
  * Swipe a row right to complete it, left to delete it. Both fire on release past the
- * threshold, then the row closes; the toast carries Undo. Also exposed as accessibility
- * actions so VoiceOver gets the same two verbs.
+ * threshold, then the row closes; the toast carries Undo. The caller's handler gives the
+ * completion haptic (it knows a last-task success from a plain one); delete's is given here.
  */
 export function SwipeRow({ children, onDelete, onComplete, completeLabel = 'Done', completed }: {
   children: ReactNode; onDelete?: () => void; onComplete?: () => void; completeLabel?: string; completed?: boolean;
@@ -42,8 +42,10 @@ export function SwipeRow({ children, onDelete, onComplete, completeLabel = 'Done
       ) : undefined}
       onSwipeableOpen={(direction) => {
         ref.current?.close();
-        if (direction === 'left' && onComplete) { feedback(completed ? 'uncomplete' : 'complete'); onComplete(); }
-        if (direction === 'right' && onDelete) { feedback('remove'); onDelete(); }
+        // Gesture handler 3 names the way the row moved: 'right' opened the left actions (Done),
+        // 'left' the right ones (Delete). Read the other way, a swipe to complete deleted the row.
+        if (direction === 'right' && onComplete) onComplete();
+        if (direction === 'left' && onDelete) { feedback('remove'); onDelete(); }
       }}>
       {children}
     </ReanimatedSwipeable>

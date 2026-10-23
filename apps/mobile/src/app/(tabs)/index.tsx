@@ -4,7 +4,6 @@ import { router, useIsFocused } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GroupLabel, IconButton, ListRow, SectionTitle, TextButton } from '@/components/Controls';
 import { DayBar } from '@/components/DayBar';
@@ -25,15 +24,16 @@ import { profile, track } from '@/lib/analytics';
 import { useDevToday } from '@/lib/dev';
 import { feedback } from '@/lib/feedback';
 import { momentFor } from '@/lib/moments';
-import { durations, enter, exit, layout } from '@/lib/motion';
+import { enter, exit, layout } from '@/lib/motion';
 import { COLUMN, useWebLayout } from '@/lib/layout';
 import { useWebShortcuts } from '@/lib/shortcuts';
 import { useNow } from '@/lib/now';
+import { useSettling } from '@/lib/use-settling';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { accountOf, useSession } from '@/lib/supabase';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, useTheme, useTopInset } from '@/theme';
 
 /** "2h 14m", "14m", or "0m" for a gap in minutes. */
 function countdown(mins: number): string {
@@ -44,7 +44,7 @@ function countdown(mins: number): string {
 
 export default function TodayScreen() {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
+  const topInset = useTopInset();
   const now = useNow();
   // The sky is the phone's greeting; a laptop opens on plain paper (docs/headers.md).
   const { sidebar, twoPane } = useWebLayout();
@@ -106,7 +106,7 @@ export default function TodayScreen() {
   const ongoing = featuredState?.ongoing ?? false;
   const timedToday = todays.filter((item) => item.kind === 'event' && item.start).length;
   // A row just checked off stays in place long enough to see the tick land, then moves to Completed.
-  const [settling, setSettling] = useState<string[]>([]);
+  const [settling, settle] = useSettling();
   const completed = todays.filter((item) => item.done && !settling.includes(item.id));
   const openItems = todays.filter((item) => !item.done || settling.includes(item.id));
   const tightDeadlines = useMemo(() => new Map(items
@@ -141,8 +141,7 @@ export default function TodayScreen() {
     if (item.done) { feedback('uncomplete'); toggleDone(item.id); return; }
     feedback(openItems.filter((i) => !i.done).length === 1 ? 'success' : 'complete');
     toggleDone(item.id);
-    setSettling((ids) => [...ids, item.id]);
-    setTimeout(() => setSettling((ids) => ids.filter((id) => id !== item.id)), durations.slow * 2);
+    settle(item.id);
   }
 
   function confirmSpread() {
@@ -153,9 +152,11 @@ export default function TodayScreen() {
     showToast(`${spread.length} ${spread.length === 1 ? 'task' : 'tasks'} across ${days} ${days === 1 ? 'day' : 'days'}.`, id);
   }
 
-  function markAllDone(ids: string[]) {
+  function markAllDone(items: Item[]) {
     feedback('complete');
-    for (const id of ids) toggleDone(id);
+    const open = items.filter((item) => !item.done);
+    for (const item of open) toggleDone(item.id);
+    useStore.getState().showDoneToast(open);
   }
 
   if (items.length === 0 && courses.length === 0 && schedules.length === 0) return (
@@ -183,7 +184,7 @@ export default function TodayScreen() {
       {moment ? (
         <View style={styles.moment}>
           <PhotoHeader source={moment.image} height={330} to={c.canvas} fadeFrom={0.28} solidAt={MOMENT_TEXT_TOP - 6} />
-          <View style={[styles.momentToggle, { top: insets.top + 20 }]}>{viewToggle}</View>
+          <View style={[styles.momentToggle, { top: topInset + 20 }]}>{viewToggle}</View>
           <T token="callout" color={c.inkSecondary}>{moment.lead}</T>
           <T token="displayXl" tabular>{moment.big}</T>
           <View style={styles.momentLine}>
@@ -311,7 +312,7 @@ export default function TodayScreen() {
               {overdue.length > 1 ? (
                 <View style={styles.actions}>
                   <TextButton label="Bring all into today" onPress={() => workOnToday(overdue.map((item) => item.id))} />
-                  <TextButton label="Mark all done" tone="muted" onPress={() => markAllDone(overdue.map((item) => item.id))} accessibilityLabel={`Mark all ${overdue.length} open tasks done`} />
+                  <TextButton label="Mark all done" tone="muted" onPress={() => markAllDone(overdue)} accessibilityLabel={`Mark all ${overdue.length} open tasks done`} />
                 </View>
               ) : null}
             </Animated.View>

@@ -13,7 +13,7 @@ import { springs } from '@/lib/motion';
 import { courseTint, useStore } from '@/store';
 import { useTheme } from '@/theme';
 
-type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date' | 'urgent'> & { courseId?: string | null; employer?: string | null };
+type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date' | 'urgent'> & { id?: string; courseId?: string | null; employer?: string | null };
 type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: string; onPress?: () => void; onToggle?: () => void; onDelete?: () => void; last?: boolean };
 
 /**
@@ -38,7 +38,12 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
   // Touch rows are 64 tall; a pointer on a wide window needs less (desktop lists run 44–52).
   const { sidebar } = useWebLayout();
   return (
-    <SwipeRow onDelete={onDelete} onComplete={!isEvent ? onToggle : undefined} completed={item.done}>
+    <SwipeRow onDelete={onDelete} completed={item.done} onComplete={!isEvent && onToggle ? () => {
+      // A swipe is easy to make by accident, so completing one offers Undo; the check needs none.
+      const completing = !item.done;
+      onToggle();
+      if (completing && item.id) useStore.getState().showDoneToast([{ id: item.id, title: item.title }]);
+    } : undefined}>
     <View onPointerEnter={pointer ? () => setHover(true) : undefined} onPointerLeave={pointer ? () => setHover(false) : undefined}
       style={[styles.row, sidebar ? { minHeight: 52 } : null, { backgroundColor: hover ? c.row : c.canvas }, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
       {!isEvent ? (

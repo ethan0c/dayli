@@ -85,7 +85,7 @@ Native chrome uses the matching SF Symbol: Today `house`, Plan `calendar` (was c
 - Composer: white rectangle at the `field` radius, attachment icons inside, send as an ink circle. Replaces textarea plus tiles.
 - Date and time fields: grey pills (36 high) that open the native picker.
 - Toggle: green when on in both themes, grey when off, white thumb. All switches share this default, including settings, create, and the paywall. Segmented control: sliding pill with a selection tick. Check: grey ring, green when done. Radio: ink dot.
-- Progress: six-segment ink bar in onboarding; a 2px line under the header while loading. Toast: ink, rises on the bounded timed curve.
+- Progress: six-segment ink bar in onboarding; a 2px line under the header while loading. Toast: a pill that hugs its sentence, centred above the tab bar, in inverted ink (ink on a light page, near-white `inkPrimary` on a dark one, so it never sinks into the dark canvas), message in callout, Undo in subhead, a soft shadow in light mode only; it rises on the bounded timed curve. Toasts are for changes made without a confirming screen: delete, add, move, spread, import, and completions made by swipe or Mark all done ("Done: Essay." with Undo). Tapping a checkbox gets none; tapping it again is the undo.
 - Controls use Semli's palette: no default blue tint; toggle green comes from `added`.
 
 ## Navigation

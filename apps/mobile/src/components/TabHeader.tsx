@@ -1,10 +1,9 @@
 import { monthDay, weekdayLong } from '@dayli/core';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { T } from '@/components/Text';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, useTopInset } from '@/theme';
 
 /**
  * The top of every main tab: at most one small line above the big value, and the meaning under
@@ -24,18 +23,19 @@ export function TabHeader({ date, context, title, size = 'number', value, detail
   inset?: boolean;
 }) {
   const { c } = useTheme();
-  const insets = useSafeAreaInsets();
+  const top = useTopInset();
   const dateLabel = date ? `${weekdayLong(date)}, ${monthDay(date)}` : null;
   const line = context ?? (dateLabel ? <T token="callout" color={c.inkSecondary} numberOfLines={1}>{dateLabel}</T> : null);
   const content = (
     <>
       {line ? <View style={styles.line}>{line}</View> : null}
-      {value ?? <T token={size === 'number' ? 'displayXl' : 'display'} accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{title}</T>}
+      {/* Sized up front, not shrunk to fit: iOS can draw a fitted title full size for a frame first. */}
+      {value ?? <T token={size === 'number' && (title?.length ?? 0) <= FITS_XL ? 'displayXl' : 'display'} accessibilityRole="header" numberOfLines={1}>{title}</T>}
       {details ? <View style={styles.details}>{details}</View> : null}
     </>
   );
   return (
-    <View style={[styles.root, { paddingTop: inset ? insets.top + 20 : 8 }]}>
+    <View style={[styles.root, { paddingTop: inset ? top + 20 : 8 }]}>
       {onPress ? (
         <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel ? [dateLabel, accessibilityLabel].filter(Boolean).join(', ') : undefined} onPress={onPress}
           style={({ pressed }) => [styles.content, { opacity: pressed ? 0.7 : 1 }]}>
@@ -46,6 +46,9 @@ export function TabHeader({ date, context, title, size = 'number', value, detail
     </View>
   );
 }
+
+/** The longest title that fits at 56 beside a trailing button on the narrowest phone ("Tomorrow", "12 days"). */
+const FITS_XL = 9;
 
 const styles = StyleSheet.create({
   root: { paddingHorizontal: SCREEN_GUTTER, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },

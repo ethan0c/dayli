@@ -28,6 +28,7 @@ import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { defaultTimes } from '@/lib/times';
 import { useReschedule } from '@/lib/use-reschedule';
+import { useSettling } from '@/lib/use-settling';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
 
@@ -142,12 +143,15 @@ export default function PlanScreen() {
     return { date, blocks, marks, unknown: list.some(isUntimedEvent) };
   }), [week, weekItems, weekConflicts, now.date, nowMin]);
 
+  // A row just checked holds its place while the check fills, then sinks to the done end.
+  const [settling, settle] = useSettling();
   const dayItems = useMemo(() => {
     const list = items.filter((i) => i.date === shown);
     const untimed = list.filter((i) => !i.start);
     const timed = list.filter((i) => i.start).sort((a, b) => a.start!.localeCompare(b.start!));
-    return [...untimed, ...timed].sort((a, b) => Number(a.done) - Number(b.done));
-  }, [items, shown]);
+    const sunk = (i: Item) => Number(i.done && !settling.includes(i.id));
+    return [...untimed, ...timed].sort((a, b) => sunk(a) - sunk(b));
+  }, [items, shown, settling]);
   const conflicts = useMemo(() => conflictIds(items.filter((i) => i.date === shown || i.date === addDays(shown, -1))), [items, shown]);
   const dayOverlaps = dayItems.filter((i) => conflicts.has(i.id)).length;
   const rest = useMemo(() => weekItems.filter((i) => !i.done && i.date > shown).slice(0, 4), [weekItems, shown]);
@@ -270,7 +274,7 @@ export default function PlanScreen() {
               {isUntimedEvent(it) || timing[it.id] ? renderShift(it) : (
                 <ItemRow item={it} today={now.date} conflict={conflicts.has(it.id)}
                   onPress={() => openItem(it.id)}
-                  onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); toggleDone(it.id); }}
+                  onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); if (!it.done) settle(it.id); toggleDone(it.id); }}
                   onDelete={() => removeItem(it.id)} />
               )}
             </Animated.View>

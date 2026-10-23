@@ -132,7 +132,8 @@ interface State {
   schedules: (ScheduleVersion & { batchId?: string })[];
   batches: Batch[];
   pending: Pending | null;
-  toast: { message: string; batchId?: string } | null;
+  /** Undo reverts `batchId`, or marks `doneIds` not done again (a completion is no batch). */
+  toast: { message: string; batchId?: string; doneIds?: string[] } | null;
   settings: Settings;
   /** User-chosen work dates. Item.date remains the source's event/due date. */
   taskWorkDates: Record<string, string>;
@@ -145,6 +146,10 @@ interface State {
   setHydrated: () => void;
   setPending: (p: Pending | null) => void;
   showToast: (message: string, batchId?: string) => void;
+  /** "Done: Essay." with Undo, for completions that are easy to make by accident: a swipe, Mark all done. */
+  showDoneToast: (items: Pick<Item, 'id' | 'title'>[]) => void;
+  /** The done toast's Undo: these items open again. */
+  undoDone: (ids: string[]) => void;
   hideToast: () => void;
   setSettings: (patch: Partial<Settings>) => void;
   recordImport: () => void;
@@ -205,6 +210,15 @@ export const useStore = create<State>()(
       setHydrated: () => set({ hydrated: true }),
       setPending: (pending) => set({ pending }),
       showToast: (message, batchId) => set({ toast: { message, batchId } }),
+      showDoneToast: (done) => {
+        if (!done.length) return;
+        set({ toast: { message: done.length === 1 ? `Done: ${done[0]!.title}.` : `Marked ${done.length} done.`, doneIds: done.map((it) => it.id) } });
+      },
+      undoDone: (ids) => {
+        const items = { ...get().items };
+        for (const id of ids) if (items[id]?.done) items[id] = { ...items[id]!, done: false, completedAt: null };
+        set({ items, toast: null });
+      },
       hideToast: () => set({ toast: null }),
       setSettings: (patch) => set({ settings: { ...get().settings, ...patch } }),
       setCaptureDraft: (captureDraft) => set({ captureDraft }),
