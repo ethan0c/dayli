@@ -7,7 +7,7 @@ import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { enter, exit, layout } from '@/lib/motion';
-import { useTheme, radius, size } from '@/theme';
+import { useTheme, radius, size, fade } from '@/theme';
 
 /*
  * The small parts of the review screen: a hairline row with a glyph column, the 36-high
@@ -47,7 +47,7 @@ export function ReviewRow({ glyph, title, sub, trailing, struck, below, onPress,
   return (
     <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={[styles.row, { borderBottomColor: c.line }]}>
       {onPress ? (
-        <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? title} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+        <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? title} style={({ pressed }) => ({ opacity: pressed ? fade.pressed : 1 })}>
           {head}
         </Pressable>
       ) : head}
@@ -62,7 +62,7 @@ export function ReviewPill({ label, onPress, selected, muted, accessibilityLabel
 }) {
   const { c } = useTheme();
   return (
-    <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ selected: !!selected }} haptic="select" onPress={onPress} scale={0.97}
+    <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ selected: !!selected }} haptic="select" onPress={onPress}
       style={[styles.pill, { backgroundColor: selected ? c.inkPrimary : c.row }]}>
       <T token="subhead" color={selected ? c.onPrimary : muted ? c.inkSecondary : c.inkPrimary} tabular numberOfLines={1}>{label}</T>
     </Press>
@@ -84,7 +84,7 @@ export function ReviewPillRow({ children }: { children: ReactNode }) {
 export function ReviewDisclosure({ label, open, onPress }: { label: string; open: boolean; onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityState={{ expanded: open }} style={({ pressed }) => [styles.disclosure, { opacity: pressed ? 0.6 : 1 }]}>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityState={{ expanded: open }} style={({ pressed }) => [styles.disclosure, { opacity: pressed ? fade.pressed : 1 }]}>
       <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>{label}</T>
       <DisclosureChevron expanded={open} />
     </Pressable>

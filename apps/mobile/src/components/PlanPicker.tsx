@@ -17,7 +17,7 @@ import { notificationsAllowed, requestNotifications } from '@/lib/notifications'
 import { PLUS_ENTITLEMENT, customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
-import { useTheme, type Palette, radius, size } from '@/theme';
+import { useTheme, type Palette, radius, size, fade } from '@/theme';
 
 /** The three Semli Plus terms. Packages come from RevenueCat; see docs/revenuecat-offerings-brief.md. */
 const TERMS = [
@@ -190,7 +190,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
             <Pressable key={key} accessibilityRole="radio" accessibilityLabel={`${label}, ${pack?.product.priceString ?? 'price unavailable'}`}
               accessibilityState={{ selected: on, disabled: disabled || !pack }} disabled={disabled || !pack}
               onPress={() => { setTerm(key); feedback('select'); setNotice(null); }}
-              style={({ pressed }) => [styles.planRow, { borderBottomColor: c.line, opacity: pressed ? 0.7 : !pack && !loading ? 0.4 : 1 }]}>
+              style={({ pressed }) => [styles.planRow, { borderBottomColor: c.line, opacity: pressed ? fade.pressed : !pack && !loading ? 0.4 : 1 }]}>
               <Radio on={on} />
               <T token="body" color={c.inkPrimary} style={{ flex: 1 }}>{label}</T>
               {saving >= 5 ? <StatusPill label={`Save ${saving}%`} tone="green" tabular={false} /> : null}

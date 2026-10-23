@@ -11,7 +11,7 @@ import { T } from '@/components/Text';
 import { useWebLayout } from '@/lib/layout';
 import { springs } from '@/lib/motion';
 import { courseTint, useStore } from '@/store';
-import { useTheme } from '@/theme';
+import { useTheme, fade } from '@/theme';
 
 type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date' | 'urgent'> & { id?: string; courseId?: string | null; employer?: string | null };
 type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: string; onPress?: () => void; onToggle?: () => void; onDelete?: () => void; last?: boolean };
@@ -56,7 +56,7 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
       )}
       <Pressable onPress={onPress} accessibilityRole={onPress ? 'button' : undefined}
         accessibilityLabel={`${item.title}, ${isEvent ? 'event' : 'to-do'}, ${status.label}${item.urgent ? ', urgent' : ''}${conflict ? ', overlaps another event' : ''}${item.done ? ', completed' : ''}`}
-        style={({ pressed }) => [styles.main, { opacity: pressed ? 0.6 : 1 }]}>
+        style={({ pressed }) => [styles.main, { opacity: pressed ? fade.pressed : 1 }]}>
         <View style={styles.text}>
           <T token="body" color={item.done ? c.inkSecondary : conflict ? c.conflict : c.inkPrimary} numberOfLines={2} style={item.done ? styles.done : undefined}>{item.title}</T>
           <View style={styles.sub}>

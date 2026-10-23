@@ -19,7 +19,7 @@ import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { courseTint, useCourseList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme, screen } from '@/theme';
+import { SCREEN_GUTTER, useTheme, screen, fade } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -48,7 +48,7 @@ function meetingTime(start: string, end: string | null): string {
 function Row({ children, trailing, onPress, accessibilityLabel }: { children: ReactNode; trailing?: ReactNode; onPress?: () => void; accessibilityLabel?: string }) {
   return (
     <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.row, pressed ? { opacity: 0.6 } : null]}>
+      style={({ pressed }) => [styles.row, pressed ? { opacity: fade.pressed } : null]}>
       {children}
       {trailing}
     </Pressable>
@@ -167,7 +167,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         <Pressable accessibilityRole={next ? 'button' : undefined} disabled={!next} onPress={() => next && router.push(`/item/${next.id}`)}
           accessibilityLabel={next ? `${eyebrow} ${big.toLowerCase()}, ${next.title}, ${when}` : `${eyebrow}. Nothing due`}
-          style={({ pressed }) => [styles.top, { opacity: pressed ? 0.7 : 1 }]}>
+          style={({ pressed }) => [styles.top, { opacity: pressed ? fade.pressed : 1 }]}>
           {eyebrow ? <T token="callout" color={c.inkSecondary}>{eyebrow}</T> : null}
           <T token="displayXl" tabular>{big}</T>
           {next

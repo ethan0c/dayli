@@ -1,11 +1,11 @@
-import { fontFamily, palettes, radius, shadow, size, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
+import { fade, fontFamily, palettes, radius, shadow, size, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
 import { createContext, useContext } from 'react';
 import { Platform, useColorScheme, type TextStyle, type ViewStyle } from 'react-native';
 import { initialWindowMetrics, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useStore } from '@/store';
 
-export { radius, shadow, size, space };
+export { fade, radius, shadow, size, space };
 export type { Palette, TypeToken };
 
 /** A rectangle's corners from `radius`, drawn as Apple's continuous curve on iOS. Pills and circles don't need it. */

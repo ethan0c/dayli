@@ -12,7 +12,7 @@ import { compactRange } from '@/components/WeekChart';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useStore, type Change } from '@/store';
-import { SCREEN_GUTTER, corner, radius, useTheme, screen, size } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, screen, size, fade } from '@/theme';
 
 const isShot = (source: string | null | undefined) => /^(screenshot|photo)$/i.test(source ?? '');
 
@@ -45,7 +45,7 @@ function ChangeRow({ change, exists, last, onPress }: { change: Change; exists: 
   return (
     <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={`${label}, ${pill.label}`}
-      style={({ pressed }) => [styles.change, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null, pressed ? { opacity: 0.6 } : null]}>
+      style={({ pressed }) => [styles.change, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null, pressed ? { opacity: fade.pressed } : null]}>
       <View style={styles.well}>
         {it.kind === 'event'
           ? <View style={[styles.dot, { backgroundColor: ink }]} />

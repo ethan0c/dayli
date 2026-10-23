@@ -7,7 +7,7 @@ import { Press } from '@/components/Press';
 import { SkeletonShots } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { reportError } from '@/lib/errors';
-import { corner, radius, useTheme } from '@/theme';
+import { corner, radius, useTheme, fade } from '@/theme';
 
 type Shot = { id: string; uri: string };
 
@@ -62,7 +62,7 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
       </View>
       {loading || list.length > 0 ? <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip} style={styles.stripWrap}>
         {loading ? <SkeletonShots /> : list.map((s) => (
-          <Press key={s.id} accessibilityRole="button" accessibilityLabel="Use this screenshot" haptic="tap" disabled={disabled} onPress={() => onPick(s.uri)} scale={0.96} style={[styles.shot, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
+          <Press key={s.id} accessibilityRole="button" accessibilityLabel="Use this screenshot" haptic="tap" disabled={disabled} onPress={() => onPick(s.uri)} style={[styles.shot, { backgroundColor: c.row, opacity: disabled ? fade.disabled : 1 }]}>
             <Image source={{ uri: s.uri }} style={styles.img} accessibilityIgnoresInvertColors />
           </Press>
         ))}

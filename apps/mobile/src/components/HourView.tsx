@@ -6,7 +6,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { bookedColors } from '@/components/ChartMark';
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
-import { corner, radius, useTheme } from '@/theme';
+import { corner, radius, useTheme, fade } from '@/theme';
 
 /** How the chart fits the day: at least six hours, about this tall, never cramped or stretched. */
 const SCALE = { minSpan: 6, targetHeight: 560, minPx: 28, maxPx: 44 };
@@ -65,7 +65,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
         return (
           <View key={it.id} pointerEvents="box-none" style={[styles.lane, { top, height: h, left: `${column.lane / column.lanes * 100}%`, width: `${100 / column.lanes}%`, paddingRight: column.lane < column.lanes - 1 ? 4 : 0 }]}>
             <Pressable onPress={() => onPress?.(it)} accessibilityRole="button" accessibilityLabel={`${it.title}, ${sub}${it.urgent ? ', urgent' : ''}${conflict ? ', overlaps something else' : ''}`}
-              style={({ pressed }) => [styles.block, { backgroundColor: bg, paddingVertical: size === 'bar' ? 0 : h < 28 ? 2 : 4, borderRadius: Math.min(8, h / 2), opacity: pressed ? 0.7 : 1 }]}>
+              style={({ pressed }) => [styles.block, { backgroundColor: bg, paddingVertical: size === 'bar' ? 0 : h < 28 ? 2 : 4, borderRadius: Math.min(8, h / 2), opacity: pressed ? fade.pressed : 1 }]}>
               {size === 'bar' ? null : <>
               <View style={styles.blockText}>
                 {it.done && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}

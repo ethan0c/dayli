@@ -2,13 +2,14 @@ import { addDays, diffDays, formatTime, monthDay, relativeDay, weekdayShort } fr
 import type { Item } from '@dayli/schema';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { motion } from '@dayli/tokens';
 
 import { GlassCircle } from '@/components/Glass';
 import { Icon, type IconKey } from '@/components/Icon';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import type { Cue } from '@/lib/feedback';
-import { corner, radius, useTheme, size } from '@/theme';
+import { corner, radius, useTheme, size, fade } from '@/theme';
 
 /*
  * The five button roles and the small parts every screen shares.
@@ -23,7 +24,7 @@ export function TextButton({ label, onPress, tone = 'accent', haptic = 'select',
   const { c } = useTheme();
   const color = tone === 'danger' ? c.conflict : c.accentInk;
   return (
-    <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ disabled }} disabled={disabled} haptic={haptic} onPress={onPress} scale={0.97} style={[styles.textBtn, style, disabled && { opacity: 0.5 }]}>
+    <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ disabled }} disabled={disabled} haptic={haptic} onPress={onPress} style={[styles.textBtn, style, disabled && { opacity: 0.5 }]}>
       <T token="subhead" color={color} style={tone === 'muted' ? undefined : styles.underline}>
         {label}
       </T>
@@ -38,15 +39,15 @@ export function IconButton({ icon, onPress, label, tone = 'grey', size = 44, hap
   const { c } = useTheme();
   if (tone === 'glass') {
     return (
-      <Press accessibilityRole="button" accessibilityLabel={label} haptic={haptic} onPress={onPress} disabled={disabled} scale={0.9} style={[{ opacity: disabled ? 0.4 : 1 }, style]}>
+      <Press accessibilityRole="button" accessibilityLabel={label} haptic={haptic} onPress={onPress} disabled={disabled} scale={motion.press.iconScale} style={[{ opacity: disabled ? fade.disabled : 1 }, style]}>
         <GlassCircle size={size}><Icon name={icon} size={size >= 44 ? 22 : 18} color={c.inkPrimary} /></GlassCircle>
       </Press>
     );
   }
   const bg = tone === 'primary' ? c.controlFill : tone === 'ink' ? c.inkPrimary : tone === 'grey' ? c.row : 'transparent';
   return (
-    <Press accessibilityRole="button" accessibilityLabel={label} haptic={haptic} onPress={onPress} disabled={disabled} scale={0.9}
-      style={[{ width: size, height: size, borderRadius: size / 2, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.4 : 1 }, style]}>
+    <Press accessibilityRole="button" accessibilityLabel={label} haptic={haptic} onPress={onPress} disabled={disabled} scale={motion.press.iconScale}
+      style={[{ width: size, height: size, borderRadius: size / 2, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', opacity: disabled ? fade.disabled : 1 }, style]}>
       <Icon name={icon} size={size >= 44 ? 22 : 18} color={tone === 'primary' ? c.controlInk : tone === 'ink' ? c.onPrimary : c.inkPrimary} strokeWidth={tone === 'ink' || tone === 'primary' ? 2 : 1.75} />
     </Press>
   );
@@ -56,7 +57,7 @@ export function IconButton({ icon, onPress, label, tone = 'grey', size = 44, hap
 export function Chip({ label, icon, on, onPress }: { label: string; icon?: IconKey; on: boolean; onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <Press accessibilityRole="checkbox" accessibilityState={{ checked: on }} haptic="select" onPress={onPress} scale={0.96}
+    <Press accessibilityRole="checkbox" accessibilityState={{ checked: on }} haptic="select" onPress={onPress}
       style={[styles.chip, { backgroundColor: on ? c.controlFill : c.row }]}>
       {icon ? <Icon name={icon} size={16} color={on ? c.controlInk : c.inkPrimary} /> : null}
       <T token="subhead" color={on ? c.controlInk : c.inkPrimary}>
@@ -71,7 +72,7 @@ export function Tile({ icon, label, onPress, disabled }: { icon: IconKey; label:
   const { c } = useTheme();
   return (
     <Press accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} haptic="tap" onPress={onPress} disabled={disabled}
-      style={[styles.tile, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
+      style={[styles.tile, { backgroundColor: c.row, opacity: disabled ? fade.disabled : 1 }]}>
       <Icon name={icon} size={20} color={c.inkPrimary} />
       <T token="caption" color={c.inkPrimary}>
         {label}
@@ -113,7 +114,7 @@ export function SectionTitle({ title, onPress, detail }: { title: string; onPres
   );
   if (!onPress) return inner;
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ opacity: pressed ? fade.pressed : 1 })}>
       {inner}
     </Pressable>
   );

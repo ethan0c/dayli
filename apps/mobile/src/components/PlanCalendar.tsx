@@ -8,7 +8,7 @@ import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { calendarDays, calendarMonthLabel, moveCalendarMonth } from '@/lib/calendar';
 import { feedback } from '@/lib/feedback';
-import { useTheme, radius, size } from '@/theme';
+import { useTheme, radius, size, fade } from '@/theme';
 
 /** "October", or "January 2027" when the selected month is not in this year. */
 function monthTitle(selected: string, today: string): string {
@@ -22,7 +22,7 @@ export function PlanMonthTitle({ selected, today, expanded, onToggle }: { select
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Choose date, ${weekdayLong(selected)}, ${monthDay(selected)}, ${selected.slice(0, 4)}`}
       accessibilityState={{ expanded }} onPress={() => { feedback('select'); onToggle(); }}
-      style={({ pressed }) => [styles.title, { opacity: pressed ? 0.7 : 1 }]}>
+      style={({ pressed }) => [styles.title, { opacity: pressed ? fade.pressed : 1 }]}>
       <T token="display" numberOfLines={1} style={{ flexShrink: 1 }}>{monthTitle(selected, today)}</T>
       <View style={{ transform: [{ rotate: expanded ? '-90deg' : '90deg' }] }}>
         <Icon name="chevronRight" size={18} color={c.inkSecondary} />
@@ -35,7 +35,7 @@ export function PlanMonthTitle({ selected, today, expanded, onToggle }: { select
 export function TodayPill({ onPress }: { onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <Press accessibilityRole="button" accessibilityLabel="Go to today" haptic="select" onPress={onPress} scale={0.96}
+    <Press accessibilityRole="button" accessibilityLabel="Go to today" haptic="select" onPress={onPress}
       style={[styles.pill, { backgroundColor: c.row }]}>
       <T token="subhead">Today</T>
     </Press>
@@ -69,7 +69,7 @@ export function PlanMonthCalendar({ selected, today, onSelect }: { selected: str
               return (
                 <Pressable key={date} accessibilityRole="button" accessibilityState={{ selected: on }}
                   accessibilityLabel={`${weekdayLong(date)}, ${monthDay(date)}, ${date.slice(0, 4)}${isToday ? ', today' : ''}`}
-                  onPress={() => pick(date)} style={({ pressed }) => [styles.day, { opacity: pressed ? 0.6 : 1 }]}>
+                  onPress={() => pick(date)} style={({ pressed }) => [styles.day, { opacity: pressed ? fade.pressed : 1 }]}>
                   <View style={[styles.dayCircle, {
                     backgroundColor: on ? c.controlFill : 'transparent',
                     borderColor: isToday && !on ? c.accent : 'transparent',

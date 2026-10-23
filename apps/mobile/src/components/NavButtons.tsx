@@ -2,6 +2,7 @@ import { t } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native';
+import { motion } from '@dayli/tokens';
 
 import { GLASS, GlassCircle } from '@/components/Glass';
 import { Icon } from '@/components/Icon';
@@ -38,7 +39,7 @@ export function CloseButton({ onPress }: { onPress?: () => void }) {
   const { t } = useLingui();
   const { c } = useTheme();
   return (
-    <Press accessibilityRole="button" accessibilityLabel={t`Close`} hitSlop={8} scale={0.9} onPress={onPress ?? backOrHome} style={styles.button}>
+    <Press accessibilityRole="button" accessibilityLabel={t`Close`} hitSlop={8} scale={motion.press.iconScale} onPress={onPress ?? backOrHome} style={styles.button}>
       <GlassCircle size={36}><Icon name="x" size={22} color={c.inkPrimary} /></GlassCircle>
     </Press>
   );
@@ -49,7 +50,7 @@ export function BackButton({ onPress }: { onPress?: () => void }) {
   const { t } = useLingui();
   const { c } = useTheme();
   return (
-    <Press accessibilityRole="button" accessibilityLabel={t`Back`} hitSlop={8} scale={0.9} onPress={onPress ?? backOrHome} style={styles.button}>
+    <Press accessibilityRole="button" accessibilityLabel={t`Back`} hitSlop={8} scale={motion.press.iconScale} onPress={onPress ?? backOrHome} style={styles.button}>
       <GlassCircle size={36}><Icon name="chevronLeft" size={22} color={c.inkPrimary} /></GlassCircle>
     </Press>
   );

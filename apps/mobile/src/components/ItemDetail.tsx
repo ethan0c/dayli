@@ -22,7 +22,7 @@ import { isClass } from '@/lib/reminder-plan';
 import { usePlusAccess } from '@/lib/plus-access';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size, fade } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -55,7 +55,7 @@ function Row({ children, trailing, onPress, accessibilityLabel }: { children: Re
   if (!onPress) return <View style={styles.row}>{children}{trailing}</View>;
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.row, pressed ? { opacity: 0.6 } : null]}>
+      style={({ pressed }) => [styles.row, pressed ? { opacity: fade.pressed } : null]}>
       {children}
       {trailing}
     </Pressable>
@@ -167,7 +167,7 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
               { label: 'From now on', value: count(fromNow.length), run: () => removeItems(fromNow.map((it) => it.id), `Deleted ${count(fromNow.length)}`) },
             ].map((o) => (
               <Pressable key={o.label} accessibilityRole="button" accessibilityLabel={`${o.label}, ${o.value}`} onPress={() => { feedback('remove'); deleteAndLeave(o.run); }}
-                style={({ pressed }) => [styles.scopeRow, { borderBottomColor: c.line }, pressed ? { opacity: 0.6 } : null]}>
+                style={({ pressed }) => [styles.scopeRow, { borderBottomColor: c.line }, pressed ? { opacity: fade.pressed } : null]}>
                 <T token="body" color={c.conflict} style={{ flex: 1 }}>{o.label}</T>
                 <T token="callout" color={c.inkSecondary} tabular>{o.value}</T>
               </Pressable>
@@ -200,7 +200,7 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
           />
           {item.start ? (
             <Pressable accessibilityRole="button" accessibilityLabel={`Time, ${timeLabel}, tap to change`} accessibilityState={{ expanded: editing === 'time' }}
-              onPress={() => { feedback('select'); setEditing(editing === 'time' ? null : 'time'); }} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+              onPress={() => { feedback('select'); setEditing(editing === 'time' ? null : 'time'); }} style={({ pressed }) => ({ opacity: pressed ? fade.pressed : 1 })}>
               <T token="displayXl" tabular style={styles.time}>
                 {clock(item.start)}{item.end ? <T token="displayXl" color={c.inkSecondary} style={styles.time}> – </T> : null}{item.end ? clock(item.end) : ''}
                 <T token="titleSm" color={c.inkSecondary}> {[period(item.end ?? item.start), endsNextDay ? 'next day' : ''].filter(Boolean).join(', ')}</T>

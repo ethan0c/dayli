@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { T } from '@/components/Text';
-import { SCREEN_GUTTER, useTheme, useTopInset } from '@/theme';
+import { SCREEN_GUTTER, useTheme, useTopInset, fade } from '@/theme';
 
 /**
  * The top of every main tab: at most one small line above the big value, and the meaning under
@@ -38,7 +38,7 @@ export function TabHeader({ date, context, title, size = 'number', value, detail
     <View style={[styles.root, { paddingTop: inset ? top + 20 : 8 }]}>
       {onPress ? (
         <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel ? [dateLabel, accessibilityLabel].filter(Boolean).join(', ') : undefined} onPress={onPress}
-          style={({ pressed }) => [styles.content, { opacity: pressed ? 0.7 : 1 }]}>
+          style={({ pressed }) => [styles.content, { opacity: pressed ? fade.pressed : 1 }]}>
           {content}
         </Pressable>
       ) : <View style={styles.content}>{content}</View>}

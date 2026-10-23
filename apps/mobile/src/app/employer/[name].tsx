@@ -13,7 +13,7 @@ import { feedback } from '@/lib/feedback';
 import { enter, exit } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { useItemList, useScheduleList, useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, fade } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -125,7 +125,7 @@ export default function EmployerScreen() {
               { label: 'All shifts, including past shifts', value: count(shifts.length), scope: 'all' as const },
             ].map((o) => (
               <Pressable key={o.scope} accessibilityRole="button" accessibilityLabel={`${o.label}, ${o.value}`} onPress={() => remove(o.scope)}
-                style={({ pressed }) => [styles.scopeRow, { borderBottomColor: c.line }, pressed ? { opacity: 0.6 } : null]}>
+                style={({ pressed }) => [styles.scopeRow, { borderBottomColor: c.line }, pressed ? { opacity: fade.pressed } : null]}>
                 <T token="body" color={c.conflict} style={{ flex: 1 }}>{o.label}</T>
                 <T token="callout" color={c.inkSecondary} tabular>{o.value}</T>
               </Pressable>
@@ -140,7 +140,7 @@ export default function EmployerScreen() {
       <ScrollView contentContainerStyle={styles.body}>
         <Pressable accessibilityRole={next ? 'button' : undefined} disabled={!next} onPress={() => next && router.push(`/item/${next.id}`)}
           accessibilityLabel={next ? `${eyebrow} ${big}, ${line}` : 'Work. No shifts coming up'}
-          style={({ pressed }) => [styles.top, { opacity: pressed ? 0.7 : 1 }]}>
+          style={({ pressed }) => [styles.top, { opacity: pressed ? fade.pressed : 1 }]}>
           <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
           <T token="displayXl" tabular>{big}</T>
           {line

@@ -8,6 +8,7 @@ import { Composer } from "@/components/Composer";
 import { Radio } from "@/components/Controls";
 import { RecentShots } from "@/components/RecentShots";
 import { File } from "expo-file-system";
+import { motion } from '@dayli/tokens';
 import { Press } from "@/components/Press";
 import { GlassCircle } from "@/components/Glass";
 import { Icon } from "@/components/Icon";
@@ -213,7 +214,7 @@ export default function OnboardingScreen() {
       <View style={styles.header}>
         {canGoBack ? (
           <Animated.View entering={enter.fade} exiting={exit.fade}>
-            <Press accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} scale={0.9} onPress={back} style={styles.back}>
+            <Press accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} scale={motion.press.iconScale} onPress={back} style={styles.back}>
               <GlassCircle size={36} plain><Icon name="chevronLeft" size={22} color={barOn} /></GlassCircle>
             </Press>
           </Animated.View>

@@ -133,6 +133,9 @@ const dark: Palette = {
 
 export const palettes = { light, dark } as const;
 
+/** Opacity for state, not decoration: a row while pressed (rows dim, they never shrink), anything disabled. */
+export const fade = { pressed: 0.6, disabled: 0.4 } as const;
+
 /** Control heights: `control` for primary and secondary buttons and pill fields, `pill` for in-row actions (a time, Add a time), `chip` for status pills, `target` the least tap height. */
 export const size = { control: 52, pill: 36, chip: 28, target: 44 } as const;
 

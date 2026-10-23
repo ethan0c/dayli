@@ -133,7 +133,7 @@ export default function CreateScreen() {
                 const on = draft.courseId === course.id;
                 const tint = c.tint[courseTint(courses, course.id) ?? 'lavender'];
                 return (
-                  <Press key={course.id} accessibilityRole="radio" accessibilityState={{ selected: on }} haptic="select" scale={0.96} onPress={() => patch({ courseId: course.id })}
+                  <Press key={course.id} accessibilityRole="radio" accessibilityState={{ selected: on }} haptic="select" onPress={() => patch({ courseId: course.id })}
                     style={[styles.courseChip, { backgroundColor: on ? c.inkPrimary : c.row }]}>
                     <CategoryDot color={on ? tint.fill : tint.ink} />
                     <T token="subhead" color={on ? c.onPrimary : c.inkPrimary}>{course.code ?? course.title}</T>
@@ -173,7 +173,7 @@ function FieldRow({ label, children, last }: { label: string; children: ReactNod
 function FieldPill({ label, onPress, accessibilityLabel }: { label: string; onPress: () => void; accessibilityLabel?: string }) {
   const { c } = useTheme();
   return (
-    <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} haptic="select" scale={0.97} onPress={onPress} style={[styles.pill, { backgroundColor: c.row }]}>
+    <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} haptic="select" onPress={onPress} style={[styles.pill, { backgroundColor: c.row }]}>
       <T token="subhead" tabular numberOfLines={1}>{label}</T>
     </Press>
   );

@@ -19,8 +19,8 @@ export const motion = {
   pulse: 700,
   /** The one easing curve for timed animations (CSS cubic-bezier form). */
   easing: [0.2, 0, 0, 1] as const,
-  /** How far a control shrinks and dims while pressed. */
-  press: { scale: 0.97, opacity: 0.88 },
+  /** How far a control shrinks and dims while pressed; `iconScale` for a small round icon button. */
+  press: { scale: 0.97, iconScale: 0.9, opacity: 0.88 },
   /** Delay between siblings in a staggered entrance. */
   stagger: 45,
 } as const;

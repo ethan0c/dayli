@@ -5,7 +5,7 @@ import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { T } from '@/components/Text';
-import { corner, radius, textStyle, useTheme, size } from '@/theme';
+import { corner, radius, textStyle, useTheme, size, fade } from '@/theme';
 
 // Fallbacks for web (and any non-iOS platform). The .ios.tsx file uses SwiftUI; the web's date and
 // time fields are the browser's own pickers.
@@ -64,7 +64,7 @@ function WebField({ type, value, onChange, disabled, label }: { type: 'date' | '
     style: {
       height: 32, border: 'none', borderRadius: radius.small, padding: '0 10px', backgroundColor: c.row, color: c.inkPrimary,
       fontFamily: fontFamily.regular, fontSize: 15, fontVariantNumeric: 'tabular-nums', colorScheme: dark ? 'dark' : 'light',
-      opacity: disabled ? 0.5 : 1,
+      opacity: disabled ? fade.disabled : 1,
     },
   });
 }
@@ -98,7 +98,7 @@ export function NativeButton({ label, onPress, role, icon }: NativeButtonProps) 
   const { c } = useTheme();
   const ink = role === 'destructive' ? c.conflict : c.inkPrimary;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.btn, { backgroundColor: c.row, opacity: pressed ? 0.8 : 1 }]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.btn, { backgroundColor: c.row, opacity: pressed ? fade.pressed : 1 }]}>
       {icon ? <Icon name={icon} size={16} color={ink} /> : null}
       <T token="headline" color={ink}>
         {label}

@@ -588,7 +588,7 @@ export default function ReviewScreen() {
 /** An amber ask ("Add a date") as a pressable status pill in the trailing slot of a row. */
 function AskPill({ label, tone, onPress }: { label: string; tone: 'amber' | 'grey'; onPress: () => void }) {
   return (
-    <Press accessibilityRole="button" accessibilityLabel={label} haptic="select" onPress={onPress} scale={0.97}>
+    <Press accessibilityRole="button" accessibilityLabel={label} haptic="select" onPress={onPress}>
       <StatusPill label={label} tone={tone} />
     </Press>
   );

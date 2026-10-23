@@ -11,7 +11,7 @@ import { T } from '@/components/Text';
 import { useWebLayout } from '@/lib/layout';
 import { enter, exit } from '@/lib/motion';
 import { useWebShortcuts } from '@/lib/shortcuts';
-import { SCREEN_GUTTER, corner, radius, useTheme, shadow, size } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, shadow, size, fade } from '@/theme';
 
 /** Height of the native navigation bar below the status bar. */
 const NAV_BAR = 44;
@@ -95,7 +95,7 @@ export function Button({ label, onPress, disabled, variant = 'primary', block = 
   const accent = variant === 'accent';
   return (
     <Press onPress={onPress} disabled={disabled} haptic="tap" accessibilityRole="button" accessibilityState={{ disabled: !!disabled }}
-      style={[styles.btn, sidebar && !block ? styles.fit : null, { backgroundColor: accent ? c.accent : primary ? c.controlFill : c.row, opacity: disabled ? 0.4 : 1 }]}>
+      style={[styles.btn, sidebar && !block ? styles.fit : null, { backgroundColor: accent ? c.accent : primary ? c.controlFill : c.row, opacity: disabled ? fade.disabled : 1 }]}>
       <T token="headline" color={accent ? c.onAccent : primary ? c.controlInk : c.inkPrimary}>
         {label}
       </T>

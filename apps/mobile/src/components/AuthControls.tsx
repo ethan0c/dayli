@@ -4,12 +4,12 @@ import Svg, { Path } from 'react-native-svg';
 
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
-import { corner, radius, textStyle, useTheme } from '@/theme';
+import { corner, radius, textStyle, useTheme, fade } from '@/theme';
 
 export function GoogleButton({ onPress, disabled = false }: { onPress: () => void; disabled?: boolean }) {
   return (
     <Press accessibilityRole="button" accessibilityLabel="Continue with Google" accessibilityState={{ disabled }}
-      disabled={disabled} onPress={onPress} style={[styles.google, { opacity: disabled ? 0.5 : 1 }]}>
+      disabled={disabled} onPress={onPress} style={[styles.google, { opacity: disabled ? fade.disabled : 1 }]}>
       <View aria-hidden>
         <Svg width={20} height={20} viewBox="0 0 48 48">
           <Path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z" />
