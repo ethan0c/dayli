@@ -19,7 +19,7 @@ import { accountOf, useSession } from '@/lib/supabase';
 import { feedback } from '@/lib/feedback';
 import { LINKS, SUPPORT_EMAIL, openLink } from '@/lib/links';
 import { deviceRegion, regionName } from '@/lib/locale';
-import { LANGUAGES } from '@/lib/language';
+import { LANGUAGE_PICKER, LANGUAGES } from '@/lib/language';
 import { profileFor } from '@/lib/majors';
 import { useCanDo } from '@/lib/can-do';
 import { freeImportAllowance } from '@/lib/plans';
@@ -90,7 +90,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         <Group title={t`Preferences`}>
           <Row label={t`Reminders`} icon="bell" value={settings.reminders.enabled ? (settings.reminders.briefing ? t`On, with daily summary` : t`On`) : t`Off`} onPress={() => openSetting('reminders')} />
           <Row label="Canvas" icon="book" value={settings.canvas.feedUrl ? (settings.canvas.lastError ? t`Needs a look` : t`Syncing`) : t`Off`} onPress={() => openSetting('canvas')} />
-          <Row label={t`Language`} icon="globe" value={LANGUAGES.find((l) => l.id === settings.language)?.name ?? (SYSTEM_NAME === 'system' ? t`Match system` : t`Match iPhone`)} onPress={() => openSetting('language')} />
+          {LANGUAGE_PICKER ? <Row label={t`Language`} icon="globe" value={LANGUAGES.find((l) => l.id === settings.language)?.name ?? (SYSTEM_NAME === 'system' ? t`Match system` : t`Match iPhone`)} onPress={() => openSetting('language')} /> : null}
           <Row label={t`Region`} icon="globe" value={regionName(settings.region ?? deviceRegion(), i18n.locale)} onPress={() => openSetting('region')} />
           <Row label={t`Appearance`} icon="appearance" value={appearanceLabels[settings.appearance]} onPress={() => openSetting('appearance')} />
           <ToggleRow label={t`Sounds`} icon="volume" value={settings.sounds} onChange={(sounds) => { setSettings({ sounds }); feedback('select'); }} last={Platform.OS === 'web'} />
