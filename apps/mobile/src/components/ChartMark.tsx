@@ -54,7 +54,7 @@ export function Mark({ at, kind, color, selected }: { at: At; kind: MarkShape; c
  * The now hairline, centred on the moment. Across a horizontal track it stands up and
  * overhangs the track on both sides; across a vertical column it lies flat, just past the edges.
  */
-export function NowLine({ at, color, inset }: { at: At; color: string; /** A focused column: stop at its edges so the line never meets the focus ring. */ inset?: boolean }) {
+export function NowLine({ at, color, inset, halo = true }: { at: At; color: string; /** A focused column: stop at its edges so the line never meets the focus ring. */ inset?: boolean; /** Off where the line crosses no block and the track sits on a photo. */ halo?: boolean }) {
   const { c } = useTheme();
   const across = 'x' in at;
   const long = across ? chart.track + chart.nowOverhang * 2 : 0;
@@ -63,9 +63,9 @@ export function NowLine({ at, color, inset }: { at: At; color: string; /** A foc
   const cased = chart.now + chart.halo * 2;
   return (
     <View pointerEvents="none" style={across ? anchor(at) : { position: 'absolute', top: at.y, left: inset ? 0 : -chart.nowColumnOverhang, right: inset ? 0 : -chart.nowColumnOverhang, height: 0 }}>
-      <View style={across
+      {halo ? <View style={across
         ? { position: 'absolute', left: -cased / 2, top: -chart.track / 2, width: cased, height: chart.track, backgroundColor: c.canvas }
-        : { position: 'absolute', left: inset ? 0 : chart.nowColumnOverhang, right: inset ? 0 : chart.nowColumnOverhang, top: -cased / 2, height: cased, backgroundColor: c.canvas }} />
+        : { position: 'absolute', left: inset ? 0 : chart.nowColumnOverhang, right: inset ? 0 : chart.nowColumnOverhang, top: -cased / 2, height: cased, backgroundColor: c.canvas }} /> : null}
       <View style={across
         ? { position: 'absolute', left: -chart.now / 2, top: -long / 2, width: chart.now, height: long, backgroundColor: color }
         : { position: 'absolute', left: 0, right: 0, top: -chart.now / 2, height: chart.now, backgroundColor: color }} />

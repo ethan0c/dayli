@@ -15,9 +15,10 @@ const TRACK_ALPHA = '24';
 const AXIS = (['6 am', 'Noon', '6 pm', 'Midnight'] as const).map((l, i) => [l, (i * 6 * 60 / SPAN) * 100] as const);
 
 /**
- * The day as a bar, 6 am to midnight: green for what is done, ink for what is booked,
- * red where two things overlap, and a hairline for now. Semli's chart.
- * With `highlight`, that item is ink and everything else grey; overlaps stay red.
+ * The day as a bar, 6 am to midnight: plum for booked work and slate for everything else,
+ * green for what is done, grey for what has ended, red where two upcoming things overlap, and a
+ * hairline for now. Semli's chart. With `highlight`, that item keeps its colour and everything
+ * else is grey; overlaps stay red, past ones too.
  */
 export function DayBar({ items, now, conflicts, highlight, labels = true }: {
   items: Item[]; now: { date: string; time: string }; conflicts: Set<string>; highlight?: string; labels?: boolean;
@@ -44,9 +45,12 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
     const b = eventInterval(items.find((it) => it.id === pair.b)!)!;
     const start = Math.max(START, Math.max(a.start, b.start) - base);
     const end = Math.min(END, Math.min(a.end, b.end) - base);
-    return end > start ? [{ id: `${pair.a}:${pair.b}`, left: (start - START) / SPAN * 100, width: (end - start) / SPAN * 100 }] : [];
+    // An overlap that is over stays grey with its blocks, as on Plan, unless an item is picked.
+    return end > start && (highlight || end > nowMin) ? [{ id: `${pair.a}:${pair.b}`, left: (start - START) / SPAN * 100, width: (end - start) / SPAN * 100 }] : [];
   });
   const nowLeft = Math.min(100, Math.max(0, ((nowMin - START) / SPAN) * 100));
+  // The now line's canvas halo only where it crosses a block: on the bare track it would notch the sky.
+  const nowOnBlock = [...blocks, ...overlaps].some((b) => nowLeft >= b.left && nowLeft <= b.left + b.width);
   return (
     <View style={styles.wrap} accessible accessibilityLabel={`Day timeline, ${blocks.length} ${blocks.length === 1 ? 'block' : 'blocks'}, ${overlaps.length} ${overlaps.length === 1 ? 'overlap' : 'overlaps'}`}>
       {/* Ink at low alpha, not the row grey: Today's bar sits on the sky, and a tint reads on cloud and paper alike. */}
@@ -55,7 +59,7 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
           <View key={b.id} style={[styles.block, { left: `${b.left}%`, width: `${b.width}%`, backgroundColor: b.color, opacity: b.dim ? 0.5 : 1 }]} />
         ))}
         {overlaps.map((span) => <View key={span.id} style={[styles.block, { left: `${span.left}%`, width: `${span.width}%`, backgroundColor: c.conflict }]} />)}
-        {!highlight && nowMin >= START && nowMin <= END ? <NowLine at={{ x: nowLeft }} color={c.inkPrimary} /> : null}
+        {!highlight && nowMin >= START && nowMin <= END ? <NowLine at={{ x: nowLeft }} color={c.inkPrimary} halo={nowOnBlock} /> : null}
       </View>
       {labels ? (
         <View style={styles.labels}>
