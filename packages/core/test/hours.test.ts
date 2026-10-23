@@ -44,3 +44,12 @@ describe('the day by the hour', () => {
     expect(hourSpan({ id: 'night', kind: 'event', start: '22:00', end: '06:00' })!.end).toBe(1440);
   });
 });
+
+describe('marks in a week column', () => {
+  it('merges marks that would overlap, keeping the strongest', async () => {
+    const { mergeMarks } = await import('../src');
+    const merged = mergeMarks([{ y: 100, kind: 'dot' as const }, { y: 104, kind: 'target' as const }, { y: 40, kind: 'ring' as const }], 12);
+    expect(merged.map((m) => [m.kind, m.count])).toEqual([['ring', 1], ['target', 2]]);
+    expect(mergeMarks([{ y: 10, kind: 'dot' as const }, { y: 13, kind: 'dot' as const, tone: 'red' }], 12)[0]).toMatchObject({ tone: 'red', count: 2 });
+  });
+});
