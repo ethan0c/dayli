@@ -94,6 +94,9 @@ const motionVars = {
 
 const shapeVars: Record<string, string> = {};
 for (const [k, v] of Object.entries(radius)) shapeVars[`--radius-${k}`] = `${v}px`;
+// The site's own names: a card is the app's field radius; the hero sheet stays the site's 28.
+shapeVars['--radius-card'] = `${radius.field}px`;
+shapeVars['--radius-sheet'] = '28px';
 for (const [k, v] of Object.entries(space)) shapeVars[`--space-${k}`] = `${v}px`;
 
 const block = (vars: Record<string, string>) =>

@@ -1,11 +1,16 @@
 import { fontFamily, palettes, radius, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
 import { createContext, useContext } from 'react';
-import { useColorScheme, type TextStyle } from 'react-native';
+import { Platform, useColorScheme, type TextStyle, type ViewStyle } from 'react-native';
 
 import { useStore } from '@/store';
 
 export { radius, space };
 export type { Palette, TypeToken };
+
+/** A rectangle's corners from `radius`, drawn as Apple's continuous curve on iOS. Pills and circles don't need it. */
+export function corner(r: number): ViewStyle {
+  return Platform.OS === 'ios' ? { borderRadius: r, borderCurve: 'continuous' } : { borderRadius: r };
+}
 
 /** Readable UI text. The outlined brand wordmark stays independent. */
 export const mobileFonts = fontFamily;

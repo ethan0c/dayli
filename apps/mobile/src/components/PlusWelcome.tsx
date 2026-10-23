@@ -8,6 +8,7 @@ import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { durations, ease, enter, springs } from '@/lib/motion';
 import type { Palette } from '@/theme';
+import { corner, radius } from '@/theme';
 
 /** Where each Plus feature starts. Every row does the thing; none of them only describes it. */
 export type PlusDestination = 'import' | 'shifts' | 'canvas';
@@ -25,7 +26,7 @@ export function PlusFeatures({ c, onGo }: { c: Palette; onGo: (to: PlusDestinati
       {FEATURES.map(({ icon, title, detail, to }, i) => (
         <Pressable key={to} accessibilityRole="button" accessibilityLabel={`${title}. ${detail}`} onPress={() => onGo(to)}
           style={({ pressed }) => [styles.row, i < FEATURES.length - 1 ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null,
-            pressed ? { backgroundColor: c.row, marginHorizontal: -8, paddingHorizontal: 8, borderRadius: 8 } : null]}>
+            pressed ? { backgroundColor: c.row, marginHorizontal: -8, paddingHorizontal: 8, ...corner(radius.small) } : null]}>
           <Icon name={icon} size={20} color={c.inkPrimary} />
           <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
             <T token="body" color={c.inkPrimary}>{title}</T>

@@ -12,7 +12,7 @@ import { compactRange } from '@/components/WeekChart';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useStore, type Change } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme } from '@/theme';
 
 const isShot = (source: string | null | undefined) => /^(screenshot|photo)$/i.test(source ?? '');
 
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'flex-start', gap: 16 },
   topText: { flex: 1, minWidth: 0, gap: 2 },
   line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2, paddingTop: 6 },
-  thumb: { width: 84, height: 122, borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  thumb: { width: 84, height: 122, ...corner(radius.field), overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   section: { paddingTop: 22 },
   change: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52 },
   well: { width: 22, alignItems: 'center', justifyContent: 'center' },

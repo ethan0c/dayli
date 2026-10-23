@@ -8,7 +8,7 @@ import { ease } from '@/lib/motion';
 import { radius, useTheme } from '@/theme';
 
 /** A placeholder block that breathes. Lay these out exactly where the content will land. */
-export function Skeleton({ width = '100%', height = 16, round = 8, style }: { width?: DimensionValue; height?: number; round?: number; style?: object }) {
+export function Skeleton({ width = '100%', height = 16, round = radius.small, style }: { width?: DimensionValue; height?: number; round?: number; style?: object }) {
   const { c } = useTheme();
   const pulse = useSharedValue(1);
   useEffect(() => {
@@ -39,7 +39,7 @@ export function SkeletonRows({ count = 3 }: { count?: number }) {
 
 /** A card-shaped placeholder, for prices and featured content. */
 export function SkeletonCard({ height = 72 }: { height?: number }) {
-  return <Skeleton height={height} round={radius.card} />;
+  return <Skeleton height={height} round={radius.field} />;
 }
 
 /** The day bar before it has a day: the track and its four labels. */

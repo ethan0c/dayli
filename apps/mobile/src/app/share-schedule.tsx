@@ -12,7 +12,7 @@ import { T } from '@/components/Text';
 import { Wordmark } from '@/components/Wordmark';
 import { SHARING_ENABLED } from '@/lib/auth';
 import { useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme } from '@/theme';
 
 const CATEGORIES: { key: Category; label: string }[] = [{ key: 'school', label: 'School' }, { key: 'work', label: 'Work' }, { key: 'personal', label: 'Personal' }];
 
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   dateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   toggle: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 16, borderBottomWidth: StyleSheet.hairlineWidth },
-  linkPreview: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 20, padding: 20, gap: 12 },
+  linkPreview: { borderWidth: StyleSheet.hairlineWidth, ...corner(radius.field), padding: 20, gap: 12 },
   entry: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
   dot: { width: 6, height: 6, borderRadius: 3 },
 });

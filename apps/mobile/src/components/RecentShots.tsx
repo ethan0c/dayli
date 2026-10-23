@@ -7,7 +7,7 @@ import { Press } from '@/components/Press';
 import { SkeletonShots } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { reportError } from '@/lib/errors';
-import { useTheme } from '@/theme';
+import { corner, radius, useTheme } from '@/theme';
 
 type Shot = { id: string; uri: string };
 
@@ -76,6 +76,6 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   stripWrap: { marginHorizontal: -24 },
   strip: { paddingHorizontal: 24, gap: 8 },
-  shot: { width: 104, height: 150, borderRadius: 14, overflow: 'hidden' },
+  shot: { width: 104, height: 150, ...corner(radius.field), overflow: 'hidden' },
   img: { width: '100%', height: '100%' },
 });

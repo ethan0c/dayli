@@ -16,7 +16,7 @@ import { feedback } from '@/lib/feedback';
 import { usePlusAccess } from '@/lib/plus-access';
 import { buildManualItem, defaultManualTimes, type ManualDraft } from '@/lib/manual-item';
 import { courseTint, useCourseList, useStore } from '@/store';
-import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme } from '@/theme';
 
 const categories: { key: Category; label: string }[] = [
   { key: 'personal', label: 'Personal' }, { key: 'school', label: 'School' }, { key: 'work', label: 'Work' },
@@ -189,5 +189,5 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   courseChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, height: 40, borderRadius: 999 },
   pill: { height: 36, paddingHorizontal: 14, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  notes: { minHeight: 96, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1.5, textAlignVertical: 'top' },
+  notes: { minHeight: 96, paddingVertical: 14, paddingHorizontal: 16, ...corner(radius.field), borderWidth: 1.5, textAlignVertical: 'top' },
 });

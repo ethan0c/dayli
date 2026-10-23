@@ -132,7 +132,14 @@ export const palettes = { light, dark } as const;
 
 export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, xxxl: 40 } as const;
 
-export const radius = { chip: 999, row: 14, card: 16, sheet: 28, pill: 999 } as const;
+/**
+ * Corners grow with the thing (decided Oct 23, 2026). Every action is a `pill`. Rectangles take
+ * `mark` (6) for chart blocks and tiny squares like a checkbox, `small` (10) under about 44pt tall
+ * (press and hover highlights, hour-view blocks, compact fields), `field` (16) for content
+ * (fields, notes, the composer, cards, thumbnails) and `container` (24) for dialogs and panels.
+ * Something inset in a rounded container takes its radius minus the inset, so curves run parallel.
+ */
+export const radius = { mark: 6, small: 10, field: 16, container: 24, pill: 999 } as const;
 
 /**
  * Chart geometry, shared by every timeline in the app and the site mockups. A mark is

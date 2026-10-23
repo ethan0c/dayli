@@ -35,7 +35,7 @@ import { sampleWeek } from "@/store/sample";
 import { palettes } from "@dayli/tokens";
 import { localParts, monthDay, relativeDay, termSummary, weekOf, weekdayLong } from "@dayli/core";
 
-import { SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme } from "@/theme";
 
 /**
  * Ask less, build their week, then ask (docs/conversion.md, decided Oct 21, 2026): two tap
@@ -877,7 +877,7 @@ const styles = StyleSheet.create({
   // On a wide web window the actions follow the content at the right, as desktop forms do.
   footer: WIDE ? { paddingTop: 28, gap: 8, alignSelf: "stretch", alignItems: "flex-end" } : { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
   choice: { flexDirection: "row", alignItems: "center", gap: 14, borderBottomWidth: StyleSheet.hairlineWidth },
-  box: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
+  box: { width: 22, height: 22, ...corner(radius.mark), borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
   radio: { width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   radioDot: { width: 7, height: 7, borderRadius: 4 },
   fact: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 16, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
@@ -885,8 +885,8 @@ const styles = StyleSheet.create({
   status: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 4 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { minHeight: 36, paddingHorizontal: 14, borderRadius: 999, justifyContent: "center" },
-  drop: { borderWidth: 1.5, borderStyle: "dashed", borderRadius: 18, paddingVertical: 30, paddingHorizontal: 20, alignItems: "center", gap: 6 },
-  file: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 44, paddingHorizontal: 14, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth },
+  drop: { borderWidth: 1.5, borderStyle: "dashed", ...corner(radius.field), paddingVertical: 30, paddingHorizontal: 20, alignItems: "center", gap: 6 },
+  file: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 44, paddingHorizontal: 14, ...corner(radius.small), borderWidth: StyleSheet.hairlineWidth },
   links: { flexDirection: "row", flexWrap: "wrap", gap: 20 },
   footerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   phone: { flexDirection: "row", alignItems: "center", gap: 24 },

@@ -22,7 +22,7 @@ import { isClass } from '@/lib/reminder-plan';
 import { usePlusAccess } from '@/lib/plus-access';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme } from '@/theme';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   rows: { gap: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 28, paddingHorizontal: 4 },
   around: { gap: 8, paddingTop: 10 },
-  notes: { borderRadius: 16, padding: 14, minHeight: 88, textAlignVertical: 'top' },
+  notes: { ...corner(radius.field), padding: 14, minHeight: 88, textAlignVertical: 'top' },
   scope: { alignSelf: 'stretch' },
   scopeRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 48, borderBottomWidth: StyleSheet.hairlineWidth },
 });

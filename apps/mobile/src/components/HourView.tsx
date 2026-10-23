@@ -6,7 +6,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { bookedColors } from '@/components/ChartMark';
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
-import { useTheme } from '@/theme';
+import { corner, radius, useTheme } from '@/theme';
 
 /** How the chart fits the day: at least six hours, about this tall, never cramped or stretched. */
 const SCALE = { minSpan: 6, targetHeight: 560, minPx: 28, maxPx: 44 };
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   rule: { flex: 1, height: StyleSheet.hairlineWidth },
   lane: { position: 'absolute' },
   also: { paddingTop: 8, paddingLeft: 48 },
-  block: { flex: 1, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', gap: 2, overflow: 'hidden' },
+  block: { flex: 1, ...corner(radius.small), paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', gap: 2, overflow: 'hidden' },
   blockText: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   blockTitle: { flexShrink: 1, fontSize: 12, lineHeight: 16 },
   nowLine: { position: 'absolute', left: 40, right: 0, height: chart.now },

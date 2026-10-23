@@ -16,7 +16,7 @@ import { enter, exit } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { SHORTCUTS, useWebShortcuts } from '@/lib/shortcuts';
 import { useStore } from '@/store';
-import { radius, useTheme } from '@/theme';
+import { corner, radius, useTheme } from '@/theme';
 
 /**
  * The tabs on a wide web window. The sidebar lives in the root layout (`Sidebar`), so it stays
@@ -213,14 +213,14 @@ const styles = StyleSheet.create({
   item: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 40, paddingHorizontal: 12, borderRadius: radius.pill },
   itemIcon: { justifyContent: 'center', paddingHorizontal: 0, gap: 0 },
   add: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 40, borderRadius: radius.pill, marginBottom: 14 },
-  kbd: { fontSize: 11, lineHeight: 16, borderWidth: 1, borderRadius: 5, paddingHorizontal: 5 },
+  kbd: { fontSize: 11, lineHeight: 16, borderWidth: 1, ...corner(radius.mark), paddingHorizontal: 5 },
   footLink: { paddingHorizontal: 12, paddingVertical: 6 },
   frame: { flex: 1 },
   screen: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
   // expo-router's slot never shrinks; held to the window, its screens scroll (see PlannerTabs).
   slot: { flex: 1, minHeight: 0 },
   scrim: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.25)', zIndex: 10 },
-  sheet: { width: 420, maxWidth: '90%', borderRadius: 20, borderWidth: StyleSheet.hairlineWidth, padding: 24, gap: 4 },
+  sheet: { width: 420, maxWidth: '90%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, padding: 24, gap: 4 },
   shortcut: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  drop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, margin: 16, borderWidth: 2, borderStyle: 'dashed', borderRadius: 24, alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 0.96 },
+  drop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, margin: 16, borderWidth: 2, borderStyle: 'dashed', ...corner(radius.container), alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 0.96 },
 });

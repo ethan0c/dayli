@@ -5,7 +5,7 @@ import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { openLink } from '@/lib/links';
-import { mobileFonts, useTheme } from '@/theme';
+import { corner, mobileFonts, radius, useTheme } from '@/theme';
 
 /**
  * A note, read like a small Markdown file: headings, lists, ticks you can tap, bold, links.
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   blank: { height: 8 },
   heading: { paddingTop: 4 },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, minHeight: 28, paddingVertical: 2 },
-  box: { width: 18, height: 18, borderRadius: 5, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', marginTop: 3 },
+  box: { width: 18, height: 18, ...corner(radius.mark), borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', marginTop: 3 },
   dot: { width: 5, height: 5, borderRadius: 3, marginTop: 10, marginLeft: 6, marginRight: 7 },
   marker: { minWidth: 18, textAlign: 'right' },
   link: { textDecorationLine: 'underline' },

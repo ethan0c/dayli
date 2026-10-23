@@ -5,7 +5,7 @@ import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { T } from '@/components/Text';
-import { radius, textStyle, useTheme } from '@/theme';
+import { corner, radius, textStyle, useTheme } from '@/theme';
 
 // Fallbacks for web (and any non-iOS platform). The .ios.tsx file uses SwiftUI; the web's date and
 // time fields are the browser's own pickers.
@@ -62,7 +62,7 @@ function WebField({ type, value, onChange, disabled, label }: { type: 'date' | '
       if (type === 'date' ? isLocalDate(next) : isLocalTime(next)) onChange(next);
     },
     style: {
-      height: 32, border: 'none', borderRadius: 8, padding: '0 10px', backgroundColor: c.row, color: c.inkPrimary,
+      height: 32, border: 'none', borderRadius: radius.small, padding: '0 10px', backgroundColor: c.row, color: c.inkPrimary,
       fontFamily: fontFamily.regular, fontSize: 15, fontVariantNumeric: 'tabular-nums', colorScheme: dark ? 'dark' : 'light',
       opacity: disabled ? 0.5 : 1,
     },
@@ -108,7 +108,7 @@ export function NativeButton({ label, onPress, role, icon }: NativeButtonProps) 
 }
 
 const styles = StyleSheet.create({
-  field: { height: 32, borderRadius: 8, borderWidth: 1, paddingHorizontal: 8 },
+  field: { height: 32, ...corner(radius.small), borderWidth: 1, paddingHorizontal: 8 },
   toggle: { width: 40, height: 24, borderRadius: 12, padding: 2, justifyContent: 'center' },
   knob: { width: 20, height: 20, borderRadius: 10 },
   btn: { minHeight: 50, paddingVertical: 12, borderRadius: radius.pill, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },

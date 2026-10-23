@@ -9,7 +9,7 @@ import { T } from '@/components/Text';
 import { chart } from '@dayli/tokens';
 import { feedback } from '@/lib/feedback';
 import { courseTint, useCourseList, useStore } from '@/store';
-import { useTheme } from '@/theme';
+import { corner, radius, useTheme } from '@/theme';
 
 const START = 6 * 60;
 const SPAN = 18 * 60;
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   num: { minWidth: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginLeft: -4 },
   track: { height: chart.track, borderRadius: chart.track / 2, position: 'relative', overflow: 'hidden' },
   block: { position: 'absolute', top: 0, bottom: 0, borderRadius: chart.track / 2 },
-  row: { flexDirection: 'row', gap: 8, paddingVertical: 9, paddingHorizontal: 6, marginHorizontal: -6, borderRadius: 10 },
+  row: { flexDirection: 'row', gap: 8, paddingVertical: 9, paddingHorizontal: 6, marginHorizontal: -6, ...corner(radius.small) },
   lead: { width: 22, alignItems: 'center', paddingTop: 1 },
   // The dot centres on the title's first line (subhead, 20 tall).
   dotLead: { height: 20, paddingTop: 0, justifyContent: 'center' },

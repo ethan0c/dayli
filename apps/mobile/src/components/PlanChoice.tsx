@@ -15,7 +15,7 @@ import { enter, exit } from '@/lib/motion';
 import { realRecords } from '@/lib/planner-preview';
 import { THIS_DEVICE, THIS_DEVICE_TITLE } from '@/lib/web';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme } from '@/theme';
 
 const dated = (iso: string | null) => (iso ? ` from ${monthDay(localParts(new Date(iso)).date)}` : '');
 
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   copy: { gap: 14 },
   actions: { gap: 12 },
   scrim: { alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.22)' },
-  dialog: { width: 520, maxWidth: '92%', borderRadius: 20, borderWidth: StyleSheet.hairlineWidth, padding: 24, gap: 12, boxShadow: '0 10px 32px rgba(0,0,0,0.14)' },
+  dialog: { width: 520, maxWidth: '92%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, padding: 24, gap: 12, boxShadow: '0 10px 32px rgba(0,0,0,0.14)' },
   // The choice the person is most likely to want sits at the right, as the primary.
   dialogActions: { flexDirection: 'row-reverse', gap: 8, paddingTop: 6 },
 });

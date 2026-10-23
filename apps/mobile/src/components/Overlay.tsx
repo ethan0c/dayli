@@ -9,7 +9,7 @@ import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { enter, exit } from '@/lib/motion';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme } from '@/theme';
 
 const shadow = { shadowColor: colors.ink, shadowOpacity: 0.16, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 8 };
 
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 16,
+    ...corner(radius.field),
     ...shadow,
   },
   undo: { flexDirection: 'row', alignItems: 'center', gap: 4 },

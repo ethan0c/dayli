@@ -8,7 +8,7 @@ import { Icon, type IconKey } from '@/components/Icon';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import type { Cue } from '@/lib/feedback';
-import { useTheme } from '@/theme';
+import { corner, radius, useTheme } from '@/theme';
 
 /*
  * The five button roles and the small parts every screen shares.
@@ -136,7 +136,7 @@ export function ListRow({ title, sub, leading, trailing, onPress, chevron = !!on
   const { c } = useTheme();
   return (
     <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.row, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null, pressed ? { backgroundColor: c.row, marginHorizontal: -8, paddingHorizontal: 8, borderRadius: 8 } : null]}>
+      style={({ pressed }) => [styles.row, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null, pressed ? { backgroundColor: c.row, marginHorizontal: -8, paddingHorizontal: 8, ...corner(radius.small) } : null]}>
       {leading}
       <View style={styles.rowText}>
         <T token="body" color={destructive ? c.conflict : c.inkPrimary} numberOfLines={2}>{title}</T>
