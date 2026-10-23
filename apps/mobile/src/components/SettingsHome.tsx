@@ -7,8 +7,9 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 
-import { ListRow, StatusPill, TextButton } from '@/components/Controls';
+import { ListRow, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
+import { Press } from '@/components/Press';
 import { Skeleton } from '@/components/Skeleton';
 import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
@@ -56,18 +57,29 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const tried = canDo.filter((task) => task.done).length;
   const total = canDo.length;
   const renewalDate = entitlement?.expirationDate ? fullDate(localParts(new Date(entitlement.expirationDate)).date) : null;
-  const plan = isPlus
+  const left = Math.max(0, allowed - used);
+  // Counts down, so the line reads as what is still yours rather than what is spent.
+  const planLabel = isPlus
     ? trialEnds !== null && trialEnds > 0 && entitlement?.periodType === 'TRIAL'
-      ? { label: t({ id: 'settings.trial_remaining', message: plural(trialEnds, { one: 'Plus · Trial, # day left', other: 'Plus · Trial, # days left' }) }), tone: 'green' as const }
-      : { label: 'Plus', tone: 'green' as const }
-    : { label: allowance.toStart
-      ? t({ id: 'settings.initial_imports', message: plural(allowed, { one: `Free · ${used} of # import to start`, other: `Free · ${used} of # imports to start` }) })
-      : t({ id: 'settings.monthly_imports', message: plural(allowed, { one: `Free · ${used} of # import`, other: `Free · ${used} of # imports` }) }), tone: 'grey' as const };
+      ? t({ id: 'settings.trial_remaining', message: plural(trialEnds, { one: 'Semli Plus · trial, # day left', other: 'Semli Plus · trial, # days left' }) })
+      : renewalDate ? (entitlement?.willRenew ? t`Semli Plus · renews ${renewalDate}` : t`Semli Plus · until ${renewalDate}`) : 'Semli Plus'
+    : allowance.toStart
+      ? t({ id: 'settings.imports_left', message: plural(left, { 0: 'No free imports left', one: '# free import left', other: '# free imports left' }) })
+      : t({ id: 'settings.imports_left_month', message: plural(left, { 0: 'No free imports left this month', one: '# free import left this month', other: '# free imports left this month' }) });
 
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: inTab ? NAV_INSET : 48 }} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior={inTab ? 'never' : 'automatic'}>
       <TabHeader title={t`You`} size="title" inset={inTab}
-        details={<View style={{ alignSelf: 'flex-start', maxWidth: '100%' }}>{loading && !customerInfo ? <Skeleton width={132} height={28} round={14} /> : <StatusPill label={plan.label} tone={plan.tone} tabular={false} multiline />}</View>} />
+        details={loading && !customerInfo ? <Skeleton width={160} height={18} round={4} /> : (
+          <Press scale={1} haptic="tap" onPress={() => router.push('/settings/plan')} accessibilityRole="button" accessibilityLabel={planLabel} accessibilityHint={t`Opens your plan`} style={styles.plan}>
+            {/* One segment per import in the allowance, ink while it is still unused, so it drains like a battery. */}
+            {isPlus ? null : <View style={styles.meter}>{Array.from({ length: allowed }, (_, i) => <View key={i} style={[styles.segment, { backgroundColor: i < left ? c.inkPrimary : c.line }]} />)}</View>}
+            <View style={styles.planLine}>
+              <T token="callout" color={c.inkSecondary} tabular style={styles.planText}>{planLabel}</T>
+              <Icon name="chevronRight" size={14} color={c.inkTertiary} />
+            </View>
+          </Press>
+        )} />
       <View style={styles.body}>
 
         <Group title={t`Profile`}>
@@ -128,6 +140,11 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 24, gap: 22 },
   groupLabel: { paddingBottom: 2 },
+  plan: { alignSelf: 'flex-start', maxWidth: '100%', gap: 10, paddingVertical: 4 },
+  meter: { flexDirection: 'row', gap: 4 },
+  segment: { width: 20, height: 4, borderRadius: 2 },
+  planLine: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  planText: { flexShrink: 1 },
   about: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', paddingTop: 8 },
   markRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   mark: { width: 24, height: 24, borderRadius: 6 },

@@ -148,7 +148,7 @@ export function ListRow({ title, sub, leading, trailing, onPress, chevron = !!on
   );
 }
 
-/** A 6px dot in the category or course tint; with the course bar on item rows, the only places those colors appear. */
+/** A 6px dot in the category or course tint; the only place those colors appear. */
 export function CategoryDot({ color, size = 6 }: { color: string; size?: number }) {
   return <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color }} />;
 }

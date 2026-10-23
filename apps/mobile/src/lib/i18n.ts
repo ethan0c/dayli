@@ -1,3 +1,9 @@
+// Hermes has no Intl.PluralRules or Intl.Locale, and Lingui needs both for plural(). Each
+// polyfill only installs where the engine lacks it, so the web keeps the browser's own.
+import '@formatjs/intl-locale/polyfill.js';
+import '@formatjs/intl-pluralrules/polyfill.js';
+import '@formatjs/intl-pluralrules/locale-data/en.js';
+import '@formatjs/intl-pluralrules/locale-data/es.js';
 import { i18n } from '@lingui/core';
 import { getLocales } from 'expo-localization';
 

@@ -11,15 +11,15 @@ import { T } from '@/components/Text';
 import { useWebLayout } from '@/lib/layout';
 import { springs } from '@/lib/motion';
 import { courseTint, useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { useTheme } from '@/theme';
 
 type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date' | 'urgent'> & { courseId?: string | null; employer?: string | null };
 type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: string; onPress?: () => void; onToggle?: () => void; onDelete?: () => void; last?: boolean };
 
 /**
  * One agenda row: a check (to-dos) or a category dot (events), the title with its context,
- * and a status pill on the right. A class's rows carry its tint as a short bar in the left
- * margin, so a week reads by course at a glance.
+ * and a status pill on the right. A class's to-dos carry its tint as a dot before the course
+ * code (its events already lead with one), so a week reads by course at a glance.
  * Swipe right to complete a to-do, left to delete, when the handlers are given. On the web a
  * pointer can't swipe: the row highlights under it and Delete takes the pill's place.
  */
@@ -38,8 +38,6 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
   // Touch rows are 64 tall; a pointer on a wide window needs less (desktop lists run 44–52).
   const { sidebar } = useWebLayout();
   return (
-    <View>
-    {course ? <View style={[styles.courseBar, { backgroundColor: tint, opacity: item.done ? 0.35 : 1 }]} /> : null}
     <SwipeRow onDelete={onDelete} onComplete={!isEvent ? onToggle : undefined} completed={item.done}>
     <View onPointerEnter={pointer ? () => setHover(true) : undefined} onPointerLeave={pointer ? () => setHover(false) : undefined}
       style={[styles.row, sidebar ? { minHeight: 52 } : null, { backgroundColor: hover ? c.row : c.canvas }, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
@@ -56,14 +54,16 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
         style={({ pressed }) => [styles.main, { opacity: pressed ? 0.6 : 1 }]}>
         <View style={styles.text}>
           <T token="body" color={item.done ? c.inkSecondary : conflict ? c.conflict : c.inkPrimary} numberOfLines={2} style={item.done ? styles.done : undefined}>{item.title}</T>
-          <T token="caption" color={c.inkSecondary} numberOfLines={1}>{item.urgent ? <T token="caption" color={item.done ? c.inkSecondary : c.conflict}>Urgent · </T> : null}{sub}</T>
+          <View style={styles.sub}>
+            {course && !isEvent ? <View style={{ opacity: item.done ? 0.35 : 1 }}><CategoryDot color={tint} /></View> : null}
+            <T token="caption" color={c.inkSecondary} numberOfLines={1} style={styles.subText}>{item.urgent ? <T token="caption" color={item.done ? c.inkSecondary : c.conflict}>Urgent · </T> : null}{sub}</T>
+          </View>
         </View>
         {hover && onDelete ? null : <StatusPill label={status.label} tone={status.tone} />}
       </Pressable>
       {hover && onDelete ? <IconButton icon="trash" label={`Delete ${item.title}`} size={36} haptic="remove" onPress={onDelete} /> : null}
     </View>
     </SwipeRow>
-    </View>
   );
 }
 
@@ -88,11 +88,11 @@ export function Check({ done }: { done: boolean }) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64 },
-  // Centred in the screen gutter, outside the swipeable so it is not clipped.
-  courseBar: { position: 'absolute', left: -SCREEN_GUTTER / 2 - 1.5, top: 16, bottom: 16, width: 3, borderRadius: 1.5 },
   checkTarget: { width: 22, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   main: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
   text: { flex: 1, minWidth: 0, gap: 2 },
+  sub: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  subText: { flexShrink: 1 },
   done: { textDecorationLine: 'line-through' },
   circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   fill: { borderRadius: 11 },

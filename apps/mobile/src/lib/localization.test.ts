@@ -42,20 +42,27 @@ describe('localization catalogs', () => {
   });
 
   it.each([
-    { locale: 'en', trialEnds: 1, expected: 'Plus · Trial, 1 day left' },
-    { locale: 'en', trialEnds: 3, expected: 'Plus · Trial, 3 days left' },
-    { locale: 'es', trialEnds: 1, expected: 'Plus · Prueba, queda 1 día' },
-    { locale: 'es', trialEnds: 3, expected: 'Plus · Prueba, quedan 3 días' },
+    { locale: 'en', trialEnds: 1, expected: 'Semli Plus · trial, 1 day left' },
+    { locale: 'en', trialEnds: 3, expected: 'Semli Plus · trial, 3 days left' },
+    { locale: 'es', trialEnds: 1, expected: 'Semli Plus · prueba, queda 1 día' },
+    { locale: 'es', trialEnds: 3, expected: 'Semli Plus · prueba, quedan 3 días' },
   ])('formats trial days in $locale with count $trialEnds', ({ locale, trialEnds, expected }) => {
     const messages = locale === 'en' ? en : es;
     const i18n = setupI18n({ locale, messages: { [locale]: messages } });
     expect(i18n._('settings.trial_remaining', { trialEnds })).toBe(expected);
   });
 
-  it('formats import counts and preserves inserted values in Spanish', () => {
-    const i18n = setupI18n({ locale: 'es', messages: { es } });
-    expect(i18n._('settings.monthly_imports', { allowed: 1, used: 0 })).toBe('Gratis · 0 de 1 importación');
-    expect(i18n._('settings.initial_imports', { allowed: 3, used: 2 })).toBe('Gratis · 2 de 3 importaciones iniciales');
+  it.each([
+    { locale: 'en', left: 0, expected: 'No free imports left' },
+    { locale: 'en', left: 1, expected: '1 free import left' },
+    { locale: 'en', left: 5, expected: '5 free imports left' },
+    { locale: 'es', left: 0, expected: 'No te quedan importaciones gratis' },
+    { locale: 'es', left: 1, expected: 'Te queda 1 importación gratis' },
+    { locale: 'es', left: 5, expected: 'Te quedan 5 importaciones gratis' },
+  ])('counts down free imports in $locale with $left left', ({ locale, left, expected }) => {
+    const i18n = setupI18n({ locale, messages: { [locale]: locale === 'en' ? en : es } });
+    expect(i18n._('settings.imports_left', { left })).toBe(expected);
+    expect(i18n._('settings.imports_left_month', { left })).toBe(`${expected}${locale === 'en' ? ' this month' : ' este mes'}`);
   });
 
   it('switches an existing translator between English and Spanish', () => {
@@ -69,9 +76,8 @@ describe('localization catalogs', () => {
 
   it('keeps pseudo-localization available without changing interpolation data', () => {
     const i18n = setupI18n({ locale: 'pseudo-LOCALE', messages: { 'pseudo-LOCALE': pseudo } });
-    const message = i18n._('settings.monthly_imports', { allowed: 3, used: 2 });
+    const message = i18n._('settings.imports_left_month', { left: 2 });
     expect(message).toContain('2');
-    expect(message).toContain('3');
-    expect(message).not.toBe('Free · 2 of 3 imports');
+    expect(message).not.toBe('2 free imports left this month');
   });
 });
