@@ -1,4 +1,4 @@
-import { Platform, useWindowDimensions } from 'react-native';
+import { Platform, useWindowDimensions, type ViewStyle } from 'react-native';
 
 /*
  * The web planner's widths (docs/design-system.md, "The web"). Under 768 it is the phone layout;
@@ -12,6 +12,19 @@ export const TWO_PANE_AT = 1200;
 export const COLUMN = 720;
 /** Room for Today's hours or Plan's detail beside the list. */
 export const WIDE_COLUMN = 1180;
+/** The second pane: Today's hours, Plan's open item. */
+export const PANE = WIDE_COLUMN - COLUMN;
+
+/**
+ * The frame every wide screen lines up on, so titles, lists and header buttons start at the same
+ * place on every screen: the main column at the frame's left, and from 1200 a second pane's width
+ * to its right. `panes` gives the whole frame to a screen that fills that pane (Today, Plan); every
+ * other screen keeps to the main column and leaves the pane's width empty.
+ */
+export function frameStyle(twoPane: boolean, panes = false): ViewStyle {
+  if (!twoPane) return { width: '100%', maxWidth: COLUMN, alignSelf: 'center' };
+  return { width: '100%', maxWidth: WIDE_COLUMN, alignSelf: 'center', paddingRight: panes ? 0 : PANE };
+}
 
 export function useWebLayout() {
   const { width } = useWindowDimensions();

@@ -32,7 +32,8 @@ export const Composer = forwardRef<ComponentRef<typeof TextInput>, {
   canSend: boolean;
   autoFocus?: boolean;
   onPickImage: () => void;
-  onCamera: () => void;
+  /** Left out where there's no camera to reach for (the web on a laptop). */
+  onCamera?: () => void;
   onPickPdf: () => void;
   onSend: () => void;
   id?: string;
@@ -72,7 +73,7 @@ export const Composer = forwardRef<ComponentRef<typeof TextInput>, {
       )}
       <View style={styles.toolbar}>
         <IconButton icon="image" label="Add a screenshot" tone="bare" size={40} disabled={busy || listening} onPress={onPickImage} />
-        <IconButton icon="camera" label="Take a photo" tone="bare" size={40} disabled={busy || listening} onPress={onCamera} />
+        {onCamera ? <IconButton icon="camera" label="Take a photo" tone="bare" size={40} disabled={busy || listening} onPress={onCamera} /> : null}
         <IconButton icon="file" label="Add a PDF" tone="bare" size={40} disabled={busy || listening} onPress={onPickPdf} />
         <View style={{ flex: 1 }} />
         {voice ? <Mic voice={voice} disabled={!!busy} /> : null}

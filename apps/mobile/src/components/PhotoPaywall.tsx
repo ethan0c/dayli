@@ -6,6 +6,7 @@ import { palettes } from '@dayli/tokens';
 
 import { Photo } from '@/components/Photo';
 import { SHOWCASE } from '@/lib/images';
+import { frameStyle, useWebLayout } from '@/lib/layout';
 import { SCREEN_GUTTER } from '@/theme';
 
 /** The same fireworks and fade used by the onboarding showcase, in either appearance. */
@@ -27,11 +28,13 @@ export function PaywallBackdrop() {
 export function PhotoPaywall(props: { onContinueFree?: () => void; onComplete?: () => void; freeImportsLeft?: number }) {
   const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const insets = useSafeAreaInsets();
+  // On a wide web window the plans sit in the app's frame like every other screen; the photo stays full width.
+  const { sidebar, twoPane } = useWebLayout();
   return (
     <View style={styles.root}>
       <PaywallBackdrop />
       <ScrollView ref={scroll} contentInsetAdjustmentBehavior="never" showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.body, { paddingTop: insets.top + 150, paddingBottom: Math.max(insets.bottom, 24) + 24 }]}>
+        contentContainerStyle={[styles.body, sidebar ? frameStyle(twoPane) : null, { paddingTop: insets.top + 150, paddingBottom: Math.max(insets.bottom, 24) + 24 }]}>
         <PlanPicker {...props} palette={palettes.dark} onWelcome={() => scroll.current?.scrollTo({ y: 0, animated: false })} />
       </ScrollView>
     </View>

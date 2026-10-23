@@ -20,8 +20,11 @@ import { reportError } from '@/lib/errors';
 import { usePlusAccess } from '@/lib/plus-access';
 import { VOICE_AVAILABLE, useVoiceCapture } from '@/lib/voice';
 import { takeDroppedFile } from '@/lib/web-drop';
+import { COLUMN, useWebLayout } from '@/lib/layout';
+import { useNow } from '@/lib/now';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { useStore } from '@/store';
+import { diffDays, localParts, monthDay, relativeDay } from '@dayli/core';
 import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
 
 /**
@@ -31,6 +34,7 @@ import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
  */
 export function AddScreen() {
   const { c } = useTheme();
+  const { twoPane } = useWebLayout();
   const params = useLocalSearchParams<{ source?: string; at?: string }>();
   const { requireImportAccess, requirePlus } = usePlusAccess();
   const importing = useRef(false);
@@ -148,7 +152,7 @@ export function AddScreen() {
     return () => clearTimeout(timer);
   }, [focused, params.source, params.at]);
 
-  return (
+  const composer = (
     <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }}
       keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="never">
       <TabHeader title="Add" size="title"
@@ -166,7 +170,7 @@ export function AddScreen() {
           busy={!!busy}
           canSend={canSend}
           onPickImage={() => void pick(() => pickImageInput(false))}
-          onCamera={() => void pick(() => pickImageInput(true))}
+          onCamera={Platform.OS === 'web' ? undefined : () => void pick(() => pickImageInput(true))}
           onPickPdf={() => void pick(pickPdfInput)}
           onSend={() => void run({ kind: 'text', text: text.trim() }, spoke.current ? 'Voice' : 'Message')}
           voice={VOICE_AVAILABLE ? { state: voice.state, transcript: voice.transcript, level: voice.level, onStart: () => { spoke.current = true; setError(null); void voice.start(); }, onStop: voice.stop } : undefined}
@@ -195,9 +199,40 @@ export function AddScreen() {
       </View>
     </ScrollView>
   );
+  if (!twoPane) return composer;
+  // A wide web window lists recent imports beside the composer, each opening its review.
+  return (
+    <View style={styles.panes}>
+      <View style={{ width: COLUMN }}>{composer}</View>
+      <RecentImports />
+    </View>
+  );
+}
+
+/** The latest imports, newest first: what came in and when, each opening its page. */
+function RecentImports() {
+  const { c } = useTheme();
+  const now = useNow();
+  const batches = useStore((s) => s.batches);
+  const imports = batches.filter((b) => b.source && !b.undone).slice(0, 8);
+  return (
+    <ScrollView style={[styles.pane, { borderLeftColor: c.line }]} contentContainerStyle={styles.paneBody}>
+      <T token="title" accessibilityRole="header" style={{ fontSize: 20, lineHeight: 26, paddingBottom: 8 }}>Recent imports</T>
+      {imports.length ? imports.map((b, i) => {
+        const at = localParts(new Date(b.createdAt));
+        const day = Math.abs(diffDays(at.date, now.date)) <= 1 ? relativeDay(now.date, at.date) : monthDay(at.date);
+        const added = b.changes.filter((ch) => ch.op === 'create').length;
+        return <ListRow key={b.id} title={b.source ?? b.label} sub={`${day} · ${added} ${added === 1 ? 'item' : 'items'} added`} last={i === imports.length - 1}
+          onPress={() => router.push(`/import/${b.id}`)} />;
+      }) : <T token="callout" color={c.inkSecondary}>Your imports will show here, each with what came in and a way to undo it.</T>}
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
+  panes: { flex: 1, flexDirection: 'row' },
+  pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
+  paneBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40 },
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 24, gap: 20 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
 });

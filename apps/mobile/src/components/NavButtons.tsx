@@ -18,6 +18,8 @@ export function backOrHome() {
 export function navigationButtonOptions(kind: 'close' | 'back', onPress: () => void = backOrHome) {
   const label = kind === 'close' ? t`Close` : t`Back`;
   return {
+    // The desktop web header (ColumnHeader) draws this as a small link above a left-aligned title.
+    webBack: { kind, onPress },
     headerBackVisible: false,
     headerLeft: GLASS ? undefined : () => kind === 'close' ? <CloseButton onPress={onPress} /> : <BackButton onPress={onPress} />,
     unstable_headerLeftItems: GLASS ? () => [{

@@ -1,6 +1,6 @@
 import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, type CountdownState } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { router } from 'expo-router';
+import { router, useIsFocused } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -12,6 +12,7 @@ import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { Icon } from '@/components/Icon';
 import { HourView } from '@/components/HourView';
 import { TodayFirst } from '@/components/Firsts';
+import { ItemDetail } from '@/components/ItemDetail';
 import { ItemRow } from '@/components/ItemRow';
 import { PhotoHeader } from '@/components/PhotoHeader';
 import { Press } from '@/components/Press';
@@ -25,7 +26,8 @@ import { useDevToday } from '@/lib/dev';
 import { feedback } from '@/lib/feedback';
 import { momentFor } from '@/lib/moments';
 import { durations, enter, exit, layout } from '@/lib/motion';
-import { useWebLayout } from '@/lib/layout';
+import { COLUMN, useWebLayout } from '@/lib/layout';
+import { useWebShortcuts } from '@/lib/shortcuts';
 import { useNow } from '@/lib/now';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { ACCOUNTS_ENABLED } from '@/lib/auth';
@@ -46,6 +48,11 @@ export default function TodayScreen() {
   const now = useNow();
   // The sky is the phone's greeting; a laptop opens on plain paper (docs/headers.md).
   const { sidebar, twoPane } = useWebLayout();
+  // A wide web window opens an item in the pane in place of the hours; the X or Esc brings them back.
+  const [openId, setOpenId] = useState<string | null>(null);
+  const openItem = (id: string) => (twoPane ? setOpenId(id) : router.push(`/item/${id}`));
+  const focused = useIsFocused();
+  useWebShortcuts({ Escape: () => setOpenId(null) }, focused && !!openId);
   const items = useItemList();
   const schedules = useScheduleList();
   const courses = useCourseList();
@@ -203,7 +210,7 @@ export default function TodayScreen() {
         value={moment ? (big ? <Ticker value={big} token="display" /> : <T token="display" accessibilityRole="header">{featured ? 'Now' : 'Clear'}</T>)
           : big ? <Ticker value={big} token="displayXl" /> : undefined}
         trailing={moment || twoPane ? undefined : viewToggle}
-        onPress={featured ? () => router.push(`/item/${featured.id}`) : undefined}
+        onPress={featured ? () => openItem(featured.id) : undefined}
         accessibilityLabel={featured ? [big, line].filter(Boolean).join(' ') : undefined}
         details={featured ? <>
           <T token="body" style={moment ? undefined : { fontSize: 18, lineHeight: 26 }} numberOfLines={2}>{parts?.text}</T>
@@ -217,7 +224,7 @@ export default function TodayScreen() {
           <Animated.View key="hours" entering={enter.fade} exiting={exit.fade} style={styles.hours}>
             <SectionTitle title="Today" detail={todayDetail} />
             <View style={{ paddingTop: 4 }}>
-              <HourView items={todays} now={now} conflicts={conflictSet} onPress={(it) => router.push(`/item/${it.id}`)} />
+              <HourView items={todays} now={now} conflicts={conflictSet} onPress={(it) => openItem(it.id)} />
             </View>
           </Animated.View>
         ) : (
@@ -248,7 +255,7 @@ export default function TodayScreen() {
           return (
             <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.sink}>
               <ItemRow item={item} today={now.date} planned={planned} conflict={conflictSet.has(item.id)} last={i === openItems.length - 1 && !completed.length}
-                onPress={() => router.push(`/item/${item.id}`)} onToggle={() => complete(item)} onDelete={() => removeItem(item.id)} />
+                onPress={() => openItem(item.id)} onToggle={() => complete(item)} onDelete={() => removeItem(item.id)} />
               {planned ? <View style={styles.inlineAction}><TextButton label="Remove from today" tone="muted" onPress={() => unplanTask(item.id)} accessibilityLabel={`Remove ${item.title} from today's work plan`} /></View> : null}
             </Animated.View>
           );
@@ -274,7 +281,7 @@ export default function TodayScreen() {
               <Animated.View entering={enter.drop} exiting={exit.fade}>
                 {completed.map((item, i) => (
                   <Animated.View key={item.id} layout={layout} entering={enter.drop} exiting={exit.fade}>
-                    <ItemRow item={item} today={now.date} last={i === completed.length - 1} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('uncomplete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
+                    <ItemRow item={item} today={now.date} last={i === completed.length - 1} onPress={() => openItem(item.id)} onToggle={() => { feedback('uncomplete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
                   </Animated.View>
                 ))}
               </Animated.View>
@@ -293,7 +300,7 @@ export default function TodayScreen() {
             <Animated.View entering={enter.drop} exiting={exit.fade}>
               {overdue.map((item, i) => (
                 <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
-                  <ItemRow item={item} today={now.date} last={i === overdue.length - 1} onPress={() => router.push(`/item/${item.id}`)} onToggle={() => { feedback('complete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
+                  <ItemRow item={item} today={now.date} last={i === overdue.length - 1} onPress={() => openItem(item.id)} onToggle={() => { feedback('complete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
                   <View style={styles.inlineAction}><TextButton label="Work on it today" onPress={() => workOnToday([item.id])} accessibilityLabel={`Work on ${item.title} today without changing its date`} /></View>
                 </Animated.View>
               ))}
@@ -313,7 +320,7 @@ export default function TodayScreen() {
           <GroupLabel>Start today</GroupLabel>
           {suggestions.map(({ item, reason }, i) => (
             <View key={item.id}>
-              <ListRow leading={<Icon name={item.icon} size={20} color={c.inkPrimary} />} title={item.kind === 'event' ? `Prepare for ${item.title}` : item.title} sub={reason} last={i === suggestions.length - 1} onPress={() => router.push(`/item/${item.id}`)} />
+              <ListRow leading={<Icon name={item.icon} size={20} color={c.inkPrimary} />} title={item.kind === 'event' ? `Prepare for ${item.title}` : item.title} sub={reason} last={i === suggestions.length - 1} onPress={() => openItem(item.id)} />
               <View style={[styles.inlineAction, { flexDirection: 'row', gap: 20 }]}>
                 {item.kind === 'task' ? <TextButton label="Work on it today" onPress={() => workOnToday([item.id])} /> : null}
                 <TextButton label="Not today" tone="muted" onPress={() => { dismissSuggestion(item.id, now.date); feedback('select'); }} />
@@ -329,7 +336,7 @@ export default function TodayScreen() {
           {tomorrow ? <ListRow title="Tomorrow" sub={tomorrow} onPress={() => router.push('/plan')} /> : null}
           {upcoming.map((item, i) => (
             <Animated.View key={item.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
-              <ItemRow item={item} today={now.date} last={i === upcoming.length - 1 && !nextWeekPending} onPress={() => router.push(`/item/${item.id}`)}
+              <ItemRow item={item} today={now.date} last={i === upcoming.length - 1 && !nextWeekPending} onPress={() => openItem(item.id)}
                 onToggle={() => { feedback('complete'); toggleDone(item.id); }} onDelete={() => removeItem(item.id)} />
             </Animated.View>
           ))}
@@ -353,11 +360,17 @@ export default function TodayScreen() {
   // A wide web window shows the day by the hour beside the list, so there's nothing to toggle.
   return (
     <View style={styles.panes}>
-      <View style={{ flex: 1 }}>{list}</View>
-      <ScrollView style={[styles.hourPane, { borderLeftColor: c.line }]} contentContainerStyle={styles.hourBody}>
-        <SectionTitle title="Hours" detail={todayDetail} />
-        <HourView items={todays} now={now} conflicts={conflictSet} onPress={(it) => router.push(`/item/${it.id}`)} />
-      </ScrollView>
+      <View style={{ width: COLUMN }}>{list}</View>
+      {openId ? (
+        <View style={[styles.hourPane, { borderLeftColor: c.line }]}>
+          <ItemDetail key={openId} id={openId} onClose={() => setOpenId(null)} onOpen={setOpenId} />
+        </View>
+      ) : (
+        <ScrollView style={[styles.hourPane, { borderLeftColor: c.line }]} contentContainerStyle={styles.hourBody}>
+          <SectionTitle title="Hours" detail={todayDetail} />
+          <HourView items={todays} now={now} conflicts={conflictSet} onPress={(it) => openItem(it.id)} />
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -383,7 +396,7 @@ function SavePlanRow({ onDismiss }: { onDismiss: () => void }) {
 const styles = StyleSheet.create({
   bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
   panes: { flex: 1, flexDirection: 'row' },
-  hourPane: { width: 400, flexGrow: 0, borderLeftWidth: StyleSheet.hairlineWidth },
+  hourPane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
   hourBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40, gap: 8 },
   hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 18 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },

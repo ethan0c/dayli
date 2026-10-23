@@ -5,7 +5,7 @@ import { useLingui } from '@lingui/react/macro';
 import { appIconColors } from '@dayli/tokens';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ListRow, StatusPill, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
@@ -24,6 +24,7 @@ import { useCanDo } from '@/lib/can-do';
 import { freeImportAllowance } from '@/lib/plans';
 import { PLUS_ENTITLEMENT } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
+import { useOpenSetting } from '@/lib/settings-pane';
 import { SYSTEM_NAME } from '@/lib/web';
 import { useStore } from '@/store';
 import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
@@ -42,6 +43,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   const usage = useStore((s) => s.usage);
   const allowance = freeImportAllowance(usage);
   const canDo = useCanDo();
+  const openSetting = useOpenSetting();
   const [linkNote, setLinkNote] = useState<string | null>(null);
   const [openedAt] = useState(() => Date.now());
   const open = async (url: string, fallback: string) => {
@@ -69,18 +71,19 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
       <View style={styles.body}>
 
         <Group title={t`Profile`}>
-          <Row label={t`Name`} icon="user" value={settings.name.trim() || t`Add your name`} onPress={() => router.push('/settings/name')} />
-          {settings.isStudent ? <Row label={t`Studying`} icon="school" value={i18n._(profileFor(settings.major, true).label)} onPress={() => router.push('/settings/major')} last /> : null}
+          <Row label={t`Name`} icon="user" value={settings.name.trim() || t`Add your name`} onPress={() => openSetting('name')} />
+          {settings.isStudent ? <Row label={t`Studying`} icon="school" value={i18n._(profileFor(settings.major, true).label)} onPress={() => openSetting('major')} last /> : null}
         </Group>
 
         <Group title={t`Preferences`}>
-          <Row label={t`Reminders`} icon="bell" value={settings.reminders.enabled ? (settings.reminders.briefing ? t`On, with daily summary` : t`On`) : t`Off`} onPress={() => router.push('/settings/reminders')} />
-          <Row label="Canvas" icon="book" value={settings.canvas.feedUrl ? (settings.canvas.lastError ? t`Needs a look` : t`Syncing`) : t`Off`} onPress={() => router.push('/settings/canvas')} />
-          <Row label={t`Language`} icon="globe" value={LANGUAGES.find((l) => l.id === settings.language)?.name ?? (SYSTEM_NAME === 'system' ? t`Match system` : t`Match iPhone`)} onPress={() => router.push('/settings/language')} />
-          <Row label={t`Region`} icon="globe" value={regionName(settings.region ?? deviceRegion(), i18n.locale)} onPress={() => router.push('/settings/region')} />
-          <Row label={t`Appearance`} icon="appearance" value={appearanceLabels[settings.appearance]} onPress={() => router.push('/settings/appearance')} />
-          <ToggleRow label={t`Sounds`} icon="volume" value={settings.sounds} onChange={(sounds) => { setSettings({ sounds }); feedback('select'); }} />
-          <ToggleRow label={t`Haptics`} icon="vibrate" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />
+          <Row label={t`Reminders`} icon="bell" value={settings.reminders.enabled ? (settings.reminders.briefing ? t`On, with daily summary` : t`On`) : t`Off`} onPress={() => openSetting('reminders')} />
+          <Row label="Canvas" icon="book" value={settings.canvas.feedUrl ? (settings.canvas.lastError ? t`Needs a look` : t`Syncing`) : t`Off`} onPress={() => openSetting('canvas')} />
+          <Row label={t`Language`} icon="globe" value={LANGUAGES.find((l) => l.id === settings.language)?.name ?? (SYSTEM_NAME === 'system' ? t`Match system` : t`Match iPhone`)} onPress={() => openSetting('language')} />
+          <Row label={t`Region`} icon="globe" value={regionName(settings.region ?? deviceRegion(), i18n.locale)} onPress={() => openSetting('region')} />
+          <Row label={t`Appearance`} icon="appearance" value={appearanceLabels[settings.appearance]} onPress={() => openSetting('appearance')} />
+          <ToggleRow label={t`Sounds`} icon="volume" value={settings.sounds} onChange={(sounds) => { setSettings({ sounds }); feedback('select'); }} last={Platform.OS === 'web'} />
+          {/* A laptop has nothing to vibrate. */}
+          {Platform.OS === 'web' ? null : <ToggleRow label={t`Haptics`} icon="vibrate" value={settings.haptics} onChange={(haptics) => { setSettings({ haptics }); feedback('tap'); }} last />}
         </Group>
 
         {/* Two states: only on this iPhone, or backed up. The guest row is the ask to save the plan. */}
@@ -96,15 +99,15 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
         </Group>
 
         <Group title={t`Your stuff`} footer={linkNote ?? undefined}>
-          <Row label={t`What Semli can do`} icon="list" value={t`${tried} of ${total} tried`} onPress={() => router.push('/settings/can-do')} />
-          <Row label={t`Your data`} icon="file" value={email !== null ? backupStatus : t`On this phone`} onPress={() => router.push('/settings/data')} />
+          <Row label={t`What Semli can do`} icon="list" value={t`${tried} of ${total} tried`} onPress={() => openSetting('can-do')} />
+          <Row label={t`Your data`} icon="file" value={email !== null ? backupStatus : t`On this phone`} onPress={() => openSetting('data')} />
           <Row label={t`Help and feedback`} icon="mail" value={SUPPORT_EMAIL} onPress={() => void open(LINKS.support, t`Email us at ${SUPPORT_EMAIL}.`)} />
           <Row label={t`Rate Semli`} icon="star" onPress={() => void open(LINKS.review, t`Open the App Store to leave a rating.`)} last />
         </Group>
 
         {__DEV__ ? <Group title={t`Development`}>
-          <Row label={t`Plan diagnostics`} icon="search" onPress={() => router.push('/settings/plan-status')} />
-          <Row label={t`Semli server`} icon="chart" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => router.push('/settings/server')} last />
+          <Row label={t`Plan diagnostics`} icon="search" onPress={() => openSetting('plan-status')} />
+          <Row label={t`Semli server`} icon="chart" value={settings.apiUrl.replace(/^https?:\/\//, '')} onPress={() => openSetting('server')} last />
         </Group> : null}
 
         <View style={styles.about}>

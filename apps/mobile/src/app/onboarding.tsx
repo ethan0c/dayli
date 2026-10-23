@@ -393,7 +393,7 @@ function OwnStep({ source, job, onSample }: { source: DeadlineSource; job: boole
           onChangeText={setText}
           canSend={text.trim().length > 0}
           onPickImage={() => void pick(() => pickImageInput(false))}
-          onCamera={() => void pick(() => pickImageInput(true))}
+          onCamera={Platform.OS === "web" ? undefined : () => void pick(() => pickImageInput(true))}
           onPickPdf={() => void pick(pickPdfInput)}
           onSend={() => void run({ kind: "text", text: text.trim() }, "Message")}
         />

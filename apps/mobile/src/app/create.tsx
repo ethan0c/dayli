@@ -82,7 +82,7 @@ export default function CreateScreen() {
   };
 
   return (
-    <Sheet title={event ? 'New event' : 'New to-do'} footer={<>
+    <Sheet dialog title={event ? 'New event' : 'New to-do'} footer={<>
       {error ? <T token="callout" color={c.conflict} accessibilityRole="alert">{error}</T> : null}
       <Button label={event ? 'Add event' : 'Add to-do'} onPress={save} />
     </>}>

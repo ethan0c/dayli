@@ -3,7 +3,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router, usePathname } fr
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState, type ReactNode } from 'react';
-import { AppState, Appearance, LogBox, Platform } from 'react-native';
+import { AppState, Appearance, LogBox, Platform, StyleSheet, View } from 'react-native';
 import { I18nProvider } from '@lingui/react';
 import { PostHogProvider } from 'posthog-react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -21,7 +21,9 @@ import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
 import { accountOf, useSession } from '@/lib/supabase';
 import { ACCOUNT_REQUIRED } from '@/lib/web';
-import { COLUMN, useWebLayout } from '@/lib/layout';
+import { COLUMN, frameStyle, useWebLayout } from '@/lib/layout';
+import { columnHeader } from '@/components/ColumnHeader';
+import { Sidebar } from '@/components/DesktopTabs';
 import { PlanChoice } from '@/components/PlanChoice';
 import { devClock, devCommand, setDevAutoConfirm, setDevToday } from '@/lib/dev';
 import { i18n } from '@/lib/i18n';
@@ -84,11 +86,17 @@ function RootLayout() {
   const signedIn = useSession((s) => !!accountOf(s.session));
   const webGuest = ACCOUNT_REQUIRED && !signedIn;
   // On a wide web window every pushed screen sits in the reading column; the tab shell and photo paywall take the width.
-  const { sidebar } = useWebLayout();
-  const column = sidebar ? { width: '100%' as const, maxWidth: COLUMN, alignSelf: 'center' as const } : null;
+  // A wide web window keeps the sidebar beside every screen and lines each one up on the app's frame,
+  // its header included; the tab shell, the welcome and the photo paywall set their own.
+  const { sidebar, twoPane } = useWebLayout();
+  const column = sidebar ? frameStyle(twoPane) : null;
+  const centred = { width: '100%' as const, maxWidth: COLUMN, alignSelf: 'center' as const };
+  // Small forms open as dialogs over the screen they came from (see Sheet's `dialog`).
+  const dialogScreen = { presentation: 'transparentModal' as const, headerShown: false, animation: 'fade' as const, contentStyle: { backgroundColor: 'transparent' } };
   const appearance = useStore((s) => s.settings.appearance);
   const { c, dark } = useTheme();
   const pathname = usePathname();
+  const showSidebar = sidebar && onboarded && !webGuest && !pathname.startsWith('/auth') && !pathname.startsWith('/onboarding');
   const photoPaywall = pathname === '/paywall' || pathname === '/settings/plan';
   // Photos the first screen shows are decoded behind the splash, at most 300 ms: the hour's sky,
   // which both Today and the welcome screen open under, and the Plus photo for a new person.
@@ -209,6 +217,9 @@ function RootLayout() {
       <CloudBackup />
       <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
         <StorageWarning />
+        <View style={styles.app}>
+        {showSidebar ? <Sidebar /> : null}
+        <View style={styles.stack}>
         <Stack
           screenOptions={{
             // Sheet screens (review, create, item) declare headerShown below; a full-screen cover
@@ -221,6 +232,7 @@ function RootLayout() {
             headerTitleAlign: 'center',
             headerBackButtonDisplayMode: 'minimal',
             contentStyle: { backgroundColor: c.canvas, ...column },
+            ...(sidebar ? { header: columnHeader('frame') } : null),
           }}>
           {/* Auth is the fallback for a new install; existing planners still resolve / to tabs. */}
           {/* On a new install it is the first screen and takes over the splash logo, so it must not slide up. */}
@@ -228,24 +240,28 @@ function RootLayout() {
           {/* Review is a full-screen cover: it can be reached from onboarding too, so it sits outside the guards. */}
           <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false, headerShown: true, ...navigationButtonOptions('close') }} />
           <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', headerShown: true, headerTransparent: true, headerStyle: { backgroundColor: 'transparent' }, contentStyle: { backgroundColor: palettes.dark.canvas, width: '100%' }, title: '', headerTintColor: palettes.dark.inkPrimary, ...navigationButtonOptions('close') }} />
-          <Stack.Screen name="account" options={{ presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
+          <Stack.Screen name="account" options={sidebar ? dialogScreen : { presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
           <Stack.Protected guard={!onboarded && !webGuest}>
-            <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
+            {/* No sidebar here, so the steps sit in a centred column rather than the app's frame. */}
+            <Stack.Screen name="onboarding" options={{ animation: 'fade', contentStyle: { backgroundColor: c.canvas, ...(sidebar ? centred : null) } }} />
           </Stack.Protected>
           <Stack.Protected guard={onboarded && !webGuest}>
             <Stack.Screen name="(tabs)" options={{ contentStyle: { backgroundColor: c.canvas } }} />
             {/* Legacy capture links redirect to Add without presenting an empty modal. */}
             <Stack.Screen name="capture" />
             {/* Flows slide up as full-screen covers with an X; detail screens push with a back chevron. */}
-            <Stack.Screen name="create" options={{ presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
+            <Stack.Screen name="create" options={sidebar ? dialogScreen : { presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
             <Stack.Screen name="share-schedule" options={{ presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
             <Stack.Screen name="item/[id]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
             <Stack.Screen name="course/[id]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
             <Stack.Screen name="employer/[name]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
             <Stack.Screen name="import/[id]" options={{ headerShown: true, ...navigationButtonOptions('back') }} />
-            <Stack.Screen name="settings" />
+            {/* Settings frames its own screens, so its Semli Plus page can run the photo full width. */}
+            <Stack.Screen name="settings" options={{ contentStyle: { backgroundColor: c.canvas } }} />
           </Stack.Protected>
         </Stack>
+        </View>
+        </View>
         <PlanChoice />
         {/* One owner restores the theme's icons when leaving either always-dark paywall. */}
         <StatusBar style={photoPaywall || dark ? 'light' : 'dark'} hidden={false} />
@@ -258,3 +274,8 @@ function RootLayout() {
 }
 
 export default Sentry.wrap(RootLayout);
+
+const styles = StyleSheet.create({
+  app: { flex: 1, flexDirection: 'row' },
+  stack: { flex: 1, minWidth: 0 },
+});

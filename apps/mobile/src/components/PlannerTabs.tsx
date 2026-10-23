@@ -3,7 +3,7 @@ import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { DesktopTabs, DropHint } from '@/components/DesktopTabs';
+import { DesktopTabs, DropHint, keepLaidOut } from '@/components/DesktopTabs';
 import { NavButton } from '@/components/NavPill';
 import { Toast } from '@/components/Overlay';
 import { useWebLayout } from '@/lib/layout';
@@ -18,6 +18,8 @@ export default function PlannerTabs() {
   return sidebar ? <DesktopTabs dropping={dropping} /> : <PillTabs dropping={dropping} />;
 }
 
+const renderScreen = keepLaidOut();
+
 /** The five destinations in a pill; Add is the last one. */
 function PillTabs({ dropping }: { dropping: boolean }) {
   const { t } = useLingui();
@@ -26,7 +28,7 @@ function PillTabs({ dropping }: { dropping: boolean }) {
   const bottom = Math.max(insets.bottom, 12);
   return (
     <Tabs style={{ flex: 1, backgroundColor: c.canvas }}>
-      <TabSlot style={styles.slot} />
+      <TabSlot style={styles.slot} renderFn={renderScreen} />
       <View style={[styles.bar, { bottom }]} pointerEvents="box-none">
         <View style={[styles.pill, { backgroundColor: c.surface, borderColor: c.line }]}>
           <TabTrigger name="index" asChild><NavButton icon="home" label={t`Today`} /></TabTrigger>

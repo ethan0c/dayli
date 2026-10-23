@@ -19,7 +19,7 @@ import { ChartKey, keyOf, markKey, shapeFor } from '@/components/ChartMark';
 import { WeekChart, type WeekDay } from '@/components/WeekChart';
 import { SHARING_ENABLED } from '@/lib/auth';
 import { feedback } from '@/lib/feedback';
-import { useWebLayout } from '@/lib/layout';
+import { COLUMN, useWebLayout } from '@/lib/layout';
 import { useWebShortcuts } from '@/lib/shortcuts';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
@@ -217,7 +217,7 @@ export default function PlanScreen() {
 
   return (
     <View style={{ flex: 1, flexDirection: 'row', backgroundColor: c.canvas }}>
-      <ScrollView style={{ flex: 1 }} contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
+      <ScrollView style={twoPane ? { width: COLUMN, flexGrow: 0 } : { flex: 1 }} contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
         {header}
         <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined}
           style={styles.chart} {...swipe.panHandlers}>
@@ -296,7 +296,7 @@ export default function PlanScreen() {
 
 const styles = StyleSheet.create({
   chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
-  pane: { width: 420, borderLeftWidth: StyleSheet.hairlineWidth },
+  pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
   paneEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },
   legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, gap: 8 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },

@@ -9,6 +9,7 @@ import { T } from '@/components/Text';
 import { keepAccountPlan, keepPhonePlan } from '@/lib/cloud';
 import { planDate } from '@/lib/cloud-snapshot';
 import { friendlyError } from '@/lib/errors';
+import { useWebLayout } from '@/lib/layout';
 import { feedback } from '@/lib/feedback';
 import { enter, exit } from '@/lib/motion';
 import { realRecords } from '@/lib/planner-preview';
@@ -29,6 +30,8 @@ export function PlanChoice() {
   const items = useStore((s) => s.items);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A wide web window asks in a dialog over the planner; the phone covers the screen.
+  const { sidebar } = useWebLayout();
   if (!choice) return null;
 
   const keep = async (action: () => Promise<void>, operation: string) => {
@@ -43,6 +46,22 @@ export function PlanChoice() {
       setBusy(false);
     }
   };
+
+  if (sidebar) return (
+    <Animated.View entering={enter.fade} exiting={exit.fade} style={[StyleSheet.absoluteFill, styles.scrim]}>
+      <View accessibilityViewIsModal style={[styles.dialog, { backgroundColor: c.surface, borderColor: c.line }]}>
+        <T token="title" accessibilityRole="header" style={{ fontSize: 20, lineHeight: 26 }}>You have two plans</T>
+        <T token="callout" color={c.inkSecondary}>
+          {`Your account has a plan${dated(choice.remoteAt ?? planDate(choice.remote.items))}. ${THIS_DEVICE_TITLE} has a plan${dated(planDate(realRecords(Object.values(items))))}. Which one do you want to keep? The other one is replaced.`}
+        </T>
+        {error ? <T token="callout" color={c.conflict} accessibilityRole="alert">{error}</T> : null}
+        <View style={styles.dialogActions}>
+          <Button label="Keep account plan" disabled={busy} onPress={() => void keep(keepAccountPlan, 'cloud.keep_account_plan')} />
+          <Button label={`Keep ${THIS_DEVICE}’s plan`} variant="secondary" disabled={busy} onPress={() => void keep(keepPhonePlan, 'cloud.keep_phone_plan')} />
+        </View>
+      </View>
+    </Animated.View>
+  );
 
   return (
     <Animated.View entering={enter.fade} exiting={exit.fade} accessibilityViewIsModal
@@ -66,4 +85,8 @@ const styles = StyleSheet.create({
   page: { paddingHorizontal: SCREEN_GUTTER, justifyContent: 'space-between' },
   copy: { gap: 14 },
   actions: { gap: 12 },
+  scrim: { alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.22)' },
+  dialog: { width: 520, maxWidth: '92%', borderRadius: 20, borderWidth: StyleSheet.hairlineWidth, padding: 24, gap: 12, boxShadow: '0 10px 32px rgba(0,0,0,0.14)' },
+  // The choice the person is most likely to want sits at the right, as the primary.
+  dialogActions: { flexDirection: 'row-reverse', gap: 8, paddingTop: 6 },
 });

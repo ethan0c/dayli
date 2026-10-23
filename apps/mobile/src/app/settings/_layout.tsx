@@ -1,7 +1,9 @@
 import { useLingui } from '@lingui/react/macro';
 import { Stack } from 'expo-router';
 
+import { columnHeader } from '@/components/ColumnHeader';
 import { navigationButtonOptions } from '@/components/NavButtons';
+import { frameStyle, useWebLayout } from '@/lib/layout';
 
 import { palettes } from '@dayli/tokens';
 import { mobileFonts, useTheme } from '@/theme';
@@ -13,6 +15,8 @@ export const unstable_settings = { anchor: 'index' };
 export default function SettingsLayout() {
   const { t } = useLingui();
   const { c } = useTheme();
+  // On a wide web window each setting sits in the app's frame, its header too, beside the sidebar.
+  const { sidebar, twoPane } = useWebLayout();
   return (
     <Stack
       screenOptions={{
@@ -24,7 +28,8 @@ export default function SettingsLayout() {
         headerTitleAlign: 'center',
         headerBackButtonDisplayMode: 'minimal',
         ...navigationButtonOptions('back'),
-        contentStyle: { backgroundColor: c.canvas },
+        contentStyle: { backgroundColor: c.canvas, ...(sidebar ? frameStyle(twoPane) : null) },
+        ...(sidebar ? { header: columnHeader('frame') } : null),
       }}>
       <Stack.Screen name="index" options={{ title: t`You` }} />
       <Stack.Screen name="name" options={{ title: t`Name` }} />

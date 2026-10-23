@@ -66,7 +66,7 @@ export default function AccountScreen() {
 
   if (!user) {
     return (
-      <Sheet title="Account settings">
+      <Sheet dialog title="Account settings">
         <ScrollView contentContainerStyle={styles.body}>
           <View style={styles.hero}>
             <T token="display" accessibilityRole="header">{`Saved on ${THIS_DEVICE}`}</T>
@@ -84,7 +84,7 @@ export default function AccountScreen() {
   const deleting = confirm === 'delete';
   const signingOut = confirm === 'sign-out';
   return (
-    <Sheet title={deleting ? 'Delete account' : signingOut ? 'Sign out' : 'Account settings'} footer={deleting ? <>
+    <Sheet dialog title={deleting ? 'Delete account' : signingOut ? 'Sign out' : 'Account settings'} footer={deleting ? <>
       <Button label={busy ? 'Deleting…' : 'Delete my account'} disabled={busy} onPress={() => void run(authClient.deleteAccount, 'Account deleted.', 'account.delete')} />
       <TextButton label="Keep my account" tone="muted" onPress={() => setConfirm(null)} />
     </> : signingOut ? <>

@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 
 import { navigationButtonOptions } from '@/components/NavButtons';
+import { columnHeader } from '@/components/ColumnHeader';
 import { COLUMN, useWebLayout } from '@/lib/layout';
 import { mobileFonts, useTheme } from '@/theme';
 
@@ -16,6 +17,7 @@ export default function AuthLayout() {
     headerStyle: { backgroundColor: c.canvas }, headerTintColor: c.inkPrimary,
     headerTitleStyle: { fontFamily: mobileFonts.medium, fontSize: 16, color: c.inkPrimary },
     contentStyle: { backgroundColor: c.canvas, ...column }, ...navigationButtonOptions('back'),
+    ...(sidebar ? { header: columnHeader('column') } : null),
   }}>
     <Stack.Screen name="index" options={{ headerShown: false, contentStyle: { backgroundColor: c.canvas } }} />
     <Stack.Screen name="login" options={{ title: 'Sign in' }} />
