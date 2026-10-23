@@ -8,9 +8,9 @@ import { feedback } from '@/lib/feedback';
 import { springs } from '@/lib/motion';
 import { useTheme } from '@/theme';
 
-/** A grey track with a theme-colored pill that slides to the chosen option and shows a tick. */
-export function Segmented<K extends string>({ options, value, onChange, label, size = 'regular' }: {
-  options: { key: K; label: string }[]; value: K; onChange: (key: K) => void; label: string; size?: 'regular' | 'small';
+/** A grey track with a theme-colored pill that slides to the chosen option and shows a tick, unless `tick` is off for a tight row. */
+export function Segmented<K extends string>({ options, value, onChange, label, size = 'regular', tick = true }: {
+  options: { key: K; label: string }[]; value: K; onChange: (key: K) => void; label: string; size?: 'regular' | 'small'; tick?: boolean;
 }) {
   const { c } = useTheme();
   const [width, setWidth] = useState(0);
@@ -33,7 +33,7 @@ export function Segmented<K extends string>({ options, value, onChange, label, s
         return (
           <Pressable key={o.key} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => { if (!on) { feedback('select'); onChange(o.key); } }}
             style={[styles.seg, { height: h }]}>
-            {on ? <Icon name="tick" size={14} color={c.controlInk} strokeWidth={2.5} /> : null}
+            {on && tick ? <Icon name="tick" size={14} color={c.controlInk} strokeWidth={2.5} /> : null}
             <T token="subhead" color={on ? c.controlInk : c.inkSecondary}>{o.label}</T>
           </Pressable>
         );

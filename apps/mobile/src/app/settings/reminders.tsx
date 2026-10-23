@@ -102,6 +102,7 @@ export default function RemindersScreen() {
           <View style={styles.segment}>
             <Segmented
               size="small"
+              tick={false}
               label="Before an event"
               options={LEADS}
               value={String(prefs.eventLead) as LeadKey}
