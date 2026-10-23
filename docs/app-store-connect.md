@@ -130,7 +130,7 @@ First release. Syllabus and work-schedule import, Canvas import, reminders, and 
 | Support URL | `https://semli.app/contact` |
 | Marketing URL | `https://semli.app` |
 | Copyright | `2026 Chibudom Onyejesi` (**you**: or your company name once there is one) |
-| Version | Must match `expo.version` in `apps/mobile/app.json` (`1.1.0` since `e17ab96`). If the App Store Connect version page still says 1.0, rename it to 1.1.0 before attaching the build; an unreleased version can be renamed. |
+| Version | Must match `expo.version` in `apps/mobile/app.json` (`1.1.2` since Oct 23, 2026). If the App Store Connect version page says anything else, rename it to 1.1.2 before attaching the build; an unreleased version can be renamed. |
 | Build | Uploaded by `eas submit`; pick the latest |
 | App Clip, Game Center | none |
 
