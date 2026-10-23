@@ -5,6 +5,7 @@ import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { T } from '@/components/Text';
+import { Press } from '@/components/Press';
 import { corner, radius, textStyle, useTheme, size, fade } from '@/theme';
 
 // Fallbacks for web (and any non-iOS platform). The .ios.tsx file uses SwiftUI; the web's date and
@@ -98,12 +99,12 @@ export function NativeButton({ label, onPress, role, icon }: NativeButtonProps) 
   const { c } = useTheme();
   const ink = role === 'destructive' ? c.conflict : c.inkPrimary;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.btn, { backgroundColor: c.row, opacity: pressed ? fade.pressed : 1 }]}>
+    <Press onPress={onPress} accessibilityRole="button" style={[styles.btn, { backgroundColor: c.row }]}>
       {icon ? <Icon name={icon} size={16} color={ink} /> : null}
       <T token="headline" color={ink}>
         {label}
       </T>
-    </Pressable>
+    </Press>
   );
 }
 

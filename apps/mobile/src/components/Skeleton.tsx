@@ -1,19 +1,39 @@
 import { useEffect } from 'react';
 import { StyleSheet, View, type DimensionValue } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { cancelAnimation, makeMutable, useAnimatedStyle, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 
 import { motion } from '@dayli/tokens';
 
 import { ease } from '@/lib/motion';
 import { radius, useTheme } from '@/theme';
 
+/**
+ * One breath for every placeholder on screen, so a page of them dims and returns as one
+ * instead of each keeping the time it mounted. It runs only while a skeleton is showing.
+ */
+const breath = makeMutable(1);
+let breathing = 0;
+function useBreath() {
+  useEffect(() => {
+    breathing += 1;
+    if (breathing === 1) {
+      breath.value = withRepeat(withSequence(withTiming(0.5, { duration: motion.pulse, easing: ease }), withTiming(1, { duration: motion.pulse, easing: ease })), -1, false);
+    }
+    return () => {
+      breathing -= 1;
+      if (breathing === 0) {
+        cancelAnimation(breath);
+        breath.value = 1;
+      }
+    };
+  }, []);
+  return breath;
+}
+
 /** A placeholder block that breathes. Lay these out exactly where the content will land. */
 export function Skeleton({ width = '100%', height = 16, round = radius.small, style }: { width?: DimensionValue; height?: number; round?: number; style?: object }) {
   const { c } = useTheme();
-  const pulse = useSharedValue(1);
-  useEffect(() => {
-    pulse.value = withRepeat(withSequence(withTiming(0.5, { duration: motion.pulse, easing: ease }), withTiming(1, { duration: motion.pulse, easing: ease })), -1, false);
-  }, [pulse]);
+  const pulse = useBreath();
   const animated = useAnimatedStyle(() => ({ opacity: pulse.value }));
   return <Animated.View accessible={false} style={[{ width, height, borderRadius: round, backgroundColor: c.row }, animated, style]} />;
 }

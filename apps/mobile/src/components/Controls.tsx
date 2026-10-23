@@ -1,15 +1,15 @@
 import { addDays, diffDays, formatTime, monthDay, relativeDay, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { motion } from '@dayli/tokens';
 
 import { GlassCircle } from '@/components/Glass';
 import { Icon, type IconKey } from '@/components/Icon';
-import { Press } from '@/components/Press';
+import { Press, PressRow } from '@/components/Press';
 import { T } from '@/components/Text';
 import type { Cue } from '@/lib/feedback';
-import { corner, radius, useTheme, size, fade, iconSize } from '@/theme';
+import { radius, useTheme, size, fade, iconSize } from '@/theme';
 
 /*
  * The five button roles and the small parts every screen shares.
@@ -114,9 +114,9 @@ export function SectionTitle({ title, onPress, detail }: { title: string; onPres
   );
   if (!onPress) return inner;
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ opacity: pressed ? fade.pressed : 1 })}>
+    <Press accessibilityRole="button" onPress={onPress} scale={1} dim={fade.pressed}>
       {inner}
-    </Pressable>
+    </Press>
   );
 }
 
@@ -136,8 +136,8 @@ export function ListRow({ title, sub, leading, trailing, onPress, chevron = !!on
 }) {
   const { c } = useTheme();
   return (
-    <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.row, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null, pressed ? { backgroundColor: c.row, marginHorizontal: -8, paddingHorizontal: 8, ...corner(radius.small) } : null]}>
+    <PressRow onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} accessibilityLabel={accessibilityLabel} bleed={8} round={radius.small}
+      style={[styles.row, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
       {leading}
       <View style={styles.rowText}>
         <T token="body" color={destructive ? c.conflict : c.inkPrimary} numberOfLines={2}>{title}</T>
@@ -145,7 +145,7 @@ export function ListRow({ title, sub, leading, trailing, onPress, chevron = !!on
       </View>
       {trailing}
       {chevron ? <Icon name="chevronRight" size={iconSize.disclosure} color={c.disclosureInk} /> : null}
-    </Pressable>
+    </PressRow>
   );
 }
 

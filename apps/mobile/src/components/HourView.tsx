@@ -1,12 +1,13 @@
 import { dateLocale, formatHour, formatRange, formatTime, hourLayout, hourScale, hourSpan, toMinutes, type HourSpan } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { chart } from '@dayli/tokens';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { bookedColors } from '@/components/ChartMark';
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
-import { corner, radius, useTheme, fade } from '@/theme';
+import { Press } from '@/components/Press';
+import { corner, radius, useTheme } from '@/theme';
 
 /** How the chart fits the day: at least six hours, about this tall, never cramped or stretched. */
 const SCALE = { minSpan: 6, targetHeight: 560, minPx: 28, maxPx: 44 };
@@ -64,8 +65,8 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
         const overlapLine = conflict && h >= 64;
         return (
           <View key={it.id} pointerEvents="box-none" style={[styles.lane, { top, height: h, left: `${column.lane / column.lanes * 100}%`, width: `${100 / column.lanes}%`, paddingRight: column.lane < column.lanes - 1 ? 4 : 0 }]}>
-            <Pressable onPress={() => onPress?.(it)} accessibilityRole="button" accessibilityLabel={`${it.title}, ${sub}${it.urgent ? ', urgent' : ''}${conflict ? ', overlaps something else' : ''}`}
-              style={({ pressed }) => [styles.block, { backgroundColor: bg, paddingVertical: size === 'bar' ? 0 : h < 28 ? 2 : 4, borderRadius: Math.min(8, h / 2), opacity: pressed ? fade.pressed : 1 }]}>
+            <Press onPress={() => onPress?.(it)} accessibilityRole="button" accessibilityLabel={`${it.title}, ${sub}${it.urgent ? ', urgent' : ''}${conflict ? ', overlaps something else' : ''}`}
+              style={[styles.block, { backgroundColor: bg, paddingVertical: size === 'bar' ? 0 : h < 28 ? 2 : 4, borderRadius: Math.min(8, h / 2) }]}>
               {size === 'bar' ? null : <>
               <View style={styles.blockText}>
                 {it.done && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
@@ -74,7 +75,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
               {details ? <T token="caption" color={conflict ? c.onPrimary : it.done ? c.added : past || it.kind === 'task' ? c.inkSecondary : booked.ink} numberOfLines={1}>{sub}{conflict && !overlapLine ? ' · Overlaps' : it.employer ? ` · ${it.employer}` : ''}</T> : null}
               {overlapLine ? <T token="caption" color={c.onPrimary}>Overlaps</T> : null}
               </>}
-            </Pressable>
+            </Press>
           </View>
         );
       })}

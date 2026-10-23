@@ -1,8 +1,9 @@
 import { monthDay, weekdayLong } from '@dayli/core';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { T } from '@/components/Text';
+import { Press } from '@/components/Press';
 import { SCREEN_GUTTER, useTheme, useTopInset, fade } from '@/theme';
 
 /**
@@ -37,10 +38,10 @@ export function TabHeader({ date, context, title, size = 'number', value, detail
   return (
     <View style={[styles.root, { paddingTop: inset ? top + 20 : 8 }]}>
       {onPress ? (
-        <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel ? [dateLabel, accessibilityLabel].filter(Boolean).join(', ') : undefined} onPress={onPress}
-          style={({ pressed }) => [styles.content, { opacity: pressed ? fade.pressed : 1 }]}>
+        <Press accessibilityRole="button" accessibilityLabel={accessibilityLabel ? [dateLabel, accessibilityLabel].filter(Boolean).join(', ') : undefined} onPress={onPress}
+          scale={1} dim={fade.pressed} style={styles.content}>
           {content}
-        </Pressable>
+        </Press>
       ) : <View style={styles.content}>{content}</View>}
       {trailing ? <View style={styles.trailing}>{trailing}</View> : null}
     </View>

@@ -1,12 +1,14 @@
 import { AssetField, MediaSubtype, MediaType, Query, getPermissionsAsync } from 'expo-media-library';
 import { useEffect, useState } from 'react';
 import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { GroupLabel, TextButton } from '@/components/Controls';
 import { Press } from '@/components/Press';
 import { SkeletonShots } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { reportError } from '@/lib/errors';
+import { enter, exit } from '@/lib/motion';
 import { corner, radius, useTheme, fade } from '@/theme';
 
 type Shot = { id: string; uri: string };
@@ -61,10 +63,13 @@ export function RecentShots({ onPick, disabled }: { onPick: (uri: string) => voi
         <TextButton label="All photos" tone="muted" disabled={disabled} onPress={() => onPick('')} />
       </View>
       {loading || list.length > 0 ? <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip} style={styles.stripWrap}>
-        {loading ? <SkeletonShots /> : list.map((s) => (
-          <Press key={s.id} accessibilityRole="button" accessibilityLabel="Use this screenshot" haptic="tap" disabled={disabled} onPress={() => onPick(s.uri)} style={[styles.shot, { backgroundColor: c.row, opacity: disabled ? fade.disabled : 1 }]}>
-            <Image source={{ uri: s.uri }} style={styles.img} accessibilityIgnoresInvertColors />
-          </Press>
+        {/* The placeholders fade out where the shots fade in. */}
+        {loading ? <Animated.View key="loading" exiting={exit.fade}><SkeletonShots /></Animated.View> : list.map((s) => (
+          <Animated.View key={s.id} entering={enter.fade}>
+            <Press accessibilityRole="button" accessibilityLabel="Use this screenshot" haptic="tap" disabled={disabled} onPress={() => onPick(s.uri)} style={[styles.shot, { backgroundColor: c.row, opacity: disabled ? fade.disabled : 1 }]}>
+              <Image source={{ uri: s.uri }} style={styles.img} accessibilityIgnoresInvertColors />
+            </Press>
+          </Animated.View>
         ))}
       </ScrollView> : !notice ? <T token="caption" color={c.inkSecondary}>{allowed ? 'No recent screenshots. Choose All photos to pick a photo or screenshot.' : 'Choose All photos to select a screenshot to import.'}</T> : null}
       {notice ? <T token="caption" color={c.inkSecondary} accessibilityRole="alert">{notice}</T> : null}

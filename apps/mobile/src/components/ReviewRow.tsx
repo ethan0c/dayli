@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CategoryDot } from '@/components/Controls';
 import { DisclosureChevron } from '@/components/DisclosureChevron';
-import { Press } from '@/components/Press';
+import { Press, PressRow } from '@/components/Press';
 import { T } from '@/components/Text';
 import { enter, exit, layout } from '@/lib/motion';
 import { useTheme, radius, size, fade } from '@/theme';
@@ -47,9 +47,9 @@ export function ReviewRow({ glyph, title, sub, trailing, struck, below, onPress,
   return (
     <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={[styles.row, { borderBottomColor: c.line }]}>
       {onPress ? (
-        <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? title} style={({ pressed }) => ({ opacity: pressed ? fade.pressed : 1 })}>
+        <PressRow onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? title} bleed={8} round={radius.small}>
           {head}
-        </Pressable>
+        </PressRow>
       ) : head}
       {below ? <View style={styles.below}>{below}</View> : null}
     </Animated.View>
@@ -84,10 +84,10 @@ export function ReviewPillRow({ children }: { children: ReactNode }) {
 export function ReviewDisclosure({ label, open, onPress }: { label: string; open: boolean; onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityState={{ expanded: open }} style={({ pressed }) => [styles.disclosure, { opacity: pressed ? fade.pressed : 1 }]}>
+    <PressRow onPress={onPress} accessibilityRole="button" accessibilityState={{ expanded: open }} bleed={8} round={radius.small} style={styles.disclosure}>
       <T token="caption" color={c.inkSecondary} style={{ flex: 1 }}>{label}</T>
       <DisclosureChevron expanded={open} />
-    </Pressable>
+    </PressRow>
   );
 }
 

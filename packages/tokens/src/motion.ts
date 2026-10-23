@@ -17,6 +17,10 @@ export const motion = {
   duration: { fast: 120, base: 220, slow: 360 },
   /** Each half of a skeleton's breath, dim then back; slow enough to read as waiting, not flicker. */
   pulse: 700,
+  /** One pass of the indeterminate progress line across its track. */
+  sweep: 1400,
+  /** How long a finger rests on a chart before dragging scrubs it instead of scrolling the page. */
+  hold: 220,
   /** The one easing curve for timed animations (CSS cubic-bezier form). */
   easing: [0.2, 0, 0, 1] as const,
   /** How far a control shrinks and dims while pressed; `iconScale` for a small round icon button. */

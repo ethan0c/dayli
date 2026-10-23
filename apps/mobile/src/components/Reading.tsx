@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
+import { motion } from '@dayli/tokens';
+
 import { SkeletonReview } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { ease } from '@/lib/motion';
@@ -14,7 +16,7 @@ export function ProgressLine() {
   const { c } = useTheme();
   const x = useSharedValue(0);
   useEffect(() => {
-    x.value = withRepeat(withTiming(1, { duration: 1400, easing: ease }), -1, false);
+    x.value = withRepeat(withTiming(1, { duration: motion.sweep, easing: ease }), -1, false);
   }, [x]);
   const bar = useAnimatedStyle(() => ({ transform: [{ translateX: -160 + x.value * 560 }] }));
   return (

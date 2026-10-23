@@ -1,8 +1,10 @@
 import { monthDay, weekdayLong } from '@dayli/core';
+import { motion } from '@dayli/tokens';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { IconButton, TextButton } from '@/components/Controls';
+import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { Press } from '@/components/Press';
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
@@ -20,16 +22,17 @@ function monthTitle(selected: string, today: string): string {
 export function PlanMonthTitle({ selected, today, expanded, onToggle }: { selected: string; today: string; expanded: boolean; onToggle: () => void }) {
   const { c } = useTheme();
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={`Choose date, ${weekdayLong(selected)}, ${monthDay(selected)}, ${selected.slice(0, 4)}`}
+    <Press accessibilityRole="button" accessibilityLabel={`Choose date, ${weekdayLong(selected)}, ${monthDay(selected)}, ${selected.slice(0, 4)}`}
       accessibilityState={{ expanded }} onPress={() => { feedback('select'); onToggle(); }}
-      style={({ pressed }) => [styles.title, { opacity: pressed ? fade.pressed : 1 }]}>
+      scale={1} dim={fade.pressed} style={styles.title}>
       <T token="display" numberOfLines={1} style={{ flexShrink: 1 }}>{monthTitle(selected, today)}</T>
-      <View style={{ transform: [{ rotate: expanded ? '-90deg' : '90deg' }] }}>
-        <Icon name="chevronRight" size={iconSize.title} color={c.disclosureInk} />
-      </View>
-    </Pressable>
+      <DisclosureChevron expanded={expanded} size={iconSize.title} turn={MONTH_TURN} />
+    </Press>
   );
 }
+
+/** Points down while the grid is closed and turns to point up as it opens. */
+const MONTH_TURN = [90, -90] as const;
 
 /** Back to this week, shown only when Plan is on another one. Pills act: fully round. */
 export function TodayPill({ onPress }: { onPress: () => void }) {
@@ -67,16 +70,16 @@ export function PlanMonthCalendar({ selected, today, onSelect }: { selected: str
               const isToday = date === today;
               const inMonth = date.slice(0, 7) === month.slice(0, 7);
               return (
-                <Pressable key={date} accessibilityRole="button" accessibilityState={{ selected: on }}
+                <Press key={date} accessibilityRole="button" accessibilityState={{ selected: on }}
                   accessibilityLabel={`${weekdayLong(date)}, ${monthDay(date)}, ${date.slice(0, 4)}${isToday ? ', today' : ''}`}
-                  onPress={() => pick(date)} style={({ pressed }) => [styles.day, { opacity: pressed ? fade.pressed : 1 }]}>
+                  onPress={() => pick(date)} scale={motion.press.iconScale} style={styles.day}>
                   <View style={[styles.dayCircle, {
                     backgroundColor: on ? c.controlFill : 'transparent',
                     borderColor: isToday && !on ? c.accent : 'transparent',
                   }]}>
                     <T token="subhead" tabular color={on ? c.controlInk : inMonth ? c.inkPrimary : c.inkSecondary}>{Number(date.slice(8))}</T>
                   </View>
-                </Pressable>
+                </Press>
               );
             })}
           </View>

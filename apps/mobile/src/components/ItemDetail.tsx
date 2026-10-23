@@ -1,7 +1,7 @@
 import { WEEKDAYS, conflictIds, diffDays, fullDate, isFlexibleEvent, isLocalDate, isLocalTime, localParts, monthDay, relativeDay, todayItems, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort, longMonthDay, clockTime, clockPeriod } from '@dayli/core';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { GroupLabel, SectionTitle, StatusPill, TextButton, itemStatus } from '@/components/Controls';
@@ -11,7 +11,7 @@ import { ItemRow } from '@/components/ItemRow';
 import { DateField, NativeToggle, TimeField } from '@/components/Native';
 import { OverlapNotice } from '@/components/OverlapNotice';
 import { RingingAlarmInfo } from '@/components/RingingAlarmInfo';
-import { Press } from '@/components/Press';
+import { Press, PressRow } from '@/components/Press';
 import { Button, Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
@@ -40,11 +40,11 @@ function gap(now: { date: string; time: string }, date: string, time: string | n
 function Row({ children, trailing, onPress, accessibilityLabel }: { children: ReactNode; trailing?: ReactNode; onPress?: () => void; accessibilityLabel?: string }) {
   if (!onPress) return <View style={styles.row}>{children}{trailing}</View>;
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.row, pressed ? { opacity: fade.pressed } : null]}>
+    <PressRow onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel}
+      bleed={8} round={radius.small} style={styles.row}>
       {children}
       {trailing}
-    </Pressable>
+    </PressRow>
   );
 }
 
@@ -152,11 +152,11 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
               { label: 'This week', value: count(thisWeek.length), run: () => removeItems(thisWeek.map((it) => it.id), `Deleted ${count(thisWeek.length)}`) },
               { label: 'From now on', value: count(fromNow.length), run: () => removeItems(fromNow.map((it) => it.id), `Deleted ${count(fromNow.length)}`) },
             ].map((o) => (
-              <Pressable key={o.label} accessibilityRole="button" accessibilityLabel={`${o.label}, ${o.value}`} onPress={() => { feedback('remove'); deleteAndLeave(o.run); }}
-                style={({ pressed }) => [styles.scopeRow, { borderBottomColor: c.line }, pressed ? { opacity: fade.pressed } : null]}>
+              <PressRow key={o.label} accessibilityRole="button" accessibilityLabel={`${o.label}, ${o.value}`} onPress={() => { feedback('remove'); deleteAndLeave(o.run); }}
+                bleed={8} round={radius.small} style={[styles.scopeRow, { borderBottomColor: c.line }]}>
                 <T token="body" color={c.conflict} style={{ flex: 1 }}>{o.label}</T>
                 <T token="callout" color={c.inkSecondary} tabular>{o.value}</T>
-              </Pressable>
+              </PressRow>
             ))}
             <TextButton label="Cancel" tone="muted" onPress={() => setScope(false)} style={{ alignSelf: 'center' }} />
             <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Tap Undo after deleting, or open Your data → Recent changes to restore deleted items.</T>
@@ -185,13 +185,13 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
             style={[textStyle('displaySm', c.inkPrimary), { padding: 0, minWidth: 0 }]}
           />
           {item.start ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={`Time, ${timeLabel}, tap to change`} accessibilityState={{ expanded: editing === 'time' }}
-              onPress={() => { feedback('select'); setEditing(editing === 'time' ? null : 'time'); }} style={({ pressed }) => ({ opacity: pressed ? fade.pressed : 1 })}>
+            <Press accessibilityRole="button" accessibilityLabel={`Time, ${timeLabel}, tap to change`} accessibilityState={{ expanded: editing === 'time' }}
+              onPress={() => { feedback('select'); setEditing(editing === 'time' ? null : 'time'); }} scale={1} dim={fade.pressed}>
               <T token="displayXl" tabular style={styles.time}>
                 {clockTime(item.start)}{item.end ? <T token="displayXl" color={c.inkSecondary} style={styles.time}> – </T> : null}{item.end ? clockTime(item.end) : ''}
                 <T token="titleSm" color={c.inkSecondary}> {[clockPeriod(item.end ?? item.start), endsNextDay ? 'next day' : ''].filter(Boolean).join(', ')}</T>
               </T>
-            </Pressable>
+            </Press>
           ) : (
             <Press accessibilityRole="button" accessibilityLabel="Add a time" haptic="select" onPress={() => { updateItem(item.id, defaultTimes(item)); setEditing('time'); }} style={[styles.addTime, { backgroundColor: c.row }]}>
               <T token="subhead">Add a time</T>

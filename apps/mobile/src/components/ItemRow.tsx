@@ -1,17 +1,18 @@
 import { localParts } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
 import { CategoryDot, IconButton, StatusPill, itemStatus } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
+import { PressRow } from '@/components/Press';
 import { SwipeRow } from '@/components/SwipeRow';
 import { T } from '@/components/Text';
 import { useWebLayout } from '@/lib/layout';
-import { springs } from '@/lib/motion';
+import { durations, ease, springs } from '@/lib/motion';
 import { courseTint, useStore } from '@/store';
-import { useTheme, fade } from '@/theme';
+import { textStyle, useTheme } from '@/theme';
 
 type RowItem = Pick<Item, 'kind' | 'title' | 'category' | 'icon' | 'start' | 'end' | 'done' | 'isDeadline' | 'date' | 'urgent'> & { id?: string; courseId?: string | null; employer?: string | null };
 type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: string; onPress?: () => void; onToggle?: () => void; onDelete?: () => void; last?: boolean };
@@ -54,20 +55,52 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
       ) : (
         <View style={styles.checkTarget}><CategoryDot color={tint} /></View>
       )}
-      <Pressable onPress={onPress} accessibilityRole={onPress ? 'button' : undefined}
+      {/* The highlight reaches back under the check, so the whole row lights like a Settings row. */}
+      <PressRow onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} bleed={{ left: CHECK + GAP }}
         accessibilityLabel={`${item.title}, ${isEvent ? 'event' : 'to-do'}, ${status.label}${item.urgent ? ', urgent' : ''}${conflict ? ', overlaps another event' : ''}${item.done ? ', completed' : ''}`}
-        style={({ pressed }) => [styles.main, { opacity: pressed ? fade.pressed : 1 }]}>
+        style={styles.main}>
         <View style={styles.text}>
-          <T token="body" color={item.done ? c.inkSecondary : conflict ? c.conflict : c.inkPrimary} numberOfLines={2} style={item.done ? styles.done : undefined}>{item.title}</T>
+          <Title text={item.title} done={item.done} color={conflict ? c.conflict : c.inkPrimary} />
           <View style={styles.sub}>
             <T token="caption" color={c.inkSecondary} numberOfLines={1} style={styles.subText}>{item.urgent ? <T token="caption" color={item.done ? c.inkSecondary : c.conflict}>Urgent · </T> : null}{sub}</T>
           </View>
         </View>
         {hover && onDelete ? null : <StatusPill label={status.label} tone={status.tone} />}
-      </Pressable>
+      </PressRow>
       {hover && onDelete ? <IconButton icon="trash" label={`Delete ${item.title}`} size={36} haptic="remove" onPress={onDelete} /> : null}
     </View>
     </SwipeRow>
+  );
+}
+
+const AnimatedText = Animated.createAnimatedComponent(Text);
+
+/**
+ * A row's title. Checked off, it fades to grey over `base` while its strikethrough draws left to
+ * right; opened again, the line withdraws the same way. The strike is iOS's own line-through on a
+ * transparent copy of the title, revealed by a clip, so it sits exactly where the system draws it.
+ */
+function Title({ text, done, color }: { text: string; done: boolean; color: string }) {
+  const { c } = useTheme();
+  const [width, setWidth] = useState(0);
+  const p = useSharedValue(done ? 1 : 0);
+  useEffect(() => {
+    p.value = withTiming(done ? 1 : 0, { duration: durations.base, easing: ease });
+  }, [done, p]);
+  const ink = useAnimatedStyle(() => ({ color: interpolateColor(p.value, [0, 1], [color, c.inkSecondary]) }));
+  const reveal = useAnimatedStyle(() => ({ width: p.value * width }));
+  const base = textStyle('body', color);
+  // Only iOS draws a line-through in its own colour over transparent text; elsewhere the title strikes at once.
+  const drawn = Platform.OS === 'ios';
+  return (
+    <View>
+      <AnimatedText numberOfLines={2} onLayout={(e) => setWidth(e.nativeEvent.layout.width)} style={[base, ink, !drawn && done ? styles.done : null]}>{text}</AnimatedText>
+      {drawn && width > 0 ? (
+        <Animated.View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.strike, reveal]}>
+          <Text numberOfLines={2} style={[base, styles.done, { width, color: 'transparent', textDecorationColor: c.inkSecondary }]}>{text}</Text>
+        </Animated.View>
+      ) : null}
+    </View>
   );
 }
 
@@ -93,14 +126,19 @@ export function Check({ done, color }: { done: boolean; color?: string }) {
   );
 }
 
+const CHECK = 22;
+const GAP = 12;
+
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64 },
-  checkTarget: { width: 22, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
-  main: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: GAP, minHeight: 64 },
+  // Above the main area, whose press highlight reaches under it.
+  checkTarget: { width: CHECK, minHeight: 48, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
+  main: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: GAP, paddingVertical: 10 },
   text: { flex: 1, minWidth: 0, gap: 2 },
   sub: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   subText: { flexShrink: 1 },
   done: { textDecorationLine: 'line-through' },
+  strike: { position: 'absolute', top: 0, left: 0, bottom: 0, overflow: 'hidden' },
   circle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   fill: { borderRadius: 11 },
 });

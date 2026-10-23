@@ -1,7 +1,7 @@
 import { dateLocale, formatTime, localParts, monthDay, weekdayShort , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { SectionTitle, StatusPill, TextButton, type PillTone } from '@/components/Controls';
@@ -9,6 +9,7 @@ import { Icon } from '@/components/Icon';
 import { Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { compactRange } from '@/components/WeekChart';
+import { PressRow } from '@/components/Press';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useStore, type Change } from '@/store';
@@ -43,9 +44,9 @@ function ChangeRow({ change, exists, last, onPress }: { change: Change; exists: 
   else pill = { label: 'Any time', tone: 'grey' };
   const ink = gone ? c.controlOutline : c.inkPrimary;
   return (
-    <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined}
-      accessibilityLabel={`${label}, ${pill.label}`}
-      style={({ pressed }) => [styles.change, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null, pressed ? { opacity: fade.pressed } : null]}>
+    <PressRow onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={`${label}, ${pill.label}`} bleed={8} round={radius.small}
+      style={[styles.change, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
       <View style={styles.well}>
         {it.kind === 'event'
           ? <View style={[styles.dot, { backgroundColor: ink }]} />
@@ -55,7 +56,7 @@ function ChangeRow({ change, exists, last, onPress }: { change: Change; exists: 
       {pill.muted
         ? <View style={[styles.mutedPill, { backgroundColor: c.row }]}><T token="subhead" color={c.inkSecondary}>{pill.label}</T></View>
         : <StatusPill label={pill.label} tone={pill.tone} />}
-    </Pressable>
+    </PressRow>
   );
 }
 

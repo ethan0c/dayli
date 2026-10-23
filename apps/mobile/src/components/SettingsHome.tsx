@@ -6,6 +6,7 @@ import { appIconColors } from '@dayli/tokens';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { ListRow, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
@@ -14,6 +15,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { Group, Row, ToggleRow } from '@/components/Settings';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
+import { enter, exit } from '@/lib/motion';
 import { ACCOUNTS_ENABLED, SHARING_ENABLED } from '@/lib/auth';
 import { accountOf, useSession } from '@/lib/supabase';
 import { feedback } from '@/lib/feedback';
@@ -70,7 +72,8 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
   return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: inTab ? NAV_INSET : 48 }} keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior={inTab ? 'never' : 'automatic'}>
       <TabHeader title={t`You`} size="title" inset={inTab}
-        details={loading && !customerInfo ? <Skeleton width={160} height={18} round={4} /> : (
+        details={loading && !customerInfo ? <Animated.View key="loading" exiting={exit.fade}><Skeleton width={160} height={18} round={4} /></Animated.View> : (
+          <Animated.View key="plan" entering={enter.fade}>
           <Press scale={1} haptic="tap" onPress={() => router.push('/settings/plan')} accessibilityRole="button" accessibilityLabel={planLabel} accessibilityHint={t`Opens your plan`} style={styles.plan}>
             {/* One segment per import in the allowance, ink while it is still unused, so it drains like a battery. */}
             {isPlus ? null : <View style={styles.meter}>{Array.from({ length: allowed }, (_, i) => <View key={i} style={[styles.segment, { backgroundColor: i < left ? c.inkPrimary : c.line }]} />)}</View>}
@@ -79,6 +82,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
               <Icon name="chevronRight" size={iconSize.disclosure} color={c.disclosureInk} />
             </View>
           </Press>
+          </Animated.View>
         )} />
       <View style={styles.body}>
 

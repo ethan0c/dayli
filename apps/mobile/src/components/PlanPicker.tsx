@@ -3,15 +3,16 @@ import { dateLocale, fullDate, localParts } from '@dayli/core';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
+import Animated from 'react-native-reanimated';
 
 import { Radio, StatusPill } from '@/components/Controls';
-import { Press } from '@/components/Press';
+import { Press, PressRow } from '@/components/Press';
 import { PlusFeatures, PlusWelcome, type PlusDestination } from '@/components/PlusWelcome';
 import { Skeleton } from '@/components/Skeleton';
 import { T } from '@/components/Text';
 import { track } from '@/lib/analytics';
 import { feedback } from '@/lib/feedback';
-import { durations } from '@/lib/motion';
+import { durations, enter, exit } from '@/lib/motion';
 import { LINKS, openLink } from '@/lib/links';
 import { notificationsAllowed, requestNotifications } from '@/lib/notifications';
 import { PLUS_ENTITLEMENT, customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
@@ -170,12 +171,12 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           Semli <T token="callout" color={c.accentInk}>Plus</T>{days ? ` · ${days} days free, then` : ''}
         </T>
         {loading ? (
-          <Skeleton width={180} height={48} round={12} />
+          <Animated.View key="loading" exiting={exit.fade}><Skeleton width={180} height={48} round={12} /></Animated.View>
         ) : (
-          <View style={styles.priceRow}>
+          <Animated.View key="price" entering={enter.fade} style={styles.priceRow}>
             <T token="displayXl" color={c.inkPrimary} tabular adjustsFontSizeToFit minimumFontScale={0.6} numberOfLines={1} style={{ flexShrink: 1 }}>{selected?.product.priceString ?? '—'}</T>
             {current ? <T token="title" color={c.inkSecondary} style={{ paddingBottom: 6 }}>{current.period}</T> : null}
-          </View>
+          </Animated.View>
         )}
         <T token="callout" color={c.inkSecondary} style={{ paddingTop: 4 }}>
           Unlimited imports, Canvas sync, work schedule comparisons, suggested times for overlapping events, and alarms for urgent items. Your calendar, to-dos, reminders and overlap warnings are free.
@@ -187,16 +188,18 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           const on = !!pack && current?.key === key;
           const saving = pack && monthly && months > 1 ? Math.round((1 - pack.product.price / months / monthly.product.price) * 100) : 0;
           return (
-            <Pressable key={key} accessibilityRole="radio" accessibilityLabel={`${label}, ${pack?.product.priceString ?? 'price unavailable'}`}
+            <PressRow key={key} accessibilityRole="radio" accessibilityLabel={`${label}, ${pack?.product.priceString ?? 'price unavailable'}`}
               accessibilityState={{ selected: on, disabled: disabled || !pack }} disabled={disabled || !pack}
-              onPress={() => { setTerm(key); feedback('select'); setNotice(null); }}
-              style={({ pressed }) => [styles.planRow, { borderBottomColor: c.line, opacity: pressed ? fade.pressed : !pack && !loading ? 0.4 : 1 }]}>
+              onPress={() => { setTerm(key); feedback('select'); setNotice(null); }} highlight={c.row} bleed={8} round={radius.small}
+              style={[styles.planRow, { borderBottomColor: c.line, opacity: !pack && !loading ? fade.disabled : 1 }]}>
               <Radio on={on} />
               <T token="body" color={c.inkPrimary} style={{ flex: 1 }}>{label}</T>
               {saving >= 5 ? <StatusPill label={`Save ${saving}%`} tone="green" tabular={false} /> : null}
-              <T token="callout" color={c.inkSecondary} tabular>{pack ? (months > 1 ? perMonth(pack, months) : `${pack.product.priceString} / mo`) : loading ? '' : 'Unavailable'}</T>
-              {!pack && loading ? <Skeleton width={64} height={14} round={7} /> : null}
-            </Pressable>
+              <Animated.View key={pack ? 'price' : 'none'} entering={pack ? enter.fade : undefined}>
+                <T token="callout" color={c.inkSecondary} tabular>{pack ? (months > 1 ? perMonth(pack, months) : `${pack.product.priceString} / mo`) : loading ? '' : 'Unavailable'}</T>
+              </Animated.View>
+              {!pack && loading ? <Animated.View exiting={exit.fade}><Skeleton width={64} height={14} round={7} /></Animated.View> : null}
+            </PressRow>
           );
         })}
         {/* Student pricing follows the onboarding answer; a quiet switch, not a toggle (no toggles on paywalls). */}

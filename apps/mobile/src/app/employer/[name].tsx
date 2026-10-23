@@ -2,18 +2,19 @@ import { addDays, diffDays, formatRange, formatTime, monthDay, pendingDates, rel
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { GroupLabel, ListRow, StatusPill, TextButton } from '@/components/Controls';
 import { Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
 import { WeekChart, compactRange, type WeekDay } from '@/components/WeekChart';
+import { Press, PressRow } from '@/components/Press';
 import { feedback } from '@/lib/feedback';
 import { enter, exit } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { useItemList, useScheduleList, useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme, fade } from '@/theme';
+import { SCREEN_GUTTER, radius, useTheme, fade } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 /** Hours to the nearest half: 30, 7.5, 1. */
@@ -107,11 +108,11 @@ export default function EmployerScreen() {
               { label: 'Upcoming shifts only', value: count(upcomingCount, 'shift'), scope: 'upcoming' as const },
               { label: 'All shifts, including past shifts', value: count(shifts.length, 'shift'), scope: 'all' as const },
             ].map((o) => (
-              <Pressable key={o.scope} accessibilityRole="button" accessibilityLabel={`${o.label}, ${o.value}`} onPress={() => remove(o.scope)}
-                style={({ pressed }) => [styles.scopeRow, { borderBottomColor: c.line }, pressed ? { opacity: fade.pressed } : null]}>
+              <PressRow key={o.scope} accessibilityRole="button" accessibilityLabel={`${o.label}, ${o.value}`} onPress={() => remove(o.scope)}
+                bleed={8} round={radius.small} style={[styles.scopeRow, { borderBottomColor: c.line }]}>
                 <T token="body" color={c.conflict} style={{ flex: 1 }}>{o.label}</T>
                 <T token="callout" color={c.inkSecondary} tabular>{o.value}</T>
-              </Pressable>
+              </PressRow>
             ))}
             <TextButton label="Cancel" tone="muted" onPress={() => setRemoving(false)} style={{ alignSelf: 'center' }} />
             <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Also stops reminders to add next week’s shifts. Tap Undo after removing, or open Your data → Recent changes.</T>
@@ -121,15 +122,15 @@ export default function EmployerScreen() {
         )
       }>
       <ScrollView contentContainerStyle={styles.body}>
-        <Pressable accessibilityRole={next ? 'button' : undefined} disabled={!next} onPress={() => next && router.push(`/item/${next.id}`)}
+        <Press accessibilityRole={next ? 'button' : undefined} disabled={!next} onPress={() => next && router.push(`/item/${next.id}`)}
           accessibilityLabel={next ? `${eyebrow} ${big}, ${line}` : 'Work. No shifts coming up'}
-          style={({ pressed }) => [styles.top, { opacity: pressed ? fade.pressed : 1 }]}>
+          scale={1} dim={fade.pressed} style={styles.top}>
           <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
           <T token="displayXl" tabular>{big}</T>
           {line
             ? <T token="lead" style={styles.line}>{line}</T>
             : <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>No shifts coming up</T>}
-        </Pressable>
+        </Press>
 
         <View style={styles.chart}>
           <WeekChart days={days} today={now.date} height={96}

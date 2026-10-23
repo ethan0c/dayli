@@ -3,13 +3,13 @@ import type { Item } from '@dayli/schema';
 import { COURSE_TINTS, chart, type TintName } from '@dayli/tokens';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CategoryDot, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
-import { Press } from '@/components/Press';
+import { Press, PressRow } from '@/components/Press';
 import { DateField } from '@/components/Native';
 import { Sheet } from '@/components/Sheet';
 import { ChartKey, markKey, shapeFor } from '@/components/ChartMark';
@@ -19,7 +19,7 @@ import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { courseTint, useCourseList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme, screen, fade, iconSize } from '@/theme';
+import { SCREEN_GUTTER, radius, useTheme, screen, fade, iconSize } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 
@@ -34,11 +34,11 @@ function meetingTime(start: string, end: string | null): string {
 /** A plain text row: body text, 28 high, no icon, no hairline. Highlights when it can be pressed. */
 function Row({ children, trailing, onPress, accessibilityLabel }: { children: ReactNode; trailing?: ReactNode; onPress?: () => void; accessibilityLabel?: string }) {
   return (
-    <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.row, pressed ? { opacity: fade.pressed } : null]}>
+    <PressRow onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} accessibilityLabel={accessibilityLabel}
+      bleed={8} round={radius.small} style={styles.row}>
       {children}
       {trailing}
-    </Pressable>
+    </PressRow>
   );
 }
 
@@ -152,15 +152,15 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
         </>
       }>
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        <Pressable accessibilityRole={next ? 'button' : undefined} disabled={!next} onPress={() => next && router.push(`/item/${next.id}`)}
+        <Press accessibilityRole={next ? 'button' : undefined} disabled={!next} onPress={() => next && router.push(`/item/${next.id}`)}
           accessibilityLabel={next ? `${eyebrow} ${big.toLowerCase()}, ${next.title}, ${when}` : `${eyebrow}. Nothing due`}
-          style={({ pressed }) => [styles.top, { opacity: pressed ? fade.pressed : 1 }]}>
+          scale={1} dim={fade.pressed} style={styles.top}>
           {eyebrow ? <T token="callout" color={c.inkSecondary}>{eyebrow}</T> : null}
           <T token="displayXl" tabular>{big}</T>
           {next
             ? <T token="lead" style={styles.line}>{`${next.title} · ${when}`}</T>
             : <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>Nothing due</T>}
-        </Pressable>
+        </Press>
 
         <Animated.View layout={layout} style={styles.rows}>
           {meets ? (
