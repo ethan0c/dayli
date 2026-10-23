@@ -171,7 +171,7 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
       push(
         one
           ? { id: `dl1-${first.id}`, title: first.title, body: isTest(first) ? `${dueLabel}.` : `Due ${dueLabel}.`, kind: 'deadline', ...target }
-          : { id: `dl1-${date}`, title: `${due.length} things due ${weekdayLong(date)}`, body: `${titleList(due)}.`, kind: 'deadline', ...target },
+          : { id: `dl1-${date}`, title: `${due.length} due ${weekdayLong(date)}`, body: `${titleList(due)}.`, kind: 'deadline', ...target },
         respectQuiet(toAbs(addDays(date, -1), prefs.dayBeforeAt), firstAbs, prefs),
       );
       // The daily summary names what is due today, so it replaces the morning reminder when it comes first.
@@ -182,7 +182,7 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
         push(
           one
             ? { id: `dl2-${first.id}`, title: first.title, body: `${isTest(first) ? 'Today' : 'Due today'}${first.start ? ` at ${formatTime(first.start)}` : ''}.`, kind: 'deadline', ...target }
-            : { id: `dl2-${date}`, title: `${due.length} things due today`, body: `${titleList(due)}.`, kind: 'deadline', ...target },
+            : { id: `dl2-${date}`, title: `${due.length} due today`, body: `${titleList(due)}.`, kind: 'deadline', ...target },
           morning,
         );
       }
