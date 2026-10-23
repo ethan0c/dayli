@@ -327,6 +327,9 @@ const OWN_COPY: Record<DeadlineSource, { title: string; sub: string; primary?: "
   nowhere: { title: "What’s coming up?", sub: "Type or paste a few plans. Include the days and times you know.", sample: "Try a sample week instead" },
 };
 
+/** What "a sample week" is, said where the button is: the label alone read as a mystery. */
+const SAMPLE_HINT = "A made-up syllabus and work schedule. Removed when you add your own.";
+
 function OwnStep({ source, job, onSample }: { source: DeadlineSource; job: boolean; onSample: () => void }) {
   const { c } = useTheme();
   const copy = OWN_COPY[source];
@@ -438,8 +441,9 @@ function OwnStep({ source, job, onSample }: { source: DeadlineSource; job: boole
       ) : null}
       {!busy ? <RecentShots onPick={(uri) => void openShot(uri)} /> : null}
       <View style={[styles.footer, { alignItems: "center" }]}>
-        <Press haptic="select" accessibilityRole="button" disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center" }}>
+        <Press haptic="select" accessibilityRole="button" accessibilityHint={SAMPLE_HINT} disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center", alignItems: "center", gap: 2 }}>
           <T token="subhead" color={c.inkSecondary}>{copy.sample}</T>
+          <T token="caption" color={c.inkTertiary} style={{ textAlign: "center" }}>{SAMPLE_HINT}</T>
         </Press>
       </View>
     </ScrollView>
@@ -562,6 +566,7 @@ function TermStep({ plate, onPlate, onReview, onCanvas, onType, onSample }: {
       <View style={[styles.footer, styles.footerRow]}>
         <Press haptic="select" accessibilityRole="button" onPress={onSample} scale={1} style={{ minHeight: 40, justifyContent: "center" }}>
           <T token="subhead" color={c.inkSecondary}>Try a sample week</T>
+          <T token="caption" color={c.inkTertiary}>{SAMPLE_HINT}</T>
         </Press>
         <Button label={reading && !read.length ? "Reading…" : read.length ? `Review ${dates} ${dates === 1 ? "date" : "dates"}` : "Review"} disabled={!read.length}
           onPress={() => onReview(read.map((f) => f.pending!))} />
@@ -699,6 +704,20 @@ function CanvasStep({ onConnected, onInstead }: { onConnected: () => void; onIns
 function ResultStep({ sample, onNext }: { sample: boolean; onNext: () => void }) {
   const { c } = useTheme();
   const items = useItemList();
+  const courses = useCourseList();
+  const sampleBatch = useStore((st) => st.settings.sampleBatchId);
+  // The sample's two sources, named as they arrive, so "sample week" means something on screen.
+  const sources = useMemo(() => {
+    if (!sample || !sampleBatch) return [];
+    const mine = items.filter((it) => it.batchId === sampleBatch);
+    const codes = courses.filter((k) => mine.some((it) => it.courseId === k.id)).map((k) => k.code ?? k.title).filter(Boolean);
+    const employers = [...new Set(mine.map((it) => it.employer).filter((e): e is string => !!e))];
+    const shifts = mine.filter((it) => it.category === "work").length;
+    return [
+      codes.length ? { icon: "file" as const, title: "A sample syllabus", sub: `${codes.join(", ")} · ${mine.filter((it) => it.category === "school").length} classes and due dates` } : null,
+      employers.length ? { icon: "work" as const, title: "A sample work schedule", sub: `${employers.join(", ")} · ${shifts} ${shifts === 1 ? "shift" : "shifts"}` } : null,
+    ].filter((r): r is { icon: "file" | "work"; title: string; sub: string } => r !== null);
+  }, [sample, sampleBatch, items, courses]);
   const today = localParts(new Date()).date;
   const s = useMemo(() => termSummary(items, today), [items, today]);
   useEffect(() => {
@@ -717,6 +736,19 @@ function ResultStep({ sample, onNext }: { sample: boolean; onNext: () => void })
       <View style={styles.titleBlock}>
         <T token="displaySm" accessibilityRole="header">{sample ? "Sample week" : "Your deadlines"}</T>
       </View>
+      {sources.length ? (
+        <View>
+          {sources.map((r, i) => (
+            <Animated.View key={r.title} layout={layout} entering={enter.staggered(i)} style={[styles.fact, { borderBottomColor: c.line, justifyContent: "flex-start", gap: 12 }]}>
+              <Icon name={r.icon} size={20} color={c.inkPrimary} />
+              <View style={{ flex: 1, gap: 2 }}>
+                <T token="body">{r.title}</T>
+                <T token="caption" color={c.inkSecondary} numberOfLines={1}>{r.sub}</T>
+              </View>
+            </Animated.View>
+          ))}
+        </View>
+      ) : null}
       <View style={{ gap: 2 }}>
         <T token="displayXl" tabular>{String(s.deadlines)}</T>
         <T token="callout" color={c.inkSecondary}>
@@ -725,7 +757,7 @@ function ResultStep({ sample, onNext }: { sample: boolean; onNext: () => void })
       </View>
       <View>
         {rows.map((r, i) => (
-          <Animated.View key={r.label} layout={layout} entering={enter.staggered(i)} style={[styles.fact, { borderBottomColor: c.line }]}>
+          <Animated.View key={r.label} layout={layout} entering={enter.staggered(i + sources.length)} style={[styles.fact, { borderBottomColor: c.line }]}>
             <T token="body" color={c.inkSecondary}>{r.label}</T>
             <T token="body" numberOfLines={1} style={{ flexShrink: 1, textAlign: "right" }}>{r.value}</T>
           </Animated.View>
