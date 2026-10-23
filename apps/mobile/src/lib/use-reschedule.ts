@@ -1,4 +1,4 @@
-import { formatRange, localParts, monthDay, suggestReschedule, weekdayShort } from '@dayli/core';
+import { formatRange, monthDay, suggestReschedule, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { useState } from 'react';
 
@@ -42,7 +42,8 @@ export function useReschedule(item: Item | null, items: Item[]) {
       }
       const store = useStore.getState();
       const latest = store.items[item.id];
-      const slot = latest && suggestReschedule(latest, realRecords(Object.values(store.items)), localParts(new Date()));
+      // The same clock the suggestion was made with, so only a real change to the plan can disagree with it.
+      const slot = latest && suggestReschedule(latest, realRecords(Object.values(store.items)), now);
       if (!latest || latest.date !== item.date || latest.start !== item.start || latest.end !== item.end
         || !slot || slot.start !== suggestion.start || slot.end !== suggestion.end || slot.date !== suggestion.date) {
         setNotice('Your calendar changed. Review the updated time before moving it.');
