@@ -1,4 +1,4 @@
-import { WEEKDAYS, conflictIds, dateLocale, diffDays, fullDate, isFlexibleEvent, isLocalDate, isLocalTime, localParts, monthDay, relativeDay, todayItems, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort } from '@dayli/core';
+import { WEEKDAYS, conflictIds, diffDays, fullDate, isFlexibleEvent, isLocalDate, isLocalTime, localParts, monthDay, relativeDay, todayItems, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort, longMonthDay, clockTime, clockPeriod } from '@dayli/core';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -25,7 +25,6 @@ import { SAMPLE_SOURCE } from '@/store/sample';
 import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size, fade } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
-const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function gap(now: { date: string; time: string }, date: string, time: string | null): string | null {
   if (!time) return null;
@@ -36,19 +35,6 @@ function gap(now: { date: string; time: string }, date: string, time: string | n
   return null;
 }
 
-/** "October 19" for a local date. */
-function longMonthDay(date: string): string {
-  const [, m, d] = date.split('-').map(Number);
-  return dateLocale().dayFirst ? `${d} ${MONTHS_LONG[m! - 1]}` : `${MONTHS_LONG[m! - 1]} ${d}`;
-}
-
-/** "9:00" without its period; "21:00" on a 24-hour clock. */
-function clock(t: string): string {
-  if (!dateLocale().hour12) return t;
-  const [h, m] = t.split(':').map(Number);
-  return `${h! % 12 === 0 ? 12 : h! % 12}:${String(m).padStart(2, '0')}`;
-}
-const period = (t: string) => (!dateLocale().hour12 ? '' : Number(t.split(':')[0]) >= 12 ? 'pm' : 'am');
 
 /** A plain text row: body text, 28 high, no icon, no hairline. Highlights when it can be pressed. */
 function Row({ children, trailing, onPress, accessibilityLabel }: { children: ReactNode; trailing?: ReactNode; onPress?: () => void; accessibilityLabel?: string }) {
@@ -119,7 +105,7 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
   const sameWeek = items.filter((it) => it.id !== item.id && !it.done && it.date >= now.date && diffDays(now.date, it.date) <= 7
     && ((item.employer && it.employer === item.employer) || (item.courseId && it.courseId === item.courseId))).slice(0, 4);
   const endsNextDay = item.start && item.end && item.end < item.start;
-  const timeLabel = item.start ? `${clock(item.start)}${item.end ? ` to ${clock(item.end)}` : ''} ${period(item.end ?? item.start)}`.trim() : null;
+  const timeLabel = item.start ? `${clockTime(item.start)}${item.end ? ` to ${clockTime(item.end)}` : ''} ${clockPeriod(item.end ?? item.start)}`.trim() : null;
 
   // The series this occurrence belongs to, when it repeats.
   const series = item.seriesId ? items.filter((it) => it.seriesId === item.seriesId) : [];
@@ -202,8 +188,8 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
             <Pressable accessibilityRole="button" accessibilityLabel={`Time, ${timeLabel}, tap to change`} accessibilityState={{ expanded: editing === 'time' }}
               onPress={() => { feedback('select'); setEditing(editing === 'time' ? null : 'time'); }} style={({ pressed }) => ({ opacity: pressed ? fade.pressed : 1 })}>
               <T token="displayXl" tabular style={styles.time}>
-                {clock(item.start)}{item.end ? <T token="displayXl" color={c.inkSecondary} style={styles.time}> – </T> : null}{item.end ? clock(item.end) : ''}
-                <T token="titleSm" color={c.inkSecondary}> {[period(item.end ?? item.start), endsNextDay ? 'next day' : ''].filter(Boolean).join(', ')}</T>
+                {clockTime(item.start)}{item.end ? <T token="displayXl" color={c.inkSecondary} style={styles.time}> – </T> : null}{item.end ? clockTime(item.end) : ''}
+                <T token="titleSm" color={c.inkSecondary}> {[clockPeriod(item.end ?? item.start), endsNextDay ? 'next day' : ''].filter(Boolean).join(', ')}</T>
               </T>
             </Pressable>
           ) : (

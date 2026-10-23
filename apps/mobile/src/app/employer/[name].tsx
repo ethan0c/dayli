@@ -1,4 +1,4 @@
-import { addDays, diffDays, formatRange, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekOf, weekdayLong } from '@dayli/core';
+import { addDays, diffDays, formatRange, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekOf, weekdayLong, hoursMinutes, spanMinutes } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -17,20 +17,6 @@ import { SCREEN_GUTTER, useTheme, fade } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-/** "2h 14m", "14m", or "0m" for a gap in minutes. */
-function countdown(mins: number): string {
-  const m = Math.max(0, Math.round(mins));
-  if (m < 60) return `${m}m`;
-  return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`;
-}
-
-/** Minutes a shift lasts; an end before its start runs past midnight. */
-function minutesOf(it: Item): number {
-  if (!it.start || !it.end) return 0;
-  const n = toMinutes(it.end) - toMinutes(it.start);
-  return n < 0 ? n + 1440 : n;
-}
 
 /** Hours to the nearest half: 30, 7.5, 1. */
 const hours = (mins: number) => Math.round(mins / 30) / 2;
@@ -56,8 +42,8 @@ export default function EmployerScreen() {
   const ongoing = shifts.find((it) => it.date === now.date && it.start && it.end && toMinutes(it.start) <= nowMin && nowMin < toMinutes(it.end));
   const next = ongoing ?? shifts.find((it) => it.start && !it.done && (it.date > now.date || (it.date === now.date && toMinutes(it.start) >= nowMin)));
   const big = !next ? 'Clear'
-    : ongoing ? countdown(toMinutes(ongoing.end!) - nowMin)
-      : countdown(toMinutes(next.start!) - nowMin + diffDays(now.date, next.date) * 1440);
+    : ongoing ? hoursMinutes(toMinutes(ongoing.end!) - nowMin)
+      : hoursMinutes(toMinutes(next.start!) - nowMin + diffDays(now.date, next.date) * 1440);
   const eyebrow = !next ? 'Work' : ongoing ? 'Work · shift ends in' : 'Work · next shift in';
   const line = next ? `${relativeDay(now.date, next.date)} · ${next.end ? formatRange(next.start!, next.end) : formatTime(next.start!)}` : null;
 
@@ -78,8 +64,8 @@ export default function EmployerScreen() {
       labelTone: untimed && timed.length === 0 ? 'amber' : undefined,
     };
   });
-  const thisWeekMins = shifts.filter((it) => week.includes(it.date)).reduce((n, it) => n + minutesOf(it), 0);
-  const nextWeekMins = shifts.filter((it) => nextWeek.includes(it.date)).reduce((n, it) => n + minutesOf(it), 0);
+  const thisWeekMins = shifts.filter((it) => week.includes(it.date)).reduce((n, it) => n + spanMinutes(it.start, it.end), 0);
+  const nextWeekMins = shifts.filter((it) => nextWeek.includes(it.date)).reduce((n, it) => n + spanMinutes(it.start, it.end), 0);
 
   // Next week's shifts: covered by a schedule, or still to add.
   const mine = schedules.filter((s) => same(s.employer, name));

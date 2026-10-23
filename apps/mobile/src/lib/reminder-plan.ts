@@ -1,4 +1,4 @@
-import { addDays, assessment, dayNumber, diffDays, formatTime, monthDay, toMinutes, weekdayLong } from '@dayli/core';
+import { addDays, assessment, dayNumber, diffDays, formatTime, monthDay, toMinutes, weekdayLong, andList } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 
 export interface ReminderPrefs {
@@ -88,8 +88,6 @@ function titleList(items: Item[]): string {
 
 /** "2 classes", "1 shift": the count with its noun. */
 const count = (n: number, one: string, many: string) => (n > 0 ? `${n} ${n === 1 ? one : many}` : '');
-/** "a, b and c". */
-const andList = (parts: string[]) => (parts.length <= 1 ? parts.join('') : `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`);
 /** Exams and quizzes are on a day; everything else is due on it. */
 const isTest = (it: Item) => assessment(it.title) !== null;
 

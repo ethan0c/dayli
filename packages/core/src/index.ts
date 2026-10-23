@@ -12,3 +12,4 @@ export * from './cues';
 export * from './notes';
 export * from './assessment';
 export * from './hours';
+export * from './words';

@@ -1,8 +1,4 @@
-import {
-  WEEKDAYS, assessment, conflictIds, dateLocale, formatTime, isLocalDate, localParts, monthDay, planCommit, toDrafts, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort,
-  type CommitPlan, type DatedDraft, type Draft,
- typicalTermEnd,
-} from '@dayli/core';
+import { WEEKDAYS, assessment, conflictIds, dateLocale, formatTime, isLocalDate, localParts, monthDay, planCommit, toDrafts, toMinutes, weekOf, weekdayLong, weekdayOf, weekdayShort, type CommitPlan, type DatedDraft, type Draft, typicalTermEnd, spanMinutes, count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -319,8 +315,8 @@ export default function ReviewScreen() {
 
   const intro = isUpdate && sched ? `${monthDay(sched.coversFrom)} to ${monthDay(sched.coversTo)} · Compared with what you have` : `From ${source} · Found`;
 
-  const newHours = shifts.reduce((m, d) => m + minutesOf(d.start, d.end), 0);
-  const oldHours = diff ? [...diff.changed.map((ch) => ch.before), ...diff.unchanged.map((u) => u.before), ...diff.removed].reduce((m, i) => m + minutesOf(i.start, i.end), 0) : 0;
+  const newHours = shifts.reduce((m, d) => m + spanMinutes(d.start, d.end), 0);
+  const oldHours = diff ? [...diff.changed.map((ch) => ch.before), ...diff.unchanged.map((u) => u.before), ...diff.removed].reduce((m, i) => m + spanMinutes(i.start, i.end), 0) : 0;
   const seriesCount = included.filter((d) => d.seriesId).length;
 
   const big = isUpdate
@@ -628,20 +624,10 @@ function uniqueWeeks(dates: string[]): string[][] {
   return starts.map((s) => weekOf(s));
 }
 
-function minutesOf(start: string | null, end: string | null): number {
-  if (!start || !end) return 0;
-  const m = toMinutes(end) - toMinutes(start);
-  return m > 0 ? m : m + 24 * 60;
-}
-
 /** "36 hours", "7.5 hours", "1 hour"; without the unit when the sentence already has it. */
 function hours(minutes: number, unit = true): string {
   const h = Math.round((minutes / 60) * 10) / 10;
   return unit ? `${h} ${h === 1 ? 'hour' : 'hours'}` : String(h);
-}
-
-function count(n: number, singular: string, plural = `${singular}s`): string {
-  return `${n} ${n === 1 ? singular : plural}`;
 }
 
 function dayNum(date: string): string {

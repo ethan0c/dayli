@@ -1,4 +1,4 @@
-import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, weekendNudge, type CountdownState, planCount } from '@dayli/core';
+import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, weekendNudge, type CountdownState, planCount, hoursMinutes, andList } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -34,13 +34,6 @@ import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { accountOf, useSession } from '@/lib/supabase';
 import { SAMPLE_SOURCE } from '@/store/sample';
 import { SCREEN_GUTTER, NAV_INSET, useTheme, useTopInset, screen } from '@/theme';
-
-/** "2h 14m", "14m", or "0m" for a gap in minutes. */
-function countdown(mins: number): string {
-  const m = Math.max(0, Math.round(mins));
-  if (m < 60) return `${m}m`;
-  return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`;
-}
 
 export default function TodayScreen() {
   const { c } = useTheme();
@@ -121,11 +114,11 @@ export default function TodayScreen() {
   if (featured?.start) {
     if (ongoing && featured.end) {
       state = 'ends';
-      big = countdown(toMinutes(featured.end) - nowMin + (toMinutes(featured.end) < toMinutes(featured.start) ? 1440 : 0));
+      big = hoursMinutes(toMinutes(featured.end) - nowMin + (toMinutes(featured.end) < toMinutes(featured.start) ? 1440 : 0));
     } else if (!ongoing) {
       const dayGap = diffDays(now.date, featured.date);
       state = 'next';
-      big = countdown(toMinutes(featured.start) - nowMin + dayGap * 1440);
+      big = hoursMinutes(toMinutes(featured.start) - nowMin + dayGap * 1440);
     } else {
       state = 'now';
     }
@@ -323,7 +316,7 @@ export default function TodayScreen() {
       {weekend ? (
         <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.section}>
           <GroupLabel>Free your weekend</GroupLabel>
-          <T token="body">{`${listTitles(weekend.items.map((i) => i.title))} ${weekend.items.length === 1 ? 'is' : 'are'} due ${weekend.by === 'monday' ? 'by Monday' : 'this weekend'}. You have ${weekend.freeHours} free hours tonight.`}</T>
+          <T token="body">{`${andList(weekend.items.map((i) => i.title))} ${weekend.items.length === 1 ? 'is' : 'are'} due ${weekend.by === 'monday' ? 'by Monday' : 'this weekend'}. You have ${weekend.freeHours} free hours tonight.`}</T>
           <View style={[styles.inlineAction, { flexDirection: 'row', gap: 20 }]}>
             <TextButton label={`Work on ${weekend.items.length === 1 ? 'it' : 'them'} tonight`} onPress={() => workOnToday(weekend.items.map((i) => i.id))} />
             <TextButton label="Not this weekend" tone="muted" onPress={() => { dismissSuggestion('weekend', now.date); feedback('select'); }} />
@@ -407,11 +400,6 @@ function SavePlanRow({ onDismiss }: { onDismiss: () => void }) {
       </View>
     </Animated.View>
   );
-}
-
-/** "Essay", "Essay and Reading", "Essay, Reading and Lab". */
-function listTitles(titles: string[]): string {
-  return titles.length < 2 ? titles.join('') : `${titles.slice(0, -1).join(', ')} and ${titles.at(-1)}`;
 }
 
 const styles = StyleSheet.create({

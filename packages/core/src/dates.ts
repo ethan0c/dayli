@@ -90,6 +90,33 @@ export function formatHour(h24: number): string {
   return `${h24 % 12 || 12} ${h24 % 24 < 12 ? 'am' : 'pm'}`;
 }
 
+/** "9:00" without its period; "21:00" on a 24-hour clock. Pairs with `clockPeriod`. */
+export function clockTime(time: string): string {
+  if (!dateLocale().hour12) return time;
+  const [h, m] = time.split(':').map(Number);
+  return `${h! % 12 === 0 ? 12 : h! % 12}:${String(m).padStart(2, '0')}`;
+}
+
+/** "am" or "pm" for `clockTime`; nothing on a 24-hour clock. */
+export function clockPeriod(time: string): string {
+  if (!dateLocale().hour12) return '';
+  return Number(time.split(':')[0]) >= 12 ? 'pm' : 'am';
+}
+
+/** "45m", "2h 05m": a countdown in minutes, never negative. */
+export function hoursMinutes(mins: number): string {
+  const m = Math.max(0, Math.round(mins));
+  if (m < 60) return `${m}m`;
+  return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`;
+}
+
+/** Minutes from start to end; an end before its start runs past midnight. No end, or none apart, is 0. */
+export function spanMinutes(start: string | null | undefined, end: string | null | undefined): number {
+  if (!start || !end) return 0;
+  const n = toMinutes(end) - toMinutes(start);
+  return n < 0 ? n + 1440 : n;
+}
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const WEEKDAY_LONG = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -97,6 +124,14 @@ const WEEKDAY_LONG = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'S
 export function monthDay(date: string): string {
   const [, m, d] = date.split('-').map(Number);
   return dateLocale().dayFirst ? `${d} ${MONTHS[m! - 1]}` : `${MONTHS[m! - 1]} ${d}`;
+}
+
+const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** "October 24", or "24 October" where the day comes first. */
+export function longMonthDay(date: string): string {
+  const [, m, d] = date.split('-').map(Number);
+  return dateLocale().dayFirst ? `${d} ${MONTHS_LONG[m! - 1]}` : `${MONTHS_LONG[m! - 1]} ${d}`;
 }
 
 /** "Oct 24, 2026", or "24 Oct 2026" where the day comes first. */
