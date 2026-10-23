@@ -100,7 +100,7 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
               b.outline ? { borderWidth: 1.5, borderColor: color, borderStyle: b.outline } : { backgroundColor: color }]} />
           );
         })}
-        {today ? <NowLine at={{ y: nowTop(height) }} color={c.inkPrimary} /> : null}
+        {today ? <NowLine at={{ y: nowTop(height) }} color={c.inkPrimary} inset={selected} /> : null}
         {mergeMarks((day.marks ?? []).map((m) => ({ ...m, y: ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height })), chart.ring).map((m) => {
           const mark = <Mark key={m.id} at={{ y: clampY(m.y, height, m.kind) }} kind={m.kind} color={m.tone === 'red' ? c.conflict : c.chartBooked} />;
           return animate ? <Animated.View key={m.id} entering={enter.fade} pointerEvents="none" style={StyleSheet.absoluteFill}>{mark}</Animated.View> : mark;

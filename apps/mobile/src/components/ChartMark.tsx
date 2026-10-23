@@ -54,11 +54,11 @@ export function Mark({ at, kind, color, selected }: { at: At; kind: MarkShape; c
  * The now hairline, centred on the moment. Across a horizontal track it stands up and
  * overhangs the track on both sides; across a vertical column it lies flat, just past the edges.
  */
-export function NowLine({ at, color }: { at: At; color: string }) {
+export function NowLine({ at, color, inset }: { at: At; color: string; /** A focused column: stop at its edges so the line never meets the focus ring. */ inset?: boolean }) {
   const across = 'x' in at;
   const long = across ? chart.track + chart.nowOverhang * 2 : 0;
   return (
-    <View pointerEvents="none" style={across ? anchor(at) : { position: 'absolute', top: at.y, left: -chart.nowColumnOverhang, right: -chart.nowColumnOverhang, height: 0 }}>
+    <View pointerEvents="none" style={across ? anchor(at) : { position: 'absolute', top: at.y, left: inset ? 0 : -chart.nowColumnOverhang, right: inset ? 0 : -chart.nowColumnOverhang, height: 0 }}>
       <View style={across
         ? { position: 'absolute', left: -chart.now / 2, top: -long / 2, width: chart.now, height: long, backgroundColor: color }
         : { position: 'absolute', left: 0, right: 0, top: -chart.now / 2, height: chart.now, backgroundColor: color }} />
@@ -66,9 +66,9 @@ export function NowLine({ at, color }: { at: At; color: string }) {
   );
 }
 
-/** Keeps a column mark inside its column: a 6 am exam sits at the top edge, not above it. */
+/** Keeps a column mark inside its column, halo and all: a midnight due date sits above the bottom edge, never on it. */
 export function clampY(y: number, height: number, kind: MarkShape): number {
-  const r = (kind === 'dot' ? chart.dot : chart.ring) / 2;
+  const r = (kind === 'dot' ? chart.dot : chart.ring) / 2 + chart.halo + chart.focusGap;
   return Math.min(height - r, Math.max(r, y));
 }
 
@@ -116,13 +116,15 @@ export function keyOf(entries: (KeyEntry | false | undefined)[]): KeyEntry[] {
 
 /** The key for marks on a line or in a column: only the shapes and tones on screen, in reading order. */
 export function markKey(marks: { kind: MarkShape; tone?: string }[], c: { chartBooked: string; conflict: string; added: string }): KeyEntry[] {
-  const plain = (kind: MarkShape) => marks.some((m) => m.kind === kind && (m.tone ?? 'ink') === 'ink');
-  const red = marks.find((m) => m.tone === 'red');
+  // Shape says what it is, colour says when: every shape on screen is keyed in ink whatever its
+  // tone, and red is keyed once as a colour, so a red exam never leaves "Exam" unexplained.
+  const shape = (kind: MarkShape) => marks.some((m) => m.kind === kind);
+  const red = marks.some((m) => m.tone === 'red');
   return keyOf([
-    plain('dot') && { glyph: 'dot', color: c.chartBooked, label: 'Due' },
-    plain('ring') && { glyph: 'ring', color: c.chartBooked, label: 'Quiz' },
-    plain('target') && { glyph: 'target', color: c.chartBooked, label: 'Exam' },
-    red && { glyph: red.kind, color: c.conflict, label: 'Due today' },
+    shape('dot') && { glyph: 'dot', color: c.chartBooked, label: 'Due' },
+    shape('ring') && { glyph: 'ring', color: c.chartBooked, label: 'Quiz' },
+    shape('target') && { glyph: 'target', color: c.chartBooked, label: 'Exam' },
+    red && { glyph: 'dot', color: c.conflict, label: 'Due today' },
     marks.some((m) => m.tone === 'green') && { glyph: 'dot', color: c.added, label: 'Done' },
   ]);
 }
