@@ -222,7 +222,7 @@ function RecentImports() {
   const imports = batches.filter((b) => b.source && !b.undone).slice(0, 8);
   return (
     <ScrollView style={[styles.pane, { borderLeftColor: c.line }]} contentContainerStyle={styles.paneBody}>
-      <T token="title" accessibilityRole="header" style={{ fontSize: 20, lineHeight: 26, paddingBottom: 8 }}>Recent imports</T>
+      <T token="titleSm" accessibilityRole="header" style={{ paddingBottom: 8 }}>Recent imports</T>
       {imports.length ? imports.map((b, i) => {
         const at = localParts(new Date(b.createdAt));
         const day = Math.abs(diffDays(at.date, now.date)) <= 1 ? relativeDay(now.date, at.date) : monthDay(at.date);

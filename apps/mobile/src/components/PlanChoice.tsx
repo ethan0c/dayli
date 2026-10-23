@@ -15,7 +15,7 @@ import { enter, exit } from '@/lib/motion';
 import { realRecords } from '@/lib/planner-preview';
 import { THIS_DEVICE, THIS_DEVICE_TITLE } from '@/lib/web';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, corner, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, shadow } from '@/theme';
 
 const dated = (iso: string | null) => (iso ? ` from ${monthDay(localParts(new Date(iso)).date)}` : '');
 
@@ -48,9 +48,9 @@ export function PlanChoice() {
   };
 
   if (sidebar) return (
-    <Animated.View entering={enter.fade} exiting={exit.fade} style={[StyleSheet.absoluteFill, styles.scrim]}>
+    <Animated.View entering={enter.fade} exiting={exit.fade} style={[StyleSheet.absoluteFill, styles.scrim, { backgroundColor: c.backdrop }]}>
       <View accessibilityViewIsModal style={[styles.dialog, { backgroundColor: c.surface, borderColor: c.line }]}>
-        <T token="title" accessibilityRole="header" style={{ fontSize: 20, lineHeight: 26 }}>You have two plans</T>
+        <T token="titleSm" accessibilityRole="header">You have two plans</T>
         <T token="callout" color={c.inkSecondary}>
           {`Your account has a plan${dated(choice.remoteAt ?? planDate(choice.remote.items))}. ${THIS_DEVICE_TITLE} has a plan${dated(planDate(realRecords(Object.values(items))))}. Which one do you want to keep? The other one is replaced.`}
         </T>
@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
   page: { paddingHorizontal: SCREEN_GUTTER, justifyContent: 'space-between' },
   copy: { gap: 14 },
   actions: { gap: 12 },
-  scrim: { alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.22)' },
-  dialog: { width: 520, maxWidth: '92%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, padding: 24, gap: 12, boxShadow: '0 10px 32px rgba(0,0,0,0.14)' },
+  scrim: { alignItems: 'center', justifyContent: 'center' },
+  dialog: { width: 520, maxWidth: '92%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, padding: 24, gap: 12, boxShadow: shadow.dialog },
   // The choice the person is most likely to want sits at the right, as the primary.
   dialogActions: { flexDirection: 'row-reverse', gap: 8, paddingTop: 6 },
 });

@@ -6,7 +6,7 @@ import { navigationButtonOptions } from '@/components/NavButtons';
 import { frameStyle, useWebLayout } from '@/lib/layout';
 
 import { palettes } from '@dayli/tokens';
-import { mobileFonts, useTheme } from '@/theme';
+import { mobileFonts, useTheme, headerTitle } from '@/theme';
 
 /** Deep links like /settings/data get the You screen underneath, so the back button always works. */
 export const unstable_settings = { anchor: 'index' };
@@ -24,7 +24,7 @@ export default function SettingsLayout() {
         headerShadowVisible: false,
         headerStyle: { backgroundColor: c.canvas },
         headerTintColor: c.inkPrimary,
-        headerTitleStyle: { fontFamily: mobileFonts.medium, color: c.inkPrimary, fontSize: 16 },
+        headerTitleStyle: headerTitle(c.inkPrimary),
         headerTitleAlign: 'center',
         headerBackButtonDisplayMode: 'minimal',
         ...navigationButtonOptions('back'),

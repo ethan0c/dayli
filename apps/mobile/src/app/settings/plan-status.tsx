@@ -41,7 +41,7 @@ function PlanDiagnosticsScreen() {
       <View style={styles.top}>
         <T token="callout" color={c.inkSecondary}>{loading ? 'Asking the store…' : 'As the store last reported it'}</T>
         <T token="displayXl">{isPlus ? 'Plus is on' : 'Plus is off'}</T>
-        <T token="body" color={c.inkSecondary} style={styles.line}>
+        <T token="lead" color={c.inkSecondary} style={styles.line}>
           {isPlus ? 'The store confirms an active Semli Plus entitlement on this phone.'
             : customerInfo?.activeSubscriptions.length ? 'The store sees a subscription but it is not linked to Semli Plus. That is a RevenueCat setup gap, not a purchase problem.'
             : customerInfo ? 'The store sees no subscription for this app user. A purchase made under another Apple ID or app user needs Restore.'
@@ -88,6 +88,6 @@ function PlanDiagnosticsScreen() {
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 48, gap: 22 },
   top: { gap: 2 },
-  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2, paddingTop: 6 },
+  line: { paddingTop: 6 },
   actions: { flexDirection: 'row', gap: 20, alignItems: 'center' },
 });

@@ -97,7 +97,7 @@ export default function CanvasScreen() {
           <View style={styles.top}>
             <T token="callout" color={c.inkSecondary}>{syncedLabel}</T>
             <T token="displayXl" tabular>{`${synced} from Canvas`}</T>
-            <T token="body" color={c.inkSecondary} style={styles.line}>{isPlus
+            <T token="lead" color={c.inkSecondary} style={styles.line}>{isPlus
               ? 'Semli checks for Canvas updates when you open the app. Completed items stay completed.'
               : 'Your Canvas due dates are imported. Automatic updates require Semli Plus.'}</T>
           </View>
@@ -117,7 +117,7 @@ export default function CanvasScreen() {
         <Animated.View key="off" layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.stack}>
           <View style={styles.top}>
             <T token="display" accessibilityRole="header">Connect Canvas</T>
-            <T token="body" color={c.inkSecondary} style={styles.line}>Bring in due dates from your Canvas calendar. With Plus, Semli checks for updates when you open the app.</T>
+            <T token="lead" color={c.inkSecondary} style={styles.line}>Bring in due dates from your Canvas calendar. With Plus, Semli checks for updates when you open the app.</T>
           </View>
           <Group title="Paste your calendar feed link"
             footer="On the Canvas website, open Calendar, choose Calendar feed at the bottom of the sidebar, and copy the link. It only lets Semli read your calendar.">

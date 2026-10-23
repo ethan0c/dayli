@@ -20,6 +20,7 @@ import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { courseTint, useCourseList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -41,16 +42,6 @@ function meetingTime(start: string, end: string | null): string {
   if (!end) return formatTime(start);
   if (!dateLocale().hour12) return `${formatTime(start)} – ${formatTime(end)}`;
   return period(start) === period(end) ? `${clock(start)} – ${clock(end)} ${period(end)}` : `${formatTime(start)} – ${formatTime(end)}`;
-}
-
-/** "a syllabus", "a screenshot", "a photo", "a message": where an import came from, in a sentence. */
-function sourceName(source: string): string {
-  const s = source.toLowerCase();
-  if (s === 'screenshot') return 'a screenshot';
-  if (s === 'photo') return 'a photo';
-  if (s === 'message') return 'a message';
-  if (s.endsWith('.pdf') || s.includes('syllabus')) return 'a syllabus';
-  return source;
 }
 
 /** A plain text row: body text, 28 high, no icon, no hairline. Highlights when it can be pressed. */
@@ -135,7 +126,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
 
   // From a syllabus, October 12
   const batch = course.batchId ? batches.find((b) => b.id === course.batchId) : undefined;
-  const sourceLine = batch ? `From ${sourceName(batch.source ?? batch.label)}, ${longMonthDay(batch.createdAt.slice(0, 10))}` : 'Added by hand';
+  const sourceLine = batch ? `From ${sourceName(batch.source ?? batch.label, 'a syllabus')}, ${longMonthDay(batch.createdAt.slice(0, 10))}` : 'Added by hand';
 
   // This term: every deadline on one line from the first dated thing to the last.
   const from = all[0]?.date;
@@ -180,7 +171,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
           {eyebrow ? <T token="callout" color={c.inkSecondary}>{eyebrow}</T> : null}
           <T token="displayXl" tabular>{big}</T>
           {next
-            ? <T token="body" style={styles.line}>{`${next.title} · ${when}`}</T>
+            ? <T token="lead" style={styles.line}>{`${next.title} · ${when}`}</T>
             : <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>Nothing due</T>}
         </Pressable>
 
@@ -258,7 +249,7 @@ const TINT_LABELS: Record<TintName, string> = { lavender: 'Lavender', sky: 'Sky'
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24 },
   top: { gap: 2 },
-  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2, paddingTop: 6 },
+  line: { paddingTop: 6 },
   rows: { paddingTop: 18, gap: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 28, paddingHorizontal: 4 },
   pickers: { flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap', paddingHorizontal: 4 },

@@ -54,6 +54,8 @@ const light = {
   nav: ink,
   navInactive: color.darkMutedInk,
   scrim: 'rgba(34,35,32,0.40)',
+  /** Behind a dialog, Quick add or a drop target: dims the page without hiding it. */
+  backdrop: 'rgba(0,0,0,0.22)',
   accent: color.purple,
   accentSoft: color.purpleSoft,
   accentBorder: color.purpleBorder,
@@ -100,6 +102,7 @@ const dark: Palette = {
   nav: color.ink,
   navInactive: color.darkMutedInk,
   scrim: 'rgba(0,0,0,0.55)',
+  backdrop: 'rgba(0,0,0,0.55)',
   accent: color.purpleOnDark,
   accentSoft: color.purpleSoftDark,
   accentBorder: color.purpleBorderDark,
@@ -129,6 +132,16 @@ const dark: Palette = {
 };
 
 export const palettes = { light, dark } as const;
+
+/** Shadows, only for things that float over the page; dark mode leans on the backdrop instead. */
+export const shadow = {
+  /** Dialogs and Quick add. */
+  dialog: '0 10px 32px rgba(0,0,0,0.14)',
+  /** The floating tab pill. */
+  float: '0 4px 20px rgba(0,0,0,0.08)',
+  /** A pane sliding over the board on a wide window. */
+  pane: '-12px 0 32px rgba(0,0,0,0.10)',
+} as const;
 
 export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, xxxl: 40 } as const;
 
@@ -180,14 +193,20 @@ export const typeScale = {
   displaySm: { size: 30, line: 36, weight: largeHeadingWeight, tracking: -0.02 },
   /** Section titles, with a chevron. */
   title: { size: 24, line: 30, weight: 'regular', tracking: -0.015 },
+  /** A sheet's or dialog's title, and a group heading inside a pane. */
+  titleSm: { size: 20, line: 26, weight: 'regular', tracking: -0.015 },
   /** Button labels. */
   headline: { size: 16, line: 22, weight: 'medium', tracking: 0 },
+  /** The sentence under a screen's big number: "Essay · Fri 5 pm", an import's summary. */
+  lead: { size: 18, line: 26, weight: 'regular', tracking: -0.011 },
   body: { size: 16, line: 22, weight: 'regular', tracking: 0 },
   callout: { size: 14, line: 20, weight: 'regular', tracking: 0 },
   /** Text buttons and pills. */
   subhead: { size: 13, line: 18, weight: 'medium', tracking: 0 },
-  /** Never smaller. */
+  /** Never smaller, apart from `axis`. */
   caption: { size: 12, line: 16, weight: 'regular', tracking: 0 },
+  /** Chart axis, day and key labels only, where a caption would crowd the marks. */
+  axis: { size: 11, line: 14, weight: 'regular', tracking: 0 },
   /** Sentence-case group labels. */
   overline: { size: 13, line: 18, weight: 'medium', tracking: 0 },
 } as const satisfies Record<

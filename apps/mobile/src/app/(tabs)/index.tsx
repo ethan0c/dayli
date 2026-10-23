@@ -218,7 +218,7 @@ export default function TodayScreen() {
         onPress={featured ? () => openItem(featured.id) : undefined}
         accessibilityLabel={featured ? [big, line].filter(Boolean).join(' ') : undefined}
         details={featured ? <>
-          <T token="body" style={moment ? undefined : { fontSize: 18, lineHeight: 26 }} numberOfLines={2}>{parts?.text}</T>
+          <T token={moment ? 'body' : 'lead'} numberOfLines={2}>{parts?.text}</T>
           {/* The time leads the grey line, so a long title wraps alone and never strands "· 2:45 pm". */}
           {!moment && (parts?.time || featuredWhere) ? <T token="callout" color={c.inkSecondary} numberOfLines={1}>{[parts?.time, featuredWhere].filter(Boolean).join(' · ')}</T>
             : moment && parts?.time ? <T token="callout" color={c.inkSecondary}>{parts.time}</T> : null}

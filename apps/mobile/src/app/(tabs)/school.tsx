@@ -127,7 +127,7 @@ export default function SchoolScreen() {
         accessibilityLabel={next ? `${big} ${dueLine}` : undefined}
         details={next ? (
           <>
-            <T token="body" style={{ fontSize: 18, lineHeight: 26 }}>{dueLine}</T>
+            <T token="lead">{dueLine}</T>
             {dueWhere ? <T token="callout" color={c.inkSecondary}>{dueWhere}</T> : null}
           </>
         ) : (
@@ -149,7 +149,7 @@ export default function SchoolScreen() {
           <View style={styles.mapRow}>
             <View style={{ width: 56 }} />
             <View style={{ flex: 1, flexDirection: 'row' }}>
-              {labels.map((l, i) => <T key={i} token="caption" color={c.inkSecondary} tabular style={styles.weekLabel}>{l}</T>)}
+              {labels.map((l, i) => <T key={i} token="axis" color={c.inkSecondary} tabular style={styles.weekLabel}>{l}</T>)}
             </View>
           </View>
           {courses.map((course) => {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   map: { paddingTop: 10, paddingBottom: 6, gap: 10 },
   mapRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   mapLabel: { width: 56, flexDirection: 'row', alignItems: 'center', gap: 6 },
-  weekLabel: { flex: 1, fontSize: 11, lineHeight: 14 },
+  weekLabel: { flex: 1 },
   track: { flex: 1, justifyContent: 'center' },
   dotWell: { width: 22, alignItems: 'center' },
 });

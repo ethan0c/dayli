@@ -80,7 +80,7 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
   const ring = useAnimatedStyle(() => ({ opacity: sel.value }));
   const column = (
     <>
-      <T token="caption" color={today ? c.accentInk : c.inkSecondary} style={styles.weekday}>{weekdayShort(day.date)}</T>
+      <T token="axis" color={today ? c.accentInk : c.inkSecondary}>{weekdayShort(day.date)}</T>
       <View style={styles.num}>
         <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: 14, backgroundColor: c.controlFill }, pill]} />
         <T token="subhead" color={selected ? c.controlInk : c.inkPrimary} tabular style={{ fontSize: 13 }}>{String(Number(day.date.slice(-2)))}</T>
@@ -107,7 +107,7 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
           return animate ? <Animated.View key={m.id} entering={enter.fade} pointerEvents="none" style={StyleSheet.absoluteFill}>{mark}</Animated.View> : mark;
         })}
       </View>
-      {day.label ? <T token="caption" color={labelColor} tabular style={[styles.label, day.labelTone && day.labelTone !== 'grey' ? { fontFamily: undefined } : null, day.labelStrike ? { textDecorationLine: 'line-through' } : null]}>{day.label}</T> : null}
+      {day.label ? <T token="axis" color={labelColor} tabular style={[styles.label, day.labelStrike ? { textDecorationLine: 'line-through' } : null]}>{day.label}</T> : null}
     </>
   );
   if (!onSelect) return <View style={styles.col}>{column}</View>;
@@ -151,11 +151,10 @@ export function compactRange(start: string, end: string): string {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 6 },
   col: { flex: 1, alignItems: 'center', gap: 6 },
-  weekday: { fontSize: 11, lineHeight: 14 },
   num: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   track: { width: '100%', borderRadius: chart.column, position: 'relative', overflow: 'visible' },
   block: { position: 'absolute', left: 0, right: 0, borderRadius: chart.column },
   focus: { position: 'absolute', top: -(chart.focusGap + chart.now), bottom: -(chart.focusGap + chart.now), left: -(chart.focusGap + chart.now), right: -(chart.focusGap + chart.now),
     borderWidth: chart.now, borderRadius: chart.column + chart.focusGap + chart.now },
-  label: { fontSize: 11, lineHeight: 14, textAlign: 'center' },
+  label: { textAlign: 'center' },
 });

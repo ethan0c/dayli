@@ -180,7 +180,7 @@ function SyncLine() {
 function ShortcutList({ onClose }: { onClose: () => void }) {
   const { c } = useTheme();
   return (
-    <Animated.View entering={enter.fade} exiting={exit.fade} style={styles.scrim}>
+    <Animated.View entering={enter.fade} exiting={exit.fade} style={[styles.scrim, { backgroundColor: c.backdrop }]}>
       <Pressable accessibilityLabel="Close shortcuts" onPress={onClose} style={StyleSheet.absoluteFill} />
       <View accessibilityRole="summary" style={[styles.sheet, { backgroundColor: c.surface, borderColor: c.line }]}>
         <T token="title">Keyboard shortcuts</T>
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
   screen: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
   // expo-router's slot never shrinks; held to the window, its screens scroll (see PlannerTabs).
   slot: { flex: 1, minHeight: 0 },
-  scrim: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.25)', zIndex: 10 },
+  scrim: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
   sheet: { width: 420, maxWidth: '90%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, padding: 24, gap: 4 },
   shortcut: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth },
   drop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, margin: 16, borderWidth: 2, borderStyle: 'dashed', ...corner(radius.container), alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 0.96 },

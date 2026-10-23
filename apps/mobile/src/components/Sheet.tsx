@@ -11,7 +11,7 @@ import { T } from '@/components/Text';
 import { useWebLayout } from '@/lib/layout';
 import { enter, exit } from '@/lib/motion';
 import { useWebShortcuts } from '@/lib/shortcuts';
-import { SCREEN_GUTTER, corner, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, shadow } from '@/theme';
 
 /** Height of the native navigation bar below the status bar. */
 const NAV_BAR = 44;
@@ -66,12 +66,12 @@ function Dialog({ title, subtitle, footer, onClose, children }: { title: string;
   useWebShortcuts({ Escape: onClose });
   return (
     <View style={styles.dialogRoot}>
-      <Animated.View entering={enter.fade} exiting={exit.fade} style={[StyleSheet.absoluteFill, styles.scrim]}>
+      <Animated.View entering={enter.fade} exiting={exit.fade} style={[StyleSheet.absoluteFill, { backgroundColor: c.backdrop }]}>
         <Pressable accessibilityLabel="Close" onPress={onClose} style={StyleSheet.absoluteFill} />
       </Animated.View>
       <View accessibilityViewIsModal style={[styles.dialog, { backgroundColor: c.surface, borderColor: c.line }]}>
         <View style={styles.dialogHead}>
-          <T token="title" style={{ flex: 1, fontSize: 20, lineHeight: 26 }} accessibilityRole="header">{title}</T>
+          <T token="titleSm" style={{ flex: 1 }} accessibilityRole="header">{title}</T>
           <IconButton icon="x" label="Close" size={32} onPress={onClose} />
         </View>
         {subtitle ? <T token="callout" color={c.inkSecondary} style={styles.dialogSub}>{subtitle}</T> : null}
@@ -114,8 +114,7 @@ const styles = StyleSheet.create({
   // On a wide window the actions sit at the right; the first (the primary) comes last in reading order.
   footerWide: { flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingBottom: 24 },
   dialogRoot: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scrim: { backgroundColor: 'rgba(0,0,0,0.22)' },
-  dialog: { width: 520, maxWidth: '92%', maxHeight: '86%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, paddingTop: 18, paddingBottom: 18, boxShadow: '0 10px 32px rgba(0,0,0,0.14)' },
+  dialog: { width: 520, maxWidth: '92%', maxHeight: '86%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, paddingTop: 18, paddingBottom: 18, boxShadow: shadow.dialog },
   dialogHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 24, paddingBottom: 4 },
   dialogSub: { paddingHorizontal: 24 },
   dialogBody: { flexShrink: 1, minHeight: 0 },

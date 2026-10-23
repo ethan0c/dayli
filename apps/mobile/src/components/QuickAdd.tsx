@@ -9,7 +9,7 @@ import { T } from '@/components/Text';
 import { enter, exit } from '@/lib/motion';
 import { chooseFileForAdd } from '@/lib/web-drop';
 import { useCourseList, useStore } from '@/store';
-import { corner, radius, textStyle, useTheme } from '@/theme';
+import { corner, radius, textStyle, useTheme, shadow } from '@/theme';
 
 type Action = { id: string; label: string; hint: string; run: () => void };
 
@@ -66,7 +66,7 @@ export function QuickAdd({ onClose }: { onClose: () => void }) {
   }, [onClose]);
 
   return (
-    <Animated.View entering={enter.fade} exiting={exit.fade} style={styles.scrim}>
+    <Animated.View entering={enter.fade} exiting={exit.fade} style={[styles.scrim, { backgroundColor: c.backdrop }]}>
       <Pressable accessibilityLabel={t`Close`} onPress={onClose} style={StyleSheet.absoluteFill} />
       <View accessibilityViewIsModal style={[styles.box, { backgroundColor: c.surface, borderColor: c.line }]}>
         <TextInput ref={input} autoFocus value={query} onChangeText={(v) => { setQuery(v); setIndex(0); }} onSubmitEditing={() => run(shown[pick])}
@@ -85,8 +85,8 @@ export function QuickAdd({ onClose }: { onClose: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  scrim: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 20, alignItems: 'center', paddingTop: 110, backgroundColor: 'rgba(0,0,0,0.18)' },
-  box: { width: 620, maxWidth: '92%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden', boxShadow: '0 10px 32px rgba(0,0,0,0.14)' },
+  scrim: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 20, alignItems: 'center', paddingTop: 110 },
+  box: { width: 620, maxWidth: '92%', ...corner(radius.container), borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden', boxShadow: shadow.dialog },
   input: { paddingHorizontal: 20, paddingVertical: 18, borderBottomWidth: StyleSheet.hairlineWidth, outlineStyle: 'none' } as never,
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 46, paddingHorizontal: 20 },
 });

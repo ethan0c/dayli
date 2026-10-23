@@ -73,7 +73,7 @@ export function Tile({ icon, label, onPress, disabled }: { icon: IconKey; label:
     <Press accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} haptic="tap" onPress={onPress} disabled={disabled}
       style={[styles.tile, { backgroundColor: c.row, opacity: disabled ? 0.5 : 1 }]}>
       <Icon name={icon} size={20} color={c.inkPrimary} />
-      <T token="caption" style={{ fontFamily: undefined }} color={c.inkPrimary}>
+      <T token="caption" color={c.inkPrimary}>
         {label}
       </T>
     </Press>

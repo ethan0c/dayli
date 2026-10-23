@@ -23,6 +23,7 @@ import { usePlusAccess } from '@/lib/plus-access';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
 import { SCREEN_GUTTER, corner, radius, textStyle, useTheme } from '@/theme';
+import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -48,13 +49,6 @@ function clock(t: string): string {
   return `${h! % 12 === 0 ? 12 : h! % 12}:${String(m).padStart(2, '0')}`;
 }
 const period = (t: string) => (!dateLocale().hour12 ? '' : Number(t.split(':')[0]) >= 12 ? 'pm' : 'am');
-
-/** "a screenshot", "a photo", "syllabus.pdf": where an import came from, in a sentence. */
-function sourceName(sourceId: string): string {
-  if (sourceId === 'Screenshot') return 'a screenshot';
-  if (sourceId === 'Photo') return 'a photo';
-  return sourceId;
-}
 
 /** A plain text row: body text, 28 high, no icon, no hairline. Highlights when it can be pressed. */
 function Row({ children, trailing, onPress, accessibilityLabel }: { children: ReactNode; trailing?: ReactNode; onPress?: () => void; accessibilityLabel?: string }) {
@@ -209,7 +203,7 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
               onPress={() => { feedback('select'); setEditing(editing === 'time' ? null : 'time'); }} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
               <T token="displayXl" tabular style={styles.time}>
                 {clock(item.start)}{item.end ? <T token="displayXl" color={c.inkSecondary} style={styles.time}> – </T> : null}{item.end ? clock(item.end) : ''}
-                <T token="title" color={c.inkSecondary} style={{ fontSize: 20 }}> {[period(item.end ?? item.start), endsNextDay ? 'next day' : ''].filter(Boolean).join(', ')}</T>
+                <T token="titleSm" color={c.inkSecondary}> {[period(item.end ?? item.start), endsNextDay ? 'next day' : ''].filter(Boolean).join(', ')}</T>
               </T>
             </Pressable>
           ) : (

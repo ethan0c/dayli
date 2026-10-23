@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { columnHeader } from '@/components/ColumnHeader';
 import { useWebLayout } from '@/lib/layout';
-import { mobileFonts, useTheme } from '@/theme';
+import { useTheme, headerTitle } from '@/theme';
 
 export const unstable_settings = { anchor: 'index' };
 
@@ -16,7 +16,7 @@ export default function AuthLayout() {
   return <Stack screenOptions={{
     headerShown: true, headerShadowVisible: false, headerTitleAlign: 'center',
     headerStyle: { backgroundColor: c.canvas }, headerTintColor: c.inkPrimary,
-    headerTitleStyle: { fontFamily: mobileFonts.medium, fontSize: 16, color: c.inkPrimary },
+    headerTitleStyle: headerTitle(c.inkPrimary),
     contentStyle: { backgroundColor: c.canvas, ...column }, ...navigationButtonOptions('back'),
     ...(sidebar ? { header: columnHeader('narrow') } : null),
   }}>

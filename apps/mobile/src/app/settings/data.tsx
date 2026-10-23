@@ -109,7 +109,7 @@ export default function DataScreen() {
       <View style={styles.top}>
         <T token="callout" color={c.inkSecondary}>{signedIn ? backupStatus : `Saved on ${THIS_DEVICE}`}</T>
         <T token="displayXl" tabular>{`${items.length} ${items.length === 1 ? 'item' : 'items'}`}</T>
-        <T token="body" style={styles.line}>{summary}</T>
+        <T token="lead" style={styles.line}>{summary}</T>
       </View>
 
       <Group title="Export" footer={exportError ?? undefined}>
@@ -161,7 +161,7 @@ export default function DataScreen() {
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 48, gap: 22 },
   top: { gap: 2 },
-  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2, paddingTop: 6 },
+  line: { paddingTop: 6 },
   empty: { paddingVertical: 16 },
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   confirm: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12, minHeight: 52, paddingVertical: 4 },

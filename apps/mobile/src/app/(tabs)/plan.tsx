@@ -30,7 +30,7 @@ import { defaultTimes } from '@/lib/times';
 import { useReschedule } from '@/lib/use-reschedule';
 import { useSettling } from '@/lib/use-settling';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, useTheme, shadow } from '@/theme';
 
 /** "HH:MM" plus some minutes, capped at midnight. */
 function addMinutes(time: string, mins: number): string {
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
   calendar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12 },
   trailing: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  over: { position: 'absolute', top: 0, right: 0, bottom: 0, width: 460, boxShadow: '-12px 0 32px rgba(0,0,0,0.10)' },
+  over: { position: 'absolute', top: 0, right: 0, bottom: 0, width: 460, boxShadow: shadow.pane },
   boardWrap: { paddingHorizontal: SCREEN_GUTTER },
   pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
   paneEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },

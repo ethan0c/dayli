@@ -122,7 +122,7 @@ export default function ImportScreen() {
           <View style={styles.topText}>
             <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
             <T token="displayXl" tabular>{big}</T>
-            <T token="body" style={styles.line} numberOfLines={2}>{line}</T>
+            <T token="lead" style={styles.line} numberOfLines={2}>{line}</T>
             {remindersLine ? <T token="callout" color={c.inkSecondary}>{remindersLine}</T> : null}
           </View>
           <View style={[styles.thumb, { backgroundColor: c.row }]} accessible accessibilityRole="image" accessibilityLabel={shot ? 'Imported image' : `Import source: ${sourceLabel}`}>
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24 },
   top: { flexDirection: 'row', alignItems: 'flex-start', gap: 16 },
   topText: { flex: 1, minWidth: 0, gap: 2 },
-  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2, paddingTop: 6 },
+  line: { paddingTop: 6 },
   thumb: { width: 84, height: 122, ...corner(radius.field), overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   section: { paddingTop: 22 },
   change: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52 },

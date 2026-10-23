@@ -107,8 +107,8 @@ export function ChartKey({ entries, style }: { entries: KeyEntry[]; style?: View
                 : <View style={[{ width: KEY, height: chart.track, borderRadius: chart.track / 2 },
                   e.glyph === 'block' ? { backgroundColor: e.color } : { borderWidth: 1.5, borderColor: e.color, borderStyle: e.glyph === 'dashed' ? 'dashed' : 'solid', height: chart.track + 2 }]} />}
           </View>
-          <T token="caption" color={c.inkSecondary} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}
-            style={{ fontSize: 11, lineHeight: 14, flexShrink: 1 }}>{e.label}</T>
+          <T token="axis" color={c.inkSecondary} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}
+            style={{ flexShrink: 1 }}>{e.label}</T>
         </View>
       ))}
     </View>

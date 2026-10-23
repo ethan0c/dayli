@@ -61,7 +61,7 @@ export default function YouTab() {
       <View style={[styles.pane, { borderLeftColor: c.line }]}>
         {open && Screen ? <>
           <View style={styles.head}>
-            <T token="title" accessibilityRole="header" style={{ flex: 1, fontSize: 20, lineHeight: 26 }}>{titles[open]}</T>
+            <T token="titleSm" accessibilityRole="header" style={{ flex: 1 }}>{titles[open]}</T>
             <IconButton icon="x" label={t`Close`} size={32} onPress={() => setOpen(null)} />
           </View>
           <View style={{ flex: 1 }}><Screen key={open} /></View>

@@ -39,7 +39,7 @@ import { configureNotifications, useNotificationTaps, useReminderSync } from '@/
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { useStore } from '@/store';
-import { mobileFonts, useTheme } from '@/theme';
+import { useTheme, headerTitle } from '@/theme';
 import { posthog, posthogLogs } from '@/lib/analytics';
 
 // NativeTabs sends PRELOAD and ROUTE_NAMES_CHANGED actions the stack has no handler for; the
@@ -237,7 +237,7 @@ function RootLayout() {
             headerStyle: { backgroundColor: c.canvas },
             headerShadowVisible: false,
             headerTintColor: c.inkPrimary,
-            headerTitleStyle: { fontFamily: mobileFonts.medium, fontSize: 16, color: c.inkPrimary },
+            headerTitleStyle: headerTitle(c.inkPrimary),
             headerTitleAlign: 'center',
             headerBackButtonDisplayMode: 'minimal',
             contentStyle: { backgroundColor: c.canvas, ...column },

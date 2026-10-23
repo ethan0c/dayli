@@ -14,6 +14,7 @@ import { enter, exit } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { useItemList, useScheduleList, useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -33,16 +34,6 @@ function minutesOf(it: Item): number {
 
 /** Hours to the nearest half: 30, 7.5, 1. */
 const hours = (mins: number) => Math.round(mins / 30) / 2;
-
-/** "a screenshot", "a photo", "a message", "a PDF". */
-function sourceName(source: string): string {
-  const s = source.toLowerCase();
-  if (s === 'screenshot') return 'a screenshot';
-  if (s === 'photo') return 'a photo';
-  if (s === 'message') return 'a message';
-  if (s.endsWith('.pdf')) return 'a PDF';
-  return source;
-}
 
 const same = (a: string | null | undefined, b: string) => (a ?? '').trim().toLowerCase() === b.trim().toLowerCase();
 
@@ -153,7 +144,7 @@ export default function EmployerScreen() {
           <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
           <T token="displayXl" tabular>{big}</T>
           {line
-            ? <T token="body" style={styles.line}>{line}</T>
+            ? <T token="lead" style={styles.line}>{line}</T>
             : <T token="callout" color={c.inkSecondary} style={{ paddingTop: 6 }}>No shifts coming up</T>}
         </Pressable>
 
@@ -182,7 +173,7 @@ export default function EmployerScreen() {
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24 },
   top: { gap: 2 },
-  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2, paddingTop: 6 },
+  line: { paddingTop: 6 },
   chart: { paddingTop: 22, gap: 8 },
   rows: { paddingTop: 18 },
   scope: { alignSelf: 'stretch' },

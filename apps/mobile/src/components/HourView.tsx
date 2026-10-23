@@ -41,7 +41,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
       {Array.from({ length: Math.floor(hours / step) + 1 }, (_, i) => fromHour + i * step).map((h) => (
         <View key={h} style={[styles.hour, { top: (h - fromHour) * PX_PER_HOUR }]}>
           {/* The now time takes the gutter near it; the hour it would cover steps aside. */}
-          <T token="caption" color={c.inkSecondary} tabular style={[styles.hourLabel, showNow && Math.abs((h - fromHour) * PX_PER_HOUR - nowY) < 14 ? { opacity: 0 } : null]}>{label(h)}</T>
+          <T token="axis" color={c.inkSecondary} tabular style={[styles.hourLabel, showNow && Math.abs((h - fromHour) * PX_PER_HOUR - nowY) < 14 ? { opacity: 0 } : null]}>{label(h)}</T>
           <View style={[styles.rule, { backgroundColor: c.line }]} />
         </View>
       ))}
@@ -82,7 +82,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
       {showNow ? (
         <>
           <View style={[styles.nowDot, { top: nowY - chart.nowDot / 2, backgroundColor: c.inkPrimary }]} />
-          <T token="caption" color={c.inkPrimary} tabular style={[styles.nowLabel, { top: nowY - 7 }]}>{formatTime(now.time).replace(/ [ap]m$/, '')}</T>
+          <T token="axis" color={c.inkPrimary} tabular style={[styles.nowLabel, { top: nowY - 7 }]}>{formatTime(now.time).replace(/ [ap]m$/, '')}</T>
         </>
       ) : null}
     </View>
@@ -97,7 +97,7 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
 
 const styles = StyleSheet.create({
   hour: { position: 'absolute', left: 0, right: 0, flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
-  hourLabel: { width: 40, fontSize: 11, lineHeight: 14, marginTop: -7 },
+  hourLabel: { width: 40, marginTop: -7 },
   rule: { flex: 1, height: StyleSheet.hairlineWidth },
   lane: { position: 'absolute' },
   also: { paddingTop: 8, paddingLeft: 48 },
@@ -106,5 +106,5 @@ const styles = StyleSheet.create({
   blockTitle: { flexShrink: 1, fontSize: 12, lineHeight: 16 },
   nowLine: { position: 'absolute', left: 40, right: 0, height: chart.now },
   nowDot: { position: 'absolute', left: 40 - chart.nowDot / 2, width: chart.nowDot, height: chart.nowDot, borderRadius: chart.nowDot / 2 },
-  nowLabel: { position: 'absolute', left: 0, width: 34, textAlign: 'right', fontSize: 11, lineHeight: 14, fontFamily: undefined },
+  nowLabel: { position: 'absolute', left: 0, width: 34, textAlign: 'right' },
 });

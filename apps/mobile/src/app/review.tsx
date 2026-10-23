@@ -526,7 +526,7 @@ export default function ReviewScreen() {
         <View style={styles.hero}>
           <T token="callout" color={c.inkSecondary}>{intro}</T>
           <T token="displayXl" tabular>{big}</T>
-          <T token="body" style={styles.line}>{line}</T>
+          <T token="lead">{line}</T>
           {newCourse ? (
             // The dot the new course will wear in every list, shown where the course is born.
             <View style={styles.newCourse}>
@@ -673,7 +673,6 @@ const styles = StyleSheet.create({
   panes: { flex: 1, flexDirection: 'row' },
   list: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 16 },
   hero: { gap: 12 },
-  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2 },
   chart: { paddingTop: 24, gap: 8 },
   rows: { paddingTop: 20 },
 });

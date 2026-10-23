@@ -18,7 +18,7 @@ export default function CanDoScreen() {
       <View style={styles.top}>
         <T token="callout" color={c.inkSecondary}>Tried so far</T>
         <T token="displayXl" tabular>{`${tried} of ${list.length}`}</T>
-        <T token="body" color={c.inkSecondary} style={styles.line}>Select a feature to open it. Paid features are marked Plus.</T>
+        <T token="lead" color={c.inkSecondary} style={styles.line}>Select a feature to open it. Paid features are marked Plus.</T>
       </View>
       <View>
         {list.map((t, i) => (
@@ -35,5 +35,5 @@ export default function CanDoScreen() {
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 48, gap: 22 },
   top: { gap: 2 },
-  line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2, paddingTop: 6 },
+  line: { paddingTop: 6 },
 });

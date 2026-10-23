@@ -65,7 +65,7 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
         <View style={styles.labels}>
           {/* Each label sits on its hour: the ends align to the bar's ends, Noon and 6 pm centre on theirs. */}
           {AXIS.map(([l, p]) => (
-            <T key={l} token="caption" color={c.inkSecondary} tabular
+            <T key={l} token="axis" color={c.inkSecondary} tabular
               style={[styles.label, p === 0 ? { left: 0 } : p === 100 ? { right: 0 } : { left: `${p}%`, width: 60, marginLeft: -30, textAlign: 'center' }]}>{l}</T>
           ))}
         </View>
@@ -79,5 +79,5 @@ const styles = StyleSheet.create({
   track: { height: chart.track, borderRadius: chart.track / 2, position: 'relative' },
   block: { position: 'absolute', top: 0, height: chart.track, borderRadius: chart.track / 2 },
   labels: { position: 'relative', height: 14 },
-  label: { position: 'absolute', fontSize: 11, lineHeight: 14 },
+  label: { position: 'absolute' },
 });

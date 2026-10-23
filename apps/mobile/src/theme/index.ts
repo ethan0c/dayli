@@ -1,11 +1,11 @@
-import { fontFamily, palettes, radius, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
+import { fontFamily, palettes, radius, shadow, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
 import { createContext, useContext } from 'react';
 import { Platform, useColorScheme, type TextStyle, type ViewStyle } from 'react-native';
 import { initialWindowMetrics, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useStore } from '@/store';
 
-export { radius, space };
+export { radius, shadow, space };
 export type { Palette, TypeToken };
 
 /** A rectangle's corners from `radius`, drawn as Apple's continuous curve on iOS. Pills and circles don't need it. */
@@ -48,6 +48,12 @@ export function textStyle(token: TypeToken, color: string): TextStyle {
     letterSpacing: t.size * t.tracking,
     color,
   };
+}
+
+/** The system header's title on every pushed screen: the headline face in ink. */
+export function headerTitle(color: string) {
+  const t = typeScale.headline;
+  return { fontFamily: mobileFonts[t.weight], fontSize: t.size, color };
 }
 
 /** Shared horizontal screen margin, based on the Cal AI app reference. */

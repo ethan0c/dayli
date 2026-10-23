@@ -54,14 +54,14 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
         <View style={styles.scale}>
           {monthSpans(from, to).map((m) => (
             // A month with too few days on the line to hold its name keeps its space but not its label.
-            <T key={m.key} token="caption" color={c.inkSecondary} numberOfLines={1} style={[styles.scaleLabel, { width: `${m.pct}%` }]}>
+            <T key={m.key} token="axis" color={c.inkSecondary} numberOfLines={1} style={[styles.scaleLabel, { width: `${m.pct}%` }]}>
               {width && (m.pct / 100) * (width - INSET * 2) < MONTH ? '' : m.label}
             </T>
           ))}
         </View>
       ) : scale === 'weeks' && weekLabels ? (
         <View style={styles.scale}>
-          {weekLabels.map((l) => <T key={l} token="caption" color={c.inkSecondary} tabular style={[styles.scaleLabel, { flex: 1 }]}>{l}</T>)}
+          {weekLabels.map((l) => <T key={l} token="axis" color={c.inkSecondary} tabular style={[styles.scaleLabel, { flex: 1 }]}>{l}</T>)}
         </View>
       ) : null}
       <View style={[styles.track, { backgroundColor: c.row }]} accessible accessibilityRole="image" accessibilityLabel={describe(marks, from, to)}>
@@ -72,10 +72,10 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
       </View>
       {labels && (shown.length || showToday) ? (
         <View style={styles.labels}>
-          {showToday && pct(today!) < 8 ? <T token="caption" color={c.inkSecondary} style={[styles.label, { left: -INSET }]}>Today</T> : null}
+          {showToday && pct(today!) < 8 ? <T token="axis" color={c.inkSecondary} style={[styles.label, { left: -INSET }]}>Today</T> : null}
           {shown.map((m) => {
             const pos = m.p < 8 ? { left: -INSET } : m.p > 92 ? { right: -INSET } : { left: `${m.p}%` as const, marginLeft: -LABEL / 2, width: LABEL, textAlign: 'center' as const };
-            return <T key={m.id} token="caption" color={c.inkSecondary} tabular style={[styles.label, pos]}>{m.label}</T>;
+            return <T key={m.id} token="axis" color={c.inkSecondary} tabular style={[styles.label, pos]}>{m.label}</T>;
           })}
         </View>
       ) : null}
@@ -148,9 +148,9 @@ function monthSpans(from: string, to: string): { key: string; label: string; pct
 
 const styles = StyleSheet.create({
   scale: { flexDirection: 'row', marginHorizontal: INSET },
-  scaleLabel: { fontSize: 11, lineHeight: 14 },
+  scaleLabel: {},
   track: { height: chart.track, borderRadius: chart.track / 2, position: 'relative' },
   plot: { position: 'absolute', top: 0, bottom: 0, left: INSET, right: INSET },
   labels: { position: 'relative', height: 16, marginHorizontal: INSET },
-  label: { position: 'absolute', fontSize: 11, lineHeight: 14 },
+  label: { position: 'absolute' },
 });
