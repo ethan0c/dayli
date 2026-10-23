@@ -45,7 +45,8 @@ export default function PrivacyPage() {
             The events, tasks, courses, and work schedules Semli creates, plus your name if you enter one. This is stored on your device.
             If you create an account, a copy of your plan is saved to your account so a new phone can restore it; it is deleted when you
             delete the account. If you connect Canvas, the feed link you paste stays on your phone, and your phone reads the feed from
-            your school&apos;s Canvas directly.
+            your school&apos;s Canvas directly. Canvas doesn&apos;t let web pages read its feed, so in Semli on the web our server fetches
+            the feed for you and passes it straight back without saving it.
           </p>
           <h3>2.3 Your account, if you make one</h3>
           <p>
