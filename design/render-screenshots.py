@@ -134,8 +134,9 @@ SHOTS: list[tuple[str, str, str, str]] = [
     ("school", "Every class, every ~exam~.", "Courses, due dates, and the weeks left in the term.", "sky"),
     ("item", "Reminders that ~ring~.", "A nudge before class, or an alarm for the things you can't miss.", "sky"),
     ("canvas", "Canvas, ~kept in sync~.", "Connect once. New assignments land in your plan on their own.", "sky"),
-    ("paywall", "The planner stays ~free~.", "Calendar, to-dos, and reminders stay free. Plus adds unlimited imports.", "sky"),
 ]
+# No paywall shot: App Review rejected 1.0 under 2.3.7 (Oct 23, 2026) because a screenshot showed
+# prices and a "free" caption. Screenshots show the app, never prices, trials or "free".
 
 # Per storefront: only the captions that change. Local words, same accent and line lengths.
 LOCALE_CAPTIONS: dict[str, dict[str, tuple[str, str]]] = {
