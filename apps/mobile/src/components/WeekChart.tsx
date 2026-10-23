@@ -84,6 +84,7 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, onScrub, he
     was.current = index;
   }, [index, x, shown]);
   const pill = useAnimatedStyle(() => ({ opacity: shown.value, transform: [{ translateX: x.value * step }] }));
+  const ring = useAnimatedStyle(() => ({ opacity: shown.value, transform: [{ translateX: x.value * step }] }));
 
   // Scrub: hold, then drag. Runs on the JS thread; it only picks days.
   const scrubbed = useRef(-1);
@@ -112,7 +113,7 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, onScrub, he
         {geo && step > 0 ? (
           <>
             <Animated.View pointerEvents="none" style={[styles.pill, { top: geo.numY, left: (colW - NUM) / 2, backgroundColor: c.controlFill }, pill]} />
-            <Animated.View pointerEvents="none" style={[styles.focus, { top: geo.trackY - ringPad, left: -ringPad, width: colW + ringPad * 2, height: geo.trackH + ringPad * 2, borderColor: c.inkPrimary }, pill]} />
+            <Animated.View pointerEvents="none" style={[styles.focus, { top: geo.trackY - ringPad, left: -ringPad, width: colW + ringPad * 2, height: geo.trackH + ringPad * 2, borderColor: c.inkPrimary }, ring]} />
           </>
         ) : null}
         {days.map((day, i) => (

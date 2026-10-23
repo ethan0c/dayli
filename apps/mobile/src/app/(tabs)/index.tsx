@@ -2,7 +2,7 @@ import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, de
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { GroupLabel, IconButton, ListRow, SectionTitle, TextButton } from '@/components/Controls';
@@ -14,10 +14,10 @@ import { TodayFirst } from '@/components/Firsts';
 import { ItemDetail } from '@/components/ItemDetail';
 import { ItemRow } from '@/components/ItemRow';
 import { PhotoHeader } from '@/components/PhotoHeader';
-import { Press } from '@/components/Press';
+import { Press, PressRow } from '@/components/Press';
 import { SkyHeader } from '@/components/SkyHeader';
 import { T } from '@/components/Text';
-import { Ticker } from '@/components/Ticker';
+import { Swap, Ticker } from '@/components/Ticker';
 import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
 import { profile, track } from '@/lib/analytics';
@@ -33,7 +33,7 @@ import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { accountOf, useSession } from '@/lib/supabase';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, NAV_INSET, useTheme, useTopInset, screen, space } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, radius, useTheme, useTopInset, screen, space } from '@/theme';
 
 export default function TodayScreen() {
   const { c } = useTheme();
@@ -179,7 +179,7 @@ export default function TodayScreen() {
           <PhotoHeader source={moment.image} height={330} to={c.canvas} fadeFrom={0.28} solidAt={MOMENT_TEXT_TOP - 6} />
           <View style={[styles.momentToggle, { top: topInset + 20 }]}>{viewToggle}</View>
           <T token="callout" color={c.inkSecondary}>{moment.lead}</T>
-          <T token="displayXl" tabular>{moment.big}</T>
+          <Ticker value={moment.big} token="displayXl" />
           <View style={styles.momentLine}>
             <T token="body">{moment.line}</T>
             {moment.action && 'href' in moment.action ? <TextButton label={moment.action.label} onPress={() => router.push((moment.action as { href: string }).href as '/plan')} /> : null}
@@ -271,10 +271,10 @@ export default function TodayScreen() {
         ) : null}
         {completed.length ? (
           <>
-            <Pressable accessibilityRole="button" accessibilityState={{ expanded: completedExpanded }} onPress={() => setCompletedExpanded((o) => !o)} style={styles.disclosure}>
-              <T token="caption" color={c.inkSecondary}>Completed · {completed.length}</T>
+            <PressRow accessibilityRole="button" accessibilityState={{ expanded: completedExpanded }} onPress={() => setCompletedExpanded((o) => !o)} bleed={8} round={radius.small} style={styles.disclosure}>
+              <Ticker value={`Completed · ${completed.length}`} token="caption" color={c.inkSecondary} />
               <DisclosureChevron expanded={completedExpanded} />
-            </Pressable>
+            </PressRow>
             {completedExpanded ? (
               <Animated.View entering={enter.drop} exiting={exit.fade}>
                 {completed.map((item, i) => (
@@ -290,10 +290,10 @@ export default function TodayScreen() {
 
       {overdue.length ? (
         <View style={styles.section}>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Still open, ${overdue.length} tasks`} accessibilityState={{ expanded: overdueExpanded }} onPress={() => setOverdueExpanded((o) => !o)} style={styles.disclosure}>
-            <GroupLabel>{`Still open · ${overdue.length}`}</GroupLabel>
-            <T token="caption" color={c.inkSecondary}>{overdueExpanded ? 'Hide' : 'Show'}</T>
-          </Pressable>
+          <PressRow accessibilityRole="button" accessibilityLabel={`Still open, ${overdue.length} tasks`} accessibilityState={{ expanded: overdueExpanded }} onPress={() => setOverdueExpanded((o) => !o)} bleed={8} round={radius.small} style={styles.disclosure}>
+            <View style={{ paddingBottom: space.hair }}><Ticker value={`Still open · ${overdue.length}`} token="overline" color={c.inkSecondary} /></View>
+            <Swap value={overdueExpanded ? 'Hide' : 'Show'} token="caption" color={c.inkSecondary} direction={overdueExpanded ? 1 : -1} />
+          </PressRow>
           {overdueExpanded ? (
             <Animated.View entering={enter.drop} exiting={exit.fade}>
               {overdue.map((item, i) => (

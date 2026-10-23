@@ -8,6 +8,7 @@ import Animated from 'react-native-reanimated';
 import { GroupLabel, ListRow, StatusPill, TextButton } from '@/components/Controls';
 import { Sheet } from '@/components/Sheet';
 import { T } from '@/components/Text';
+import { Ticker } from '@/components/Ticker';
 import { WeekChart, compactRange, type WeekDay } from '@/components/WeekChart';
 import { Press, PressRow } from '@/components/Press';
 import { feedback } from '@/lib/feedback';
@@ -126,7 +127,7 @@ export default function EmployerScreen() {
           accessibilityLabel={next ? `${eyebrow} ${big}, ${line}` : 'Work. No shifts coming up'}
           scale={1} dim={fade.pressed} style={styles.top}>
           <T token="callout" color={c.inkSecondary}>{eyebrow}</T>
-          <T token="displayXl" tabular>{big}</T>
+          <Ticker value={big} token="displayXl" />
           {line
             ? <T token="lead" style={styles.line}>{line}</T>
             : <T token="callout" color={c.inkSecondary} style={{ paddingTop: space.snug }}>No shifts coming up</T>}

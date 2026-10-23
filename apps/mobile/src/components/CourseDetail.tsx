@@ -15,6 +15,7 @@ import { Sheet } from '@/components/Sheet';
 import { ChartKey, markKey, shapeFor } from '@/components/ChartMark';
 import { TermLine, type TermMark } from '@/components/TermLine';
 import { T } from '@/components/Text';
+import { Ticker } from '@/components/Ticker';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
@@ -156,7 +157,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
           accessibilityLabel={next ? `${eyebrow} ${big.toLowerCase()}, ${next.title}, ${when}` : `${eyebrow}. Nothing due`}
           scale={1} dim={fade.pressed} style={styles.top}>
           {eyebrow ? <T token="callout" color={c.inkSecondary}>{eyebrow}</T> : null}
-          <T token="displayXl" tabular>{big}</T>
+          <Ticker value={big} token="displayXl" />
           {next
             ? <T token="lead" style={styles.line}>{`${next.title} · ${when}`}</T>
             : <T token="callout" color={c.inkSecondary} style={{ paddingTop: space.snug }}>Nothing due</T>}

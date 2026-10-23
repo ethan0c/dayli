@@ -1,8 +1,8 @@
 import { addDays, assessment, conflictIds, diffDays, formatRange, formatTime, movableOverlap, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { PanResponder, ScrollView, StyleSheet, View } from 'react-native';
+import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { PanResponder, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CategoryDot, IconButton, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
@@ -17,9 +17,11 @@ import { PlanMonthCalendar, PlanMonthTitle, TodayPill } from '@/components/PlanC
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
+import { Ticker, useDateDirection } from '@/components/Ticker';
 import { TodayStart } from '@/components/TodayStart';
 import { ChartKey, keyOf, markKey, shapeFor } from '@/components/ChartMark';
 import { WeekChart, type WeekDay } from '@/components/WeekChart';
+import { WeekPager } from '@/components/WeekPager';
 import { SHARING_ENABLED } from '@/lib/auth';
 import { feedback } from '@/lib/feedback';
 import { COLUMN, useWebLayout } from '@/lib/layout';
@@ -49,6 +51,35 @@ function eventEnd(item: Item): string {
 /** Any event that came in without a time; Plan asks for it in place, as the review promised. */
 const isUntimedEvent = (item: Item) => item.kind === 'event' && !item.start;
 
+type Now = ReturnType<typeof useNow>;
+
+/** The chart's seven days for the week starting `start`: its blocks, due marks and untimed days. */
+function weekDays(start: string, items: Item[], now: Now): WeekDay[] {
+  const week = weekOf(start);
+  const end = week[6]!;
+  const weekItems = items.filter((i) => i.date >= start && i.date <= end);
+  const conflicts = conflictIds(items.filter((i) => i.date >= addDays(start, -1) && i.date <= end));
+  const nowMin = toMinutes(now.time);
+  return week.map((date) => {
+    const list = weekItems.filter((i) => i.date === date);
+    const blocks = list.filter((i) => i.kind === 'event' && i.start).map((i) => {
+      const finish = eventEnd(i);
+      const past = date < now.date || (date === now.date && toMinutes(finish) <= nowMin);
+      return { id: i.id, start: i.start!, end: finish, kind: i.category === 'work' || i.employer ? 'shift' as const : 'other' as const, tone: i.done ? 'green' as const : past ? 'grey' as const : conflicts.has(i.id) ? 'red' as const : 'ink' as const };
+    });
+    const marks = list.filter((i) => i.isDeadline && i.start).map((i) => ({ id: i.id, time: i.start!, kind: shapeFor(assessment(i.title)) }));
+    return { date, blocks, marks, unknown: list.some(isUntimedEvent) };
+  });
+}
+
+/** One page of the week pager. Memoised, so the weeks either side redraw only when their data does. */
+const PlanWeek = memo(function PlanWeek({ start, items, now, selected, onSelect, onWeek, onScrub }: {
+  start: string; items: Item[]; now: Now; selected: string; onSelect: (date: string) => void; onWeek: (step: 1 | -1) => void; onScrub: (active: boolean) => void;
+}) {
+  const days = useMemo(() => weekDays(start, items, now), [start, items, now]);
+  return <WeekChart days={days} selected={selected} today={now.date} onWeek={onWeek} onSelect={onSelect} onScrub={onScrub} />;
+});
+
 export default function PlanScreen() {
   const { c } = useTheme();
   const now = useNow();
@@ -62,6 +93,8 @@ export default function PlanScreen() {
   const [calendarOpen, setCalendarOpen] = useState(false);
   // The chart answers the tap at once; the agenda below follows as a deferred render.
   const shown = useDeferredValue(selected);
+  // The day's title slides up for a later day and down for an earlier one.
+  const dayDirection = useDateDirection(shown);
   const selectedRef = useRef(selected);
   useEffect(() => { selectedRef.current = selected; }, [selected]);
   // Only this screen reads the saved date, on mount, so save it on the way out, not on every tap
@@ -87,7 +120,7 @@ export default function PlanScreen() {
 
   // The swipe hint under the chart shows until the person has moved by week once; the key stays.
   const legendSeen = useStore((s) => s.settings.firsts.week);
-  const moveWeek = useCallback((step: 1 | -1) => {
+  const moveWeek = useCallback((step: number) => {
     updateSelected((date) => addDays(date, step * 7));
     setCalendarOpen(false);
     const { settings, setSettings } = useStore.getState();
@@ -116,7 +149,7 @@ export default function PlanScreen() {
     Escape: () => setOpenId(null),
   }, focused);
 
-  // Swipe the chart for the previous or next week, the way the week strip did.
+  // A pointer can't page the native week list, so the web keeps a drag-to-swipe on one chart.
   const swipe = useMemo(() => PanResponder.create({
     onMoveShouldSetPanResponder: (_, { dx, dy }) => Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy) * 1.5,
     onPanResponderRelease: (_, { dx }) => {
@@ -131,17 +164,14 @@ export default function PlanScreen() {
   const workHours = useMemo(() => Math.round(weekItems
     .filter((i) => i.kind === 'event' && i.category === 'work' && i.start)
     .reduce((sum, i) => sum + Math.max(0, toMinutes(eventEnd(i)) - toMinutes(i.start!)), 0) / 60), [weekItems]);
-  const nowMin = toMinutes(now.time);
-  const days = useMemo<WeekDay[]>(() => week.map((date) => {
-    const list = weekItems.filter((i) => i.date === date);
-    const blocks = list.filter((i) => i.kind === 'event' && i.start).map((i) => {
-      const end = eventEnd(i);
-      const past = date < now.date || (date === now.date && toMinutes(end) <= nowMin);
-      return { id: i.id, start: i.start!, end, kind: i.category === 'work' || i.employer ? 'shift' as const : 'other' as const, tone: i.done ? 'green' as const : past ? 'grey' as const : weekConflicts.has(i.id) ? 'red' as const : 'ink' as const };
-    });
-    const marks = list.filter((i) => i.isDeadline && i.start).map((i) => ({ id: i.id, time: i.start!, kind: shapeFor(assessment(i.title)) }));
-    return { date, blocks, marks, unknown: list.some(isUntimedEvent) };
-  }), [week, weekItems, weekConflicts, now.date, nowMin]);
+  const days = useMemo(() => weekDays(weekStart, items, now), [weekStart, items, now]);
+  // While a finger scrubs the chart, neither the page nor the weeks scroll under it.
+  const [scrubbing, setScrubbing] = useState(false);
+  const renderWeek = (start: string) => (
+    <View style={styles.chart}>
+      <PlanWeek start={start} items={items} now={now} selected={selected} onSelect={selectDay} onWeek={moveWeek} onScrub={setScrubbing} />
+    </View>
+  );
 
   // A row just checked holds its place while the check fills, then sinks to the done end.
   const [settling, settle] = useSettling();
@@ -237,19 +267,24 @@ export default function PlanScreen() {
 
   return (
     <View style={{ flex: 1, flexDirection: 'row', backgroundColor: c.canvas }}>
-      <ScrollView style={twoPane && !board ? { width: COLUMN, flexGrow: 0 } : { flex: 1 }} contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
+      <ScrollView style={twoPane && !board ? { width: COLUMN, flexGrow: 0 } : { flex: 1 }} scrollEnabled={!scrubbing} contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
         {header}
         {board ? (
           <View style={styles.boardWrap}>
             <WeekBoard week={week} items={weekItems} today={now.date} conflicts={weekConflicts} openId={openId} onOpen={(id) => { feedback('select'); setOpenId(id); }} />
           </View>
         ) : <>
-        <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined}
-          style={styles.chart} {...swipe.panHandlers}>
-          <WeekChart days={days} selected={selected} today={now.date} onWeek={moveWeek} onSelect={selectDay} />
-        </Animated.View>
+        {Platform.OS === 'web' ? (
+          <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined} {...swipe.panHandlers}>
+            {renderWeek(weekStart)}
+          </Animated.View>
+        ) : (
+          <WeekPager weekStart={weekStart} renderWeek={renderWeek} scrollEnabled={!scrubbing}
+            onWeek={(step) => { feedback('select'); moveWeek(step); }} />
+        )}
         <View style={styles.legend}>
-          <T token="callout" color={c.inkSecondary} tabular>{`${planCount(weekItems)}${workHours ? ` · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}` : ''}`}</T>
+          <Ticker value={`${planCount(weekItems)}${workHours ? ` · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}` : ''}`} token="callout" color={c.inkSecondary}
+            direction={direction === 'prev' ? -1 : 1} />
           <ChartKey entries={keyOf([
             // Every glyph on the chart has a line here, including the plain blocks and the now line.
             days.some((d) => d.blocks.some((b) => b.tone === 'ink' && b.kind === 'shift')) && { glyph: 'block', color: c.chartBooked, label: 'Work' },
@@ -265,7 +300,7 @@ export default function PlanScreen() {
         </View>
 
         <Animated.View layout={layout} style={styles.section}>
-          <SectionTitle title={isToday ? 'Today' : weekdayLong(shown)}
+          <SectionTitle title={isToday ? 'Today' : weekdayLong(shown)} direction={dayDirection}
             detail={isToday
               ? dayItems.length ? `${planCount(dayItems)}${dayOverlaps ? ` · ${count(dayOverlaps, 'overlap')}` : ''}` : undefined
               : relativeDay(now.date, shown)} />
