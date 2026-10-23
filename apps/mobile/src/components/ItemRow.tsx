@@ -18,8 +18,8 @@ type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: str
 
 /**
  * One agenda row: a check (to-dos) or a category dot (events), the title with its context,
- * and a status pill on the right. A class's to-dos carry its tint as a dot before the course
- * code (its events already lead with one), so a week reads by course at a glance.
+ * and a status pill on the right. A class's to-dos draw their check ring in its tint, as its
+ * events lead with a dot in it, so a week reads by course at a glance without a tinted card.
  * Swipe right to complete a to-do, left to delete, when the handlers are given. On the web a
  * pointer can't swipe: the row highlights under it and Delete takes the pill's place.
  */
@@ -44,7 +44,7 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
       {!isEvent ? (
         <Pressable onPress={onToggle} disabled={!onToggle} accessibilityRole="checkbox" hitSlop={8}
           accessibilityLabel={`${item.done ? 'Mark incomplete' : 'Complete'}: ${item.title}`} accessibilityState={{ checked: item.done }} style={styles.checkTarget}>
-          <Check done={item.done} />
+          <Check done={item.done} color={course ? tint : undefined} />
         </Pressable>
       ) : (
         <View style={styles.checkTarget}><CategoryDot color={tint} /></View>
@@ -55,7 +55,6 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
         <View style={styles.text}>
           <T token="body" color={item.done ? c.inkSecondary : conflict ? c.conflict : c.inkPrimary} numberOfLines={2} style={item.done ? styles.done : undefined}>{item.title}</T>
           <View style={styles.sub}>
-            {course && !isEvent ? <View style={{ opacity: item.done ? 0.35 : 1 }}><CategoryDot color={tint} /></View> : null}
             <T token="caption" color={c.inkSecondary} numberOfLines={1} style={styles.subText}>{item.urgent ? <T token="caption" color={item.done ? c.inkSecondary : c.conflict}>Urgent · </T> : null}{sub}</T>
           </View>
         </View>
@@ -67,8 +66,11 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
   );
 }
 
-/** The completion circle stays fixed while its fill and tick grow into place. */
-export function Check({ done }: { done: boolean }) {
+/**
+ * The completion circle stays fixed while its fill and tick grow into place. With `color` (a
+ * course's tint) the open ring wears it, a little heavier so the hue reads; done is always green.
+ */
+export function Check({ done, color }: { done: boolean; color?: string }) {
   const { c } = useTheme();
   const p = useSharedValue(done ? 1 : 0);
   useEffect(() => {
@@ -77,7 +79,7 @@ export function Check({ done }: { done: boolean }) {
   const fill = useAnimatedStyle(() => ({ opacity: Math.min(1, p.value), transform: [{ scale: 0.4 + 0.6 * p.value }] }));
   const tick = useAnimatedStyle(() => ({ opacity: Math.min(1, p.value), transform: [{ scale: Math.max(0, p.value) }] }));
   return (
-    <View style={[styles.circle, { borderColor: done ? c.added : c.controlOutline }]}>
+    <View style={[styles.circle, { borderColor: done ? c.added : color ?? c.controlOutline }, color && !done ? { borderWidth: 2 } : null]}>
       <Animated.View style={[StyleSheet.absoluteFill, styles.fill, { backgroundColor: c.added }, fill]} />
       <Animated.View style={tick}>
         <Icon name="tick" size={13} color={c.onPrimary} strokeWidth={2.5} />

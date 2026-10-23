@@ -67,7 +67,7 @@ export function WeekBoard({ week, items, today, conflicts, openId, onOpen }: {
                     {i.kind === 'task' ? (
                       <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: i.done }} accessibilityLabel={`${i.done ? 'Mark incomplete' : 'Complete'}: ${i.title}`}
                         hitSlop={6} onPress={() => { feedback(i.done ? 'uncomplete' : 'complete'); toggleDone(i.id); }} style={styles.lead}>
-                        <Check done={i.done} />
+                        <Check done={i.done} color={i.courseId ? tintOf(i) : undefined} />
                       </Pressable>
                     ) : (
                       <View style={[styles.lead, styles.dotLead]}><CategoryDot color={tintOf(i)} /></View>
