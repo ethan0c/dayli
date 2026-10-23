@@ -254,7 +254,9 @@ function RootLayout() {
             {/* No sidebar here, so the steps sit in a centred column rather than the app's frame. */}
             <Stack.Screen name="onboarding" options={{ animation: 'fade', contentStyle: { backgroundColor: c.canvas, ...(sidebar ? centred : null) } }} />
           </Stack.Protected>
-          <Stack.Protected guard={onboarded && !webGuest}>
+          {/* Signed in on the web but not set up yet: / goes on to onboarding. Without this the
+              router falls back to its first open route, /auth, and the welcome asks to sign in again. */}
+          <Stack.Protected guard={onboarded && !webGuest} redirectTo={ACCOUNT_REQUIRED && signedIn && !onboarded ? '/onboarding' : undefined}>
             <Stack.Screen name="(tabs)" options={{ contentStyle: { backgroundColor: c.canvas } }} />
             {/* Legacy capture links redirect to Add without presenting an empty modal. */}
             <Stack.Screen name="capture" />

@@ -9,7 +9,7 @@ import { Button, Sheet } from '@/components/Sheet';
 import { ACCOUNT_REQUIRED } from '@/lib/web';
 import { T } from '@/components/Text';
 import { authErrorMessage, validateAuthForm, type AuthFieldErrors, type AuthMode, type SignInResult } from '@/lib/auth';
-import { authClient, leaveAuth } from '@/lib/auth-client';
+import { authClient, leaveAuth, useLeaveIfSignedIn } from '@/lib/auth-client';
 import { useLastAccount } from '@/lib/last-account';
 import { LINKS, openLink } from '@/lib/links';
 import { SCREEN_GUTTER, useTheme, space, size } from '@/theme';
@@ -21,6 +21,8 @@ const COPY = {
 };
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
+  // Forgot password can be opened while signed in; only sign-in and sign-up step aside.
+  useLeaveIfSignedIn(mode === 'login' || mode === 'signup');
   const { c } = useTheme();
   // "Continue as" for an email account opens here with the address filled in.
   const params = useLocalSearchParams<{ email?: string }>();

@@ -14,7 +14,7 @@ import { T } from '@/components/Text';
 import { SkyHeader } from '@/components/SkyHeader';
 import { Wordmark } from '@/components/Wordmark';
 import { ACCOUNTS_ENABLED, authErrorMessage } from '@/lib/auth';
-import { authClient, leaveAuth } from '@/lib/auth-client';
+import { authClient, leaveAuth, useLeaveIfSignedIn } from '@/lib/auth-client';
 import { forgetAccount, providerLabel, useLastAccount, type LastAccount } from '@/lib/last-account';
 import { durations, ease, enter, springs } from '@/lib/motion';
 import { useNow } from '@/lib/now';
@@ -34,6 +34,7 @@ const SPLASH_BG = colors.white;
  * Google and email all are. After a sign-out on this phone, "Continue as <name>" leads instead.
  */
 export default function AuthWelcomeScreen() {
+  useLeaveIfSignedIn();
   const { c, dark } = useTheme();
   const { active, landed, root, slot, logo, backdrop, reveal, onRootLayout, onSlotLayout, onLogoLayout } = useLaunchHandoff();
   const insets = useSafeAreaInsets();

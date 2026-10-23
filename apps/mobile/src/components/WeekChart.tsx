@@ -58,12 +58,14 @@ export type WeekDay = {
  * exactly as the pill passes under it. Rest a finger on the chart for a moment and drag to scrub:
  * the choice follows the finger a day at a time, each with a selection tick from the caller.
  */
-export function WeekChart({ days, selected, today, onSelect, onWeek, onScrub, height = 120, animate, accessibilityLabel }: {
+export function WeekChart({ days, selected, today, onSelect, onWeek, scrub = false, onScrub, height = 120, animate, accessibilityLabel }: {
   days: WeekDay[]; selected?: string; today: string; onSelect?: (date: string) => void;
   /** Blocks and marks fade in as they are added, for a chart that fills while you watch. */
   animate?: boolean;
   /** VoiceOver's way to the next or previous week, where touch swipes. */
   onWeek?: (step: 1 | -1) => void;
+  /** Hold and drag to scrub through the days. Plan's chart, where picking a day is cheap; not the review's. */
+  scrub?: boolean;
   /** True while a finger scrubs the chart, so the page can stop scrolling under it. */
   onScrub?: (active: boolean) => void;
   height?: number; accessibilityLabel?: string;
@@ -95,8 +97,8 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, onScrub, he
     scrubbed.current = i;
     onSelect(days[i]!.date);
   };
-  const scrub = usePanGesture({
-    enabled: !!onSelect,
+  const scrubbing = usePanGesture({
+    enabled: scrub && !!onSelect,
     runOnJS: true,
     activateAfterLongPress: motion.hold,
     onActivate: (e) => { scrubbed.current = -1; onScrub?.(true); pick(e.x); },
@@ -107,7 +109,7 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, onScrub, he
   const colW = step - GAP;
   const ringPad = chart.focusGap + chart.now;
   return (
-    <GestureDetector gesture={scrub}>
+    <GestureDetector gesture={scrubbing}>
       <View style={styles.row} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
         accessible={!onSelect} accessibilityRole={onSelect ? undefined : 'image'} accessibilityLabel={accessibilityLabel}>
         {geo && step > 0 ? (

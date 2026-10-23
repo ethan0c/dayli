@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -6,7 +6,7 @@ import { CategoryDot } from '@/components/Controls';
 import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { Press, PressRow } from '@/components/Press';
 import { T } from '@/components/Text';
-import { enter, exit, layout } from '@/lib/motion';
+import { durations, enter, exit, layout } from '@/lib/motion';
 import { useTheme, radius, size, space } from '@/theme';
 
 /*
@@ -29,11 +29,29 @@ export function ReviewGlyph({ kind = 'dot', color }: { kind?: 'dot' | 'ring'; co
   );
 }
 
+/** Past this many rows a wave stops adding delay, so a long review is never kept waiting. */
+const WAVE_CAP = 6;
+let wave = { at: 0, count: 0 };
+
+/**
+ * Rows that mount together, as the review opens after reading, rise one after another in the
+ * order they are drawn, a `stagger` apart. A row that arrives on its own later just rises.
+ */
+function useWaveEntrance() {
+  const [entering] = useState(() => {
+    const now = Date.now();
+    if (now - wave.at > durations.slow) wave = { at: now, count: 0 };
+    return enter.staggered(Math.min(wave.count++, WAVE_CAP));
+  });
+  return entering;
+}
+
 /** A hairline review row: glyph, title and sub, trailing controls, and an editor beneath when open. */
 export function ReviewRow({ glyph, title, sub, trailing, struck, below, onPress, accessibilityLabel }: {
   glyph?: ReactNode; title: string; sub?: string | null; trailing?: ReactNode; struck?: boolean; below?: ReactNode; onPress?: () => void; accessibilityLabel?: string;
 }) {
   const { c } = useTheme();
+  const entering = useWaveEntrance();
   const head = (
     <View style={styles.head}>
       {glyph}
@@ -45,7 +63,7 @@ export function ReviewRow({ glyph, title, sub, trailing, struck, below, onPress,
     </View>
   );
   return (
-    <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={[styles.row, { borderBottomColor: c.line }]}>
+    <Animated.View layout={layout} entering={entering} exiting={exit.fade} style={[styles.row, { borderBottomColor: c.line }]}>
       {onPress ? (
         <PressRow onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? title} bleed={8} round={radius.small}>
           {head}

@@ -23,6 +23,8 @@ import { IMPORT_MESSAGES } from "@dayli/schema";
 import { InputError, extractionContext, inputFromFile, pickImageInput, pickPdfInput } from "@/lib/capture-input";
 import { QrCode } from "@/components/QrCode";
 import { devStep } from "@/lib/dev";
+import { ACCOUNT_REQUIRED } from "@/lib/web";
+import { accountOf, useSession } from "@/lib/supabase";
 import { feedback } from "@/lib/feedback";
 import { reportError } from "@/lib/errors";
 import { enter, exit, layout, springs } from "@/lib/motion";
@@ -113,12 +115,14 @@ export default function OnboardingScreen() {
     setStep(next);
   };
   // The first question goes back to the welcome screen, which replaced itself with onboarding.
-  const canGoBack = history.length > 0 || step === FIRST;
+  // On the web a signed-in account has no welcome to go back to: it would only ask to sign in again.
+  const signedIn = useSession((s) => !!accountOf(s.session));
+  const canGoBack = history.length > 0 || (step === FIRST && !(ACCOUNT_REQUIRED && signedIn));
   const back = () => {
     const previous = history[history.length - 1];
     track("onboarding_back", { from: step });
     if (!previous) {
-      if (step !== FIRST) return;
+      if (step !== FIRST || (ACCOUNT_REQUIRED && signedIn)) return;
       feedback("tap");
       router.replace("/auth");
       return;

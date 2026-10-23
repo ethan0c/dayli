@@ -1,6 +1,7 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
+import { useEffect } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import Purchases from 'react-native-purchases';
 import { Platform } from 'react-native';
@@ -10,8 +11,8 @@ import { restoreFromCloud, saveToCloud, stopSync } from './cloud';
 import { forgetAccount, maskEmail, rememberAccount, type Provider } from './last-account';
 import { reportError } from './errors';
 import { posthog, track } from './analytics';
-import { deleteReplacedGuest, supabase } from './supabase';
-import { APPLE_ON_WEB } from './web';
+import { accountOf, deleteReplacedGuest, supabase, useSession } from './supabase';
+import { ACCOUNT_REQUIRED, APPLE_ON_WEB } from './web';
 import { useStore } from '../store';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -264,6 +265,19 @@ export const authClient: AuthClient = ACCOUNTS_ENABLED && supabase ? supabaseCli
  * for a phone that hasn't finished it. The whole auth cover goes, including any screens
  * under it, so one tap never lands back on a form.
  */
+/**
+ * The web's sign-in screens step aside for someone already signed in: a reload or a typed URL
+ * that lands on /auth goes on to onboarding or the plan instead of asking them to sign in again.
+ * Recovery, reset and callback screens don't use it; they finish their own step first.
+ */
+export function useLeaveIfSignedIn(enabled = true) {
+  const ready = useSession((s) => s.ready);
+  const signedIn = useSession((s) => !!accountOf(s.session));
+  useEffect(() => {
+    if (enabled && ACCOUNT_REQUIRED && ready && signedIn) leaveAuth();
+  }, [enabled, ready, signedIn]);
+}
+
 export function leaveAuth() {
   // The web has no cover to dismiss: the callback page, or a typed URL, may be the only screen.
   if (Platform.OS === 'web') router.replace(useStore.getState().settings.onboarded ? '/' : '/onboarding?step=role');

@@ -136,7 +136,7 @@ export default function EmployerScreen() {
         <View style={styles.chart}>
           <WeekChart days={days} today={now.date} height={96}
             accessibilityLabel={`This week's shifts as seven day bars: ${days.map((d) => `${weekdayLong(d.date)} ${d.label}`).join(', ')}.`} />
-          <T token="caption" color={c.inkSecondary} tabular>{`${count(hours(thisWeekMins), 'hour')} this week · ${hours(nextWeekMins)} next week`}</T>
+          <Ticker value={`${count(hours(thisWeekMins), 'hour')} this week · ${hours(nextWeekMins)} next week`} token="caption" color={c.inkSecondary} />
         </View>
 
         <View style={styles.rows}>

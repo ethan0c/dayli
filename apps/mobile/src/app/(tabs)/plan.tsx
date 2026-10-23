@@ -77,7 +77,7 @@ const PlanWeek = memo(function PlanWeek({ start, items, now, selected, onSelect,
   start: string; items: Item[]; now: Now; selected: string; onSelect: (date: string) => void; onWeek: (step: 1 | -1) => void; onScrub: (active: boolean) => void;
 }) {
   const days = useMemo(() => weekDays(start, items, now), [start, items, now]);
-  return <WeekChart days={days} selected={selected} today={now.date} onWeek={onWeek} onSelect={onSelect} onScrub={onScrub} />;
+  return <WeekChart days={days} selected={selected} today={now.date} onWeek={onWeek} onSelect={onSelect} scrub onScrub={onScrub} />;
 });
 
 export default function PlanScreen() {
