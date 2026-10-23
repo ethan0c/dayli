@@ -1,4 +1,5 @@
 import { localParts } from '@dayli/core';
+import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
@@ -55,7 +56,7 @@ export async function syncReminders(): Promise<number> {
     const { items, settings } = useStore.getState();
     const allowed = await notificationsAllowed();
     const plan = allowed ? planReminders(Object.values(items), settings.reminders, localParts(new Date()), { trial: settings.trial }) : [];
-    const signature = JSON.stringify(plan.map((p) => [p.id, p.date, p.time, p.body]));
+    const signature = JSON.stringify(plan.map((p) => [p.id, p.date, p.time, p.title, p.body, p.url]));
     if (signature === lastSignature) return plan.length;
     // A failed replacement may leave a partial schedule. Never reuse its old signature.
     lastSignature = '';
@@ -63,7 +64,7 @@ export async function syncReminders(): Promise<number> {
     for (const p of plan) {
       await Notifications.scheduleNotificationAsync({
         identifier: p.id,
-        content: { title: p.title, body: p.body, sound: 'default', data: { itemId: p.itemId, kind: p.kind } },
+        content: { title: p.title, body: p.body, sound: 'default', data: { itemId: p.itemId, kind: p.kind, url: p.url } },
         trigger: triggerFor(p),
       });
     }
@@ -99,4 +100,27 @@ export function useReminderSync() {
     const sub = AppState.addEventListener('change', (s) => s === 'active' && void syncReminders().catch(() => {}));
     return () => sub.remove();
   }, []);
+}
+
+/**
+ * A tapped reminder opens what it is about: the item, Today for a summary, or the plan for the
+ * trial reminder. Also when the tap launched the app, once the plan has loaded. Reminders
+ * scheduled before `url` existed carry only `itemId`.
+ */
+export function useNotificationTaps(ready: boolean) {
+  const response = Notifications.useLastNotificationResponse();
+  useEffect(() => {
+    if (Platform.OS === 'web' || !ready || !response || response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return;
+    Notifications.clearLastNotificationResponse();
+    const { settings, items } = useStore.getState();
+    if (!settings.onboarded) return;
+    const data = response.notification.request.content.data ?? {};
+    const itemId = typeof data.itemId === 'string' ? data.itemId : null;
+    const url = typeof data.url === 'string' ? data.url : itemId ? `/item/${itemId}` : '/';
+    track('notification_opened', { kind: typeof data.kind === 'string' ? data.kind : 'test' });
+    // Something deleted since the reminder was scheduled opens Today instead.
+    if (url.startsWith('/item/') && !(itemId && items[itemId])) router.navigate('/');
+    else if (url === '/') router.navigate('/');
+    else router.push(url as never);
+  }, [ready, response]);
 }

@@ -79,6 +79,48 @@ describe('planReminders', () => {
     expect(plan.some((p) => p.id === 'brief-2026-10-25')).toBe(false);
   });
 
+  it('skips repeating classes unless class reminders are on, but keeps shifts and urgent classes', () => {
+    const items = [
+      item({ id: 'lec', title: 'Stats lecture', date: '2026-10-20', start: '09:00', end: '10:15', seriesId: 'stats' }),
+      item({ id: 'lab', title: 'Bio lab', date: '2026-10-20', start: '13:00', end: '15:00', seriesId: 'bio', urgent: true }),
+      item({ id: 'shift', title: 'Café shift', category: 'work', date: '2026-10-20', start: '16:00', end: '22:00', seriesId: 'cafe' }),
+    ];
+    const prefs = { ...DEFAULT_REMINDERS, briefing: false };
+    expect(planReminders(items, prefs, now).map((p) => p.id)).toEqual(['ev-lab', 'ev-shift']);
+    expect(planReminders(items, { ...prefs, classReminders: true }, now).map((p) => p.id)).toEqual(['ev-lec', 'ev-lab', 'ev-shift']);
+  });
+
+  it('groups deadlines on the same day into one reminder that opens Today', () => {
+    const plan = planReminders(
+      [
+        item({ id: 'a', kind: 'task', title: 'Lab report', date: '2026-10-21', isDeadline: true }),
+        item({ id: 'b', kind: 'task', title: 'Problem set', date: '2026-10-21', isDeadline: true }),
+        item({ id: 'c', kind: 'task', title: 'Reading quiz', date: '2026-10-21', start: '09:00', isDeadline: true }),
+      ],
+      { ...DEFAULT_REMINDERS, briefing: false },
+      now,
+    );
+    expect(plan.map((p) => [p.id, p.title, p.body, p.url])).toEqual([
+      ['dl1-2026-10-21', '3 things due Wednesday', 'Reading quiz, Lab report and Problem set.', '/'],
+      ['dl2-2026-10-21', '3 things due today', 'Reading quiz, Lab report and Problem set.', '/'],
+    ]);
+  });
+
+  it('lets the daily summary stand in for the morning deadline reminder, and names it', () => {
+    const plan = planReminders([item({ id: 'essay', kind: 'task', title: 'Essay', date: '2026-10-20', isDeadline: true })], DEFAULT_REMINDERS, now);
+    expect(plan.map((p) => p.id)).toEqual(['dl1-essay', 'brief-2026-10-20']);
+    expect(plan.find((p) => p.id === 'dl1-essay')?.url).toBe('/item/essay');
+    expect(plan.find((p) => p.id === 'brief-2026-10-20')?.body).toBe('1 item today. Due today: Essay.');
+  });
+
+  it('sends at most five a day, dropping the latest ordinary event reminders first', () => {
+    const events = Array.from({ length: 8 }, (_, i) => item({ id: `e${i}`, title: `Event ${i}`, category: 'work', date: '2026-10-20', start: `${String(9 + i).padStart(2, '0')}:00`, end: '23:00' }));
+    const urgent = item({ id: 'u', title: 'Clinical', date: '2026-10-20', start: '20:00', end: '21:00', urgent: true });
+    const plan = planReminders([...events, urgent], DEFAULT_REMINDERS, now).filter((p) => p.date === '2026-10-20');
+    expect(plan).toHaveLength(5);
+    expect(plan.map((p) => p.id)).toEqual(['brief-2026-10-20', 'ev-e0', 'ev-e1', 'ev-e2', 'ev-u']);
+  });
+
   it('knows quiet hours across midnight', () => {
     expect(inQuietHours('23:30', DEFAULT_REMINDERS)).toBe(true);
     expect(inQuietHours('06:59', DEFAULT_REMINDERS)).toBe(true);

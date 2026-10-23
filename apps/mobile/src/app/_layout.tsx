@@ -34,7 +34,7 @@ import { useAppLanguage } from '@/lib/use-app-language';
 import { setDevTime } from '@/lib/now';
 import { hideSplash } from '@/lib/splash';
 import { sampleScheduleExtraction, sampleScheduleUpdate, sampleSyllabusExtraction, sampleWeek, testFortnight } from '@/store/sample';
-import { configureNotifications, useReminderSync } from '@/lib/notifications';
+import { configureNotifications, useNotificationTaps, useReminderSync } from '@/lib/notifications';
 
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
 import { navigationButtonOptions } from '@/components/NavButtons';
@@ -114,6 +114,7 @@ function RootLayout() {
   useAppLanguage();
   useEffect(() => { if (fontError) reportError('fonts.load', fontError); }, [fontError]);
   useReminderSync();
+  useNotificationTaps(ready);
   const alarmItems = useStore((s) => s.items);
   const alarmsEnabled = useStore((s) => s.settings.reminders.urgentAlarmsEnabled);
   useEffect(() => {

@@ -94,8 +94,9 @@ export default function RemindersScreen() {
         </Group>
       ) : null}
 
-      <Group title="Event and deadline reminders" footer="Choose when to be notified before events and on the evening before and morning of each deadline.">
+      <Group title="Event and deadline reminders" footer="Classes that repeat every week stay quiet unless you turn them on. Deadlines on the same day share one reminder, and no day gets more than five.">
         <ToggleRow label="Reminders" value={prefs.enabled && allowed !== false} onChange={(on) => void toggle('enabled')(on)} />
+        <ToggleRow label="Before each class" value={!!prefs.classReminders} onChange={(on) => { feedback('select'); update({ classReminders: on }); }} />
         <View style={[styles.row, hairline]}>
           <T style={{ flex: 1 }}>Before an event</T>
           <View style={styles.segment}>
@@ -117,7 +118,7 @@ export default function RemindersScreen() {
         {timeRow('Until', 'quietEnd', true)}
       </Group>
 
-      <Group title="Daily summary" footer="Today’s schedule and the next deadline within three days. No notification if there’s nothing to show.">
+      <Group title="Daily summary" footer="Today’s schedule, what’s due today and the next deadline within three days. It takes the place of the morning deadline reminder. No notification if there’s nothing to show.">
         <ToggleRow label="Daily summary" value={prefs.briefing && allowed !== false} onChange={(on) => void toggle('briefing')(on)} />
         {timeRow('At', 'briefingAt', true)}
       </Group>

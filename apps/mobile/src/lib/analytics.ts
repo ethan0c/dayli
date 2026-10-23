@@ -53,6 +53,7 @@ export type AnalyticsEvent =
   | 'review_requested'
   | 'reminders_permission'
   | 'reminders_changed'
+  | 'notification_opened'
   | 'briefing_changed'
   | 'canvas_synced'
   | 'canvas_sync_failed'
