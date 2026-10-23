@@ -24,7 +24,7 @@ describe.each(Object.entries(palettes))('%s theme', (_name, c) => {
       [c.onPrimary, c.conflict], [c.onPrimary, c.added]]) {
       expect(contrast(ink!, fill!), `${ink} on ${fill}`).toBeGreaterThanOrEqual(4.5);
     }
-    for (const [ink, fill] of [[c.controlInk, c.controlFill], [c.selectionInk, c.selectionFill], [c.chartOnBooked, c.chartBooked]]) {
+    for (const [ink, fill] of [[c.controlInk, c.controlFill], [c.selectionInk, c.selectionFill], [c.chartOnBooked, c.chartBooked], [c.chartOnOther, c.chartOther]]) {
       expect(contrast(ink!, fill!), `${ink} on ${fill}`).toBeGreaterThanOrEqual(4.5);
     }
   });

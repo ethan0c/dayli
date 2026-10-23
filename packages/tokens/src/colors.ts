@@ -24,6 +24,10 @@ export const colors = {
   purpleBorderDark: '#453B5A',
   // Muted data marks remain quieter than interactive purple.
   purpleChart: '#76658F',
+  // Everything that isn't work on a chart: a slate blue as quiet as the plum (4.9:1 / 7.5:1 on the
+  // track) and far from terracotta, green and amber, so a kind never reads as a status.
+  slateChart: '#2F6E8F',
+  slateOnDark: '#8FC0E0',
 } as const;
 
 /** The app mark stays dark in either appearance, independently of button and text colors. */

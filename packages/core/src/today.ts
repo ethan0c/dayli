@@ -1,6 +1,6 @@
 import type { Item } from '@dayli/schema';
-import { addDays, dayNumber, diffDays, formatRange, formatTime, monthDay, toMinutes, weekOf } from './dates';
-import { intervalOf, overlap, union } from './intervals';
+import { addDays, dayNumber, diffDays, formatRange, formatTime, monthDay, toMinutes, weekdayOf, weekOf } from './dates';
+import { eventInterval, intervalOf, overlap, union } from './intervals';
 import { assessment } from './assessment';
 import { findConflicts } from './conflicts';
 
@@ -12,7 +12,9 @@ const absoluteMinute = (date: string, time: string) => dayNumber(date) * 1440 + 
 /** Work dates are separate from original event/deadline dates. Never rewrite an imported due date. */
 export function todayItems(items: Item[], date: string, workDates: WorkDates = {}): Item[] {
   const dayStart = absoluteMinute(date, '00:00');
-  const displayTime = (item: Item) => item.kind === 'event' && item.date < date ? '00:00' : item.date === date ? item.start ?? '24:00' : '24:00';
+  // Untimed to-dos lead, as on Plan: they can be started now. Then the day in time order, done last.
+  // A task moved here from another day keeps its original time, so it counts as untimed today.
+  const displayTime = (item: Item) => item.kind === 'event' && item.date < date ? '00:00' : item.date === date ? item.start ?? '' : '';
   return items.filter((item) => {
     if (item.date === date || (item.kind === 'task' && workDates[item.id] === date)) return true;
     const interval = item.kind === 'event' ? intervalOf(item) : null;
@@ -147,9 +149,40 @@ export function startTodaySuggestions(items: Item[], now: LocalNow, workDates: W
     .slice(0, 2);
 }
 
+export interface WeekendNudge {
+  /** Open to-dos due Saturday through Monday, soonest first, at most three. */
+  items: Item[];
+  /** Whole free hours tonight, from 5 pm (or now) to 11 pm. */
+  freeHours: number;
+  /** All due by Sunday, or some on Monday. */
+  by: 'weekend' | 'monday';
+}
+
+/**
+ * Friday from noon to 9 pm: work due over the weekend or on Monday, and a free evening to do it in.
+ * Only to-dos, only ones not already planned for today, only with two or more unbooked hours
+ * tonight. It sets a work day when accepted; due dates never move.
+ */
+export function weekendNudge(items: Item[], now: LocalNow, workDates: WorkDates = {}): WeekendNudge | null {
+  if (weekdayOf(now.date) !== 'fri' || now.time < '12:00' || now.time >= '21:00') return null;
+  const due = items.filter((item) => item.kind === 'task' && !item.done && item.date > now.date && item.date <= addDays(now.date, 3)
+    && workDates[item.id] !== now.date)
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? '').localeCompare(b.start ?? '') || a.title.localeCompare(b.title));
+  if (!due.length) return null;
+  const busy = union(items.filter((item) => item.kind === 'event' && !item.done).map(eventInterval).filter((iv) => iv !== null));
+  const evening = { start: Math.max(absoluteMinute(now.date, '17:00'), absoluteMinute(now.date, now.time)), end: absoluteMinute(now.date, '23:00') };
+  const freeHours = Math.floor((evening.end - evening.start - busy.reduce((minutes, iv) => minutes + overlap(evening, iv), 0)) / 60);
+  if (freeHours < 2) return null;
+  return { items: due.slice(0, 3), freeHours, by: due.some((item) => item.date === addDays(now.date, 3)) ? 'monday' : 'weekend' };
+}
+
 export function tomorrowSummary(items: Item[], now: LocalNow, workDates: WorkDates = {}): string | null {
   if (now.time < '18:00') return null;
-  const tomorrow = todayItems(items, addDays(now.date, 1), workDates).filter((item) => !item.done);
+  const day = addDays(now.date, 1);
+  // A peek reads as the day in time order, so what has a time leads here, unlike the list.
+  const timed = (item: Item) => (item.kind === 'event' && item.date < day) || (item.date === day && !!item.start);
+  const open = todayItems(items, day, workDates).filter((item) => !item.done);
+  const tomorrow = [...open.filter(timed), ...open.filter((item) => !timed(item))];
   if (!tomorrow.length) return 'Tomorrow has no plans yet.';
   const labels = tomorrow.slice(0, 3).map((item) => `${item.title}${item.kind === 'event' && item.date < addDays(now.date, 1) && item.end ? ` until ${formatTime(item.end, true)}` : item.date === addDays(now.date, 1) && item.start ? ` at ${formatTime(item.start, true)}` : item.isDeadline ? ' due' : ''}`);
   return `Tomorrow: ${labels.join(' · ')}${tomorrow.length > 3 ? ` · +${tomorrow.length - 3} more` : ''}`;

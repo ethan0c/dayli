@@ -110,6 +110,11 @@ export function ChartKey({ entries, style }: { entries: KeyEntry[]; style?: View
 
 const KEY = chart.ring + chart.halo * 2;
 
+/** A booked event's chart colour and the ink on it: plum for work, slate for everything else. */
+export function bookedColors(item: { category: string; employer?: string | null }, c: { chartBooked: string; chartOnBooked: string; chartOther: string; chartOnOther: string }) {
+  return item.category === 'work' || item.employer ? { fill: c.chartBooked, ink: c.chartOnBooked } : { fill: c.chartOther, ink: c.chartOnOther };
+}
+
 /** Key entries, first of each label wins, in the order given. */
 export function keyOf(entries: (KeyEntry | false | undefined)[]): KeyEntry[] {
   const seen = new Set<string>();

@@ -1,4 +1,4 @@
-import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, type CountdownState, planCount } from '@dayli/core';
+import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, weekendNudge, type CountdownState, planCount } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -78,7 +78,11 @@ export default function TodayScreen() {
 
   const todays = useMemo(() => todayItems(items, now.date, workDates), [items, now.date, workDates]);
   const overdue = useMemo(() => overdueTasks(items, now.date, workDates), [items, now.date, workDates]);
-  const suggestions = useMemo(() => startTodaySuggestions(items, now, workDates, dismissals.date === now.date ? dismissals.ids : []), [items, now, workDates, dismissals]);
+  const dismissed = useMemo(() => dismissals.date === now.date ? dismissals.ids : [], [dismissals, now.date]);
+  // Friday afternoon: work due by Monday and a free evening. "Not this weekend" is Friday's own dismissal.
+  const weekend = useMemo(() => dismissed.includes('weekend') ? null : weekendNudge(items, now, workDates), [items, now, workDates, dismissed]);
+  const suggestions = useMemo(() => startTodaySuggestions(items, now, workDates, dismissed)
+    .filter((s) => !weekend?.items.some((i) => i.id === s.item.id)), [items, now, workDates, dismissed, weekend]);
   const tomorrow = useMemo(() => tomorrowSummary(items, now, workDates), [items, now, workDates]);
   const upcoming = useMemo(() => items.filter((item) => !item.done && item.isDeadline && item.date > now.date && diffDays(now.date, item.date) <= 14
     && !suggestions.some((suggestion) => suggestion.item.id === item.id)).slice(0, 5), [items, now.date, suggestions]);
@@ -315,6 +319,17 @@ export default function TodayScreen() {
         </View>
       ) : null}
 
+      {weekend ? (
+        <Animated.View layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.section}>
+          <GroupLabel>Free your weekend</GroupLabel>
+          <T token="body">{`${listTitles(weekend.items.map((i) => i.title))} ${weekend.items.length === 1 ? 'is' : 'are'} due ${weekend.by === 'monday' ? 'by Monday' : 'this weekend'}. You have ${weekend.freeHours} free hours tonight.`}</T>
+          <View style={[styles.inlineAction, { flexDirection: 'row', gap: 20 }]}>
+            <TextButton label={`Work on ${weekend.items.length === 1 ? 'it' : 'them'} tonight`} onPress={() => workOnToday(weekend.items.map((i) => i.id))} />
+            <TextButton label="Not this weekend" tone="muted" onPress={() => { dismissSuggestion('weekend', now.date); feedback('select'); }} />
+          </View>
+        </Animated.View>
+      ) : null}
+
       {suggestions.length ? (
         <View style={styles.section}>
           <GroupLabel>Start today</GroupLabel>
@@ -391,6 +406,11 @@ function SavePlanRow({ onDismiss }: { onDismiss: () => void }) {
       </View>
     </Animated.View>
   );
+}
+
+/** "Essay", "Essay and Reading", "Essay, Reading and Lab". */
+function listTitles(titles: string[]): string {
+  return titles.length < 2 ? titles.join('') : `${titles.slice(0, -1).join(', ')} and ${titles.at(-1)}`;
 }
 
 const styles = StyleSheet.create({

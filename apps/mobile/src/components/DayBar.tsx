@@ -3,7 +3,7 @@ import type { Item } from '@dayli/schema';
 import { chart } from '@dayli/tokens';
 import { StyleSheet, View } from 'react-native';
 
-import { NowLine } from '@/components/ChartMark';
+import { bookedColors, NowLine } from '@/components/ChartMark';
 import { T } from '@/components/Text';
 import { useTheme } from '@/theme';
 
@@ -33,8 +33,8 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
       const s = Math.max(START, start);
       const e = Math.min(END, iv ? iv.end - base : start + 60);
       const color = highlight
-        ? it.id === highlight ? c.chartBooked : c.controlOutline
-        : it.done ? c.added : e <= nowMin ? c.controlOutline : c.chartBooked;
+        ? it.id === highlight ? bookedColors(it, c).fill : c.controlOutline
+        : it.done ? c.added : e <= nowMin ? c.controlOutline : bookedColors(it, c).fill;
       return { id: it.id, left: ((s - START) / SPAN) * 100, width: ((e - s) / SPAN) * 100, color, dim: highlight ? it.id !== highlight : false };
     })
     .filter((b) => b.width > 0)

@@ -24,6 +24,8 @@ export type WeekBlock = {
   tone: 'ink' | 'green' | 'red' | 'grey';
   /** Outline only: where a shift used to be (dashed) or a dropped one (red). */
   outline?: 'dashed' | 'solid';
+  /** What it is, when the chart mixes kinds: a booked shift is plum, anything else slate. Unset is plum. */
+  kind?: 'shift' | 'other';
 };
 
 export type WeekMark = {
@@ -93,7 +95,7 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
           // A seam above and below, so back-to-back blocks read as two, as in the hour view.
           const top = ((s - START) / SPAN) * height + chart.blockGap / 2;
           const h = Math.max(3, ((e - s) / SPAN) * height - chart.blockGap);
-          const color = tones[b.tone];
+          const color = b.tone === 'ink' && b.kind === 'other' ? c.chartOther : tones[b.tone];
           return (
             <Animated.View key={b.id} entering={animate ? enter.fade : undefined} style={[styles.block, { top, height: h },
               b.outline ? { borderWidth: 1.5, borderColor: color, borderStyle: b.outline } : { backgroundColor: color }]} />
@@ -111,7 +113,7 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
   if (!onSelect) return <View style={styles.col}>{column}</View>;
   return (
     <Press onPress={() => onSelect(day.date)} accessibilityRole="button" accessibilityState={{ selected }}
-      accessibilityLabel={`${weekdayShort(day.date)}, ${monthDay(day.date)}${today ? ', today' : ''}, ${day.blocks.length} ${day.blocks.length === 1 ? 'event' : 'events'}${day.marks?.length ? `, ${day.marks.length} due` : ''}`}
+      accessibilityLabel={`${weekdayShort(day.date)}, ${monthDay(day.date)}${today ? ', today' : ''}, ${blockCount(day.blocks)}${day.marks?.length ? `, ${day.marks.length} due` : ''}`}
       accessibilityActions={onWeek ? [{ name: 'next', label: 'Next week' }, { name: 'previous', label: 'Previous week' }] : undefined}
       onAccessibilityAction={onWeek ? (e) => onWeek(e.nativeEvent.actionName === 'next' ? 1 : -1) : undefined}
       style={styles.col}>
@@ -119,6 +121,15 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
     </Press>
   );
 });
+
+/** "2 shifts, 1 other event" where blocks say what they are, else "3 events". */
+function blockCount(blocks: WeekBlock[]): string {
+  const n = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+  if (!blocks.some((b) => b.kind)) return n(blocks.length, 'event', 'events');
+  const shifts = blocks.filter((b) => b.kind === 'shift').length;
+  const others = blocks.length - shifts;
+  return [shifts && n(shifts, 'shift', 'shifts'), others && n(others, 'other event', 'other events')].filter(Boolean).join(', ') || n(0, 'event', 'events');
+}
 
 function nowTop(height: number): number {
   const d = new Date();

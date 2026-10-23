@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from '@dayli/schema';
-import { countdownLine, countdownParts, deadlineReason, deadlineWindow, featuredCommitment, nowSummary, overdueTasks, spreadWork, startTodaySuggestions, termSummary, todayItems, tomorrowSummary } from '../src/today';
+import { countdownLine, countdownParts, deadlineReason, deadlineWindow, featuredCommitment, nowSummary, overdueTasks, spreadWork, startTodaySuggestions, termSummary, todayItems, tomorrowSummary, weekendNudge } from '../src/today';
 
 const date = '2026-10-19';
 const now = { date, time: '10:00' };
@@ -30,7 +30,7 @@ describe('the Today work plan', () => {
     const items = [event({ id: 'old-event', date: '2026-10-18' }), item({ id: 'done-old', date: '2026-10-18', done: true }),
       item({ id: 'done', done: true, start: '07:00' }), item({ id: 'untimed' }), event({ id: 'timed', start: '15:00' }), item({ id: 'old', date: '2026-10-18' })];
     expect(overdueTasks(items, date).map((i) => i.id)).toEqual(['old']);
-    expect(todayItems(items, date, { old: date }).map((i) => i.id)).toEqual(['timed', 'old', 'untimed', 'done']);
+    expect(todayItems(items, date, { old: date }).map((i) => i.id)).toEqual(['old', 'untimed', 'timed', 'done']);
   });
 
   it('does not duplicate a task whose original and work dates are both today', () => {
@@ -215,5 +215,26 @@ describe('the term at a glance', () => {
 
   it('is empty, not wrong, with nothing ahead', () => {
     expect(termSummary([], date)).toEqual({ deadlines: 0, lastDate: null, busiestWeek: null, exams: 0, clash: null, first: null });
+  });
+});
+
+describe('the Friday nudge', () => {
+  const friday = { date: '2026-10-23', time: '15:00' };
+  const essay = item({ id: 'essay', title: 'Essay', date: '2026-10-26', isDeadline: true });
+  const reading = item({ id: 'reading', title: 'Reading', date: '2026-10-24' });
+
+  it('offers the free evening for work due by Monday, soonest first', () => {
+    const shift = event({ id: 'shift', date: '2026-10-23', start: '17:00', end: '19:00', category: 'work' });
+    expect(weekendNudge([essay, reading, shift], friday)).toEqual({ items: [reading, essay], freeHours: 4, by: 'monday' });
+    expect(weekendNudge([reading], friday)?.by).toBe('weekend');
+  });
+
+  it('stays quiet on other days, late at night, with a booked evening, or with nothing to do', () => {
+    expect(weekendNudge([essay], { date: '2026-10-22', time: '15:00' })).toBeNull();
+    expect(weekendNudge([essay], { date: friday.date, time: '11:00' })).toBeNull();
+    expect(weekendNudge([essay], { date: friday.date, time: '21:30' })).toBeNull();
+    expect(weekendNudge([essay, event({ id: 'party', date: friday.date, start: '18:00', end: '23:00' })], friday)).toBeNull();
+    expect(weekendNudge([item({ id: 'later', date: '2026-10-28' }), { ...essay, done: true }], friday)).toBeNull();
+    expect(weekendNudge([essay], friday, { essay: friday.date })).toBeNull();
   });
 });
