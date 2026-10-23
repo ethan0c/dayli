@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { LandingPage } from '@/components/LandingPage';
 import { pageMetadata } from '@/lib/seo';
-import { FREE_IMPORTS_PER_MONTH } from '@/lib/site';
+import { FREE_IMPORTS_PER_MONTH, FREE_IMPORTS_TO_START } from '@/lib/site';
 
 export const metadata: Metadata = pageMetadata({
   path: '/syllabus-to-calendar',
@@ -37,15 +37,15 @@ export default function SyllabusPage() {
           </p>
           <h2>Set up one course at a time</h2>
           <p>
-            Each syllabus PDF counts as one import, even if it has several pages. Start with the
-            free plan’s {FREE_IMPORTS_PER_MONTH} imports a month, or use Plus for unlimited imports as you set up the semester.
+            Each syllabus PDF counts as one import, even if it has several pages. The free plan starts with {FREE_IMPORTS_TO_START} imports,
+            then {FREE_IMPORTS_PER_MONTH} a month. Use Plus for unlimited imports as you set up the semester.
           </p>
         </>
       }
       faqs={[
         { q: 'Which file types work?', a: 'PDF syllabi, and screenshots or photos (PNG, JPEG) of a course schedule or a registration page. Word documents can be exported to PDF first.' },
         { q: 'What if my syllabus only lists week numbers?', a: 'Week numbers need a term start date to make sense. Check the proposed dates carefully and correct any missing or unclear details before adding them.' },
-        { q: 'Does it work with Canvas?', a: 'Yes, two ways. Upload the syllabus PDF from Canvas, or connect your Canvas calendar feed so assignments come in on their own. With Plus, Canvas stays in sync when professors change dates.' },
+        { q: 'Does it work with Canvas?', a: 'Yes, two ways. Upload the syllabus PDF from Canvas, or import assignments from your Canvas calendar feed. With Plus, Semli checks for updates when you open the app, so a changed due date is picked up.' },
         { q: 'Can I undo an import?', a: 'Yes. Open You, then Your data, and find the import under Recent changes. Tap Undo next to it.' },
         { q: 'Is my syllabus stored?', a: 'Semli’s servers don’t save the uploaded file. The dates and course details you confirm live on your phone, with cloud backup if you create an account. See our privacy policy for how the AI provider handles requests.' },
       ]}

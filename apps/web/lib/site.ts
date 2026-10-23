@@ -45,12 +45,15 @@ export const PLUS_PLANS: readonly Plan[] = [
 ];
 export const plan = (id: PlanId) => PLUS_PLANS.find((p) => p.id === id)!;
 export const money = (n: number) => `$${n.toFixed(2)}`;
+/** The free allowance; must match apps/mobile/src/lib/plans.ts: 5 imports in the first 30 days, then 3 a month. */
+export const FREE_IMPORTS_TO_START = 5;
+export const START_WINDOW_DAYS = 30;
 export const FREE_IMPORTS_PER_MONTH = 3;
 export const TRIAL_DAYS = 7;
 
 /** Legal pages show these; bump when the text changes. */
 export const LEGAL_EFFECTIVE = 'October 19, 2026';
-export const LEGAL_UPDATED = 'October 20, 2026';
+export const LEGAL_UPDATED = 'October 23, 2026';
 
 export function absoluteUrl(path: string) {
   return path === '/' ? SITE_URL : `${SITE_URL}${path}`;

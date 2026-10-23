@@ -13,7 +13,7 @@ const SAMPLE = 'I work Friday 4-10 and Saturday 11-5 at the campus café, have a
 const ACCEPT = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
 /** What the status line says while Semli reads, by elapsed time. */
-const PHASES = ['Reading', 'Finding dates and times', 'Sorting by day', 'Almost there'];
+const PHASES = ['Reading', 'Finding dates and times', 'Sorting by day', 'Still reading…'];
 const PHASE_MS = 1600;
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

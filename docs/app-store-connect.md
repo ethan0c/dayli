@@ -70,56 +70,59 @@ If the questionnaire asks about "frequent or intense" anything, every answer is 
 
 ## 3. Version information (the 1.0 page)
 
-**Promotional text** [170], editable without a new build:
+**Promotional text** [170], editable without a new build (127 characters):
 ```
-Drop in a syllabus or a screenshot of your work schedule. Semli reads the dates and tells you what matters today.
+Turn your syllabus and work schedules into one plan for classes, shifts, and deadlines. Review the dates, then see what’s next.
 ```
 
-**Description** [4000]:
+**Description** [4000] (1,818 characters):
 ```
-Semli is the daily planner for college students who also have a job, a life, and no time to type their schedule into a calendar.
+Keep classes, work shifts, and assignment deadlines in one student planner.
 
-Send Semli what you already have. A syllabus PDF, a screenshot of your work schedule, a photo of a printed shift sheet, a message from the group chat. Semli reads the dates, times, exams and due dates and lays them out on your week. You check what it found before anything is saved, and every import can be undone.
+Upload a syllabus PDF, a screenshot of your shifts, or a message from class. Semli finds dates and times for you to review before adding them to your plan. You can correct the details or undo an import later.
 
-Today, at a glance
-One screen with what’s next, a countdown to it, and the day as a bar. Due dates in red, done in green. Nothing to scroll through.
+See what’s next
+Check today’s plans, view your week, and spot overlaps between work and school.
 
-The week as a chart
-Classes, shifts and study time on one timeline. Overlaps show in red before they become a problem, and Semli suggests a free slot for anything you can move.
+Bring your course dates together
+Add exams and assignments from a syllabus, or import assignments from your Canvas calendar feed.
 
-A syllabus becomes the term
-Upload the PDF and every exam, reading and assignment lands on your calendar. Use Canvas? Paste your Canvas calendar feed once and assignments come in on their own.
+Choose your reminders
+Set reminders for events and deadlines, with an optional daily summary. Choose reminder times and quiet hours.
 
-New work schedule? Only the changes
-Send next week’s schedule and Semli compares it with the shifts you already have: what moved, what’s new, what was dropped. Keep anything with one tap.
+Start with the free plan
+Use the calendar, to-dos, reminders, and five AI imports to start, then three a month. No account is required.
 
-Reminders that match your day
-A heads-up before classes and shifts, the day before a due date, and one morning note with what’s on. Quiet at night. Mark anything urgent and it rings like an alarm.
-
-Free, forever
-The calendar, to-dos, reminders and 3 AI imports a month are free, with no time limit.
-
-Semli Plus
-Unlimited imports, Canvas kept in sync, schedule-change comparisons and suggested times for overlaps. Student pricing is on the honor system: $4.99 a month, $14.99 every 6 months, or $24.99 a year, with a 7-day free trial. Regular pricing is $7.99, $24.99 and $44.99.
+Add more with Semli Plus
+With Plus, get unlimited AI imports, apply a new work schedule as changes to the shifts you already have, see suggested times for overlaps, and have Semli check Canvas for updates when you open the app or tap Sync now. Also with Plus, urgent items can ring like an alarm; ringing alarms need a timed urgent item, iOS 26 or later, and alarm permission. Plus is billed monthly, every six months, or yearly, and student pricing is on the honor system. Eligible new subscribers can try Plus for seven days.
 
 Private by default
-Your plan lives on your phone. Files you import are read by our AI provider and not stored. An account is optional; it backs up your plan so a new phone can restore it.
+Your plan stays on your phone, with optional account backup. Semli’s servers don’t save your original uploads; our privacy policy explains how the AI provider handles requests.
 
-Semli is built for students in nursing, engineering, business and every other major that mixes lectures, labs, clinicals and part-time work. iPhone only for now.
+Built for students who mix lectures, labs, clinicals, and part-time work. iPhone only for now.
 
 Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage or cancel in your Apple ID settings. Terms: https://semli.app/terms. Privacy: https://semli.app/privacy.
 ```
-Section headers are sentence case, like everything else we publish; Apple allows no other formatting in this field, so each header sits on its own line with a blank line above.
+Section headers are sentence case, like everything else we publish; Apple allows no other formatting in this field, so each header sits on its own line with a blank line above. Rewritten Oct 23, 2026 from `docs/copy-audit-2026-10-23.md`: no prices (Apple advises against them in descriptions, and the old text disagreed with the store products), "With Plus" beside every paid capability, the semester term called "six months", trial eligibility rather than a promised trial, ringing alarms with their requirements (a timed urgent item, iOS 26 or later, alarm permission), and no absolute claims about extraction, scrolling or file storage.
+
+**Other English storefronts.** en-GB, en-AU and en-CA have their own title, subtitle, keywords, description and promotional text in `apps/mobile/store.config.json` (UK: module handbook, rota, honour; Australia: unit outline, roster, honour; Canada: syllabus or course outline, honour). Paste them from there, or push with `eas metadata:push`; the config is the source of truth and the text above matches its en-US entry exactly. Character counts, with commas between keywords:
+
+| Locale | Title / 30 | Subtitle / 30 | Keywords / 100 | Description / 4,000 | Promo / 170 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| en-US | 25 | 28 | 98 | 1,818 | 127 |
+| en-GB | 25 | 29 | 99 | 1,882 | 126 |
+| en-AU | 25 | 29 | 94 | 1,883 | 125 |
+| en-CA | 25 | 28 | 99 | 1,865 | 126 |
 
 **Keywords** [100], no spaces, no words already in the name or subtitle:
 ```
 college,schedule,assignment,tracker,class,work,semester,homework,calendar,nursing,organizer,canvas
 ```
-(96 characters.)
+(98 characters.)
 
 **What’s New in This Version** [4000], for 1.0:
 ```
-First release. Syllabus and work-schedule import, Canvas sync, reminders, and the week as a chart.
+First release. Syllabus and work-schedule import, Canvas import, reminders, and the week as a chart.
 ```
 
 | Field | Value |
@@ -135,19 +138,19 @@ First release. Syllabus and work-schedule import, Canvas sync, reminders, and th
 
 | # | File | Caption on the image |
 |---|---|---|
-| 1 | `01-today.png` | Know what matters today |
-| 2 | `02-review.png` | A semester in two minutes |
-| 3 | `03-review-update.png` | Screenshot your shifts |
-| 4 | `04-plan.png` | School and work in one week |
-| 5 | `05-spread.png` | A heavy week, spread out |
+| 1 | `01-today.png` | Classes, shifts, and deadlines |
+| 2 | `02-review-syllabus.png` | Your syllabus, in your planner |
+| 3 | `03-review-update.png` | See what changed in your shifts |
+| 4 | `04-plan.png` | School and work, one calendar |
+| 5 | `05-spread.png` | Plan ahead for busy weeks |
 | 6 | `06-today-hours.png` | Your day, hour by hour |
-| 7 | `07-school.png` | Every class, every exam |
-| 8 | `08-item.png` | Reminders that ring |
-| 9 | `09-canvas.png` | Canvas, kept in sync |
+| 7 | `07-school.png` | Keep your course dates together |
+| 8 | `08-item.png` | Choose your reminders |
+| 9 | `09-canvas.png` | Bring Canvas into your plan |
 
-**No prices, trials or "free" in any screenshot, the name, subtitle, keywords or promotional text** (guideline 2.3.7; 1.0 was rejected for the paywall shot on Oct 23, 2026). Prices belong in the description's Semli Plus paragraph and on the paywall in the app. Delete `10-paywall.png` from App Store Connect if it is still uploaded.
+**No prices, trials or "free" in any screenshot, the name, subtitle, keywords or promotional text** (guideline 2.3.7; 1.0 was rejected for the paywall shot on Oct 23, 2026). Prices belong only on the paywall in the app, which shows the live store price; keep them out of the description too (Apple advises against specific prices there), and say "eligible new subscribers" rather than promising every reader a trial. Delete `10-paywall.png` from App Store Connect if it is still uploaded.
 
-The set was rerendered Oct 21, 2026: shots on the morning sky with the wordmark and an EB Garamond caption each, no sublines, one accent phrase in lavender italic, captured with the new main-tab headers; the header and search card moved to the same sky and faces. Recaptured Oct 23, 2026 with the course dot in place of the gutter bar, nine shots, no paywall. Re-upload all nine, the 6.3-inch copies and the search card (the header has no phone and did not change). Apple scales the 6.9-inch set to every other iPhone size. The 6.1"/6.3" slot (1206 × 2622) is optional; downscaled copies are in `design/screenshots/6.3-inch/`. The foldable set was dropped. No iPad set (`supportsTablet: false`). App previews (video): none for 1.0.
+The set was rerendered Oct 21, 2026: shots on the morning sky with the wordmark and an EB Garamond caption each, no sublines, one accent phrase in lavender italic, captured with the new main-tab headers; the header and search card moved to the same sky and faces. Recaptured Oct 23, 2026 with the course dot in place of the gutter bar, nine shots, no paywall; later that day the captions were rewritten after the copy audit (`docs/copy-audit-2026-10-23.md`) so each one matches its screen, and shot 2 became a real syllabus review (`02-review-syllabus.png`, which replaces `02-review.png`: delete the old one in App Store Connect). Re-upload all nine, the 6.3-inch copies and the search card (the header has no phone and did not change). Apple scales the 6.9-inch set to every other iPhone size. The 6.1"/6.3" slot (1206 × 2622) is optional; downscaled copies are in `design/screenshots/6.3-inch/`. The foldable set was dropped. No iPad set (`supportsTablet: false`). App previews (video): none for 1.0.
 
 **Growth & Marketing → Custom Product Pages / Asset Library** (optional, iOS 27): Header `design/screenshots/header/header-3840x1646.png` (wordmark and tagline centered); Search Results `design/screenshots/header/search-3840x2560.png` (tagline and the Today phone). Check both in the Preview tool; the crop differs per device.
 

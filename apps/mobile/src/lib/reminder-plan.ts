@@ -1,4 +1,4 @@
-import { addDays, dayNumber, diffDays, formatRange, formatTime, toMinutes, weekdayLong } from '@dayli/core';
+import { addDays, assessment, dayNumber, diffDays, formatTime, monthDay, toMinutes, weekdayLong } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 
 export interface ReminderPrefs {
@@ -86,18 +86,37 @@ function titleList(items: Item[]): string {
   return `${names.slice(0, 2).join(', ')} and ${names.length - 2} more`;
 }
 
-/** The summary names what is due today, since it stands in for the morning deadline reminders. */
+/** "2 classes", "1 shift": the count with its noun. */
+const count = (n: number, one: string, many: string) => (n > 0 ? `${n} ${n === 1 ? one : many}` : '');
+/** "a, b and c". */
+const andList = (parts: string[]) => (parts.length <= 1 ? parts.join('') : `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`);
+/** Exams and quizzes are on a day; everything else is due on it. */
+const isTest = (it: Item) => assessment(it.title) !== null;
+
+/**
+ * The summary's day: what kinds of things are on it, then what is due by name, since it stands
+ * in for the morning deadline reminders. "2 classes and 1 shift. Due today: Lab report."
+ */
 function dayLine(items: Item[], date: string): string {
   const todays = items.filter((i) => i.date === date && !i.done);
   if (todays.length === 0) return '';
-  const due = todays.filter((i) => i.isDeadline);
+  const due = todays.filter((i) => i.isDeadline && !isTest(i));
+  const tests = todays.filter((i) => i.isDeadline && isTest(i));
   const rest = todays.filter((i) => !i.isDeadline);
-  const timed = rest.filter((i) => i.start).sort((a, b) => a.start!.localeCompare(b.start!));
-  const parts = timed.slice(0, 3).map((i) => `${i.title} ${i.end && i.start ? formatRange(i.start, i.end) : formatTime(i.start!)}`);
-  const tasks = rest.length - timed.length;
-  const head = `${todays.length} ${todays.length === 1 ? 'item' : 'items'} today`;
-  const tail = [parts.join(', '), tasks > 0 ? `${tasks} to-do${tasks === 1 ? '' : 's'}` : ''].filter(Boolean).join('; ');
-  return [tail ? `${head}: ${tail}.` : `${head}.`, due.length ? `Due today: ${titleList(due)}.` : ''].filter(Boolean).join(' ');
+  const events = rest.filter((i) => i.kind === 'event');
+  const classes = events.filter((i) => i.category === 'school').length;
+  const shifts = events.filter((i) => i.category === 'work').length;
+  const kinds = andList([
+    count(classes, 'class', 'classes'),
+    count(shifts, 'shift', 'shifts'),
+    count(events.length - classes - shifts, 'event', 'events'),
+    count(rest.length - events.length, 'to-do', 'to-dos'),
+  ].filter(Boolean));
+  return [
+    kinds ? `${kinds[0]!.toUpperCase()}${kinds.slice(1)}.` : '',
+    tests.length ? `Today: ${titleList(tests)}.` : '',
+    due.length ? `Due today: ${titleList(due)}.` : '',
+  ].filter(Boolean).join(' ');
 }
 
 /** A repeating class: reminded only when the person turns class reminders on, or marks it urgent. */
@@ -132,7 +151,7 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
       if (it.kind === 'event' && it.start && (prefs.classReminders || !isClass(it))) {
         const itemAbs = toAbs(it.date, it.start);
         push(
-          { id: `ev-${it.id}`, title: it.title, body: `Starts at ${formatTime(it.start)}${it.end ? ` · Ends at ${formatTime(it.end)}` : ''}.`, itemId: it.id, kind: 'event', url: `/item/${it.id}` },
+          { id: `ev-${it.id}`, title: it.title, body: `Starts at ${formatTime(it.start)}.${it.end ? ` Ends at ${formatTime(it.end)}.` : ''}`, itemId: it.id, kind: 'event', url: `/item/${it.id}` },
           respectQuiet(itemAbs - prefs.eventLead, itemAbs, prefs),
           it.urgent ? 0 : 1,
         );
@@ -151,7 +170,7 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
       const dueLabel = first.start ? `${weekdayLong(date)} at ${formatTime(first.start)}` : weekdayLong(date);
       push(
         one
-          ? { id: `dl1-${first.id}`, title: first.title, body: `Due ${dueLabel}.`, kind: 'deadline', ...target }
+          ? { id: `dl1-${first.id}`, title: first.title, body: isTest(first) ? `${dueLabel}.` : `Due ${dueLabel}.`, kind: 'deadline', ...target }
           : { id: `dl1-${date}`, title: `${due.length} things due ${weekdayLong(date)}`, body: `${titleList(due)}.`, kind: 'deadline', ...target },
         respectQuiet(toAbs(addDays(date, -1), prefs.dayBeforeAt), firstAbs, prefs),
       );
@@ -162,7 +181,7 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
       if (!summaryFirst && (firstAbs === null || morning < firstAbs)) {
         push(
           one
-            ? { id: `dl2-${first.id}`, title: first.title, body: first.start ? `Due today at ${formatTime(first.start)}.` : 'Due today.', kind: 'deadline', ...target }
+            ? { id: `dl2-${first.id}`, title: first.title, body: `${isTest(first) ? 'Today' : 'Due today'}${first.start ? ` at ${formatTime(first.start)}` : ''}.`, kind: 'deadline', ...target }
             : { id: `dl2-${date}`, title: `${due.length} things due today`, body: `${titleList(due)}.`, kind: 'deadline', ...target },
           morning,
         );
@@ -178,7 +197,7 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
         .filter((i) => i.isDeadline && !i.done && i.date > date && diffDays(date, i.date) <= 3)
         .sort((a, b) => a.date.localeCompare(b.date))[0];
       if (!line && !nextDeadline) continue;
-      const body = [line, nextDeadline ? `${nextDeadline.title} is due ${weekdayLong(nextDeadline.date)}.` : ''].filter(Boolean).join(' ');
+      const body = [line, nextDeadline ? `Next: ${nextDeadline.title} on ${weekdayLong(nextDeadline.date)}.` : ''].filter(Boolean).join(' ');
       push({ id: `brief-${date}`, title: 'Today’s schedule', body, itemId: null, kind: 'briefing', url: '/' }, toAbs(date, prefs.briefingAt));
     }
   }
@@ -189,7 +208,7 @@ export function planReminders(items: Item[], prefs: ReminderPrefs, now: { date: 
       const pad = (n: number) => String(n).padStart(2, '0');
       const endDate = `${ends.getFullYear()}-${pad(ends.getMonth() + 1)}-${pad(ends.getDate())}`;
       push(
-        { id: 'trial-reminder', title: 'Your Semli Plus trial ends in 2 days', body: `Renews at ${extras.trial.label} unless you cancel. Manage your subscription in You → Your plan.`, itemId: null, kind: 'briefing', url: '/settings/plan' },
+        { id: 'trial-reminder', title: `Your Plus trial ends on ${monthDay(endDate)}`, body: `Then ${extras.trial.label}. Manage or cancel in You → Your plan.`, itemId: null, kind: 'briefing', url: '/settings/plan' },
         toAbs(addDays(endDate, -2), prefs.dayBeforeAt),
       );
     }

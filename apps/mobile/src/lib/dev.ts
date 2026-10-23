@@ -26,7 +26,7 @@ export async function devStep(): Promise<string | null> {
   }
 }
 
-/** Reads the dev file as a command: "sample", "moment", "spread", "item", "hours", "list", "plus", "review", or "review-update". */
+/** Reads the dev file as a command: "sample", "moment", "spread", "item", "hours", "list", "plus", "review", "review-syllabus", or "review-update". */
 export async function devCommand(): Promise<string | null> {
   if (!__DEV__) return null;
   if (Platform.OS === 'web') return webParam('dev');

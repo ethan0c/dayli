@@ -16,7 +16,7 @@ import sky from '@/public/photos/sky.jpg';
 import table from '@/public/photos/table.jpg';
 import { GET_APP_QR } from '@/lib/qr';
 import { faqJsonLd, pageMetadata } from '@/lib/seo';
-import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, money, plan } from '@/lib/site';
+import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, FREE_IMPORTS_TO_START, money, plan } from '@/lib/site';
 import { Waitlist } from './Waitlist';
 import styles from './home.module.css';
 
@@ -30,15 +30,15 @@ const PROOF = [
 ];
 
 /** Free and Plus side by side; the full table lives on /pricing. */
-const FREE = ['Calendar, to-dos, and the Today screen', 'Reminders', `${FREE_IMPORTS_PER_MONTH} AI imports a month`, 'Canvas assignments, imported once', 'Export your data'];
-const PLUS = ['Unlimited AI imports', 'Canvas assignments kept in sync', 'Changes to your work schedule, compared', 'Suggested times when plans overlap', 'Urgent items that ring like an alarm'];
+const FREE = ['Calendar, to-dos, and the Today screen', 'Reminders', `Start with ${FREE_IMPORTS_TO_START} AI imports, then ${FREE_IMPORTS_PER_MONTH} a month`, 'Canvas assignments, imported once', 'Export your data'];
+const PLUS = ['Unlimited AI imports', 'Canvas updates when you open the app', 'Changes to your work schedule, compared', 'Suggested times when plans overlap', 'Urgent items that ring like an alarm'];
 
 const FAQS = [
   { q: 'What can I add to Semli?', a: 'Paste a message or upload a screenshot, photo, or PDF up to 20 MB. Try a syllabus, class timetable, work schedule, or a deadline from your group chat. Review the dates Semli finds before adding them to your plan.' },
-  { q: 'Does Semli work with Canvas?', a: 'Yes. Paste your Canvas calendar feed link to import assignments. With Plus, their due dates stay in sync with Canvas. You can also upload a syllabus PDF or a screenshot of your Canvas to-do list.' },
+  { q: 'Does Semli work with Canvas?', a: 'Yes. Paste your Canvas calendar feed link to import assignments. With Plus, Semli checks Canvas for updates when you open the app (at most every few hours), and you can tap Sync now any time. You can also upload a syllabus PDF or a screenshot of your Canvas to-do list.' },
   { q: 'Can I use my plan in Apple Calendar or Google Calendar?', a: 'Yes. Go to You → Your data → Add to Calendar to export your events and dated to-dos, then import the file into Apple Calendar or Google Calendar. This creates a one-time copy. Changes in Semli won’t sync automatically, so export again when you need an updated copy.' },
   { q: 'What happens to my uploads?', a: 'Our AI provider reads your upload to find dates and schedule details. Semli’s servers don’t save the upload or the AI response. The plan you confirm stays on your phone, with cloud backup if you create an account. Our privacy policy explains how the AI provider handles your data.' },
-  { q: 'What can I do for free?', a: `Use the calendar, to-dos, reminders, and ${FREE_IMPORTS_PER_MONTH} AI imports a month with no time limit. Plus adds unlimited imports, Canvas sync, and comparisons when your work schedule changes.` },
+  { q: 'What can I do for free?', a: `Use the calendar, to-dos, and reminders with no time limit. Start with ${FREE_IMPORTS_TO_START} AI imports, then ${FREE_IMPORTS_PER_MONTH} a month. Plus adds unlimited imports, Canvas updates, and comparisons when your work schedule changes.` },
   { q: 'Is Semli available on Android?', a: 'Not yet. Semli is coming to iPhone first. In the meantime, you can try the syllabus import demo on our website without an account.' },
 ];
 
@@ -85,7 +85,7 @@ function AppleMark() {
 function GetApp({ className = 'btn' }: { className?: string }) {
   return APP_STORE_LIVE
     ? <a className={className} href={APP_STORE_URL}><AppleMark />Get the iPhone app</a>
-    : <Link className={className} href="/#beta"><AppleMark />Join the iPhone beta</Link>;
+    : <Link className={className} href="/#beta"><AppleMark />Join the beta waitlist</Link>;
 }
 
 export default function Home() {
@@ -101,7 +101,7 @@ export default function Home() {
           <h1 id="home-title" className="serif">Your week, already <span className={styles.accentWord}>organized</span>.</h1>
           <p className={styles.heroSub}>Classes, shifts, and deadlines in one plan. Add a syllabus, a work schedule, or a message, and Semli lays out what’s next.</p>
           <GetApp />
-          <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone. No account needed.' : 'The iPhone beta opens soon. The first 200 testers get in.'}</p>
+          <p className={styles.note}>{APP_STORE_LIVE ? 'Free on iPhone. No account needed.' : 'The iPhone beta opens soon. We’re inviting up to 200 beta testers.'}</p>
         </div>
         <div className={styles.heroShot}>
           <Shot name="today" width={440} priority label="Today: 34 minutes until Stats lecture ends, a full day on one bar, then the list with one overlap" />
@@ -123,9 +123,9 @@ export default function Home() {
           </div>
           <div className={styles.heroQr}>
             <div className="getapp-code">
-              <QrCode qr={GET_APP_QR} label={APP_STORE_LIVE ? 'QR code to get the iPhone app' : 'QR code to join the iPhone beta'} />
+              <QrCode qr={GET_APP_QR} label={APP_STORE_LIVE ? 'QR code to get the iPhone app' : 'QR code to join the beta waitlist'} />
             </div>
-            <p>{APP_STORE_LIVE ? 'Scan with your iPhone to get the app' : 'Scan with your iPhone to join the beta'}</p>
+            <p>{APP_STORE_LIVE ? 'Scan with your iPhone to get the app' : 'Scan with your iPhone to join the beta waitlist'}</p>
           </div>
         </div>
       </section>
@@ -190,7 +190,7 @@ export default function Home() {
         <Reveal className={styles.featureCopy}>
           <p className="eyebrow">For your semester</p>
           <h2 id="term-title" className="section-title">Your syllabus, laid out for the semester.</h2>
-          <p className="lede">Bring class times, exams, and assignment dates out of the PDF and into your plan. Connect Canvas for assignments, with Plus to keep due dates in sync.</p>
+          <p className="lede">Bring class times, exams, and assignment dates out of the PDF and into your plan. Connect Canvas for assignments. With Plus, Semli checks for updates when you open the app.</p>
           <Link className="textlink" href="/syllabus-to-calendar">How syllabus imports work</Link>
         </Reveal>
         <Reveal className={styles.single} style={stagger(1)}>
@@ -205,7 +205,7 @@ export default function Home() {
       <section className={`${styles.band} ${styles.soft} ${styles.plans}`} aria-labelledby="price-title">
         <Reveal className={styles.plansHead}>
           <h2 id="price-title" className="section-title">Start free. Add more with Plus.</h2>
-          <p className="lede">Everything you need to plan the week is free. Plus is for when you import a lot.</p>
+          <p className="lede">Everything you need to plan the week is free. Plus adds unlimited imports, Canvas updates, and help when your schedule changes.</p>
         </Reveal>
         <div className={styles.planCards}>
           <Reveal className={styles.planCard}>
@@ -245,7 +245,7 @@ export default function Home() {
           </Reveal>
         ) : (
           <Reveal className={styles.closingBeta} style={stagger(1)}>
-            <p className="lede">The iPhone beta opens soon. Join the first 200 testers on TestFlight, try it with your week, and send feedback directly to the developer.</p>
+            <p className="lede">The iPhone beta opens soon. We’re inviting up to 200 testers on TestFlight to try it with their week and send feedback directly to the developer.</p>
             <Waitlist />
           </Reveal>
         )}

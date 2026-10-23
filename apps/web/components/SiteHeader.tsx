@@ -29,7 +29,7 @@ export function SiteHeader() {
             </a>
           ) : (
             <Link className="btn" href="/#beta">
-              Join the beta
+              <span>Join the <span className="nav-beta">beta </span>waitlist</span>
             </Link>
           )}
         </nav>

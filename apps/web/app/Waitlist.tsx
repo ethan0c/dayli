@@ -65,7 +65,7 @@ export function Waitlist({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <form className={styles.waitlist} onSubmit={submit} noValidate aria-label="Join the iPhone beta">
+    <form className={styles.waitlist} onSubmit={submit} noValidate aria-label="Join the beta waitlist">
       <label className="sr-only" htmlFor={compact ? 'beta-email-hero' : 'beta-email'}>Email</label>
       <input
         id={compact ? 'beta-email-hero' : 'beta-email'}
@@ -81,7 +81,7 @@ export function Waitlist({ compact = false }: { compact?: boolean }) {
         aria-describedby={error ? 'beta-error' : undefined}
       />
       <button className="btn" type="submit" disabled={busy}>
-        {busy ? 'Adding you…' : 'Get the TestFlight link'}
+        {busy ? 'Adding you…' : 'Join the beta waitlist'}
       </button>
       {error ? <p id="beta-error" className={styles.waitlistError} role="alert">{error}</p> : null}
       {!compact && !error ? <p className={styles.waitlistNote}>We’ll email you when testing opens. Any email address works.</p> : null}

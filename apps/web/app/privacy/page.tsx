@@ -175,7 +175,7 @@ export default function PrivacyPage() {
           <h2>7. Your choices</h2>
           <ul>
             <li>
-              <strong>Review before it&apos;s added.</strong> Nothing Semli reads becomes part of your plan until you confirm it.
+              <strong>Review before it&apos;s added.</strong> You review AI imports before they become part of your plan. Connecting Canvas adds the assignments in your calendar feed, and with Plus, later feed updates are applied automatically.
             </li>
             <li>
               <strong>Undo.</strong> Open You → Your data → Recent changes to undo an import.

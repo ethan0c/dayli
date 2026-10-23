@@ -42,7 +42,7 @@ export default function WorkSchoolPage() {
         </>
       }
       faqs={[
-        { q: 'Which scheduling apps does it read?', a: 'Any of them, because it reads the screenshot, not the app. HotSchedules, 7shifts, When I Work, Deputy, Sling, Homebase, a spreadsheet, a text message, or a photo of a printed sheet.' },
+        { q: 'Which scheduling apps does it read?', a: 'You can upload screenshots from scheduling apps such as HotSchedules, 7shifts, When I Work, Deputy, Sling, or Homebase, a spreadsheet, or a photo of a printed schedule. You can also paste a text message. Check the shifts and fill in missing details before saving.' },
         { q: 'What if the schedule lists everyone on staff?', a: 'Tell Semli your name once. It picks out your rows and ignores the rest. If it cannot tell, it asks before saving anything.' },
         { q: 'How do I update shifts I’ve already added?', a: 'With Plus, import the updated schedule and review the comparison. Semli proposes new, changed, or removed shifts for you to confirm. You can also edit any shift by hand on the free plan.' },
         { q: 'Can it connect to my employer’s scheduling system directly?', a: 'Not currently. Send a screenshot, photo, or message instead; you don’t need to connect your employer’s account.' },

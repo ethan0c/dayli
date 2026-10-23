@@ -148,7 +148,7 @@ function RootLayout() {
       // A clock with a day ("2026-10-19 09:41") seeds the week around that day.
       const today = /^\d{4}-\d{2}-\d{2}/.exec(clock ?? '')?.[0] ?? localParts(new Date()).date;
       const demo = cmd === 'demo' || cmd === 'demo-syllabus';
-      if (cmd === 'sample' || cmd === 'moment' || cmd === 'spread' || cmd === 'item' || cmd === 'review' || cmd === 'review-update' || cmd === 'hours' || cmd === 'list' || demo) {
+      if (cmd === 'sample' || cmd === 'moment' || cmd === 'spread' || cmd === 'item' || cmd === 'review' || cmd === 'review-syllabus' || cmd === 'review-update' || cmd === 'hours' || cmd === 'list' || demo) {
         // Every first-time tip counts as seen, so the captures show the screens without them.
         store.setSettings({ onboarded: true, seeded: true, isStudent: true, major: 'nursing', firsts: { overlap: true, urgent: true, canvas: true, reimport: true, hours: true, week: true }, ...(cmd === 'hours' || cmd === 'list' ? { todayView: cmd } : {}), breaks: cmd === 'moment' ? [{ label: 'Fall break', start: addDays(today, 9), end: addDays(today, 13) }] : [] });
         if (cmd === 'hours' || cmd === 'list') setDevToday({ noMoment: true });
@@ -178,6 +178,10 @@ function RootLayout() {
         store.setPending({ extraction: (cmd === 'review' ? sampleScheduleExtraction : sampleScheduleUpdate)(today), source: 'Screenshot' });
         setTimeout(() => router.push('/review'), 2500);
       }
+      if (cmd === 'review-syllabus') {
+        store.setPending({ extraction: sampleSyllabusExtraction(today), source: 'NURS210-syllabus.pdf' });
+        setTimeout(() => router.push('/review'), 2500);
+      }
       // A recording: Today, then the Add tab, then the review of a screenshot or a syllabus,
       // which confirms itself and lands on Plan. Every transition is the real one.
       if (demo) {
@@ -192,6 +196,8 @@ function RootLayout() {
         }, 6500);
       }
       if (cmd === 'item') {
+        // The item screen's reminder line, shown with class reminders on so it names a real reminder.
+        store.setSettings({ reminders: { ...store.settings.reminders, classReminders: true, eventLead: 30 } });
         const first = Object.values(useStore.getState().items).find((i) => i.kind === 'event' && i.date >= today);
         if (first) setTimeout(() => router.push(`/item/${first.id}`), 2500);
       }

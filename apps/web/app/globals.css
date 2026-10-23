@@ -188,6 +188,12 @@ textarea {
   margin-left: 4px;
   font-size: 15px;
 }
+/* Phones: "Join the waitlist", so the one action stays inside the bar. */
+@media (max-width: 540px) {
+  .nav-beta {
+    display: none;
+  }
+}
 
 /* ---------- Type ---------- */
 /* The marketing serif: headlines only, never body, never the app's screens. */
@@ -1251,6 +1257,12 @@ textarea {
 }
 .cmp .no {
   color: var(--ink-3);
+}
+.cmp-note {
+  margin-top: 12px;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-2);
 }
 
 /* ---------- FAQ: hairline rows ---------- */

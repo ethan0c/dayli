@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { Reveal } from '@/components/Reveal';
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata, type Faq } from '@/lib/seo';
-import { FREE_IMPORTS_PER_MONTH, SUPPORT_EMAIL, TRIAL_DAYS, money, plan } from '@/lib/site';
+import { FREE_IMPORTS_PER_MONTH, FREE_IMPORTS_TO_START, START_WINDOW_DAYS, SUPPORT_EMAIL, TRIAL_DAYS, money, plan } from '@/lib/site';
 import { PlanCards } from './PlanCards';
 
 export const metadata: Metadata = pageMetadata({
   path: '/pricing',
   title: 'Pricing',
-  description: `Semli is free with ${FREE_IMPORTS_PER_MONTH} AI imports a month. Semli Plus is unlimited imports for students at ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} every six months, or ${money(plan('yearly').student)} a year.`,
+  description: `Semli is free, with ${FREE_IMPORTS_TO_START} AI imports to start and ${FREE_IMPORTS_PER_MONTH} a month after that. Semli Plus is unlimited imports for students at ${money(plan('monthly').student)} a month, ${money(plan('semester').student)} every six months, or ${money(plan('yearly').student)} a year.`,
   ownCard: true,
 });
 
@@ -16,12 +16,12 @@ const ROWS: { label: string; free: string | boolean; plus: string | boolean }[] 
   { label: 'Reminders', free: true, plus: true },
   { label: 'Urgent items that ring like an alarm', free: false, plus: true },
   { label: 'Add by hand', free: true, plus: true },
-  { label: 'AI imports from text, screenshots, and PDFs', free: `${FREE_IMPORTS_PER_MONTH} a month`, plus: 'Unlimited' },
+  { label: 'AI imports from text, screenshots, and PDFs', free: `${FREE_IMPORTS_TO_START} to start, then ${FREE_IMPORTS_PER_MONTH} a month`, plus: 'Unlimited' },
   { label: 'Syllabus import', free: 'Counts as an import', plus: true },
   { label: 'See changes to your work schedule', free: false, plus: true },
   { label: 'Overlap warnings and manual time edits', free: true, plus: true },
   { label: 'Suggested times for overlapping plans', free: false, plus: true },
-  { label: 'Canvas assignments', free: 'One-time import', plus: 'Kept in sync' },
+  { label: 'Canvas assignments', free: 'One-time import', plus: 'Updates when you open the app' },
   { label: 'Optional account with backup', free: true, plus: true },
   { label: 'Export your data', free: true, plus: true },
 ];
@@ -29,7 +29,7 @@ const ROWS: { label: string; free: string | boolean; plus: string | boolean }[] 
 const FAQS = [
   {
     q: 'Is there a free plan?',
-    a: `Yes. Your calendar, to-dos, reminders, and ${FREE_IMPORTS_PER_MONTH} AI imports a month are free, with no time limit. You can use the app as a guest.`,
+    a: `Yes. Your calendar, to-dos, and reminders are free, with no time limit. Start with ${FREE_IMPORTS_TO_START} AI imports to use in your first ${START_WINDOW_DAYS} days, then get ${FREE_IMPORTS_PER_MONTH} a month. You can use the app as a guest.`,
   },
   {
     q: 'What counts as an import?',
@@ -81,7 +81,7 @@ export default function PricingPage() {
           Start free. Add more with <span className="accent-word">Plus</span>.
         </h1>
         <p className="lede">
-          Keep your week organized for free. Plus adds unlimited imports, Canvas sync, work-schedule comparisons,
+          Keep your week organized for free. Plus adds unlimited imports, Canvas updates, work-schedule comparisons,
           suggested times for overlapping plans, and urgent items that ring like an alarm.
         </p>
       </header>
@@ -112,6 +112,7 @@ export default function PricingPage() {
             ))}
           </tbody>
         </table>
+        <p className="cmp-note">Ringing alarms require iOS 26 or later and alarm permission.</p>
       </Reveal>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd('/pricing', 'Pricing')) }} />

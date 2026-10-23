@@ -343,9 +343,12 @@ export default function ReviewScreen() {
     const due = nonSeries.length - exams.length;
     const todos = nonSeries.filter((d) => d.kind === 'task' && !exams.includes(d)).length;
     const events = nonSeries.filter((d) => d.kind === 'event').length;
+    // `exams` holds quizzes too; the header names them apart.
+    const quizzes = exams.filter((e) => assessment(e.title) === 'quiz').length;
+    const tests = [exams.length - quizzes || !quizzes ? count(exams.length - quizzes, 'exam') : null, quizzes ? count(quizzes, 'quiz', 'quizzes') : null];
     const parts = isSyllabus
-      ? [count(exams.length, 'exam'), count(due, 'due date')]
-      : [exams.length ? count(exams.length, 'exam') : null, todos ? count(todos, 'to-do') : null, events ? count(events, 'event') : null, seriesCount ? count(seriesCount, 'class', 'classes') : null].filter(Boolean);
+      ? [...tests, count(due, 'due date')].filter(Boolean)
+      : [...(exams.length ? tests : []), todos ? count(todos, 'to-do') : null, events ? count(events, 'event') : null, seriesCount ? count(seriesCount, 'class', 'classes') : null].filter(Boolean);
     line = parts.length ? `${span} · ${parts.join(', ')}` : span;
   } else {
     line = undated.length ? 'Nothing has a date yet' : 'Nothing to add';
@@ -505,7 +508,7 @@ export default function ReviewScreen() {
     ? `${untimed.map((d) => weekdayLong(d.date)).join(' and ')} will be added without a time. You can add times later in Plan.`
     : isUpdate && diff.unchanged.length
       ? `${count(diff.unchanged.length, 'shift')} ${diff.unchanged.length === 1 ? 'is the same as before and stays as it is' : 'are the same as before and stay as they are'}.`
-      : isSyllabus ? 'With reminders on, you’ll be notified the evening before and the morning of each deadline.' : null;
+      : isSyllabus ? 'With reminders on, you’ll hear about each deadline the evening before and on the morning it’s due.' : null;
 
   const sheet = (
     <Sheet

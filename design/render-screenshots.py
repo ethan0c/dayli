@@ -125,15 +125,15 @@ LAYOUTS = {
 # every capture filled with the sample fortnight (You -> Your data -> Fill the next two weeks).
 # ~word~ marks the one accent word; it is the only lavender on the image. Background: the sky (--bg).
 SHOTS: list[tuple[str, str, str, str]] = [
-    ("today", "Know what matters ~today~.", "The next thing, the day as a bar, and your list under it.", "sky"),
-    ("review", "A semester in ~two minutes~.", "Drop in a syllabus. Semli reads every exam and due date.", "sky"),
-    ("review-update", "~Screenshot~ your shifts.", "New, moved, and dropped shifts, before anything is saved.", "sky"),
-    ("plan", "School and work in ~one week~.", "Every class in its own color, overlaps in red, exams ringed.", "sky"),
-    ("spread", "A heavy week, ~spread out~.", "Semli finds the light days before each deadline. One tap to plan them.", "sky"),
+    ("today", "Classes, shifts, and ~deadlines~.", "The next thing, the day as a bar, and your list under it.", "sky"),
+    ("review-syllabus", "Your syllabus, in your ~planner~.", "Drop in a syllabus. Check the exams and due dates Semli finds.", "sky"),
+    ("review-update", "See what changed in your ~shifts~.", "New, moved, and dropped shifts, before anything is saved.", "sky"),
+    ("plan", "School and work, ~one calendar~.", "Every class in its own color, overlaps in red, exams ringed.", "sky"),
+    ("spread", "Plan ahead for ~busy weeks~.", "Semli finds the light days before each deadline. One tap to plan them.", "sky"),
     ("today-hours", "Your day, ~hour by hour~.", "Classes, shifts, and the gaps between them on one timeline.", "sky"),
-    ("school", "Every class, every ~exam~.", "Courses, due dates, and the weeks left in the term.", "sky"),
-    ("item", "Reminders that ~ring~.", "A nudge before class, or an alarm for the things you can't miss.", "sky"),
-    ("canvas", "Canvas, ~kept in sync~.", "Connect once. New assignments land in your plan on their own.", "sky"),
+    ("school", "Keep your ~course dates~ together.", "Courses, due dates, and the weeks left in the term.", "sky"),
+    ("item", "Choose your ~reminders~.", "A reminder before class, or before the things you can't miss.", "sky"),
+    ("canvas", "Bring ~Canvas~ into your plan.", "Import your Canvas calendar. With Plus, Semli checks for updates when you open the app.", "sky"),
 ]
 # No paywall shot: App Review rejected 1.0 under 2.3.7 (Oct 23, 2026) because a screenshot showed
 # prices and a "free" caption. Screenshots show the app, never prices, trials or "free".
@@ -141,18 +141,16 @@ SHOTS: list[tuple[str, str, str, str]] = [
 # Per storefront: only the captions that change. Local words, same accent and line lengths.
 LOCALE_CAPTIONS: dict[str, dict[str, tuple[str, str]]] = {
     "en-GB": {
-        "school": ("A term in ~two minutes~.", "Drop in a module guide. Semli reads every exam and deadline."),
-        "review-update": ("~Screenshot~ your rota.", "New, moved, and dropped shifts, before anything is saved."),
-        "plan": ("Uni and work in ~one week~.", "Green is done, red is a clash, a ring is an exam."),
-        "today-mon-hours": ("~Hour by hour~.", "Shifts, lectures, and clashes in red, on one timeline."),
-        "add": ("Type it or ~screenshot~ it.", "Semli reads rotas, module guides, and messages from your course."),
+        "review-syllabus": ("Your module guide, ~sorted~.", "Drop in a module guide. Check the exams and deadlines Semli finds."),
+        "review-update": ("See what changed on your ~rota~.", "New, moved, and dropped shifts, before anything is saved."),
+        "plan": ("Uni and work, ~one calendar~.", "Green is done, red is a clash, a ring is an exam."),
+        "today-hours": ("Your day, ~hour by hour~.", "Shifts, lectures, and clashes in red, on one timeline."),
     },
     "en-AU": {
-        "school": ("A semester in ~two minutes~.", "Drop in a unit outline. Semli reads every exam and due date."),
-        "review-update": ("~Screenshot~ your roster.", "New, moved, and dropped shifts, before anything is saved."),
-        "plan": ("Uni and work in ~one week~.", "Green is done, red is a clash, a ring is an exam."),
-        "today-mon-hours": ("~Hour by hour~.", "Shifts, lectures, and clashes in red, on one timeline."),
-        "add": ("Type it or ~screenshot~ it.", "Semli reads rosters, unit outlines, and messages from your course."),
+        "review-syllabus": ("Your unit outline, ~sorted~.", "Drop in a unit outline. Check the exams and due dates Semli finds."),
+        "review-update": ("See what changed on your ~roster~.", "New, moved, and dropped shifts, before anything is saved."),
+        "plan": ("Uni and work, ~one calendar~.", "Green is done, red is a clash, a ring is an exam."),
+        "today-hours": ("Your day, ~hour by hour~.", "Shifts, lectures, and clashes in red, on one timeline."),
     },
 }
 

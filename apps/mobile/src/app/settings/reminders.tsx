@@ -94,7 +94,7 @@ export default function RemindersScreen() {
         </Group>
       ) : null}
 
-      <Group title="Event and deadline reminders" footer="Classes that repeat every week stay quiet unless you turn them on. Deadlines on the same day share one reminder, and no day gets more than five.">
+      <Group title="Event and deadline reminders" footer="Repeating classes stay quiet unless you turn on class reminders. Deadlines due on the same day are grouped together.">
         <ToggleRow label="Reminders" value={prefs.enabled && allowed !== false} onChange={(on) => void toggle('enabled')(on)} />
         <ToggleRow label="Before each class" value={!!prefs.classReminders} onChange={(on) => { feedback('select'); update({ classReminders: on }); }} />
         <View style={[styles.row, hairline]}>
@@ -114,12 +114,12 @@ export default function RemindersScreen() {
         {timeRow('Morning of a deadline', 'morningAt', true)}
       </Group>
 
-      <Group title="Quiet hours" footer="Event and deadline reminders wait until quiet hours end, unless that would be too late.">
+      <Group title="Quiet hours" footer="Event reminders and evening deadline reminders wait until quiet hours end, unless that would be too late. Choose your morning reminder and daily summary times separately.">
         {timeRow('From', 'quietStart')}
         {timeRow('Until', 'quietEnd', true)}
       </Group>
 
-      <Group title="Daily summary" footer="Today’s schedule, what’s due today and the next deadline within three days. It takes the place of the morning deadline reminder. No notification if there’s nothing to show.">
+      <Group title="Daily summary" footer="Today’s plans, what’s due, and the next deadline within three days. When the summary arrives before a deadline, it replaces that morning’s deadline reminder. Nothing scheduled? No summary.">
         <ToggleRow label="Daily summary" value={prefs.briefing && allowed !== false} onChange={(on) => void toggle('briefing')(on)} />
         {timeRow('At', 'briefingAt', true)}
       </Group>

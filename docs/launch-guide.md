@@ -92,15 +92,15 @@ Raw capture name, caption on the image, and the subline. Since Oct 21, 2026 ever
 
 | # | Raw | Caption | Subline | How to capture |
 |---|---|---|---|---|
-| 1 | `today` | Know what matters today | The next thing, the day as a bar, and your list under it. | `sample`, Today in list view |
-| 2 | `review` | A semester in two minutes | Drop in a syllabus. Semli reads every exam and due date. | `review` with the syllabus (`demo-syllabus` stops on it) |
-| 3 | `review-update` | Screenshot your shifts | New, moved, and dropped shifts, before anything is saved. | `review-update` |
-| 4 | `plan` | School and work in one week | Every class in its own color, overlaps in red, exams ringed. | `sample`, `semli://plan` |
-| 5 | `spread` | A heavy week, spread out | Semli finds the light days before each deadline. One tap to plan them. | `spread` |
+| 1 | `today` | Classes, shifts, and deadlines | The next thing, the day as a bar, and your list under it. | `sample`, Today in list view |
+| 2 | `review-syllabus` | Your syllabus, in your planner | Drop in a syllabus. Check the exams and due dates Semli finds. | `review-syllabus` |
+| 3 | `review-update` | See what changed in your shifts | New, moved, and dropped shifts, before anything is saved. | `review-update` |
+| 4 | `plan` | School and work, one calendar | Every class in its own color, overlaps in red, exams ringed. | `sample`, `semli://plan` |
+| 5 | `spread` | Plan ahead for busy weeks | Semli finds the light days before each deadline. One tap to plan them. | `spread` on an empty plan (it loads its test fortnight only then), launched twice so the welcome cover is gone |
 | 6 | `today-hours` | Your day, hour by hour | Classes, shifts, and the gaps between them on one timeline. | `hours` |
-| 7 | `school` | Every class, every exam | Courses, due dates, and the weeks left in the term. | `sample`, `semli://school` |
-| 8 | `item` | Reminders that ring | A nudge before class, or an alarm for the things you can't miss. | `item` |
-| 9 | `canvas` | Canvas, kept in sync | Connect once. New assignments land in your plan on their own. | `sample`, `semli://settings/canvas` |
+| 7 | `school` | Keep your course dates together | Courses, due dates, and the weeks left in the term. | `sample`, `semli://school` |
+| 8 | `item` | Choose your reminders | A reminder before class, or before the things you can't miss. | `item` (turns class reminders on, 30 min) |
+| 9 | `canvas` | Bring Canvas into your plan | Import your Canvas calendar. With Plus, Semli checks for updates when you open the app. | `sample`, `semli://settings/canvas` |
 
 Render with `python3 design/render-screenshots.py` (all nine, sky and serif by default); a shot without its raw capture is skipped. No paywall shot: prices, trials and "free" are not allowed in store screenshots (guideline 2.3.7), and 1.0 was rejected for it on Oct 23, 2026. `raw/paywall.png` stays for the website only.
 

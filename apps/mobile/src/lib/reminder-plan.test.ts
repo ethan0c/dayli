@@ -15,10 +15,10 @@ describe('planReminders', () => {
   it('never turns legacy examples into reminders or briefing counts', () => {
     const example = item({ id: 'demo', title: 'Example shift', date: '2026-10-20', start: '16:00', end: '22:00', sourceId: 'sample' });
     expect(planReminders([example], DEFAULT_REMINDERS, now)).toEqual([]);
-    const real = item({ id: 'real', title: 'Real shift', date: '2026-10-20', start: '16:00', end: '22:00', sourceId: 'schedule.jpg' });
+    const real = item({ id: 'real', title: 'Real shift', category: 'work', date: '2026-10-20', start: '16:00', end: '22:00', sourceId: 'schedule.jpg' });
     const plan = planReminders([example, real], DEFAULT_REMINDERS, now);
     expect(plan.some((notification) => notification.itemId === 'demo')).toBe(false);
-    expect(plan.find((notification) => notification.kind === 'briefing')?.body).toContain('1 item today');
+    expect(plan.find((notification) => notification.kind === 'briefing')?.body).toBe('1 shift.');
     expect(plan.some((notification) => notification.itemId === 'real')).toBe(true);
   });
 
@@ -75,7 +75,7 @@ describe('planReminders', () => {
     );
     const b = plan.find((p) => p.id === 'brief-2026-10-20')!;
     expect(b.time).toBe('08:00');
-    expect(b.body).toBe('2 items today: Psych lecture 9–10:15 am; 1 to-do. Stats exam is due Thursday.');
+    expect(b.body).toBe('1 class and 1 to-do. Next: Stats exam on Thursday.');
     expect(plan.some((p) => p.id === 'brief-2026-10-25')).toBe(false);
   });
 
@@ -110,7 +110,7 @@ describe('planReminders', () => {
     const plan = planReminders([item({ id: 'essay', kind: 'task', title: 'Essay', date: '2026-10-20', isDeadline: true })], DEFAULT_REMINDERS, now);
     expect(plan.map((p) => p.id)).toEqual(['dl1-essay', 'brief-2026-10-20']);
     expect(plan.find((p) => p.id === 'dl1-essay')?.url).toBe('/item/essay');
-    expect(plan.find((p) => p.id === 'brief-2026-10-20')?.body).toBe('1 item today. Due today: Essay.');
+    expect(plan.find((p) => p.id === 'brief-2026-10-20')?.body).toBe('Due today: Essay.');
   });
 
   it('sends at most five a day, dropping the latest ordinary event reminders first', () => {
@@ -119,6 +119,23 @@ describe('planReminders', () => {
     const plan = planReminders([...events, urgent], DEFAULT_REMINDERS, now).filter((p) => p.date === '2026-10-20');
     expect(plan).toHaveLength(5);
     expect(plan.map((p) => p.id)).toEqual(['brief-2026-10-20', 'ev-e0', 'ev-e1', 'ev-e2', 'ev-u']);
+  });
+
+  it('says an exam is on a day, not due, and counts the day by kind', () => {
+    const plan = planReminders(
+      [
+        item({ id: 'exam', title: 'Stats exam', date: '2026-10-21', start: '09:00', end: '10:30', isDeadline: true }),
+        item({ id: 'lab', kind: 'task', title: 'Lab report', date: '2026-10-21', isDeadline: true }),
+        item({ id: 'shift', title: 'Café shift', category: 'work', date: '2026-10-21', start: '16:00', end: '22:00' }),
+      ],
+      DEFAULT_REMINDERS,
+      now,
+    );
+    const byId = Object.fromEntries(plan.map((p) => [p.id, p]));
+    expect(byId['ev-shift']?.body).toBe('Starts at 4:00 pm. Ends at 10:00 pm.');
+    expect(byId['brief-2026-10-21']?.body).toBe('1 shift. Today: Stats exam. Due today: Lab report.');
+    const alone = planReminders([item({ id: 'quiz', title: 'Bio quiz', date: '2026-10-21', start: '09:00', isDeadline: true })], { ...DEFAULT_REMINDERS, briefing: false }, now);
+    expect(alone.filter((p) => p.kind === 'deadline').map((p) => p.body)).toEqual(['Wednesday at 9:00 am.', 'Today at 9:00 am.']);
   });
 
   it('knows quiet hours across midnight', () => {
@@ -133,7 +150,8 @@ describe('planReminders', () => {
       trial: { endsAt: '2026-10-26T14:03:00Z', label: '$14.99 per 6 months' },
     });
     expect(plan.map((p) => [p.id, p.date, p.time])).toEqual([['trial-reminder', '2026-10-24', '18:00']]);
-    expect(plan[0]!.body).toContain('$14.99 per 6 months');
+    expect(plan[0]!.title).toBe('Your Plus trial ends on Oct 26');
+    expect(plan[0]!.body).toBe('Then $14.99 per 6 months. Manage or cancel in You → Your plan.');
   });
 
   it('drops the trial reminder once it is in the past', () => {

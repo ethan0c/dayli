@@ -6,12 +6,12 @@ import { useState } from 'react';
 import { useReveal } from '@/components/Reveal';
 import { feedback } from '@/lib/feedback';
 import fireworks from '@/public/photos/plus-fireworks.jpg';
-import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, PLUS_PLANS, TRIAL_DAYS, money, type PlanId } from '@/lib/site';
+import { APP_STORE_LIVE, APP_STORE_URL, FREE_IMPORTS_PER_MONTH, FREE_IMPORTS_TO_START, PLUS_PLANS, TRIAL_DAYS, money, type PlanId } from '@/lib/site';
 
 const FREE = [
   'Calendar, to-dos, and repeating classes',
   'Reminders and overlap warnings',
-  `${FREE_IMPORTS_PER_MONTH} imports a month from text, screenshots, or PDFs`,
+  `Start with ${FREE_IMPORTS_TO_START} AI imports, then ${FREE_IMPORTS_PER_MONTH} a month`,
   'Add or edit items by hand anytime',
   'Optional account with plan backup',
 ];
@@ -41,7 +41,7 @@ export function PlanCards() {
           </header>
           <ul>{FREE.map((feature) => <li key={feature}>{feature}</li>)}</ul>
           <div className="plan-actions">
-            <Link className="btn ghost" href="/#try">Try a schedule</Link>
+            <Link className="btn ghost" href="/syllabus-to-calendar#try">Try a schedule</Link>
             <p className="plan-caption">Keep using the free plan for as long as you like.</p>
           </div>
         </article>
@@ -58,7 +58,7 @@ export function PlanCards() {
               <span className="per">{PERIOD[billing]}</span>
             </div>
             <p className="plan-caption">{money(price)} billed {selected.billed}.{selected.months > 1 ? ` Equivalent to ${money(price / selected.months)} a month.` : ''}</p>
-            <p className="plan-description">Unlimited imports, Canvas kept in sync, work-schedule updates, suggested times for overlapping plans, and urgent items that ring like an alarm.</p>
+            <p className="plan-description">Unlimited imports, Canvas updates when you open the app, work-schedule updates, suggested times for overlapping plans, and urgent items that ring like an alarm.</p>
           </header>
 
           <div>
@@ -90,7 +90,7 @@ export function PlanCards() {
           </div>
 
           <div className="plan-actions">
-            {APP_STORE_LIVE ? <a className="btn" href={APP_STORE_URL}>Get Semli Plus on iPhone</a> : <Link className="btn" href="/#beta">Join the iPhone beta</Link>}
+            {APP_STORE_LIVE ? <a className="btn" href={APP_STORE_URL}>Get Semli Plus on iPhone</a> : <Link className="btn" href="/#beta">Join the beta waitlist</Link>}
             <p className="plan-caption">Eligible new subscribers can try Plus free for {TRIAL_DAYS} days. Subscriptions are purchased in the iPhone app. Prices shown in USD.</p>
             <div className="plan-links"><Link href="/terms">Terms</Link><span aria-hidden="true">·</span><Link href="/privacy">Privacy</Link></div>
           </div>
