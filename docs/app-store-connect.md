@@ -72,7 +72,7 @@ If the questionnaire asks about "frequent or intense" anything, every answer is 
 
 **Promotional text** [170], editable without a new build:
 ```
-Drop in a syllabus or a screenshot of your work schedule. Semli reads the dates and tells you what matters today. Free to start.
+Drop in a syllabus or a screenshot of your work schedule. Semli reads the dates and tells you what matters today.
 ```
 
 **Description** [4000]:
@@ -135,15 +135,17 @@ First release. Syllabus and work-schedule import, Canvas sync, reminders, and th
 
 | # | File | Caption on the image |
 |---|---|---|
-| 1 | `01-school.png` | A semester in two minutes |
-| 2 | `02-review-update.png` | Screenshot your shifts |
-| 3 | `03-today-mon.png` | Know what matters today |
+| 1 | `01-today.png` | Know what matters today |
+| 2 | `02-review.png` | A semester in two minutes |
+| 3 | `03-review-update.png` | Screenshot your shifts |
 | 4 | `04-plan.png` | School and work in one week |
-| 5 | `05-review.png` | Nothing saves until you say so |
-| 6 | `06-paywall.png` | The planner stays free |
-| 7 | `07-today-mon-hours.png` | Hour by hour |
-| 8 | `08-add.png` | Type it or screenshot it |
-| 9 | `09-item.png` | Every detail one tap away (optional) |
+| 5 | `05-spread.png` | A heavy week, spread out |
+| 6 | `06-today-hours.png` | Your day, hour by hour |
+| 7 | `07-school.png` | Every class, every exam |
+| 8 | `08-item.png` | Reminders that ring |
+| 9 | `09-canvas.png` | Canvas, kept in sync |
+
+**No prices, trials or "free" in any screenshot, the name, subtitle, keywords or promotional text** (guideline 2.3.7; 1.0 was rejected for the paywall shot on Oct 23, 2026). Prices belong in the description's Semli Plus paragraph and on the paywall in the app. Delete `10-paywall.png` from App Store Connect if it is still uploaded.
 
 The set was rerendered Oct 21, 2026: ten shots on the morning sky with the wordmark and an EB Garamond caption each, no sublines, one accent phrase in lavender italic, captured with the new main-tab headers; the header and search card moved to the same sky and faces. Re-upload all ten, the 6.3-inch copies, the header and the search card. Apple scales the 6.9-inch set to every other iPhone size. The 6.1"/6.3" slot (1206 × 2622) is optional; downscaled copies are in `design/screenshots/6.3-inch/`. The foldable set was dropped. No iPad set (`supportsTablet: false`). App previews (video): none for 1.0.
 
