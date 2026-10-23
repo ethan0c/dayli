@@ -142,7 +142,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
     const test = assessment(it.title);
     return {
       id: it.id, date: it.date, kind: shapeFor(test),
-      tone: it.done ? 'green' : it.date === now.date ? 'red' : 'ink',
+      tone: it.done ? 'green' : 'ink',
       label: test ? (it.title.length <= 10 ? it.title : test === 'exam' ? 'Exam' : 'Quiz') : undefined,
     };
   });

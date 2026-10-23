@@ -32,10 +32,9 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
       const start = iv ? iv.start - base : (dayNumber(it.date) - dayNumber(now.date)) * 1440 + toMinutes(it.start!);
       const s = Math.max(START, start);
       const e = Math.min(END, iv ? iv.end - base : start + 60);
-      const past = e <= nowMin || it.done;
       const color = highlight
         ? it.id === highlight ? c.chartBooked : c.controlOutline
-        : past ? c.added : c.chartBooked;
+        : it.done ? c.added : e <= nowMin ? c.controlOutline : c.chartBooked;
       return { id: it.id, left: ((s - START) / SPAN) * 100, width: ((e - s) / SPAN) * 100, color, dim: highlight ? it.id !== highlight : false };
     })
     .filter((b) => b.width > 0)

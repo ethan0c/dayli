@@ -20,7 +20,7 @@ export type WeekBlock = {
   id: string;
   start: string;
   end: string;
-  /** ink is booked, green is done or new, red is an overlap or dropped, grey is context. */
+  /** ink is booked, green is done or new, red is an overlap or dropped, grey is past or context. */
   tone: 'ink' | 'green' | 'red' | 'grey';
   /** Outline only: where a shift used to be (dashed) or a dropped one (red). */
   outline?: 'dashed' | 'solid';
@@ -31,7 +31,6 @@ export type WeekMark = {
   time: string;
   /** A dot is a due date, a ring a quiz, a target an exam (`shapeFor`). */
   kind: MarkShape;
-  tone?: 'ink' | 'red';
 };
 
 export type WeekDay = {
@@ -102,7 +101,7 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
         })}
         {today ? <NowLine at={{ y: nowTop(height) }} color={c.inkPrimary} inset={selected} /> : null}
         {mergeMarks((day.marks ?? []).map((m) => ({ ...m, y: ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height })), chart.ring).map((m) => {
-          const mark = <Mark key={m.id} at={{ y: clampY(m.y, height, m.kind) }} kind={m.kind} color={m.tone === 'red' ? c.conflict : c.chartBooked} />;
+          const mark = <Mark key={m.id} at={{ y: clampY(m.y, height, m.kind) }} kind={m.kind} color={c.chartBooked} />;
           return animate ? <Animated.View key={m.id} entering={enter.fade} pointerEvents="none" style={StyleSheet.absoluteFill}>{mark}</Animated.View> : mark;
         })}
       </View>

@@ -47,7 +47,6 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
       ) : !isPlus ? (
         <View style={styles.suggestion}>
           <GroupLabel>Semli Plus</GroupLabel>
-          <T token="callout" color={c.inkSecondary}>Find a free time for this event around your fixed commitments. Overlap warnings and manual edits are always free.</T>
           <Button label="Find a time with Plus" variant="secondary" onPress={() => void openPlus()} />
         </View>
       ) : suggestion ? (
@@ -67,7 +66,7 @@ export function OverlapNotice({ item, items }: { item: Item; items: Item[] }) {
 }
 
 const styles = StyleSheet.create({
-  root: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 20, paddingBottom: 10, gap: 12 },
+  root: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 16, paddingBottom: 6, gap: 12 },
   heading: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   fact: { gap: 2 },
   link: { alignSelf: 'flex-start', minHeight: 44 },

@@ -52,9 +52,10 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
         if (!block) return null;
         const { top, height: h, size } = block;
         const conflict = conflicts.has(it.id);
-        const past = it.done || (it.end ? toMinutes(it.end) <= nowMin : toMinutes(it.start!) + 60 <= nowMin);
-        const bg = conflict ? c.conflict : past ? c.addedBg : it.kind === 'task' ? c.row : c.chartBooked;
-        const ink = conflict ? c.onPrimary : past ? c.added : it.kind === 'task' ? c.inkPrimary : c.chartOnBooked;
+        // Green only for what was marked done; something that simply ended is quiet grey, never ticked.
+        const past = !it.done && (it.end ? toMinutes(it.end) <= nowMin : toMinutes(it.start!) + 60 <= nowMin);
+        const bg = conflict ? c.conflict : it.done ? c.addedBg : past || it.kind === 'task' ? c.row : c.chartBooked;
+        const ink = conflict ? c.onPrimary : it.done ? c.added : past ? c.inkSecondary : it.kind === 'task' ? c.inkPrimary : c.chartOnBooked;
         const sub = it.kind === 'event' && it.end ? formatRange(it.start!, it.end) : formatTime(it.start!);
         const column = block;
         const details = size === 'full';
@@ -65,10 +66,10 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
               style={({ pressed }) => [styles.block, { backgroundColor: bg, paddingVertical: size === 'bar' ? 0 : h < 28 ? 2 : 4, borderRadius: Math.min(8, h / 2), opacity: pressed ? 0.7 : 1 }]}>
               {size === 'bar' ? null : <>
               <View style={styles.blockText}>
-                {past && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
+                {it.done && it.kind === 'event' ? <Icon name="tick" size={12} color={ink} strokeWidth={2.5} /> : null}
                 <T token="subhead" color={ink} numberOfLines={1} style={styles.blockTitle}>{it.urgent ? 'Urgent · ' : ''}{it.title}</T>
               </View>
-              {details ? <T token="caption" color={conflict ? c.onPrimary : past ? c.added : it.kind === 'task' ? c.inkSecondary : c.chartOnBooked} numberOfLines={1}>{sub}{conflict && !overlapLine ? ' · Overlaps' : it.employer ? ` · ${it.employer}` : ''}</T> : null}
+              {details ? <T token="caption" color={conflict ? c.onPrimary : it.done ? c.added : past || it.kind === 'task' ? c.inkSecondary : c.chartOnBooked} numberOfLines={1}>{sub}{conflict && !overlapLine ? ' · Overlaps' : it.employer ? ` · ${it.employer}` : ''}</T> : null}
               {overlapLine ? <T token="caption" color={c.onPrimary}>Overlaps</T> : null}
               </>}
             </Pressable>

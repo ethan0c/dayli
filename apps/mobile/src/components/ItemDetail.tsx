@@ -226,6 +226,9 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
           ) : null}
         </View>
 
+        {/* Straight under the time, so the overlap and its one action show without scrolling. */}
+        <OverlapNotice key={item.id} item={item} items={items} />
+
         <Animated.View layout={layout} style={styles.rows}>
           {editing === 'date' ? (
             <Animated.View entering={enter.drop} style={styles.pickers}>
@@ -277,8 +280,6 @@ export function ItemDetail({ id, onClose, onOpen }: { id?: string; onClose?: () 
             <DayBar items={dayItems} now={{ date: item.date, time: now.time }} conflicts={conflicts} highlight={item.id} />
           </View>
         ) : null}
-
-        <OverlapNotice key={item.id} item={item} items={items} />
 
         <View style={{ gap: 6 }}>
           <GroupLabel>Notes</GroupLabel>

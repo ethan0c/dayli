@@ -244,7 +244,7 @@ export function SchoolPhone() {
         </div>
         <MapHead cols={['Oct 19', '26', 'Nov 2', '9']} />
         <MapRow code="STAT" marks={[{ left: 14, kind: 'ring' }, { left: 64, kind: 'dot' }]} />
-        <MapRow code="PSYC" marks={[{ left: 0, kind: 'dot', tone: 'red' }, { left: 39, kind: 'dot' }, { left: 89, kind: 'dot' }]} />
+        <MapRow code="PSYC" marks={[{ left: 0, kind: 'dot' }, { left: 39, kind: 'dot' }, { left: 89, kind: 'dot' }]} />
         <MapRow code="NURS" marks={[{ left: 28, kind: 'dot' }, { left: 79, kind: 'ring' }]} />
         <MapRow code="BIOL" marks={[{ left: 86, kind: 'dot' }]} />
       </div>

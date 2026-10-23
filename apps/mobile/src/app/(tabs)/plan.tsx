@@ -136,9 +136,9 @@ export default function PlanScreen() {
     const blocks = list.filter((i) => i.kind === 'event' && i.start).map((i) => {
       const end = eventEnd(i);
       const past = date < now.date || (date === now.date && toMinutes(end) <= nowMin);
-      return { id: i.id, start: i.start!, end, tone: i.done || past ? 'green' as const : weekConflicts.has(i.id) ? 'red' as const : 'ink' as const };
+      return { id: i.id, start: i.start!, end, tone: i.done ? 'green' as const : past ? 'grey' as const : weekConflicts.has(i.id) ? 'red' as const : 'ink' as const };
     });
-    const marks = list.filter((i) => i.isDeadline && i.start).map((i) => ({ id: i.id, time: i.start!, kind: shapeFor(assessment(i.title)), tone: date === now.date && !i.done ? 'red' as const : 'ink' as const }));
+    const marks = list.filter((i) => i.isDeadline && i.start).map((i) => ({ id: i.id, time: i.start!, kind: shapeFor(assessment(i.title)) }));
     return { date, blocks, marks, unknown: list.some(isUntimedEvent) };
   }), [week, weekItems, weekConflicts, now.date, nowMin]);
 
@@ -249,7 +249,8 @@ export default function PlanScreen() {
           <ChartKey entries={keyOf([
             // Every glyph on the chart has a line here, including the plain blocks and the now line.
             days.some((d) => d.blocks.some((b) => b.tone === 'ink')) && { glyph: 'block', color: c.chartBooked, label: 'Scheduled' },
-            days.some((d) => d.blocks.some((b) => b.tone === 'green')) && { glyph: 'block', color: c.added, label: 'Done or past' },
+            days.some((d) => d.blocks.some((b) => b.tone === 'green')) && { glyph: 'block', color: c.added, label: 'Done' },
+            days.some((d) => d.blocks.some((b) => b.tone === 'grey')) && { glyph: 'block', color: c.controlOutline, label: 'Past' },
             days.some((d) => d.blocks.some((b) => b.tone === 'red')) && { glyph: 'block', color: c.conflict, label: 'Overlap' },
             ...markKey(days.flatMap((d) => d.marks ?? []), c),
             days.some((d) => d.unknown) && { glyph: 'outline', color: c.changed, label: 'Needs a time' },

@@ -80,7 +80,7 @@ export default function SchoolScreen() {
   const next = deadlines[0];
   const inMap = deadlines.filter((i) => diffDays(now.date, i.date) < MAP_DAYS);
   const marksFor = (courseId: string): TermMark[] => inMap.filter((i) => i.courseId === courseId).map((i) => ({
-    id: i.id, date: i.date, kind: shapeFor(assessment(i.title)), tone: i.date === now.date ? 'red' : 'ink',
+    id: i.id, date: i.date, kind: shapeFor(assessment(i.title)),
   }));
   const mapEnd = addDays(now.date, MAP_DAYS - 1);
   // A tapped mark's id, 'all' for the whole list, or nothing. A picked item that gets done or deleted drops out.
