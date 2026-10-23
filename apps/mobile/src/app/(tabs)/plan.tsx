@@ -242,10 +242,13 @@ export default function PlanScreen() {
         <View style={styles.legend}>
           <T token="callout" color={c.inkSecondary} tabular>{`${planCount(weekItems)}${workHours ? ` · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}` : ''}`}</T>
           <ChartKey entries={keyOf([
-            days.some((d) => d.blocks.some((b) => b.tone === 'green')) && { glyph: 'block', color: c.added, label: 'Done' },
+            // Every glyph on the chart has a line here, including the plain blocks and the now line.
+            days.some((d) => d.blocks.some((b) => b.tone === 'ink')) && { glyph: 'block', color: c.chartBooked, label: 'Scheduled' },
+            days.some((d) => d.blocks.some((b) => b.tone === 'green')) && { glyph: 'block', color: c.added, label: 'Done or past' },
             days.some((d) => d.blocks.some((b) => b.tone === 'red')) && { glyph: 'block', color: c.conflict, label: 'Overlap' },
             ...markKey(days.flatMap((d) => d.marks ?? []), c),
             days.some((d) => d.unknown) && { glyph: 'outline', color: c.changed, label: 'Needs a time' },
+            thisWeek && { glyph: 'now', color: c.inkPrimary, label: 'Now' },
           ])} />
           {legendSeen ? null : <T token="caption" color={c.inkSecondary}>Swipe for next week.</T>}
         </View>

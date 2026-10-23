@@ -84,3 +84,21 @@ export function hourLayout(spans: HourSpan[], scale: HourScale, opts: HourOption
     return { id: b.id, top: b.top, height, lane: b.lane, lanes: b.lanes, size };
   });
 }
+
+/**
+ * Marks in one narrow column that would land on each other: keep the strongest of each cluster
+ * (an exam over a quiz over a due date, red over ink) and say how many it stands for, so two
+ * deadlines at 11:59 pm read as one mark, not a smudge.
+ */
+export function mergeMarks<T extends { y: number; kind: 'dot' | 'ring' | 'target'; tone?: string }>(marks: T[], within: number): (T & { count: number })[] {
+  const rank = (m: T) => (m.tone === 'red' ? 10 : 0) + (m.kind === 'target' ? 3 : m.kind === 'ring' ? 2 : 1);
+  const out: (T & { count: number })[] = [];
+  for (const m of [...marks].sort((a, b) => a.y - b.y)) {
+    const last = out[out.length - 1];
+    if (last && m.y - last.y < within) {
+      const keep = rank(m) > rank(last) ? { ...m, y: last.y } : last;
+      out[out.length - 1] = { ...keep, count: last.count + 1 };
+    } else out.push({ ...m, count: 1 });
+  }
+  return out;
+}

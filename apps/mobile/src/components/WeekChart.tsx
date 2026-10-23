@@ -1,4 +1,4 @@
-import { monthDay, toMinutes, weekdayShort } from '@dayli/core';
+import { mergeMarks, monthDay, toMinutes, weekdayShort } from '@dayli/core';
 import { memo, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -91,8 +91,9 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
         {day.blocks.map((b) => {
           const s = Math.max(START, toMinutes(b.start));
           const e = Math.min(END, Math.max(toMinutes(b.end), s + 15));
-          const top = ((s - START) / SPAN) * height;
-          const h = Math.max(4, ((e - s) / SPAN) * height);
+          // A seam above and below, so back-to-back blocks read as two, as in the hour view.
+          const top = ((s - START) / SPAN) * height + chart.blockGap / 2;
+          const h = Math.max(3, ((e - s) / SPAN) * height - chart.blockGap);
           const color = tones[b.tone];
           return (
             <Animated.View key={b.id} entering={animate ? enter.fade : undefined} style={[styles.block, { top, height: h },
@@ -100,9 +101,8 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
           );
         })}
         {today ? <NowLine at={{ y: nowTop(height) }} color={c.inkPrimary} /> : null}
-        {(day.marks ?? []).map((m) => {
-          const y = ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height;
-          const mark = <Mark key={m.id} at={{ y: clampY(y, height, m.kind) }} kind={m.kind} color={m.tone === 'red' ? c.conflict : c.chartBooked} />;
+        {mergeMarks((day.marks ?? []).map((m) => ({ ...m, y: ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height })), chart.ring).map((m) => {
+          const mark = <Mark key={m.id} at={{ y: clampY(m.y, height, m.kind) }} kind={m.kind} color={m.tone === 'red' ? c.conflict : c.chartBooked} />;
           return animate ? <Animated.View key={m.id} entering={enter.fade} pointerEvents="none" style={StyleSheet.absoluteFill}>{mark}</Animated.View> : mark;
         })}
       </View>
@@ -112,7 +112,7 @@ const DayColumn = memo(function DayColumn({ day, selected, today, height, animat
   if (!onSelect) return <View style={styles.col}>{column}</View>;
   return (
     <Press onPress={() => onSelect(day.date)} accessibilityRole="button" accessibilityState={{ selected }}
-      accessibilityLabel={`${weekdayShort(day.date)}, ${monthDay(day.date)}${today ? ', today' : ''}, ${day.blocks.length} ${day.blocks.length === 1 ? 'block' : 'blocks'}`}
+      accessibilityLabel={`${weekdayShort(day.date)}, ${monthDay(day.date)}${today ? ', today' : ''}, ${day.blocks.length} ${day.blocks.length === 1 ? 'event' : 'events'}${day.marks?.length ? `, ${day.marks.length} due` : ''}`}
       accessibilityActions={onWeek ? [{ name: 'next', label: 'Next week' }, { name: 'previous', label: 'Previous week' }] : undefined}
       onAccessibilityAction={onWeek ? (e) => onWeek(e.nativeEvent.actionName === 'next' ? 1 : -1) : undefined}
       style={styles.col}>
