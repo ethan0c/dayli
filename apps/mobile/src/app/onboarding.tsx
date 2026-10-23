@@ -8,7 +8,6 @@ import { Composer } from "@/components/Composer";
 import { Radio } from "@/components/Controls";
 import { RecentShots } from "@/components/RecentShots";
 import { File } from "expo-file-system";
-import { motion } from '@dayli/tokens';
 import { Press } from "@/components/Press";
 import { GlassCircle } from "@/components/Glass";
 import { Icon } from "@/components/Icon";
@@ -34,7 +33,7 @@ import { syncCanvas } from "@/lib/canvas-sync";
 import { normalizeFeedUrl, CANVAS_MESSAGES } from "@/lib/canvas";
 import { useCourseList, useItemList, useStore, type DeadlineSource, type Pending, type Plate } from "@/store";
 import { sampleWeek } from "@/store/sample";
-import { palettes } from "@dayli/tokens";
+import { motion, palettes } from "@dayli/tokens";
 import { localParts, monthDay, relativeDay, termSummary, weekOf, weekdayLong } from "@dayli/core";
 
 import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size } from '@/theme';
