@@ -28,7 +28,7 @@ import { usePurchases } from '@/providers/PurchasesProvider';
 import { useOpenSetting } from '@/lib/settings-pane';
 import { SYSTEM_NAME } from '@/lib/web';
 import { useStore } from '@/store';
-import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
+import { NAV_INSET, SCREEN_GUTTER, useTheme, iconSize } from '@/theme';
 
 /** Profile and preferences, shared by the You tab and /settings. */
 export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
@@ -76,7 +76,7 @@ export function SettingsHome({ inTab = false }: { inTab?: boolean }) {
             {isPlus ? null : <View style={styles.meter}>{Array.from({ length: allowed }, (_, i) => <View key={i} style={[styles.segment, { backgroundColor: i < left ? c.inkPrimary : c.line }]} />)}</View>}
             <View style={styles.planLine}>
               <T token="callout" color={c.inkSecondary} tabular style={styles.planText}>{planLabel}</T>
-              <Icon name="chevronRight" size={14} color={c.inkTertiary} />
+              <Icon name="chevronRight" size={iconSize.disclosure} color={c.disclosureInk} />
             </View>
           </Press>
         )} />

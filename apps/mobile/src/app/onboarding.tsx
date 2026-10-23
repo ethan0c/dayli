@@ -36,7 +36,7 @@ import { sampleWeek } from "@/store/sample";
 import { motion, palettes } from "@dayli/tokens";
 import { localParts, monthDay, relativeDay, termSummary, weekOf, weekdayLong } from "@dayli/core";
 
-import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size, iconSize } from '@/theme';
 
 /**
  * Ask less, build their week, then ask (docs/conversion.md, decided Oct 21, 2026): two tap
@@ -214,7 +214,7 @@ export default function OnboardingScreen() {
         {canGoBack ? (
           <Animated.View entering={enter.fade} exiting={exit.fade}>
             <Press accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} scale={motion.press.iconScale} onPress={back} style={styles.back}>
-              <GlassCircle size={36} plain><Icon name="chevronLeft" size={22} color={barOn} /></GlassCircle>
+              <GlassCircle size={36} plain><Icon name="chevronLeft" size={iconSize.nav} color={barOn} /></GlassCircle>
             </Press>
           </Animated.View>
         ) : null}
@@ -314,7 +314,7 @@ function Choice({ label, hint, on, multi, onPress }: { label: string; hint?: str
         <View style={[styles.box, on ? { backgroundColor: c.inkPrimary, borderColor: c.inkPrimary } : { borderColor: c.controlOutline }]}>
           {on ? <Icon name="tick" size={14} color={c.onPrimary} strokeWidth={2.5} /> : null}
         </View>
-      ) : <Icon name="chevronRight" size={16} color={c.inkSecondary} />}
+      ) : <Icon name="chevronRight" size={iconSize.disclosure} color={c.disclosureInk} />}
     </Press>
   );
 }

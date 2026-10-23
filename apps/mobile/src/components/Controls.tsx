@@ -9,7 +9,7 @@ import { Icon, type IconKey } from '@/components/Icon';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import type { Cue } from '@/lib/feedback';
-import { corner, radius, useTheme, size, fade } from '@/theme';
+import { corner, radius, useTheme, size, fade, iconSize } from '@/theme';
 
 /*
  * The five button roles and the small parts every screen shares.
@@ -108,7 +108,7 @@ export function SectionTitle({ title, onPress, detail }: { title: string; onPres
   const inner = (
     <View style={styles.sectionTitle}>
       <T token="title" accessibilityRole="header" style={{ flexShrink: 1 }}>{title}</T>
-      {onPress ? <Icon name="chevronRight" size={18} color={c.inkSecondary} /> : null}
+      {onPress ? <Icon name="chevronRight" size={iconSize.title} color={c.disclosureInk} /> : null}
       {detail ? <T token="caption" color={c.inkSecondary} style={{ marginLeft: 'auto', flexShrink: 1, textAlign: 'right' }}>{detail}</T> : null}
     </View>
   );
@@ -144,7 +144,7 @@ export function ListRow({ title, sub, leading, trailing, onPress, chevron = !!on
         {sub ? <T token="caption" color={c.inkSecondary} numberOfLines={2}>{sub}</T> : null}
       </View>
       {trailing}
-      {chevron ? <Icon name="chevronRight" size={16} color={c.inkTertiary} /> : null}
+      {chevron ? <Icon name="chevronRight" size={iconSize.disclosure} color={c.disclosureInk} /> : null}
     </Pressable>
   );
 }

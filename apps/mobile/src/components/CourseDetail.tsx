@@ -19,7 +19,7 @@ import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { courseTint, useCourseList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme, screen, fade } from '@/theme';
+import { SCREEN_GUTTER, useTheme, screen, fade, iconSize } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -189,7 +189,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
             </Animated.View>
           ) : null}
           <Row onPress={batch ? () => router.push(`/import/${batch.id}`) : undefined} accessibilityLabel={batch ? `${sourceLine}, open the import` : sourceLine}
-            trailing={batch ? <Icon name="chevronRight" size={16} color={c.inkSecondary} /> : null}>
+            trailing={batch ? <Icon name="chevronRight" size={iconSize.disclosure} color={c.disclosureInk} /> : null}>
             <T token="body" style={{ flex: 1 }}>{sourceLine}</T>
           </Row>
           {/* The course's dot in every list: six tints, the chosen one ringed in ink like a picked mark. */}

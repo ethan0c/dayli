@@ -8,7 +8,7 @@ import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { durations, ease, enter, springs } from '@/lib/motion';
 import type { Palette } from '@/theme';
-import { corner, radius, size } from '@/theme';
+import { corner, radius, size, iconSize } from '@/theme';
 
 /** Where each Plus feature starts. Every row does the thing; none of them only describes it. */
 export type PlusDestination = 'import' | 'shifts' | 'canvas';
@@ -32,7 +32,7 @@ export function PlusFeatures({ c, onGo }: { c: Palette; onGo: (to: PlusDestinati
             <T token="body" color={c.inkPrimary}>{title}</T>
             <T token="caption" color={c.inkSecondary}>{detail}</T>
           </View>
-          <Icon name="chevronRight" size={16} color={c.inkTertiary} />
+          <Icon name="chevronRight" size={iconSize.disclosure} color={c.disclosureInk} />
         </Pressable>
       ))}
     </View>

@@ -8,7 +8,7 @@ import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { calendarDays, calendarMonthLabel, moveCalendarMonth } from '@/lib/calendar';
 import { feedback } from '@/lib/feedback';
-import { useTheme, radius, size, fade } from '@/theme';
+import { useTheme, radius, size, fade, iconSize } from '@/theme';
 
 /** "October", or "January 2027" when the selected month is not in this year. */
 function monthTitle(selected: string, today: string): string {
@@ -25,7 +25,7 @@ export function PlanMonthTitle({ selected, today, expanded, onToggle }: { select
       style={({ pressed }) => [styles.title, { opacity: pressed ? fade.pressed : 1 }]}>
       <T token="display" numberOfLines={1} style={{ flexShrink: 1 }}>{monthTitle(selected, today)}</T>
       <View style={{ transform: [{ rotate: expanded ? '-90deg' : '90deg' }] }}>
-        <Icon name="chevronRight" size={18} color={c.inkSecondary} />
+        <Icon name="chevronRight" size={iconSize.title} color={c.disclosureInk} />
       </View>
     </Pressable>
   );

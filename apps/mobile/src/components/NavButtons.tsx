@@ -7,7 +7,7 @@ import { motion } from '@dayli/tokens';
 import { GLASS, GlassCircle } from '@/components/Glass';
 import { Icon } from '@/components/Icon';
 import { Press } from '@/components/Press';
-import { useTheme } from '@/theme';
+import { useTheme, iconSize } from '@/theme';
 
 /** The parent navigator can handle Back even when this is the first screen in a nested stack. */
 export function backOrHome() {
@@ -51,7 +51,7 @@ export function BackButton({ onPress }: { onPress?: () => void }) {
   const { c } = useTheme();
   return (
     <Press accessibilityRole="button" accessibilityLabel={t`Back`} hitSlop={8} scale={motion.press.iconScale} onPress={onPress ?? backOrHome} style={styles.button}>
-      <GlassCircle size={36}><Icon name="chevronLeft" size={22} color={c.inkPrimary} /></GlassCircle>
+      <GlassCircle size={36}><Icon name="chevronLeft" size={iconSize.nav} color={c.inkPrimary} /></GlassCircle>
     </Press>
   );
 }
