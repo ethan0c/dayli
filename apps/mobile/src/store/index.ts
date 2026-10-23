@@ -2,7 +2,7 @@ import type { CommitPlan, TermSystem } from '@dayli/core';
 import type { Snapshot } from '@/lib/cloud-snapshot';
 import type { ImportUsage } from '@/lib/plans';
 import type { AppLanguage } from '@/lib/language';
-import type { Course, Extraction, Item, ScheduleVersion } from '@dayli/schema';
+import type { Course, Extraction, ExtractRequest, Item, ScheduleVersion } from '@dayli/schema';
 import { COURSE_TINTS, type TintName } from '@dayli/tokens';
 import { useMemo } from 'react';
 import { create } from 'zustand';
@@ -40,6 +40,8 @@ export interface Pending {
   extraction: Extraction;
   /** Human label for where this came from, e.g. "Screenshot" or "syllabus.pdf". */
   source: string;
+  /** The web only: what was read, so review can show it beside the results on a wide window. */
+  input?: ExtractRequest['input'];
 }
 
 export type PlanId = 'monthly' | 'semester' | 'yearly';

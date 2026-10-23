@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 
 /** Every web shortcut, for the list `?` opens. Keys are what `KeyboardEvent.key` reports. */
 export const SHORTCUTS: { keys: string; does: string }[] = [
+  { keys: '⌘K', does: 'Quick add, or go anywhere' },
   { keys: 'N', does: 'New to-do or event' },
   { keys: '⌘V', does: 'Import a screenshot on the clipboard' },
   { keys: '1 – 4', does: 'Today, Plan, School, You' },

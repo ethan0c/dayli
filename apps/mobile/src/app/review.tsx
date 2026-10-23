@@ -7,7 +7,7 @@ import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { devAutoConfirmMs } from '@/lib/dev';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { SectionTitle, StatusPill, TextButton } from '@/components/Controls';
@@ -15,6 +15,8 @@ import { DateField, TimeField } from '@/components/Native';
 import { Press } from '@/components/Press';
 import { ReviewDisclosure, ReviewGlyph, ReviewPickerSlot, ReviewPill, ReviewPillRow, ReviewRow } from '@/components/ReviewRow';
 import { Button, Sheet } from '@/components/Sheet';
+import { SourcePreview } from '@/components/SourcePreview';
+import { COLUMN, useWebLayout } from '@/lib/layout';
 import { ChartKey, keyOf, markKey, shapeFor } from '@/components/ChartMark';
 import { TermLine, type TermMark } from '@/components/TermLine';
 import { T } from '@/components/Text';
@@ -41,12 +43,17 @@ type SeriesEnd = { mode: 'suggested' | 'pick'; date: string };
 
 export default function ReviewScreen() {
   const { c } = useTheme();
+  const { twoPane } = useWebLayout();
   // Development only: semli://review?dev=schedule|update opens the sample schedule for screenshots.
   const params = useLocalSearchParams<{ dev?: string }>();
   const devMode = __DEV__ && (params.dev === 'schedule' || params.dev === 'update') ? params.dev : null;
   const stored = useStore((s) => s.pending);
   const pending = useMemo(
-    () => stored ?? (devMode ? { extraction: sampleScheduleExtraction(localParts(new Date()).date, devMode === 'update' ? 'update' : 'next'), source: 'Screenshot' } : null),
+    () => stored ?? (devMode ? {
+      extraction: sampleScheduleExtraction(localParts(new Date()).date, devMode === 'update' ? 'update' : 'next'), source: 'Screenshot',
+      // On the web the sample shows its source beside the results too.
+      ...(Platform.OS === 'web' ? { input: { kind: 'text' as const, text: 'Campus Café schedule, next week:\nMon 4–10 pm\nWed 4–10 pm\nSat 9 am – 3 pm\nSun 11 am – 5 pm' } } : {}),
+    } : null),
     [stored, devMode],
   );
   const setPending = useStore((s) => s.setPending);
@@ -500,7 +507,7 @@ export default function ReviewScreen() {
       ? `${count(diff.unchanged.length, 'shift')} ${diff.unchanged.length === 1 ? 'is the same as before and stays as it is' : 'are the same as before and stay as they are'}.`
       : isSyllabus ? 'With reminders on, you’ll be notified the evening before and the morning of each deadline.' : null;
 
-  return (
+  const sheet = (
     <Sheet
       title={title}
       onClose={close}
@@ -557,6 +564,14 @@ export default function ReviewScreen() {
         </Animated.View>
       </ScrollView>
     </Sheet>
+  );
+  // A wide web window shows what was read in the pane, so each row can be checked against it.
+  if (!twoPane || !pending?.input) return sheet;
+  return (
+    <View style={styles.panes}>
+      <View style={{ width: COLUMN }}>{sheet}</View>
+      <SourcePreview input={pending.input} source={pending.source} />
+    </View>
   );
 }
 
@@ -643,6 +658,7 @@ function sourceNoun(source: string): string {
 }
 
 const styles = StyleSheet.create({
+  panes: { flex: 1, flexDirection: 'row' },
   list: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 16 },
   hero: { gap: 12 },
   line: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2 },

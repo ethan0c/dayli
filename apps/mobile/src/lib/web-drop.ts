@@ -21,6 +21,13 @@ function hand(file: File) {
   router.navigate({ pathname: '/add', params: { source: 'drop', at: String(Date.now()) } });
 }
 
+/** Opens the browser's file chooser and imports the chosen file in Add, as a drop would (the web only). */
+export function chooseFileForAdd() {
+  const input = Object.assign(document.createElement('input'), { type: 'file', accept: 'application/pdf,image/png,image/jpeg,image/webp,image/gif' });
+  input.onchange = () => { const file = input.files?.[0]; if (file) hand(file); };
+  input.click();
+}
+
 const hasFiles = (e: DragEvent) => !!e.dataTransfer && [...e.dataTransfer.types].includes('Files');
 
 /** Listens for drops and pastes on the whole window. True while a file is dragged over it, for the drop hint. */

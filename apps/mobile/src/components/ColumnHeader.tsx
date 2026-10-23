@@ -14,16 +14,16 @@ type WebBack = { kind: 'close' | 'back'; onPress: () => void };
  * The header for a wide web window, in desktop form: a small "‹ Back" (or "✕ Close") link above a
  * left-aligned title, both over the screen's column, with any trailing control at the title's right.
  * The stock web header ran the full width with the button at the window's edge. `frame` lines it up
- * with the app's frame (beside the sidebar); `column` centres it, for a stack already in a column.
+ * with the app's frame (beside the sidebar); `column` and `narrow` centre it over a 720 or 440 column.
  */
-export function columnHeader(kind: 'frame' | 'column') {
+export function columnHeader(kind: 'frame' | 'column' | 'narrow') {
   // The navigator calls `header` as a plain function, so it returns an element rather than using hooks itself.
   return function header(props: NativeStackHeaderProps) {
     return <ColumnHeader kind={kind} {...props} />;
   };
 }
 
-function ColumnHeader({ kind, options, back, route }: NativeStackHeaderProps & { kind: 'frame' | 'column' }) {
+function ColumnHeader({ kind, options, back, route }: NativeStackHeaderProps & { kind: 'frame' | 'column' | 'narrow' }) {
   const { t } = useLingui();
   const { c } = useTheme();
   const { twoPane } = useWebLayout();
@@ -33,10 +33,12 @@ function ColumnHeader({ kind, options, back, route }: NativeStackHeaderProps & {
   const transparent = options.headerTransparent === true;
   const web = (options as { webBack?: WebBack }).webBack;
   const close = web?.kind === 'close';
-  const label = close ? t`Close` : back?.title && back.title !== route.name ? back.title : t`Back`;
+  // A screen's own title names the way back; a route group like "(tabs)" or a bare route name never does.
+  const named = back?.title && !back.title.startsWith('(') && back.title !== route.name && !back.title.includes('/') ? back.title : null;
+  const label = close ? t`Close` : named ?? t`Back`;
   return (
     <View style={[styles.bar, transparent ? styles.over : { backgroundColor: c.canvas }]}>
-      <View style={kind === 'frame' ? frameStyle(twoPane) : styles.column}>
+      <View style={kind === 'frame' ? frameStyle(twoPane) : kind === 'narrow' ? styles.narrow : styles.column}>
         <View style={styles.inner}>
           {web ? (
             <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={web.onPress} hitSlop={8}
@@ -45,7 +47,8 @@ function ColumnHeader({ kind, options, back, route }: NativeStackHeaderProps & {
               <T token="subhead" color={transparent ? tint : c.inkSecondary}>{label}</T>
             </Pressable>
           ) : null}
-          {title ? (
+          {/* Sign-in forms carry their own heading, so their header is only the way back. */}
+          {title && kind !== 'narrow' ? (
             <View style={styles.titleRow}>
               <T token="title" color={tint} numberOfLines={1} style={styles.title} accessibilityRole="header">{title}</T>
               {right}
@@ -61,6 +64,7 @@ const styles = StyleSheet.create({
   bar: { paddingTop: 22, paddingBottom: 6 },
   over: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1, backgroundColor: 'transparent' },
   column: { width: '100%', maxWidth: COLUMN, alignSelf: 'center' },
+  narrow: { width: '100%', maxWidth: 440, alignSelf: 'center' },
   // The gutter matches the screens', so the link and the title start at the content's left edge.
   inner: { paddingHorizontal: SCREEN_GUTTER, gap: 6, alignItems: 'flex-start' },
   link: { flexDirection: 'row', alignItems: 'center', gap: 4 },

@@ -2,12 +2,13 @@ import { relativeDay, toMinutes } from '@dayli/core';
 import { useLingui } from '@lingui/react/macro';
 import { router, usePathname, type Href } from 'expo-router';
 import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
-import { useState, type ComponentProps } from 'react';
-import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { useEffect, useState, type ComponentProps } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { Toast } from '@/components/Overlay';
+import { QuickAdd } from '@/components/QuickAdd';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
 import { frameStyle, useWebLayout } from '@/lib/layout';
@@ -76,6 +77,16 @@ export function Sidebar() {
   const { twoPane } = useWebLayout();
   const pathname = usePathname();
   const [help, setHelp] = useState(false);
+  const [quick, setQuick] = useState(false);
+  // ⌘K (Ctrl+K elsewhere) opens quick add from anywhere, even while typing in a field.
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setQuick((open) => !open); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   const tabs: Destination[] = [
     { href: '/', path: '/', icon: 'home', label: t`Today`, hint: '1' },
     { href: '/plan', path: '/plan', icon: 'calendar', label: t`Plan`, hint: '2', also: /^\/(employer|import)\// },
@@ -96,7 +107,7 @@ export function Sidebar() {
 
   return (
     <>
-      <View style={[styles.side, { width: twoPane ? 212 : 72, borderRightColor: c.line }]}>
+      <View style={[styles.side, { width: twoPane ? 212 : 72, borderRightColor: c.line, backgroundColor: c.canvas }]}>
         <SideButton labels={twoPane} label={t`Add`} onPress={() => { feedback('tap'); go('/add'); }} />
         {tabs.map((tab) => {
           const selected = pathname === tab.path || !!tab.also?.test(pathname);
@@ -112,6 +123,7 @@ export function Sidebar() {
         ) : null}
       </View>
       {help ? <ShortcutList onClose={() => setHelp(false)} /> : null}
+      {quick ? <QuickAdd onClose={() => setQuick(false)} /> : null}
     </>
   );
 }

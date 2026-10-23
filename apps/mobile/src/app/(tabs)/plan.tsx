@@ -8,6 +8,8 @@ import Animated from 'react-native-reanimated';
 import { CategoryDot, IconButton, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { ItemDetail } from '@/components/ItemDetail';
+import { Segmented } from '@/components/Segmented';
+import { WeekBoard } from '@/components/WeekBoard';
 import { ItemRow } from '@/components/ItemRow';
 import { TimeField } from '@/components/Native';
 import { PlanMonthCalendar, PlanMonthTitle, TodayPill } from '@/components/PlanCalendar';
@@ -91,6 +93,9 @@ export default function PlanScreen() {
   // A wide web window opens an item beside the list instead of on its own screen.
   const { twoPane } = useWebLayout();
   const [openId, setOpenId] = useState<string | null>(null);
+  // A wide web window can show the week as a board of day columns instead of the chart and one day.
+  const [view, setView] = useState<'week' | 'board'>('week');
+  const board = twoPane && view === 'board';
   const openItem = (id: string) => (twoPane ? setOpenId(id) : router.push(`/item/${id}`));
   const focused = useIsFocused();
   const selectDay = useCallback((date: string) => {
@@ -166,9 +171,13 @@ export default function PlanScreen() {
   const header = (
     <TabHeader
       value={<PlanMonthTitle selected={selected} today={now.date} expanded={calendarOpen} onToggle={() => setCalendarOpen((open) => !open)} />}
-      trailing={!thisWeek
-        ? <Animated.View entering={enter.fade} exiting={exit.fade}><TodayPill onPress={() => setSelected(now.date)} /></Animated.View>
-        : SHARING_ENABLED ? <IconButton icon="share" label="Preview schedule sharing" tone="glass" onPress={() => router.push({ pathname: '/share-schedule', params: { date: selected } })} /> : undefined}
+      trailing={<View style={styles.trailing}>
+        {twoPane ? <View style={{ width: 170 }}><Segmented size="small" label="Plan view" value={view} onChange={(next) => { feedback('select'); setView(next); }}
+          options={[{ key: 'week', label: 'Week' }, { key: 'board', label: 'Board' }]} /></View> : null}
+        {!thisWeek
+          ? <Animated.View entering={enter.fade} exiting={exit.fade}><TodayPill onPress={() => setSelected(now.date)} /></Animated.View>
+          : SHARING_ENABLED ? <IconButton icon="share" label="Preview schedule sharing" tone="glass" onPress={() => router.push({ pathname: '/share-schedule', params: { date: selected } })} /> : null}
+      </View>}
       details={calendarOpen ? <PlanMonthCalendar selected={selected} today={now.date} onSelect={setSelected} /> : starting
         ? <T token="callout" color={c.inkSecondary}>Add events or tasks to see them here. Review imports before saving.</T>
         : undefined} />
@@ -217,8 +226,13 @@ export default function PlanScreen() {
 
   return (
     <View style={{ flex: 1, flexDirection: 'row', backgroundColor: c.canvas }}>
-      <ScrollView style={twoPane ? { width: COLUMN, flexGrow: 0 } : { flex: 1 }} contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
+      <ScrollView style={twoPane && !board ? { width: COLUMN, flexGrow: 0 } : { flex: 1 }} contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
         {header}
+        {board ? (
+          <View style={styles.boardWrap}>
+            <WeekBoard week={week} items={weekItems} today={now.date} conflicts={weekConflicts} openId={openId} onOpen={(id) => { feedback('select'); setOpenId(id); }} />
+          </View>
+        ) : <>
         <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined}
           style={styles.chart} {...swipe.panHandlers}>
           <WeekChart days={days} selected={selected} today={now.date} onWeek={moveWeek} onSelect={selectDay} />
@@ -280,9 +294,11 @@ export default function PlanScreen() {
             ) : null}
           </Animated.View>
         ) : null}
+        </>}
       </ScrollView>
-      {twoPane ? (
-        <View style={[styles.pane, { borderLeftColor: c.line }]}>
+      {/* The board keeps its seven columns; an open item slides over its right side instead. */}
+      {twoPane && (!board || openId) ? (
+        <View style={[styles.pane, { borderLeftColor: c.line }, board ? [styles.over, { backgroundColor: c.canvas }] : null]}>
           {openId ? <ItemDetail key={openId} id={openId} onClose={() => setOpenId(null)} onOpen={setOpenId} /> : (
             <View style={styles.paneEmpty}>
               <T token="callout" color={c.inkSecondary}>Choose something on the left to see it here.</T>
@@ -296,6 +312,9 @@ export default function PlanScreen() {
 
 const styles = StyleSheet.create({
   chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
+  trailing: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  over: { position: 'absolute', top: 0, right: 0, bottom: 0, width: 460, boxShadow: '-12px 0 32px rgba(0,0,0,0.10)' },
+  boardWrap: { paddingHorizontal: SCREEN_GUTTER },
   pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
   paneEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },
   legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, gap: 8 },

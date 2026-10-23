@@ -105,7 +105,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         </View>
         {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert">{notice}</T> : null}
         <View style={{ gap: 12 }}>
-          <Button label={busy ? 'One moment…' : copy.action} disabled={busy} onPress={() => void submit()} />
+          <Button block label={busy ? 'One moment…' : copy.action} disabled={busy} onPress={() => void submit()} />
           {signup ? <T token="caption" color={c.inkSecondary} style={styles.center}>By creating an account, you agree to our <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.terms)}>Terms</T> and <T token="caption" color={c.accentInk} accessibilityRole="link" onPress={() => void openLink(LINKS.privacy)}>Privacy policy</T>.</T> : null}
           <TextButton label={forgot ? 'Back to sign in' : signup ? 'Already have an account? Sign in' : 'New to Semli? Sign up'} tone="muted"
             disabled={busy}

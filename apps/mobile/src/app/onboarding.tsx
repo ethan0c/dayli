@@ -1,6 +1,6 @@
 import { Redirect, router, useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { useEffect, useMemo, useRef, useState, type ComponentRef } from "react";
+import { Dimensions, Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -19,7 +19,8 @@ import { profile as setProfile, track } from "@/lib/analytics";
 import { requestExtraction } from "@/lib/api";
 import { requestImport } from "@/lib/import-auth";
 import { IMPORT_MESSAGES } from "@dayli/schema";
-import { InputError, extractionContext, pickImageInput, pickPdfInput } from "@/lib/capture-input";
+import { InputError, extractionContext, inputFromFile, pickImageInput, pickPdfInput } from "@/lib/capture-input";
+import { QrCode } from "@/components/QrCode";
 import { devStep } from "@/lib/dev";
 import { feedback } from "@/lib/feedback";
 import { reportError } from "@/lib/errors";
@@ -29,7 +30,7 @@ import { usePlusAccess } from "@/lib/plus-access";
 import { purchaseErrorMessage } from "@/lib/revenuecat";
 import { syncCanvas } from "@/lib/canvas-sync";
 import { normalizeFeedUrl, CANVAS_MESSAGES } from "@/lib/canvas";
-import { useCourseList, useItemList, useStore, type DeadlineSource, type Plate } from "@/store";
+import { useCourseList, useItemList, useStore, type DeadlineSource, type Pending, type Plate } from "@/store";
 import { sampleWeek } from "@/store/sample";
 import { palettes } from "@dayli/tokens";
 import { localParts, monthDay, relativeDay, termSummary, weekOf, weekdayLong } from "@dayli/core";
@@ -41,10 +42,19 @@ import { SCREEN_GUTTER, textStyle, useTheme } from "@/theme";
  * questions that each change something, their own import (or a real sample), the facts of their
  * term, a reminder they choose, then the paywall. No slideshows, no fake loaders, account later.
  */
-const STEPS = ["plate", "deadlines", "own", "canvas", "result", "remind", "plus"] as const;
+const STEPS = ["plate", "deadlines", "own", "canvas", "result", "remind", "plus", "term", "phone"] as const;
 type Step = (typeof STEPS)[number];
+/**
+ * The web starts with the import itself (docs/web.md): a laptop is where the syllabi are, and
+ * people there finish "bring in your data" steps far more often than questions. Reminders ring on
+ * the iPhone, so the web ends by handing off to it instead of asking when to remind.
+ */
+const WEB = Platform.OS === "web";
+/** Read once: onboarding is short, and a window crossing 768 midway keeps the layout it started with. */
+const WIDE = WEB && Dimensions.get("window").width >= 768;
+const FIRST: Step = WEB ? "term" : "plate";
 /** The progress bar: Canvas connect takes the own-import slot, so both paths fill the same bars. */
-const BARS = STEPS.filter((s) => s !== "canvas");
+const BARS: Step[] = WEB ? ["term", "result", "phone", "plus"] : ["plate", "deadlines", "own", "result", "remind", "plus"];
 
 type Picked = { input: Parameters<typeof requestExtraction>[1]["input"]; source: string } | null;
 
@@ -72,7 +82,7 @@ export default function OnboardingScreen() {
 
   // `?step=plus` opens a specific step; useful when previewing copy and layout.
   const params = useLocalSearchParams<{ step?: string }>();
-  const requested = (STEPS as readonly string[]).includes(params.step ?? "") ? (params.step as Step) : "plate";
+  const requested = (STEPS as readonly string[]).includes(params.step ?? "") ? (params.step as Step) : FIRST;
   const [step, setStep] = useState<Step>(requested);
   // Reset when the link changes (derived state, no effect).
   const [lastRequested, setLastRequested] = useState(requested);
@@ -102,12 +112,12 @@ export default function OnboardingScreen() {
     setStep(next);
   };
   // The first question goes back to the welcome screen, which replaced itself with onboarding.
-  const canGoBack = history.length > 0 || step === "plate";
+  const canGoBack = history.length > 0 || step === FIRST;
   const back = () => {
     const previous = history[history.length - 1];
     track("onboarding_back", { from: step });
     if (!previous) {
-      if (step !== "plate") return;
+      if (step !== FIRST) return;
       feedback("tap");
       router.replace("/auth");
       return;
@@ -118,14 +128,31 @@ export default function OnboardingScreen() {
   };
 
   // The review sheet flips this when the first import is confirmed; carry on to the term at a glance.
+  const [queue, setQueue] = useState<Pending[]>([]);
   const [seenImportDone, setSeenImportDone] = useState(importDone);
   if (importDone !== seenImportDone) {
     setSeenImportDone(importDone);
-    if (importDone && (step === "own" || step === "canvas")) {
+    if (importDone && queue.length) {
+      // The next of several dropped files: its review opens once this one is saved.
+      const [next, ...rest] = queue;
+      setQueue(rest);
+      setSettings({ onboardingImportDone: false });
+      useStore.getState().setPending(next!);
+      setTimeout(() => router.push("/review"), 0);
+    } else if (importDone && (step === "own" || step === "canvas" || step === "term")) {
       setHistory((h) => [...h, step]);
       setStep("result");
     }
   }
+
+  /** The web's first step hands over everything it read; the first review opens now, the rest after it. */
+  const reviewAll = (read: Pending[]) => {
+    const [first, ...rest] = read;
+    if (!first) return;
+    setQueue(rest);
+    useStore.getState().setPending(first);
+    router.push("/review");
+  };
 
   const answerPlate = () => {
     const student = plate.includes("classes") || plate.includes("clubs");
@@ -170,7 +197,7 @@ export default function OnboardingScreen() {
     router.replace("/");
   };
 
-  const progress = BARS.indexOf(step === "canvas" ? "own" : step);
+  const progress = BARS.indexOf(step === "canvas" || step === "own" ? (WEB ? "term" : "own") : step);
   // Only the paywall is a dark showcase now; every other step is the plain paper canvas.
   const showcase = step === "plus";
   const bg = showcase ? palettes.dark.canvas : c.canvas;
@@ -225,7 +252,10 @@ export default function OnboardingScreen() {
       {step === "canvas" && <CanvasStep onConnected={() => go("result")} onInstead={() => go("own", { source: "canvas-instead" })} />}
       {step === "own" && <OwnStep source={source ?? "nowhere"} job={job} onSample={loadSample} />}
       {/* Reminders ring on the iPhone, so the web skips the question of when. */}
-      {step === "result" && <ResultStep sample={!!settings.sampleBatchId} onNext={() => go(Platform.OS === "web" ? "plus" : "remind")} />}
+      {step === "term" && <TermStep plate={plate} onPlate={(next) => { setPlate(next); setSettings({ plate: next, isStudent: next.includes("classes") || next.includes("clubs") || next.length === 0 }); }}
+        onReview={reviewAll} onCanvas={() => go("canvas", { source: "canvas" })} onType={() => go("own", { source: "typed" })} onSample={loadSample} />}
+      {step === "result" && <ResultStep sample={!!settings.sampleBatchId} onNext={() => go(WEB ? "phone" : "remind")} />}
+      {step === "phone" && <PhoneStep onDone={(scanned) => go("plus", { scanned })} />}
       {step === "remind" && <RemindStep onDone={() => go("plus")} />}
       {step === "plus" && <PlusStep onFinish={finish} />}
       </Animated.View>
@@ -337,7 +367,7 @@ function OwnStep({ source, job, onSample }: { source: DeadlineSource; job: boole
       feedback("ready");
       recordImport();
       track("import_succeeded", { kind: input.kind, items: res.extraction.items.length, type: res.extraction.detected_type, where: "onboarding" });
-      setPending({ extraction: res.extraction, source });
+      setPending({ extraction: res.extraction, source, ...(Platform.OS === "web" ? { input } : {}) });
       router.push("/review");
     } catch (failure) {
       reportError("onboarding.import", failure);
@@ -411,6 +441,165 @@ function OwnStep({ source, job, onSample }: { source: DeadlineSource; job: boole
         <Press haptic="select" accessibilityRole="button" disabled={!!busy} onPress={onSample} style={{ minHeight: 44, justifyContent: "center" }}>
           <T token="subhead" color={c.inkSecondary}>{copy.sample}</T>
         </Press>
+      </View>
+    </ScrollView>
+  );
+}
+
+/* ---------- The web: bring in your term ---------- */
+
+const PLATE_CHIPS: { id: Plate; label: string }[] = [
+  { id: "classes", label: "Classes" },
+  { id: "job", label: "A job" },
+  { id: "clubs", label: "Clubs and practice" },
+];
+
+type Read = { name: string; state: "reading" | "read" | "failed"; dates?: number; message?: string; pending?: Pending };
+
+/**
+ * The web's first step: every syllabus and screenshot at once (dropped, chosen or pasted), read in
+ * the background, then reviewed one after another. Chips stand in for "What do you need to plan?".
+ */
+function TermStep({ plate, onPlate, onReview, onCanvas, onType, onSample }: {
+  plate: Plate[]; onPlate: (next: Plate[]) => void; onReview: (read: Pending[]) => void; onCanvas: () => void; onType: () => void; onSample: () => void;
+}) {
+  const { c } = useTheme();
+  const { requireImportAccess } = usePlusAccess();
+  const apiUrl = useStore((s) => s.settings.apiUrl);
+  const recordImport = useStore((s) => s.recordImport);
+  const [files, setFiles] = useState<Read[]>([]);
+  const [over, setOver] = useState(false);
+  const zone = useRef<ComponentRef<typeof View>>(null);
+
+  // The browser's files (not expo-file-system's File, which this screen also uses).
+  const add = async (list: ArrayLike<Blob & { name?: string }>) => {
+    for (const file of Array.from(list)) {
+      const name = file.name || "Screenshot";
+      setFiles((fs) => [...fs, { name, state: "reading" }]);
+      const update = (patch: Partial<Read>) => setFiles((fs) => fs.map((f) => (f.name === name && f.state === "reading" ? { ...f, ...patch } : f)));
+      try {
+        const picked = await inputFromFile(file);
+        if (!picked) { update({ state: "failed", message: "Semli reads PDFs and images" }); continue; }
+        if (!(await requireImportAccess())) { update({ state: "failed", message: "No imports left" }); continue; }
+        const res = await requestImport(apiUrl, { input: picked.input, context: extractionContext() });
+        if (!res.ok || !res.extraction.items.length) { update({ state: "failed", message: res.ok ? "No dates found" : res.error }); continue; }
+        recordImport();
+        track("import_succeeded", { kind: picked.input.kind, items: res.extraction.items.length, type: res.extraction.detected_type, where: "onboarding-web" });
+        update({ state: "read", dates: res.extraction.items.length, pending: { extraction: res.extraction, source: picked.source, input: picked.input } });
+      } catch (failure) {
+        reportError("onboarding.term_import", failure);
+        update({ state: "failed", message: "Couldn’t read this one" });
+      }
+    }
+  };
+
+  // Drop and paste on the page, and a click on the zone opens the file chooser (the web only).
+  useEffect(() => {
+    if (!WEB) return;
+    const el = zone.current as unknown as HTMLElement | null;
+    const has = (e: DragEvent) => !!e.dataTransfer && [...e.dataTransfer.types].includes("Files");
+    const onOver = (e: DragEvent) => { if (has(e)) { e.preventDefault(); setOver(true); } };
+    const onLeave = () => setOver(false);
+    const onDrop = (e: DragEvent) => { if (!has(e)) return; e.preventDefault(); setOver(false); if (e.dataTransfer?.files.length) void add(e.dataTransfer.files); };
+    const onPaste = (e: ClipboardEvent) => { if (e.clipboardData?.files.length) { e.preventDefault(); void add(e.clipboardData.files); } };
+    window.addEventListener("dragover", onOver);
+    window.addEventListener("drop", onDrop);
+    el?.addEventListener("dragleave", onLeave);
+    window.addEventListener("paste", onPaste);
+    return () => { window.removeEventListener("dragover", onOver); window.removeEventListener("drop", onDrop); el?.removeEventListener("dragleave", onLeave); window.removeEventListener("paste", onPaste); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const choose = () => {
+    const input = Object.assign(document.createElement("input"), { type: "file", multiple: true, accept: "application/pdf,image/png,image/jpeg,image/webp,image/gif" });
+    input.onchange = () => { if (input.files?.length) void add(input.files); };
+    input.click();
+  };
+
+  const read = files.filter((f) => f.state === "read" && f.pending);
+  const dates = read.reduce((n, f) => n + (f.dates ?? 0), 0);
+  const reading = files.some((f) => f.state === "reading");
+
+  return (
+    <ScrollView contentContainerStyle={[styles.page, { gap: 18 }]} keyboardShouldPersistTaps="handled">
+      <View style={styles.titleBlock}>
+        <T token="displaySm" accessibilityRole="header">Bring in your term</T>
+        <T token="callout" color={c.inkSecondary}>Drop every syllabus at once. Semli reads the classes, exams and due dates, and you check them before anything is saved.</T>
+      </View>
+      <View style={styles.chips} accessibilityRole="list">
+        {PLATE_CHIPS.map((p) => {
+          const on = plate.includes(p.id);
+          return (
+            <Press key={p.id} accessibilityRole="checkbox" accessibilityState={{ checked: on }} haptic="select" scale={1}
+              onPress={() => onPlate(on ? plate.filter((x) => x !== p.id) : [...plate, p.id])}
+              style={[styles.chip, { backgroundColor: on ? c.controlFill : c.row }]}>
+              <T token="subhead" color={on ? c.controlInk : c.inkPrimary}>{on ? `${p.label} ✓` : p.label}</T>
+            </Press>
+          );
+        })}
+      </View>
+      <View ref={zone}>
+        <Press accessibilityRole="button" accessibilityLabel="Choose syllabi, screenshots or a schedule" scale={1} onPress={choose}
+          style={[styles.drop, { borderColor: over ? c.inkPrimary : c.controlOutline, backgroundColor: c.surface }]}>
+          <Icon name="file" size={26} color={c.inkPrimary} />
+          <T token="headline">Drop syllabi, screenshots or a schedule here</T>
+          <T token="caption" color={c.inkSecondary}>PDF, PNG or JPG · or click to choose files · or paste with ⌘V</T>
+        </Press>
+      </View>
+      {files.length ? (
+        <View style={{ gap: 8 }}>
+          {files.map((f, i) => (
+            <View key={`${f.name}-${i}`} style={[styles.file, { borderColor: c.line, backgroundColor: c.surface }]}>
+              <T token="subhead" numberOfLines={1} style={{ flex: 1 }}>{f.name}</T>
+              <StatusLabel f={f} />
+            </View>
+          ))}
+        </View>
+      ) : null}
+      <View style={styles.links}>
+        <Press haptic="select" accessibilityRole="button" onPress={onCanvas} scale={1}><T token="subhead" color={c.accentInk}>Connect Canvas instead</T></Press>
+        <Press haptic="select" accessibilityRole="button" onPress={onType} scale={1}><T token="subhead" color={c.accentInk}>Type it instead</T></Press>
+      </View>
+      <View style={[styles.footer, styles.footerRow]}>
+        <Press haptic="select" accessibilityRole="button" onPress={onSample} scale={1} style={{ minHeight: 40, justifyContent: "center" }}>
+          <T token="subhead" color={c.inkSecondary}>Try a sample week</T>
+        </Press>
+        <Button label={reading && !read.length ? "Reading…" : read.length ? `Review ${dates} ${dates === 1 ? "date" : "dates"}` : "Review"} disabled={!read.length}
+          onPress={() => onReview(read.map((f) => f.pending!))} />
+      </View>
+    </ScrollView>
+  );
+}
+
+function StatusLabel({ f }: { f: Read }) {
+  const { c } = useTheme();
+  if (f.state === "reading") return <T token="caption" color={c.inkSecondary}>Reading…</T>;
+  if (f.state === "failed") return <T token="caption" color={c.conflict}>{f.message}</T>;
+  return <T token="caption" color={c.added}>{`Read · ${f.dates} ${f.dates === 1 ? "date" : "dates"}`}</T>;
+}
+
+/* ---------- The web: get it on your phone ---------- */
+
+/** Reminders and ringing alarms live on the iPhone; the web hands off with a code to scan. */
+function PhoneStep({ onDone }: { onDone: (scanned: boolean) => void }) {
+  const { c } = useTheme();
+  return (
+    <ScrollView contentContainerStyle={[styles.page, { gap: 20 }]}>
+      <View style={styles.titleBlock}>
+        <T token="displaySm" accessibilityRole="header">Reminders ring on your iPhone</T>
+        <T token="callout" color={c.inkSecondary}>Scan with your iPhone camera to get Semli. Sign in with the same account and your term is already there.</T>
+      </View>
+      <View style={styles.phone}>
+        <QrCode text="https://www.semli.app/beta?r=web-onboarding" ink={c.inkPrimary} paper={c.surface} />
+        <View style={{ flex: 1, gap: 6 }}>
+          <T token="headline">Semli for iPhone</T>
+          <T token="callout" color={c.inkSecondary}>Free · reminders the evening before each deadline, ringing alarms, the Today widget</T>
+        </View>
+      </View>
+      <View style={[styles.footer, styles.footerRow]}>
+        <Press haptic="select" accessibilityRole="button" onPress={() => onDone(false)} scale={1} style={{ minHeight: 40, justifyContent: "center" }}>
+          <T token="subhead" color={c.inkSecondary}>Not now</T>
+        </Press>
+        <Button label="I’ve got it" onPress={() => onDone(true)} />
       </View>
     </ScrollView>
   );
@@ -653,7 +842,8 @@ const styles = StyleSheet.create({
   bar: { flex: 1, height: 3, borderRadius: 2 },
   page: { flexGrow: 1, gap: 24 },
   titleBlock: { gap: 6 },
-  footer: { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
+  // On a wide web window the actions follow the content at the right, as desktop forms do.
+  footer: WIDE ? { paddingTop: 28, gap: 8, alignSelf: "stretch", alignItems: "flex-end" } : { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
   choice: { flexDirection: "row", alignItems: "center", gap: 14, borderBottomWidth: StyleSheet.hairlineWidth },
   box: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
   radio: { width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center" },
@@ -661,4 +851,11 @@ const styles = StyleSheet.create({
   fact: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 16, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
   input: { height: 52, borderRadius: 999, paddingHorizontal: 20 },
   status: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 4 },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  chip: { minHeight: 36, paddingHorizontal: 14, borderRadius: 999, justifyContent: "center" },
+  drop: { borderWidth: 1.5, borderStyle: "dashed", borderRadius: 18, paddingVertical: 30, paddingHorizontal: 20, alignItems: "center", gap: 6 },
+  file: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 44, paddingHorizontal: 14, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth },
+  links: { flexDirection: "row", flexWrap: "wrap", gap: 20 },
+  footerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  phone: { flexDirection: "row", alignItems: "center", gap: 24 },
 });

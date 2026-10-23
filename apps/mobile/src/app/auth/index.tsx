@@ -76,17 +76,17 @@ export default function AuthWelcomeScreen() {
         <Animated.View entering={active ? undefined : enter.rise} style={[styles.actions, reveal]}>
           {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert" style={styles.center}>{notice}</T> : null}
           {ACCOUNTS_ENABLED && last ? <>
-            <Button label={`Continue as ${last.firstName ?? last.maskedEmail ?? 'you'} · ${providerLabel(last.provider)}`} variant="accent" disabled={busy} onPress={() => void continueAs(last)} />
+            <Button block label={`Continue as ${last.firstName ?? last.maskedEmail ?? 'you'} · ${providerLabel(last.provider)}`} variant="accent" disabled={busy} onPress={() => void continueAs(last)} />
             {ACCOUNT_REQUIRED
-              ? <Button label="Use another account" variant="secondary" disabled={busy} onPress={() => router.push('/auth/login')} />
-              : <Button label="Get started" variant="secondary" disabled={busy} onPress={leaveAuth} />}
+              ? <Button block label="Use another account" variant="secondary" disabled={busy} onPress={() => router.push('/auth/login')} />
+              : <Button block label="Get started" variant="secondary" disabled={busy} onPress={leaveAuth} />}
             <TextButton label="Not you? Remove" tone="muted" disabled={busy} onPress={() => void forgetAccount()} style={styles.textAction} />
           </> : ACCOUNT_REQUIRED ? <>
             {/* The web has no guest plan: a laptop's plan comes from the account. */}
-            <Button label="Create an account" variant="accent" onPress={() => router.push('/auth/signup')} />
+            <Button block label="Create an account" variant="accent" onPress={() => router.push('/auth/signup')} />
             <TextButton label="I have an account" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} />
           </> : <>
-            <Button label="Get started" variant="accent" onPress={leaveAuth} />
+            <Button block label="Get started" variant="accent" onPress={leaveAuth} />
             {ACCOUNTS_ENABLED ? <TextButton label="I have an account" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} /> : null}
           </>}
           <T token="caption" color={c.inkSecondary} style={styles.center}>{ACCOUNT_REQUIRED ? 'Free to start. Your plan stays in sync with the Semli iPhone app.' : 'Free to start. No account needed.'}</T>

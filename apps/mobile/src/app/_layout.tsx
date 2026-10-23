@@ -217,7 +217,7 @@ function RootLayout() {
       <CloudBackup />
       <ThemeProvider value={{ ...theme, colors: { ...theme.colors, background: c.canvas } }}>
         <StorageWarning />
-        <View style={styles.app}>
+        <View style={[styles.app, { backgroundColor: c.canvas }]}>
         {showSidebar ? <Sidebar /> : null}
         <View style={styles.stack}>
         <Stack
@@ -238,7 +238,7 @@ function RootLayout() {
           {/* On a new install it is the first screen and takes over the splash logo, so it must not slide up. */}
           <Stack.Screen name="auth" options={{ presentation: 'fullScreenModal', animation: onboarded ? 'default' : 'none', contentStyle: { backgroundColor: c.canvas } }} />
           {/* Review is a full-screen cover: it can be reached from onboarding too, so it sits outside the guards. */}
-          <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false, headerShown: true, ...navigationButtonOptions('close') }} />
+          <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false, headerShown: true, ...navigationButtonOptions('close'), ...(sidebar ? { contentStyle: { backgroundColor: c.canvas, ...frameStyle(twoPane, true) } } : null) }} />
           <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', headerShown: true, headerTransparent: true, headerStyle: { backgroundColor: 'transparent' }, contentStyle: { backgroundColor: palettes.dark.canvas, width: '100%' }, title: '', headerTintColor: palettes.dark.inkPrimary, ...navigationButtonOptions('close') }} />
           <Stack.Screen name="account" options={sidebar ? dialogScreen : { presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
           <Stack.Protected guard={!onboarded && !webGuest}>

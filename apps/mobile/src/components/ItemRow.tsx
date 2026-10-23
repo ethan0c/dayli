@@ -8,6 +8,7 @@ import { CategoryDot, IconButton, StatusPill, itemStatus } from '@/components/Co
 import { Icon } from '@/components/Icon';
 import { SwipeRow } from '@/components/SwipeRow';
 import { T } from '@/components/Text';
+import { useWebLayout } from '@/lib/layout';
 import { springs } from '@/lib/motion';
 import { courseTint, useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
@@ -34,12 +35,14 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
   const sub = [where, conflict ? 'Overlaps something else' : null, planned ? 'Working on it today' : null].filter(Boolean).join(' · ');
   const [hover, setHover] = useState(false);
   const pointer = Platform.OS === 'web';
+  // Touch rows are 64 tall; a pointer on a wide window needs less (desktop lists run 44–52).
+  const { sidebar } = useWebLayout();
   return (
     <View>
     {course ? <View style={[styles.courseBar, { backgroundColor: tint, opacity: item.done ? 0.35 : 1 }]} /> : null}
     <SwipeRow onDelete={onDelete} onComplete={!isEvent ? onToggle : undefined} completed={item.done}>
     <View onPointerEnter={pointer ? () => setHover(true) : undefined} onPointerLeave={pointer ? () => setHover(false) : undefined}
-      style={[styles.row, { backgroundColor: hover ? c.row : c.canvas }, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
+      style={[styles.row, sidebar ? { minHeight: 52 } : null, { backgroundColor: hover ? c.row : c.canvas }, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
       {!isEvent ? (
         <Pressable onPress={onToggle} disabled={!onToggle} accessibilityRole="checkbox" hitSlop={8}
           accessibilityLabel={`${item.done ? 'Mark incomplete' : 'Complete'}: ${item.title}`} accessibilityState={{ checked: item.done }} style={styles.checkTarget}>

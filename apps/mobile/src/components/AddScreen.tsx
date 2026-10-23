@@ -85,7 +85,7 @@ export function AddScreen() {
       spoke.current = false;
       recordImport();
       track('import_succeeded', { kind: input.kind, items: res.extraction.items.length, type: res.extraction.detected_type });
-      setPending({ extraction: res.extraction, source });
+      setPending({ extraction: res.extraction, source, ...(Platform.OS === 'web' ? { input } : {}) });
       router.push('/review');
     } catch (failure) {
       reportError('import.prepare_or_review', failure);
@@ -133,6 +133,11 @@ export function AddScreen() {
     openedAt.current = at;
     if (source === 'image') void pick(() => pickImageInput(false));
     if (source === 'file') void pick(pickPdfInput);
+    // Quick add (⌘K) leaves its words in the draft and comes here to read them.
+    if (source === 'quick') {
+      const draft = useStore.getState().captureDraft.trim();
+      if (draft) { setText(draft); void run({ kind: 'text', text: draft }, 'Message'); }
+    }
     if (source === 'drop') {
       const file = takeDroppedFile();
       if (file) void pick(async () => {
@@ -145,10 +150,10 @@ export function AddScreen() {
   const focused = useIsFocused();
   useEffect(() => {
     // A browser opens a file picker only from a click, so on the web only a dropped file opens by itself.
-    if (!focused || !params.source || (Platform.OS === 'web' && params.source !== 'drop')) return;
+    if (!focused || !params.source || (Platform.OS === 'web' && params.source !== 'drop' && params.source !== 'quick')) return;
     const source = params.source;
     const at = params.at ?? source;
-    const timer = setTimeout(() => openSource(source, at), source === 'drop' ? 0 : 350);
+    const timer = setTimeout(() => openSource(source, at), source === 'drop' || source === 'quick' ? 0 : 350);
     return () => clearTimeout(timer);
   }, [focused, params.source, params.at]);
 

@@ -1,11 +1,12 @@
 import { WEEKDAYS, addDays, assessment, diffDays, formatTime, monthDay, weekdayOf, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router, useIsFocused } from 'expo-router';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CategoryDot, GroupLabel, ListRow, SectionTitle, StatusPill, TextButton, itemStatus } from '@/components/Controls';
+import { CourseDetail } from '@/components/CourseDetail';
 import { ItemRow } from '@/components/ItemRow';
 import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
@@ -14,7 +15,9 @@ import { ChartKey, markKey, shapeFor } from '@/components/ChartMark';
 import { TermLine, type TermMark } from '@/components/TermLine';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
+import { COLUMN, useWebLayout } from '@/lib/layout';
 import { useNow } from '@/lib/now';
+import { useWebShortcuts } from '@/lib/shortcuts';
 import { courseTint, useCourseList, useItemList, useStore, type StoredCourse } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
 
@@ -46,6 +49,21 @@ function weekLabels(today: string): string[] {
 export default function SchoolScreen() {
   const { c } = useTheme();
   const now = useNow();
+  // A wide web window opens a course beside the list instead of on its own screen.
+  const { twoPane } = useWebLayout();
+  const [openId, setOpenId] = useState<string | null>(null);
+  const focused = useIsFocused();
+  useWebShortcuts({ Escape: () => setOpenId(null) }, focused && !!openId);
+  const withPane = (list: ReactNode) => !twoPane ? list : (
+    <View style={styles.panes}>
+      <View style={{ width: COLUMN }}>{list}</View>
+      <View style={[styles.pane, { borderLeftColor: c.line }]}>
+        {openId ? <CourseDetail key={openId} id={openId} onClose={() => setOpenId(null)} /> : (
+          <View style={styles.paneEmpty}><T token="callout" color={c.inkSecondary}>Choose a course to see it here.</T></View>
+        )}
+      </View>
+    </View>
+  );
   const courses = useCourseList();
   // Tints count from the full stored list, as every row does, so a course keeps one colour everywhere.
   const allCourses = useStore((s) => s.courses);
@@ -93,16 +111,16 @@ export default function SchoolScreen() {
   );
 
   if (courses.length === 0) {
-    return (
+    return withPane(
       <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
         <TabHeader date={now.date} title="School" size="title"
           details={<T token="callout" color={c.inkSecondary}>Import a syllabus to add courses, exams and due dates.</T>} />
         {keepUpToDate}
-      </ScrollView>
+      </ScrollView>,
     );
   }
 
-  return (
+  return withPane(
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
       <TabHeader date={now.date} title={big}
         onPress={next ? () => router.push(`/item/${next.id}`) : undefined}
@@ -176,17 +194,20 @@ export default function SchoolScreen() {
               trailing={<StatusPill label={status.label} tone={status.tone} />}
               chevron
               accessibilityLabel={`${course.code ?? course.title}, ${course.title}, ${nextDue ? `${nextDue.title} ${status.label}` : 'nothing due'}`}
-              onPress={() => router.push(`/course/${course.id}`)} />
+              onPress={() => (twoPane ? setOpenId(course.id) : router.push(`/course/${course.id}`))} />
           );
         })}
       </View>
 
       {keepUpToDate}
-    </ScrollView>
+    </ScrollView>,
   );
 }
 
 const styles = StyleSheet.create({
+  panes: { flex: 1, flexDirection: 'row' },
+  pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
+  paneEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
   mapHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   map: { paddingTop: 10, paddingBottom: 6, gap: 10 },
