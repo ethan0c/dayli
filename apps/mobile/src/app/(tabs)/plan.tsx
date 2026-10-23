@@ -168,7 +168,7 @@ export default function PlanScreen() {
 
   const openCapture = () => router.navigate({ pathname: '/add', params: { source: 'image', at: String(Date.now()) } });
   const thisWeek = weekOf(now.date)[0] === weekStart;
-  const header = (
+  const header = (<>
     <TabHeader
       value={<PlanMonthTitle selected={selected} today={now.date} expanded={calendarOpen} onToggle={() => setCalendarOpen((open) => !open)} />}
       trailing={<View style={styles.trailing}>
@@ -178,10 +178,12 @@ export default function PlanScreen() {
           ? <Animated.View entering={enter.fade} exiting={exit.fade}><TodayPill onPress={() => setSelected(now.date)} /></Animated.View>
           : SHARING_ENABLED ? <IconButton icon="share" label="Preview schedule sharing" tone="glass" onPress={() => router.push({ pathname: '/share-schedule', params: { date: selected } })} /> : null}
       </View>}
-      details={calendarOpen ? <PlanMonthCalendar selected={selected} today={now.date} onSelect={setSelected} /> : starting
+      details={!calendarOpen && starting
         ? <T token="callout" color={c.inkSecondary}>Add events or tasks to see them here. Review imports before saving.</T>
         : undefined} />
-  );
+    {/* Under the header row, not in its column, so the Today pill beside the title never narrows the grid. */}
+    {calendarOpen ? <View style={styles.calendar}><PlanMonthCalendar selected={selected} today={now.date} onSelect={setSelected} /></View> : null}
+  </>);
 
   if (starting) return (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never">
@@ -312,6 +314,7 @@ export default function PlanScreen() {
 
 const styles = StyleSheet.create({
   chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
+  calendar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12 },
   trailing: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   over: { position: 'absolute', top: 0, right: 0, bottom: 0, width: 460, boxShadow: '-12px 0 32px rgba(0,0,0,0.10)' },
   boardWrap: { paddingHorizontal: SCREEN_GUTTER },
