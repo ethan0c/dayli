@@ -36,7 +36,7 @@ export function SiteFooter() {
         <div className="foot-brand">
           <Wordmark width={76} />
           <p>A little less juggling between work and school.</p>
-          <p className="foot-note">Try a schedule here. Keep your plan in the iPhone app.</p>
+          <p className="foot-note"><Link href="/syllabus-to-calendar#try">Try a schedule here</Link>. Keep your plan in the iPhone app.</p>
         </div>
         {COLUMNS.map((col) => (
           <div key={col.title} className="foot-col">
