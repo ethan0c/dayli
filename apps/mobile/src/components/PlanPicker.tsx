@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
 
-import { StatusPill } from '@/components/Controls';
+import { Radio, StatusPill } from '@/components/Controls';
 import { Press } from '@/components/Press';
 import { PlusFeatures, PlusWelcome, type PlusDestination } from '@/components/PlusWelcome';
 import { Skeleton } from '@/components/Skeleton';
@@ -17,7 +17,7 @@ import { notificationsAllowed, requestNotifications } from '@/lib/notifications'
 import { PLUS_ENTITLEMENT, customerCenterEnabled, hasSemliPro, offeringFor, usingTestStore } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
-import { useTheme, type Palette } from '@/theme';
+import { useTheme, type Palette, radius, size } from '@/theme';
 
 /** The three Semli Plus terms. Packages come from RevenueCat; see docs/revenuecat-offerings-brief.md. */
 const TERMS = [
@@ -191,9 +191,7 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
               accessibilityState={{ selected: on, disabled: disabled || !pack }} disabled={disabled || !pack}
               onPress={() => { setTerm(key); feedback('select'); setNotice(null); }}
               style={({ pressed }) => [styles.planRow, { borderBottomColor: c.line, opacity: pressed ? 0.7 : !pack && !loading ? 0.4 : 1 }]}>
-              <View style={[styles.radio, on ? { backgroundColor: c.controlFill } : { borderWidth: 1.5, borderColor: c.controlOutline }]}>
-                {on ? <View style={[styles.radioDot, { backgroundColor: c.controlInk }]} /> : null}
-              </View>
+              <Radio on={on} />
               <T token="body" color={c.inkPrimary} style={{ flex: 1 }}>{label}</T>
               {saving >= 5 ? <StatusPill label={`Save ${saving}%`} tone="green" tabular={false} /> : null}
               <T token="callout" color={c.inkSecondary} tabular>{pack ? (months > 1 ? perMonth(pack, months) : `${pack.product.priceString} / mo`) : loading ? '' : 'Unavailable'}</T>
@@ -284,12 +282,10 @@ export function closePaywall() {
 
 const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
-  cta: { alignSelf: 'stretch', minHeight: 52, paddingVertical: 14, paddingHorizontal: 20, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  cta: { alignSelf: 'stretch', minHeight: size.control, paddingVertical: 14, paddingHorizontal: 20, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingVertical: 12, flexWrap: 'wrap', borderBottomWidth: StyleSheet.hairlineWidth },
   studentLink: { minHeight: 44, justifyContent: 'center', paddingTop: 8 },
   remind: { minHeight: 32, justifyContent: 'center', alignSelf: 'flex-start' },
-  radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  radioDot: { width: 7, height: 7, borderRadius: 4 },
   timelineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, minHeight: 32 },
   timelineDot: { width: 8, height: 8, borderRadius: 4, marginTop: 6 },
   center: { textAlign: 'center' },

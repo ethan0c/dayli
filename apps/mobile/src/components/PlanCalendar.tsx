@@ -8,7 +8,7 @@ import { Icon } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { calendarDays, calendarMonthLabel, moveCalendarMonth } from '@/lib/calendar';
 import { feedback } from '@/lib/feedback';
-import { useTheme } from '@/theme';
+import { useTheme, radius, size } from '@/theme';
 
 /** "October", or "January 2027" when the selected month is not in this year. */
 function monthTitle(selected: string, today: string): string {
@@ -89,7 +89,7 @@ export function PlanMonthCalendar({ selected, today, onSelect }: { selected: str
 
 const styles = StyleSheet.create({
   title: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start' },
-  pill: { minHeight: 36, paddingHorizontal: 16, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  pill: { minHeight: size.pill, paddingHorizontal: 14, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   calendar: { borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 12, marginBottom: 12, gap: 8 },
   monthRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   monthTitle: { flex: 1, textAlign: 'center' },

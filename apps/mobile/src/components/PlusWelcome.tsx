@@ -8,7 +8,7 @@ import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { durations, ease, enter, springs } from '@/lib/motion';
 import type { Palette } from '@/theme';
-import { corner, radius } from '@/theme';
+import { corner, radius, size } from '@/theme';
 
 /** Where each Plus feature starts. Every row does the thing; none of them only describes it. */
 export type PlusDestination = 'import' | 'shifts' | 'canvas';
@@ -120,5 +120,5 @@ const styles = StyleSheet.create({
   seal: { width: 64, height: 64, marginBottom: 8, alignItems: 'center', justifyContent: 'center' },
   tick: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
   particle: { position: 'absolute', left: 29.5, top: 27, width: 5, height: 10, borderRadius: 2 },
-  cta: { minHeight: 52, paddingVertical: 14, paddingHorizontal: 20, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  cta: { minHeight: size.control, paddingVertical: 14, paddingHorizontal: 20, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
 });

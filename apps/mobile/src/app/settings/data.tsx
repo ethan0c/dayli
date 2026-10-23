@@ -18,7 +18,7 @@ import { accountOf, useSession } from '@/lib/supabase';
 import { useCourseList, useItemList, useScheduleList, useStore, type Batch } from '@/store';
 import { THIS_DEVICE } from '@/lib/web';
 import { testFortnight } from '@/store/sample';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { useTheme, screen } from '@/theme';
 
 const RECENT = 3;
 
@@ -159,7 +159,7 @@ export default function DataScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 48, gap: 22 },
+  body: screen.settingsBody,
   top: { gap: 2 },
   line: { paddingTop: 6 },
   empty: { paddingVertical: 16 },

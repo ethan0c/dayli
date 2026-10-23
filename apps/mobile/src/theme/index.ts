@@ -1,11 +1,11 @@
-import { fontFamily, palettes, radius, shadow, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
+import { fontFamily, palettes, radius, shadow, size, space, typeScale, type Palette, type TypeToken } from '@dayli/tokens';
 import { createContext, useContext } from 'react';
 import { Platform, useColorScheme, type TextStyle, type ViewStyle } from 'react-native';
 import { initialWindowMetrics, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useStore } from '@/store';
 
-export { radius, shadow, space };
+export { radius, shadow, size, space };
 export type { Palette, TypeToken };
 
 /** A rectangle's corners from `radius`, drawn as Apple's continuous curve on iOS. Pills and circles don't need it. */
@@ -61,3 +61,11 @@ export const SCREEN_GUTTER = space.xl;
 
 /** Space left under scrolling content so the tab bar never covers the last row. */
 export const NAV_INSET = 140;
+
+/** Spacing every screen of a kind shares, so no two settings pages or tab sections drift apart. */
+export const screen = {
+  /** A settings page under the system header: groups 24 apart, room to scroll past the last. */
+  settingsBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.md, paddingBottom: space.xxxl + space.xs, gap: space.xl },
+  /** A section on a tab or detail page: 24 under the one above. */
+  section: { paddingTop: space.xl },
+} as const;

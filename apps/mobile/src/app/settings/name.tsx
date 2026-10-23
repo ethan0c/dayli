@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, TextInput } from 'react-native';
 
 import { T } from '@/components/Text';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, textStyle, useTheme } from '@/theme';
+import { textStyle, useTheme, screen, space } from '@/theme';
 
 export default function NameScreen() {
   const { t } = useLingui();
@@ -29,6 +29,6 @@ export default function NameScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, gap: 12 },
+  body: { ...screen.settingsBody, gap: space.sm },
   field: { height: 52, borderRadius: 999, paddingHorizontal: 20 },
 });

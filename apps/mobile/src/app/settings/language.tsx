@@ -6,7 +6,7 @@ import { feedback } from '@/lib/feedback';
 import { LANGUAGES, type AppLanguage } from '@/lib/language';
 import { SYSTEM_NAME } from '@/lib/web';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER } from '@/theme';
+import { screen } from '@/theme';
 
 export default function LanguageScreen() {
   const { t } = useLingui();
@@ -28,4 +28,4 @@ export default function LanguageScreen() {
   );
 }
 
-const styles = StyleSheet.create({ body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, gap: 28 } });
+const styles = StyleSheet.create({ body: screen.settingsBody });

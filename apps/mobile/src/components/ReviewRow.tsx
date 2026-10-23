@@ -7,7 +7,7 @@ import { DisclosureChevron } from '@/components/DisclosureChevron';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { enter, exit, layout } from '@/lib/motion';
-import { useTheme } from '@/theme';
+import { useTheme, radius, size } from '@/theme';
 
 /*
  * The small parts of the review screen: a hairline row with a glyph column, the 36-high
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   ring: { width: 12, height: 12, borderRadius: 6, borderWidth: 2 },
   below: { paddingLeft: 34, paddingBottom: 14 },
   pills: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
-  pill: { height: 36, paddingHorizontal: 14, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  slot: { minHeight: 36, paddingHorizontal: 4, borderRadius: 18, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  pill: { height: size.pill, paddingHorizontal: 14, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  slot: { minHeight: size.pill, paddingHorizontal: 4, borderRadius: radius.pill, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8 },
 });

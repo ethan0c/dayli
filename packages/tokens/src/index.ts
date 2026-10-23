@@ -133,6 +133,9 @@ const dark: Palette = {
 
 export const palettes = { light, dark } as const;
 
+/** Control heights: `control` for primary and secondary buttons and pill fields, `pill` for in-row actions (a time, Add a time), `chip` for status pills, `target` the least tap height. */
+export const size = { control: 52, pill: 36, chip: 28, target: 44 } as const;
+
 /** Shadows, only for things that float over the page; dark mode leans on the backdrop instead. */
 export const shadow = {
   /** Dialogs and Quick add. */

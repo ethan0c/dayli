@@ -5,6 +5,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-na
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Composer } from "@/components/Composer";
+import { Radio } from "@/components/Controls";
 import { RecentShots } from "@/components/RecentShots";
 import { File } from "expo-file-system";
 import { Press } from "@/components/Press";
@@ -35,7 +36,7 @@ import { sampleWeek } from "@/store/sample";
 import { palettes } from "@dayli/tokens";
 import { localParts, monthDay, relativeDay, termSummary, weekOf, weekdayLong } from "@dayli/core";
 
-import { SCREEN_GUTTER, corner, radius, textStyle, useTheme } from "@/theme";
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size } from '@/theme';
 
 /**
  * Ask less, build their week, then ask (docs/conversion.md, decided Oct 21, 2026): two tap
@@ -816,9 +817,7 @@ function RemindStep({ onDone }: { onDone: () => void }) {
           <Press key={r.id} haptic="select" scale={1} accessibilityRole="radio" accessibilityState={{ selected: choice === r.id }} onPress={() => setChoice(r.id)}
             style={[styles.choice, { minHeight: 56, borderBottomColor: c.line }]}>
             <T token="body" style={{ flex: 1 }}>{r.label}</T>
-            <View style={[styles.radio, choice === r.id ? { backgroundColor: c.inkPrimary } : { borderWidth: 1.5, borderColor: c.controlOutline }]}>
-              {choice === r.id ? <View style={[styles.radioDot, { backgroundColor: c.onPrimary }]} /> : null}
-            </View>
+            <Radio on={choice === r.id} />
           </Press>
         ))}
       </View>
@@ -878,10 +877,8 @@ const styles = StyleSheet.create({
   footer: WIDE ? { paddingTop: 28, gap: 8, alignSelf: "stretch", alignItems: "flex-end" } : { marginTop: "auto", paddingTop: 24, gap: 8, alignSelf: "stretch" },
   choice: { flexDirection: "row", alignItems: "center", gap: 14, borderBottomWidth: StyleSheet.hairlineWidth },
   box: { width: 22, height: 22, ...corner(radius.mark), borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
-  radio: { width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  radioDot: { width: 7, height: 7, borderRadius: 4 },
   fact: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 16, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
-  input: { height: 52, borderRadius: 999, paddingHorizontal: 20 },
+  input: { height: size.control, borderRadius: radius.pill, paddingHorizontal: 20 },
   status: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 4 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { minHeight: 36, paddingHorizontal: 14, borderRadius: 999, justifyContent: "center" },

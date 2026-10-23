@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { accessibilityLabel, buttonBorderShape, buttonStyle, controlSize, datePickerStyle, tint } from '@expo/ui/swift-ui/modifiers';
 
 import type { DateFieldProps, NativeButtonProps, ToggleProps } from '@/components/Native';
-import { useTheme } from '@/theme';
+import { useTheme, size } from '@/theme';
 
 function toDate(date: string | null, time: string | null): Date {
   const [y, m, d] = (date ?? localParts(new Date()).date).split('-').map(Number);
@@ -53,7 +53,7 @@ export function NativeToggle({ value, onChange, label, activeColor }: ToggleProp
 /** A real SwiftUI button for secondary actions (delete, done). Primary CTAs stay brand-styled. */
 export function NativeButton({ label, onPress, role, color, systemImage }: NativeButtonProps) {
   return (
-    <Host style={{ height: 50, alignSelf: 'center' }} matchContents>
+    <Host style={{ height: size.control, alignSelf: 'center' }} matchContents>
       <SwiftButton
         label={label}
         onPress={onPress}

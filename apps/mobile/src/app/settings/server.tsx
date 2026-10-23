@@ -2,7 +2,7 @@ import { Redirect } from 'expo-router';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { FieldRow, Group } from '@/components/Settings';
-import { SCREEN_GUTTER } from '@/theme';
+import { screen } from '@/theme';
 import { useStore } from '@/store';
 
 export default function ServerScreen() {
@@ -24,4 +24,4 @@ function ServerSettings() {
   );
 }
 
-const styles = StyleSheet.create({ body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, gap: 22 } });
+const styles = StyleSheet.create({ body: screen.settingsBody });

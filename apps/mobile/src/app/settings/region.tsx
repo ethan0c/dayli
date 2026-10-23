@@ -6,7 +6,7 @@ import { Group, Row } from '@/components/Settings';
 import { feedback } from '@/lib/feedback';
 import { REGIONS, deviceRegion, hasQuarters, regionName } from '@/lib/locale';
 import { SYSTEM_NAME } from '@/lib/web';
-import { SCREEN_GUTTER } from '@/theme';
+import { screen } from '@/theme';
 import { useStore } from '@/store';
 
 /** Where the person studies: the term calendar Semli guesses from, and how numeric dates read. */
@@ -48,4 +48,4 @@ export default function RegionScreen() {
   );
 }
 
-const styles = StyleSheet.create({ body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, gap: 28 } });
+const styles = StyleSheet.create({ body: screen.settingsBody });

@@ -8,7 +8,7 @@ import { Icon, type IconKey } from '@/components/Icon';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import type { Cue } from '@/lib/feedback';
-import { corner, radius, useTheme } from '@/theme';
+import { corner, radius, useTheme, size } from '@/theme';
 
 /*
  * The five button roles and the small parts every screen shares.
@@ -148,6 +148,16 @@ export function ListRow({ title, sub, leading, trailing, onPress, chevron = !!on
   );
 }
 
+/** One choice of several: filled with a dot when chosen, an outline when not. The one radio everywhere. */
+export function Radio({ on }: { on: boolean }) {
+  const { c } = useTheme();
+  return (
+    <View style={[styles.radio, on ? { backgroundColor: c.controlFill } : { borderWidth: 1.5, borderColor: c.controlOutline }]}>
+      {on ? <View style={[styles.radioDot, { backgroundColor: c.controlInk }]} /> : null}
+    </View>
+  );
+}
+
 /** A 10px dot in the category or course tint, big enough to tell six hues apart in a row; with a course's check ring, the only place those colors appear. */
 export function CategoryDot({ color, size = 10 }: { color: string; size?: number }) {
   return <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color }} />;
@@ -180,11 +190,13 @@ export function itemStatus(item: Pick<Item, 'kind' | 'date' | 'start' | 'end' | 
 }
 
 const styles = StyleSheet.create({
+  radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  radioDot: { width: 7, height: 7, borderRadius: 4 },
   textBtn: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 2 },
   underline: { textDecorationLine: 'underline' },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 40, borderRadius: 999 },
-  tile: { flex: 1, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', gap: 4 },
-  pill: { height: 28, paddingHorizontal: 10, borderRadius: 14, alignItems: 'center', justifyContent: 'center', maxWidth: 160 },
+  tile: { flex: 1, height: 64, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', gap: 4 },
+  pill: { height: size.chip, paddingHorizontal: 10, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', maxWidth: 160 },
   pillMultiline: { height: 'auto', minHeight: 28, paddingVertical: 4, maxWidth: '100%' },
   sectionTitle: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingBottom: 12 },
   groupLabel: { paddingBottom: 2 },

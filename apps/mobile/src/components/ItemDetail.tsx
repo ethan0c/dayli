@@ -22,7 +22,7 @@ import { isClass } from '@/lib/reminder-plan';
 import { usePlusAccess } from '@/lib/plus-access';
 import { useItemList, useStore } from '@/store';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, corner, radius, textStyle, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, textStyle, useTheme, size } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   head: { gap: 12, paddingBottom: 8 },
   eyebrowRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   time: { fontSize: 44, lineHeight: 48, letterSpacing: -1.4, paddingTop: 4 },
-  addTime: { alignSelf: 'flex-start', height: 36, borderRadius: 18, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+  addTime: { alignSelf: 'flex-start', height: size.pill, borderRadius: radius.pill, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
   pickers: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 8, flexWrap: 'wrap' },
   rows: { gap: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 28, paddingHorizontal: 4 },

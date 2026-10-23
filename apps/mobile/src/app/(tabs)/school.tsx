@@ -19,7 +19,7 @@ import { COLUMN, useWebLayout } from '@/lib/layout';
 import { useNow } from '@/lib/now';
 import { useWebShortcuts } from '@/lib/shortcuts';
 import { courseTint, useCourseList, useItemList, useStore, type StoredCourse } from '@/store';
-import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, useTheme, screen } from '@/theme';
 
 /** Four weeks from today, the span of the deadline map. */
 const MAP_DAYS = 28;
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   panes: { flex: 1, flexDirection: 'row' },
   pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
   paneEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },
-  section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
+  section: { paddingHorizontal: SCREEN_GUTTER, ...screen.section },
   mapHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   map: { paddingTop: 10, paddingBottom: 6, gap: 10 },
   mapRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },

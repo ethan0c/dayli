@@ -8,7 +8,7 @@ import { NavButton } from '@/components/NavPill';
 import { Toast } from '@/components/Overlay';
 import { useWebLayout } from '@/lib/layout';
 import { useWebFileDrop } from '@/lib/web-drop';
-import { SCREEN_GUTTER, useTheme, shadow } from '@/theme';
+import { SCREEN_GUTTER, useTheme, shadow, radius } from '@/theme';
 
 /** Non-iOS: the web's sidebar on a wide window, otherwise the five destinations in a pill. */
 export default function PlannerTabs() {
@@ -56,5 +56,5 @@ const styles = StyleSheet.create({
   // ScrollView had nothing to scroll; held to the window, the screen scrolls.
   slot: { flex: 1, minHeight: 0 },
   bar: { position: 'absolute', left: SCREEN_GUTTER, right: SCREEN_GUTTER },
-  pill: { flexDirection: 'row', padding: 4, borderRadius: 32, borderWidth: 1, boxShadow: shadow.float },
+  pill: { flexDirection: 'row', padding: 4, borderRadius: radius.pill, borderWidth: 1, boxShadow: shadow.float },
 });

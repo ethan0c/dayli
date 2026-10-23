@@ -9,7 +9,7 @@ import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
 import { feedback } from '@/lib/feedback';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, screen } from '@/theme';
 
 /**
  * Today and Plan before anything is added: three ways to start as rows, then two
@@ -62,7 +62,7 @@ export function TodayStart({ date, tab = 'Today', header }: { date: string; tab?
 }
 
 const styles = StyleSheet.create({
-  section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
+  section: { paddingHorizontal: SCREEN_GUTTER, ...screen.section },
   examples: { opacity: 0.55 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, borderBottomWidth: StyleSheet.hairlineWidth },
   lead: { width: 22, alignItems: 'center', justifyContent: 'center' },

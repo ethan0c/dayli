@@ -18,7 +18,7 @@ import { usePlusAccess } from '@/lib/plus-access';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { useTheme, screen } from '@/theme';
 
 /**
  * Canvas through its calendar feed link. The fallback for a school that hides the feed is the
@@ -138,7 +138,7 @@ export default function CanvasScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 48 },
+  body: { ...screen.settingsBody, gap: 0 },
   stack: { gap: 22 },
   top: { gap: 2 },
   line: { paddingTop: 6 },

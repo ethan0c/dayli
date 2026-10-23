@@ -5,7 +5,7 @@ import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { T } from '@/components/Text';
-import { corner, radius, textStyle, useTheme } from '@/theme';
+import { corner, radius, textStyle, useTheme, size } from '@/theme';
 
 // Fallbacks for web (and any non-iOS platform). The .ios.tsx file uses SwiftUI; the web's date and
 // time fields are the browser's own pickers.
@@ -111,5 +111,5 @@ const styles = StyleSheet.create({
   field: { height: 32, ...corner(radius.small), borderWidth: 1, paddingHorizontal: 8 },
   toggle: { width: 40, height: 24, borderRadius: 12, padding: 2, justifyContent: 'center' },
   knob: { width: 20, height: 20, borderRadius: 10 },
-  btn: { minHeight: 50, paddingVertical: 12, borderRadius: radius.pill, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  btn: { minHeight: size.control, paddingVertical: 12, borderRadius: radius.pill, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 });

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
-import { GroupLabel, ListRow } from '@/components/Controls';
+import { GroupLabel, ListRow, Radio } from '@/components/Controls';
 import { Icon, type IconKey } from '@/components/Icon';
 import { NativeToggle } from '@/components/Native';
 import { T } from '@/components/Text';
@@ -40,7 +40,7 @@ export function Row({ label, value, onPress, selected, destructive, last, icon }
       trailing={
         <>
           {value ? <T token="callout" color={c.inkSecondary} numberOfLines={2} style={{ maxWidth: '55%', flexShrink: 1, textAlign: 'right' }}>{value}</T> : null}
-          {selected ? <View style={[styles.radio, { backgroundColor: c.inkPrimary }]}><View style={[styles.radioDot, { backgroundColor: c.onPrimary }]} /></View> : selected === false ? <View style={[styles.radio, { borderWidth: 1.5, borderColor: c.controlOutline }]} /> : null}
+          {selected != null ? <Radio on={selected} /> : null}
         </>
       }
     />
@@ -75,6 +75,4 @@ const styles = StyleSheet.create({
   group: { gap: 4 },
   footer: { paddingTop: 8 },
   fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56 },
-  radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  radioDot: { width: 7, height: 7, borderRadius: 4 },
 });

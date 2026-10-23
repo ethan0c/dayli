@@ -19,7 +19,7 @@ import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { courseTint, useCourseList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, useTheme } from '@/theme';
+import { SCREEN_GUTTER, useTheme, screen } from '@/theme';
 import { sourceName } from '@/lib/source-name';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -256,6 +256,6 @@ const styles = StyleSheet.create({
   swatches: { flexDirection: 'row', gap: 4 },
   swatch: { width: SWATCH + (chart.focusGap + chart.now) * 2, height: SWATCH + (chart.focusGap + chart.now) * 2, borderRadius: 999, borderWidth: chart.now, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
   swatchDot: { width: SWATCH, height: SWATCH, borderRadius: SWATCH / 2 },
-  section: { paddingTop: 22 },
+  section: screen.section,
   dotWell: { width: 22, alignItems: 'center' },
 });

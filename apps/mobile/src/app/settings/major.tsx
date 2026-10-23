@@ -5,7 +5,7 @@ import { Group, Row } from '@/components/Settings';
 import { feedback } from '@/lib/feedback';
 import { MAJORS } from '@/lib/majors';
 import { useStore } from '@/store';
-import { SCREEN_GUTTER } from '@/theme';
+import { screen } from '@/theme';
 
 export default function MajorScreen() {
   const { t, i18n } = useLingui();
@@ -31,4 +31,4 @@ export default function MajorScreen() {
   );
 }
 
-const styles = StyleSheet.create({ body: { padding: 16, paddingHorizontal: SCREEN_GUTTER, gap: 22 } });
+const styles = StyleSheet.create({ body: screen.settingsBody });

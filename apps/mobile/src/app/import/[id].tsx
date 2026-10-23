@@ -12,7 +12,7 @@ import { compactRange } from '@/components/WeekChart';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { useStore, type Change } from '@/store';
-import { SCREEN_GUTTER, corner, radius, useTheme } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, screen, size } from '@/theme';
 
 const isShot = (source: string | null | undefined) => /^(screenshot|photo)$/i.test(source ?? '');
 
@@ -161,11 +161,11 @@ const styles = StyleSheet.create({
   topText: { flex: 1, minWidth: 0, gap: 2 },
   line: { paddingTop: 6 },
   thumb: { width: 84, height: 122, ...corner(radius.field), overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  section: { paddingTop: 22 },
+  section: screen.section,
   change: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52 },
   well: { width: 22, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 6, height: 6, borderRadius: 3 },
   ring: { width: 12, height: 12, borderRadius: 6, borderWidth: 2 },
   struck: { textDecorationLine: 'line-through' },
-  mutedPill: { height: 28, paddingHorizontal: 10, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  mutedPill: { height: size.chip, paddingHorizontal: 10, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
 });

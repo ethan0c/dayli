@@ -33,7 +33,7 @@ import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { accountOf, useSession } from '@/lib/supabase';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, NAV_INSET, useTheme, useTopInset } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, useTheme, useTopInset, screen } from '@/theme';
 
 /** "2h 14m", "14m", or "0m" for a gap in minutes. */
 function countdown(mins: number): string {
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   hourPane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
   hourBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40, gap: 8 },
   hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 18 },
-  section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
+  section: { paddingHorizontal: SCREEN_GUTTER, ...screen.section },
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   inlineAction: { paddingLeft: 34 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 20 },

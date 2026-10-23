@@ -30,7 +30,7 @@ import { defaultTimes } from '@/lib/times';
 import { useReschedule } from '@/lib/use-reschedule';
 import { useSettling } from '@/lib/use-settling';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
-import { SCREEN_GUTTER, NAV_INSET, useTheme, shadow } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, useTheme, shadow, screen, radius, size } from '@/theme';
 
 /** "HH:MM" plus some minutes, capped at midnight. */
 function addMinutes(time: string, mins: number): string {
@@ -352,11 +352,11 @@ const styles = StyleSheet.create({
   pane: { flex: 1, borderLeftWidth: StyleSheet.hairlineWidth },
   paneEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },
   legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, gap: 8 },
-  section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
+  section: { paddingHorizontal: SCREEN_GUTTER, ...screen.section },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 24, paddingTop: 4 },
   move: { gap: 12, paddingTop: 14 },
   shift: { borderBottomWidth: StyleSheet.hairlineWidth },
   lead: { width: 22, alignItems: 'center', justifyContent: 'center' },
   timeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingLeft: 34, paddingBottom: 14 },
-  timePill: { height: 36, borderRadius: 18, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
+  timePill: { height: size.pill, borderRadius: radius.pill, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
 });

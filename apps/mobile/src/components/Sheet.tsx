@@ -11,7 +11,7 @@ import { T } from '@/components/Text';
 import { useWebLayout } from '@/lib/layout';
 import { enter, exit } from '@/lib/motion';
 import { useWebShortcuts } from '@/lib/shortcuts';
-import { SCREEN_GUTTER, corner, radius, useTheme, shadow } from '@/theme';
+import { SCREEN_GUTTER, corner, radius, useTheme, shadow, size } from '@/theme';
 
 /** Height of the native navigation bar below the status bar. */
 const NAV_BAR = 44;
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   subtitle: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, paddingBottom: 20 },
   body: { flex: 1 },
   footer: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 12, gap: 8, alignItems: 'center' },
-  btn: { alignSelf: 'stretch', height: 52, paddingHorizontal: 22, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  btn: { alignSelf: 'stretch', height: size.control, paddingHorizontal: 22, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   fit: { alignSelf: 'auto', height: 40, paddingHorizontal: 20 },
   // On a wide window the actions sit at the right; the first (the primary) comes last in reading order.
   footerWide: { flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingBottom: 24 },
