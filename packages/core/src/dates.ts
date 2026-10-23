@@ -128,6 +128,11 @@ export function monthDay(date: string): string {
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
+/** "October": the month of a date or ISO timestamp. */
+export function monthName(date: string): string {
+  return MONTHS_LONG[Number(date.slice(5, 7)) - 1]!;
+}
+
 /** "October 24", or "24 October" where the day comes first. */
 export function longMonthDay(date: string): string {
   const [, m, d] = date.split('-').map(Number);

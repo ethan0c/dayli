@@ -1,4 +1,4 @@
-import { addDays, diffDays, formatRange, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekOf, weekdayLong, hoursMinutes, spanMinutes } from '@dayli/core';
+import { addDays, diffDays, formatRange, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekOf, weekdayLong, hoursMinutes, spanMinutes, monthName } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -15,8 +15,6 @@ import { useNow } from '@/lib/now';
 import { useItemList, useScheduleList, useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme, fade } from '@/theme';
 import { sourceName } from '@/lib/source-name';
-
-const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 /** Hours to the nearest half: 30, 7.5, 1. */
 const hours = (mins: number) => Math.round(mins / 30) / 2;
@@ -85,7 +83,7 @@ export default function EmployerScreen() {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [batches, name]);
   const first = imports[imports.length - 1];
   const allShots = imports.every((b) => /^(screenshot|photo)$/i.test(b.source ?? ''));
-  const importsSub = first ? `${imports.length} ${allShots ? (imports.length === 1 ? 'screenshot' : 'screenshots') : (imports.length === 1 ? 'import' : 'imports')} since ${MONTHS_LONG[Number(first.createdAt.slice(5, 7)) - 1]}` : null;
+  const importsSub = first ? `${imports.length} ${allShots ? (imports.length === 1 ? 'screenshot' : 'screenshots') : (imports.length === 1 ? 'import' : 'imports')} since ${monthName(first.createdAt)}` : null;
 
   const lead = reminders.eventLead === 60 ? '1 hour' : `${reminders.eventLead} min`;
   const reminderLine = reminders.enabled ? `Reminder ${lead} before each shift` : 'Reminders are off';
