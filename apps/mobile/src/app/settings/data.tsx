@@ -16,6 +16,7 @@ import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { accountOf, useSession } from '@/lib/supabase';
 import { useCourseList, useItemList, useScheduleList, useStore, type Batch } from '@/store';
+import { THIS_DEVICE } from '@/lib/web';
 import { testFortnight } from '@/store/sample';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -106,7 +107,7 @@ export default function DataScreen() {
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
       <View style={styles.top}>
-        <T token="callout" color={c.inkSecondary}>{signedIn ? backupStatus : 'Saved on this iPhone'}</T>
+        <T token="callout" color={c.inkSecondary}>{signedIn ? backupStatus : `Saved on ${THIS_DEVICE}`}</T>
         <T token="displayXl" tabular>{`${items.length} ${items.length === 1 ? 'item' : 'items'}`}</T>
         <T token="body" style={styles.line}>{summary}</T>
       </View>
@@ -140,11 +141,11 @@ export default function DataScreen() {
         </Group>
       ) : null}
 
-      <Group title="Reset" footer={signedIn ? 'To remove your plan from this iPhone while keeping your account backup, sign out in Account settings.' : eraseError ?? 'Export a backup before erasing your plan.'}>
+      <Group title="Reset" footer={signedIn ? `To remove your plan from ${THIS_DEVICE} while keeping your account backup, sign out in Account settings.` : eraseError ?? 'Export a backup before erasing your plan.'}>
         <Row label="Replay the intro" value="Keeps everything" onPress={() => { feedback('tap'); setSettings({ onboarded: false, onboardingImportDone: false }); router.dismissTo('/'); }} last={signedIn} />
         {signedIn ? null : confirm ? (
           <Animated.View entering={enter.drop} exiting={exit.fade} style={styles.confirm} accessibilityRole="alert">
-            <T token="callout" color={c.inkSecondary} style={{ flexBasis: '100%' }}>Erase your plan? Your courses, tasks and setup will be removed from this iPhone. This can’t be undone.</T>
+            <T token="callout" color={c.inkSecondary} style={{ flexBasis: '100%' }}>{`Erase your plan? Your courses, tasks and setup will be removed from ${THIS_DEVICE}. This can’t be undone.`}</T>
             <TextButton label="Export first" onPress={() => void exportPlan()} />
             <TextButton label="Cancel" tone="muted" onPress={() => setConfirm(false)} />
             <TextButton label="Erase" tone="danger" haptic="warning" onPress={() => void erase()} />

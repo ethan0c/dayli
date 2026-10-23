@@ -3,25 +3,11 @@ import { extract } from '@dayli/extract';
 import { ExtractRequest, IMPORT_MESSAGES, friendlyImportError, type ExtractResponse } from '@dayli/schema';
 import { errorDiagnostic } from '@dayli/core';
 import { checkImportAccess, type Access } from '../../../lib/import-access';
-import { SITE_URL } from '../../../lib/site';
+import { cors } from '../../../lib/cors';
 
 // Dense multi-page syllabi can take more than a minute to read.
 export const maxDuration = 180;
 
-/**
- * Browsers may call this from the site itself (and from anywhere in development, for the Expo
- * web build on another port). The app's native requests carry no origin and ignore CORS.
- */
-function cors(request: Request): Record<string, string> {
-  const origin = request.headers.get('origin');
-  const allowed = origin && (origin === SITE_URL || process.env.NODE_ENV === 'development') ? origin : SITE_URL;
-  return {
-    'Access-Control-Allow-Origin': allowed,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RevenueCat-App-User-Id',
-    Vary: 'Origin',
-  };
-}
 
 export async function OPTIONS(request: Request) {
   return new Response(null, { status: 204, headers: cors(request) });

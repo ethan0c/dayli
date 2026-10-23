@@ -19,12 +19,16 @@ import { reportError } from '@/lib/errors';
 import { useStorageStatus } from '@/lib/storage';
 import { CanvasAutoSync } from '@/lib/canvas-sync';
 import { CloudBackup } from '@/lib/cloud';
+import { accountOf, useSession } from '@/lib/supabase';
+import { ACCOUNT_REQUIRED } from '@/lib/web';
+import { COLUMN, useWebLayout } from '@/lib/layout';
 import { PlanChoice } from '@/components/PlanChoice';
 import { devClock, devCommand, setDevAutoConfirm, setDevToday } from '@/lib/dev';
 import { i18n } from '@/lib/i18n';
 import { SHOWCASE, SKY, preloadPhotos } from '@/lib/images';
 import { skySlot } from '@/lib/sky';
 import { useDateLocaleSync } from '@/lib/locale';
+import { useAppLanguage } from '@/lib/use-app-language';
 import { setDevTime } from '@/lib/now';
 import { hideSplash } from '@/lib/splash';
 import { sampleScheduleExtraction, sampleScheduleUpdate, sampleSyllabusExtraction, sampleWeek, testFortnight } from '@/store/sample';
@@ -75,6 +79,13 @@ function RootLayout() {
   const hydrated = useStore((s) => s.hydrated);
   const loadFailed = useStorageStatus((s) => s.loadFailed);
   const onboarded = useStore((s) => s.settings.onboarded);
+  // The web plans only for a signed-in account: without one, only the auth screens are open.
+  const sessionReady = useSession((s) => s.ready);
+  const signedIn = useSession((s) => !!accountOf(s.session));
+  const webGuest = ACCOUNT_REQUIRED && !signedIn;
+  // On a wide web window every pushed screen sits in the reading column; the tab shell and photo paywall take the width.
+  const { sidebar } = useWebLayout();
+  const column = sidebar ? { width: '100%' as const, maxWidth: COLUMN, alignSelf: 'center' as const } : null;
   const appearance = useStore((s) => s.settings.appearance);
   const { c, dark } = useTheme();
   const pathname = usePathname();
@@ -90,8 +101,9 @@ function RootLayout() {
     // Once per launch: later sky changes fade in on their own.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
-  const ready = (fontsLoaded || !!fontError) && hydrated && photosReady;
+  const ready = (fontsLoaded || !!fontError) && hydrated && photosReady && (!ACCOUNT_REQUIRED || sessionReady);
   useDateLocaleSync(hydrated);
+  useAppLanguage();
   useEffect(() => { if (fontError) reportError('fonts.load', fontError); }, [fontError]);
   useReminderSync();
   const alarmItems = useStore((s) => s.items);
@@ -208,20 +220,20 @@ function RootLayout() {
             headerTitleStyle: { fontFamily: mobileFonts.medium, fontSize: 16, color: c.inkPrimary },
             headerTitleAlign: 'center',
             headerBackButtonDisplayMode: 'minimal',
-            contentStyle: { backgroundColor: c.canvas },
+            contentStyle: { backgroundColor: c.canvas, ...column },
           }}>
           {/* Auth is the fallback for a new install; existing planners still resolve / to tabs. */}
           {/* On a new install it is the first screen and takes over the splash logo, so it must not slide up. */}
-          <Stack.Screen name="auth" options={{ presentation: 'fullScreenModal', animation: onboarded ? 'default' : 'none' }} />
+          <Stack.Screen name="auth" options={{ presentation: 'fullScreenModal', animation: onboarded ? 'default' : 'none', contentStyle: { backgroundColor: c.canvas } }} />
           {/* Review is a full-screen cover: it can be reached from onboarding too, so it sits outside the guards. */}
           <Stack.Screen name="review" options={{ presentation: 'fullScreenModal', gestureEnabled: false, headerShown: true, ...navigationButtonOptions('close') }} />
-          <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', headerShown: true, headerTransparent: true, headerStyle: { backgroundColor: 'transparent' }, contentStyle: { backgroundColor: palettes.dark.canvas }, title: '', headerTintColor: palettes.dark.inkPrimary, ...navigationButtonOptions('close') }} />
+          <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal', headerShown: true, headerTransparent: true, headerStyle: { backgroundColor: 'transparent' }, contentStyle: { backgroundColor: palettes.dark.canvas, width: '100%' }, title: '', headerTintColor: palettes.dark.inkPrimary, ...navigationButtonOptions('close') }} />
           <Stack.Screen name="account" options={{ presentation: 'fullScreenModal', headerShown: true, ...navigationButtonOptions('close') }} />
-          <Stack.Protected guard={!onboarded}>
+          <Stack.Protected guard={!onboarded && !webGuest}>
             <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
           </Stack.Protected>
-          <Stack.Protected guard={onboarded}>
-            <Stack.Screen name="(tabs)" />
+          <Stack.Protected guard={onboarded && !webGuest}>
+            <Stack.Screen name="(tabs)" options={{ contentStyle: { backgroundColor: c.canvas } }} />
             {/* Legacy capture links redirect to Add without presenting an empty modal. */}
             <Stack.Screen name="capture" />
             {/* Flows slide up as full-screen covers with an X; detail screens push with a back chevron. */}

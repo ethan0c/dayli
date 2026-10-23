@@ -5,12 +5,13 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { Group, Row } from '@/components/Settings';
 import { feedback } from '@/lib/feedback';
 import { REGIONS, deviceRegion, hasQuarters, regionName } from '@/lib/locale';
+import { SYSTEM_NAME } from '@/lib/web';
 import { SCREEN_GUTTER } from '@/theme';
 import { useStore } from '@/store';
 
 /** Where the person studies: the term calendar Semli guesses from, and how numeric dates read. */
 export default function RegionScreen() {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const systems: { id: TermSystem; label: string }[] = [
     { id: 'semester', label: t`Semesters` },
     { id: 'quarter', label: t`Quarters` },
@@ -22,19 +23,18 @@ export default function RegionScreen() {
   const region = chosen ?? phone;
   const today = localParts(new Date()).date;
   const guess = typicalTermEnd(today, region, hasQuarters(region) ? termSystem : 'semester');
-  const term = guess.name;
   const ends = fullDate(guess.date);
-  const phoneName = regionName(phone);
+  const phoneName = regionName(phone, i18n.locale);
   const pick = (patch: { region?: string | null; termSystem?: TermSystem }) => {
     feedback('select');
     setSettings(patch);
   };
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
-      <Group footer={t`When a syllabus doesn't say when classes end, Semli guesses the ${term}: ${ends}. It also reads dates like 4/11 the way they're written here.`}>
-        <Row label={t`Match iPhone, ${phoneName}`} selected={chosen === null} onPress={() => pick({ region: null })} last={false} />
+      <Group footer={t`When a syllabus doesn't list an end date, Semli suggests ${ends} for classes in this region. Numeric dates, such as 4/11, follow this region's conventions.`}>
+        <Row label={SYSTEM_NAME === 'system' ? t`Match system, ${phoneName}` : t`Match iPhone, ${phoneName}`} selected={chosen === null} onPress={() => pick({ region: null })} last={false} />
         {REGIONS.filter((r) => r.id !== phone).map((r, i, list) => (
-          <Row key={r.id} label={r.name} selected={chosen === r.id} onPress={() => pick({ region: r.id })} last={i === list.length - 1} />
+          <Row key={r.id} label={regionName(r.id, i18n.locale)} selected={chosen === r.id} onPress={() => pick({ region: r.id })} last={i === list.length - 1} />
         ))}
       </Group>
       {hasQuarters(region) ? (

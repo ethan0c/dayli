@@ -1,23 +1,26 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthClient } from './auth';
+import { snapshotFromRecords, type PlanRecord, type StoredRecord } from './sync-records';
 
 /*
  * The sign-in flow end to end with the provider mocked: where each outcome lands (planner,
  * onboarding, the code screen), what the backup does to a new phone, and the error paths.
  */
 
-type Listener = (state: Record<string, unknown>) => void;
+type Listener = (state: Record<string, unknown>, prev: Record<string, unknown>) => void;
 function fakeStore<S extends Record<string, unknown>>(initial: () => S) {
   let state = initial();
   const listeners = new Set<Listener>();
   const api = {
     getState: () => state,
     setState: (patch: Partial<S> | ((s: S) => Partial<S>)) => {
+      const prev = state;
       state = { ...state, ...(typeof patch === 'function' ? patch(state) : patch) };
-      listeners.forEach((l) => l(state));
+      listeners.forEach((l) => l(state, prev));
     },
     subscribe: (l: Listener) => { listeners.add(l); return () => listeners.delete(l); },
-    reset: () => { state = initial(); },
+    // Each test loads the modules afresh, so the last test's subscribers go too.
+    reset: () => { state = initial(); listeners.clear(); },
   };
   return api;
 }
@@ -28,10 +31,13 @@ const mocks = vi.hoisted(() => {
     signInWithIdToken: vi.fn(),
     resetPasswordForEmail: vi.fn(), verifyOtp: vi.fn(), resend: vi.fn(), updateUser: vi.fn(), signOut: vi.fn(), getSession: vi.fn(),
   };
-  const table = { maybeSingle: vi.fn(), upsert: vi.fn() };
+  // The account's sync records, held in memory; `legacy` is the whole-plan backup from before sync.
+  const server = { rows: new Map<string, StoredRecord>(), seq: 0, legacy: null as unknown, pushedBy: null as string | null };
+  const cloud = { pullRecords: vi.fn(), pushRecords: vi.fn(), readLegacyPlan: vi.fn() };
+  const channel = { on: () => channel, subscribe: () => channel };
   return {
-    auth, table,
-    supabase: { auth, rpc: vi.fn(), from: vi.fn(() => ({ select: () => ({ eq: () => ({ maybeSingle: table.maybeSingle }) }), upsert: table.upsert })) },
+    auth, server, cloud,
+    supabase: { auth, rpc: vi.fn(), channel: vi.fn(() => channel), removeChannel: vi.fn() },
     router: { dismissTo: vi.fn(), replace: vi.fn(), push: vi.fn() },
     browser: { maybeCompleteAuthSession: vi.fn(), openAuthSessionAsync: vi.fn() },
     purchases: { logOut: vi.fn() },
@@ -48,7 +54,7 @@ vi.mock('expo-router', () => ({ router: mocks.router }));
 vi.mock('expo-web-browser', () => mocks.browser);
 vi.mock('expo-apple-authentication', () => mocks.apple);
 vi.mock('expo-crypto', () => mocks.crypto);
-vi.mock('react-native', () => ({ Platform: mocks.platform }));
+vi.mock('react-native', () => ({ Platform: mocks.platform, AppState: { addEventListener: () => ({ remove: () => undefined }) } }));
 vi.mock('react-native-purchases', () => ({ default: mocks.purchases }));
 vi.mock('./supabase', () => ({
   supabase: mocks.supabase,
@@ -57,6 +63,7 @@ vi.mock('./supabase', () => ({
   deleteReplacedGuest: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock('../store', () => ({ useStore: mocks.store }));
+vi.mock('./cloud-store', () => mocks.cloud);
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn().mockResolvedValue(null), setItem: vi.fn().mockResolvedValue(undefined), removeItem: vi.fn().mockResolvedValue(undefined) } }));
 
 const DEFAULTS = () => ({
@@ -93,8 +100,15 @@ beforeEach(async () => {
   // A sign-in that succeeds, with no backup row yet.
   mocks.auth.getSession.mockResolvedValue({ data: { session } });
   mocks.auth.signInWithPassword.mockResolvedValue({ data: { session, user }, error: null });
-  mocks.table.maybeSingle.mockResolvedValue({ data: null, error: null });
-  mocks.table.upsert.mockResolvedValue({ error: null });
+  mocks.server.rows.clear();
+  mocks.server.seq = 0;
+  mocks.server.legacy = null;
+  mocks.cloud.pullRecords.mockImplementation(async (_user: string, after: number) => [...mocks.server.rows.values()].filter((r) => r.seq > after).sort((a, b) => a.seq - b.seq));
+  mocks.cloud.pushRecords.mockImplementation(async (user: string, records: PlanRecord[]) => {
+    mocks.server.pushedBy = user;
+    for (const r of records) mocks.server.rows.set(`${r.kind}:${r.id}`, { ...r, seq: ++mocks.server.seq });
+  });
+  mocks.cloud.readLegacyPlan.mockImplementation(async () => mocks.server.legacy);
   mocks.purchases.logOut.mockResolvedValue(undefined);
   mocks.platform.OS = 'ios';
   mocks.crypto.randomUUID.mockReturnValue('one-time-nonce');
@@ -107,7 +121,10 @@ beforeEach(async () => {
 afterEach(() => vi.unstubAllEnvs());
 
 const settings = () => mocks.store.getState().settings as ReturnType<typeof DEFAULTS>;
-const saved = () => mocks.table.upsert.mock.calls.at(-1)![0] as { user_id: string; data: { items: { id: string }[]; onboarded: boolean; settings: { name: string } } };
+/** The account's plan as the server now holds it. */
+const saved = () => ({ user_id: mocks.server.pushedBy, data: snapshotFromRecords([...mocks.server.rows.values()]) });
+/** An account whose plan is the whole-plan backup from before sync. */
+const legacy = (snapshot: object, at: string | null = null) => { mocks.server.legacy = { snapshot, at }; };
 
 describe('logging in on a new phone', () => {
   it('goes to onboarding when the account has no backup', async () => {
@@ -121,7 +138,7 @@ describe('logging in on a new phone', () => {
 
   it('goes to onboarding, with the profile filled in, when the account signed up but never finished', async () => {
     // The row every sign-in writes: empty, from a phone that had not finished onboarding.
-    mocks.table.maybeSingle.mockResolvedValue({ data: { data: row({ settings: { name: 'Ama', major: 'nursing' }, onboarded: false }) }, error: null });
+    legacy(row({ settings: { name: 'Ama', major: 'nursing' }, onboarded: false }));
     expect(await authClient.signIn(fields)).toEqual({ signedIn: true, restored: false });
     expect(settings()).toMatchObject({ onboarded: false, seeded: false, name: 'Ama', major: 'nursing' });
     leaveAuth();
@@ -129,7 +146,7 @@ describe('logging in on a new phone', () => {
   });
 
   it('skips onboarding and lands in the planner when the account finished it elsewhere', async () => {
-    mocks.table.maybeSingle.mockResolvedValue({ data: { data: row({ items: [item('a')], settings: { name: 'Ama' }, onboarded: true }) }, error: null });
+    legacy(row({ items: [item('a')], settings: { name: 'Ama' }, onboarded: true }));
     expect(await authClient.signIn(fields)).toEqual({ signedIn: true, restored: true });
     expect(settings()).toMatchObject({ onboarded: true, seeded: true, name: 'Ama' });
     expect(Object.keys(mocks.store.getState().items as object)).toEqual(['a']);
@@ -140,17 +157,19 @@ describe('logging in on a new phone', () => {
   });
 
   it('treats a backup saved before the flag as finished only when it holds a plan', async () => {
-    mocks.table.maybeSingle.mockResolvedValue({ data: { data: row({ items: [item('a')] }) }, error: null });
+    legacy(row({ items: [item('a')] }));
     await authClient.signIn(fields);
     expect(settings().onboarded).toBe(true);
+    // Another account, so nothing the first sign-in uploaded.
     mocks.store.reset();
-    mocks.table.maybeSingle.mockResolvedValue({ data: { data: row() }, error: null });
+    mocks.server.rows.clear();
+    legacy(row());
     await authClient.signIn(fields);
     expect(settings().onboarded).toBe(false);
   });
 
   it('still signs in when the backup cannot be read', async () => {
-    mocks.table.maybeSingle.mockRejectedValue(new Error('offline'));
+    mocks.cloud.pullRecords.mockRejectedValue(new Error('offline'));
     expect(await authClient.signIn(fields)).toEqual({ signedIn: true, restored: false });
     expect(settings().onboarded).toBe(false);
     expect(mocks.session.getState().session).toBe(session);
@@ -160,7 +179,7 @@ describe('logging in on a new phone', () => {
 describe('logging in on a phone with a plan', () => {
   const twoPlans = () => {
     mocks.store.setState({ items: { b: item('b') }, settings: { ...DEFAULTS(), onboarded: true, seeded: true, name: 'Phone' } });
-    mocks.table.maybeSingle.mockResolvedValue({ data: { data: row({ items: [item('a')], settings: { name: 'Cloud' }, onboarded: true }), updated_at: '2026-10-12T00:00:00Z' }, error: null });
+    legacy(row({ items: [item('a')], settings: { name: 'Cloud' }, onboarded: true }), '2026-10-12T00:00:00Z');
   };
 
   it('never merges: with two plans it asks, and saves nothing until one is kept', async () => {
@@ -168,7 +187,7 @@ describe('logging in on a phone with a plan', () => {
     await authClient.signIn(fields);
     expect(Object.keys(mocks.store.getState().items as object)).toEqual(['b']);
     expect(mocks.store.getState().planChoice).toMatchObject({ remoteAt: '2026-10-12T00:00:00Z' });
-    expect(mocks.table.upsert).not.toHaveBeenCalled();
+    expect(mocks.cloud.pushRecords).not.toHaveBeenCalled();
   });
 
   it('keeping the account plan replaces this phone’s plan', async () => {
@@ -211,7 +230,7 @@ describe('email login and sign-up', () => {
   it('surfaces a wrong password without touching the backup or navigating', async () => {
     mocks.auth.signInWithPassword.mockResolvedValue({ data: {}, error: { code: 'invalid_credentials', message: 'Invalid login credentials' } });
     await expect(authClient.signIn(fields)).rejects.toMatchObject({ code: 'invalid_credentials' });
-    expect(mocks.table.upsert).not.toHaveBeenCalled();
+    expect(mocks.cloud.pushRecords).not.toHaveBeenCalled();
     expect(mocks.router.replace).not.toHaveBeenCalled();
     expect(mocks.router.dismissTo).not.toHaveBeenCalled();
   });
@@ -234,7 +253,7 @@ describe('email login and sign-up', () => {
     expect(await authClient.signUp({ ...fields, name: 'Ama' })).toEqual({ signedIn: false, confirmEmail: true });
     expect(mocks.auth.signUp).toHaveBeenCalledWith({ email: fields.email, password: fields.password, options: { data: { full_name: 'Ama' } } });
     expect(settings().name).toBe('Ama');
-    expect(mocks.table.upsert).not.toHaveBeenCalled();
+    expect(mocks.cloud.pushRecords).not.toHaveBeenCalled();
   });
 
   it('never overwrites a name already on this phone', async () => {
@@ -262,7 +281,7 @@ describe('email login and sign-up', () => {
 describe('the emailed code', () => {
   it('a sign-up code signs in and restores like a login', async () => {
     mocks.auth.verifyOtp.mockResolvedValue({ data: { session }, error: null });
-    mocks.table.maybeSingle.mockResolvedValue({ data: { data: row({ items: [item('a')], onboarded: true }) }, error: null });
+    legacy(row({ items: [item('a')], onboarded: true }));
     expect(await authClient.verifyCode(fields.email, '123456', 'signup')).toEqual({ signedIn: true, restored: true });
     expect(mocks.auth.verifyOtp).toHaveBeenCalledWith({ email: fields.email, token: '123456', type: 'signup' });
     expect(settings().onboarded).toBe(true);
@@ -281,7 +300,7 @@ describe('the emailed code', () => {
     mocks.auth.verifyOtp.mockResolvedValue({ data: {}, error: { code: 'otp_expired', message: 'Token has expired or is invalid' } });
     const { authErrorMessage } = await import('./auth');
     await authClient.verifyCode(fields.email, '000000', 'signup').then(() => { throw new Error('verified'); }, (e) => expect(authErrorMessage(e)).toMatch(/wrong or has expired/));
-    expect(mocks.table.upsert).not.toHaveBeenCalled();
+    expect(mocks.cloud.pushRecords).not.toHaveBeenCalled();
   });
 
   it('resends through the matching channel', async () => {
@@ -314,7 +333,7 @@ describe('Google', () => {
     mocks.browser.openAuthSessionAsync.mockResolvedValue({ type: 'cancel' });
     expect(await authClient.signInWithGoogle()).toBeNull();
     expect(mocks.auth.exchangeCodeForSession).not.toHaveBeenCalled();
-    expect(mocks.table.upsert).not.toHaveBeenCalled();
+    expect(mocks.cloud.pushRecords).not.toHaveBeenCalled();
   });
 
   it('explains a redirect that carries an error instead of a code', async () => {
@@ -331,14 +350,14 @@ describe('Apple', () => {
     expect(mocks.crypto.digestStringAsync).toHaveBeenCalledWith('SHA-256', 'one-time-nonce');
     expect(mocks.apple.signInAsync).toHaveBeenCalledWith({ requestedScopes: [0, 1], nonce: 'sha256-nonce' });
     expect(mocks.auth.signInWithIdToken).toHaveBeenCalledWith({ provider: 'apple', token: 'apple-token', nonce: 'one-time-nonce' });
-    expect(mocks.table.upsert).toHaveBeenCalled();
+    expect(mocks.cloud.pushRecords).toHaveBeenCalled();
   });
 
   it('cancels quietly without signing in or backing anything up', async () => {
     mocks.apple.signInAsync.mockRejectedValueOnce({ code: 'ERR_REQUEST_CANCELED' });
     expect(await authClient.signInWithApple()).toBeNull();
     expect(mocks.auth.signInWithIdToken).not.toHaveBeenCalled();
-    expect(mocks.table.upsert).not.toHaveBeenCalled();
+    expect(mocks.cloud.pushRecords).not.toHaveBeenCalled();
   });
 
   it('never claims success without a token or after the backend rejects it', async () => {
@@ -347,7 +366,7 @@ describe('Apple', () => {
     expect(mocks.auth.signInWithIdToken).not.toHaveBeenCalled();
     mocks.auth.signInWithIdToken.mockResolvedValueOnce({ error: { code: 'provider_disabled' } });
     await expect(authClient.signInWithApple()).rejects.toMatchObject({ code: 'provider_disabled' });
-    expect(mocks.table.upsert).not.toHaveBeenCalled();
+    expect(mocks.cloud.pushRecords).not.toHaveBeenCalled();
   });
 
   it('captures the first-authorization name and preserves it on subsequent sign-ins', async () => {
@@ -390,7 +409,7 @@ describe('signing out', () => {
     signedInWithPlan();
     await authClient.signOut();
     expect(saved().data.items.map((i) => i.id)).toEqual(['b']);
-    expect(mocks.table.upsert.mock.invocationCallOrder[0]!).toBeLessThan(mocks.auth.signOut.mock.invocationCallOrder[0]!);
+    expect(mocks.cloud.pushRecords.mock.invocationCallOrder[0]!).toBeLessThan(mocks.auth.signOut.mock.invocationCallOrder[0]!);
     expect(mocks.auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
     expect(mocks.purchases.logOut).toHaveBeenCalled();
     // Clearing here would pull the signed-in screens out from under the navigation (account.tsx clears).
@@ -399,7 +418,7 @@ describe('signing out', () => {
 
   it('stays signed in, with the plan, when the backup can’t be saved', async () => {
     signedInWithPlan();
-    mocks.table.upsert.mockResolvedValue({ error: { message: 'offline' } });
+    mocks.cloud.pushRecords.mockRejectedValue({ message: 'offline' });
     await expect(authClient.signOut()).rejects.toMatchObject({ code: 'backup_before_sign_out' });
     expect(mocks.auth.signOut).not.toHaveBeenCalled();
     expect(Object.keys(mocks.store.getState().items as object)).toEqual(['b']);

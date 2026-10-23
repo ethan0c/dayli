@@ -5,9 +5,21 @@ import { AppState, Platform } from 'react-native';
 
 import { track } from './analytics';
 import { reportError } from './errors';
-import { CANVAS_MESSAGES, CANVAS_SOURCE, courseCodeOf, fetchCanvasFeed, planCanvasSync, syncSummary } from './canvas';
+import { CANVAS_MESSAGES, CANVAS_SOURCE, courseCodeOf, fetchCanvasFeed, planCanvasSync, syncSummary, type FeedLoader } from './canvas';
+import { supabase } from './supabase';
 import { usePurchases } from '../providers/PurchasesProvider';
 import { newId, useStore } from '../store';
+
+/** Canvas doesn't let other sites' pages read its feed, so the web asks Semli's server to fetch it. */
+const throughSemli: FeedLoader = async (url, signal) => {
+  const { data } = await supabase!.auth.getSession();
+  return fetch(`${useStore.getState().settings.apiUrl}/api/canvas-feed`, {
+    method: 'POST',
+    signal,
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${data.session?.access_token ?? ''}` },
+    body: JSON.stringify({ url }),
+  });
+};
 
 /** Opening the app resyncs at most this often; "Sync now" always runs. */
 const AUTO_SYNC_MS = 3 * 60 * 60 * 1000;
@@ -37,9 +49,7 @@ async function run(feedUrl?: string): Promise<SyncResult> {
     const { settings, setSettings } = useStore.getState();
     setSettings({ canvas: { ...settings.canvas, ...patch } });
   };
-  if (Platform.OS === 'web') return { ok: false, error: CANVAS_MESSAGES.web };
-
-  const res = await fetchCanvasFeed(url);
+  const res = await fetchCanvasFeed(url, undefined, Platform.OS === 'web' ? throughSemli : undefined);
   if (!res.ok) {
     setCanvas({ lastError: res.error });
     track('canvas_sync_failed', {});

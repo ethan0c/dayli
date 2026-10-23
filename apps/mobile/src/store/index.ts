@@ -1,6 +1,7 @@
 import type { CommitPlan, TermSystem } from '@dayli/core';
 import type { Snapshot } from '@/lib/cloud-snapshot';
 import type { ImportUsage } from '@/lib/plans';
+import type { AppLanguage } from '@/lib/language';
 import type { Course, Extraction, Item, ScheduleVersion } from '@dayli/schema';
 import { COURSE_TINTS, type TintName } from '@dayli/tokens';
 import { useMemo } from 'react';
@@ -67,6 +68,8 @@ interface Settings {
   /** The guest's one-time "Save your plan" row on Today was dismissed. */
   savePlanDismissed: boolean;
   appearance: Appearance;
+  /** This device's app language; null follows its preferred languages. Not synced to the account. */
+  language: AppLanguage | null;
   /** Kept for stored settings; the app no longer draws cards. */
   cardStyle: CardStyle;
   /** The top-right toggle on Today: the list, or the day by the hour. */
@@ -172,7 +175,7 @@ interface State {
   clearAll: (scope: 'plan' | 'everything') => void;
 }
 
-const DEFAULT_SETTINGS: Settings = { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], plate: [], deadlineSource: null, sampleBatchId: null, savePlanDismissed: false, appearance: 'system', cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, region: null, termSystem: 'semester', lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null }, firsts: { overlap: false, urgent: false, canvas: false, reimport: false, hours: false, week: false } };
+const DEFAULT_SETTINGS: Settings = { name: '', apiUrl: DEFAULT_API_URL, seeded: false, onboarded: false, isStudent: true, planIntent: null, weekKinds: [], plate: [], deadlineSource: null, sampleBatchId: null, savePlanDismissed: false, appearance: 'system', language: null, cardStyle: 'raised', todayView: 'list', sounds: true, haptics: true, major: null, reminders: DEFAULT_REMINDERS, remindersAsked: false, onboardingImportDone: false, trial: null, region: null, termSystem: 'semester', lms: null, cloud: { backedUpAt: null, error: null }, canvas: { feedUrl: null, lastSyncedAt: null, lastError: null }, firsts: { overlap: false, urgent: false, canvas: false, reimport: false, hours: false, week: false } };
 
 export const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 const nowIso = () => new Date().toISOString();
@@ -392,7 +395,7 @@ export const useStore = create<State>()(
           items: {}, courses: [], schedules: [], batches: [], pending: null, toast: null, taskWorkDates: {}, suggestionDismissals: { date: '', ids: [] }, captureDraft: '', selectedPlanDate: null, planChoice: null,
           settings: scope === 'plan'
             ? { ...s, breaks: [] }
-            : { ...DEFAULT_SETTINGS, apiUrl: s.apiUrl, appearance: s.appearance, cardStyle: s.cardStyle, todayView: s.todayView, sounds: s.sounds, haptics: s.haptics, trial: s.trial },
+            : { ...DEFAULT_SETTINGS, apiUrl: s.apiUrl, appearance: s.appearance, language: s.language, cardStyle: s.cardStyle, todayView: s.todayView, sounds: s.sounds, haptics: s.haptics, trial: s.trial },
         });
       },
     }),

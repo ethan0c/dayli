@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { TextButton } from '@/components/Controls';
 import { T } from '@/components/Text';
@@ -29,7 +29,7 @@ export function RingingAlarmInfo({ timed = true, itemID, draft = false, settings
     : state.syncing ? 'Updating ringing alarms…'
     : state.authorization === 'checking' ? 'Checking ringing alarm access…'
     : state.authorization === 'needs-build' ? 'Update Semli to use ringing alarms. This item is still marked urgent.'
-    : state.authorization === 'unsupported' ? 'Ringing alarms are available on iOS 26 or later. Urgent labels and standard reminders still work.'
+    : state.authorization === 'unsupported' ? (Platform.OS === 'web' ? 'Urgent items ring on your iPhone, with iOS 26 or later. Mark them urgent here and the alarm is set there.' : 'Ringing alarms are available on iOS 26 or later. Urgent labels and standard reminders still work.')
     : state.authorization === 'denied' ? 'Allow Alarms for Semli in system Settings to enable ringing alarms.'
     : !enabled || state.authorization !== 'authorized' ? 'Enable ringing alarms to ring at the time of urgent events and to-dos. Stop the alarm from the system alarm screen.'
     : settings ? 'Ringing alarms are on for timed urgent items. They work separately from ordinary reminders. The nearest 32 alarms are kept scheduled.'

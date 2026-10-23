@@ -14,11 +14,12 @@ import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
 import { track } from '@/lib/analytics';
 import { requestImport } from '@/lib/import-auth';
-import { InputError, extractionContext, pickImageInput, pickPdfInput } from '@/lib/capture-input';
+import { InputError, extractionContext, inputFromFile, pickImageInput, pickPdfInput } from '@/lib/capture-input';
 import { feedback } from '@/lib/feedback';
 import { reportError } from '@/lib/errors';
 import { usePlusAccess } from '@/lib/plus-access';
 import { VOICE_AVAILABLE, useVoiceCapture } from '@/lib/voice';
+import { takeDroppedFile } from '@/lib/web-drop';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { useStore } from '@/store';
 import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
@@ -128,13 +129,22 @@ export function AddScreen() {
     openedAt.current = at;
     if (source === 'image') void pick(() => pickImageInput(false));
     if (source === 'file') void pick(pickPdfInput);
+    if (source === 'drop') {
+      const file = takeDroppedFile();
+      if (file) void pick(async () => {
+        const picked = await inputFromFile(file);
+        if (!picked) throw new InputError('Semli reads screenshots, photos and PDFs. Try one of those, or type the details.');
+        return picked;
+      });
+    }
   });
   const focused = useIsFocused();
   useEffect(() => {
-    if (!focused || !params.source || Platform.OS === 'web') return;
+    // A browser opens a file picker only from a click, so on the web only a dropped file opens by itself.
+    if (!focused || !params.source || (Platform.OS === 'web' && params.source !== 'drop')) return;
     const source = params.source;
     const at = params.at ?? source;
-    const timer = setTimeout(() => openSource(source, at), 350);
+    const timer = setTimeout(() => openSource(source, at), source === 'drop' ? 0 : 350);
     return () => clearTimeout(timer);
   }, [focused, params.source, params.at]);
 
@@ -142,7 +152,9 @@ export function AddScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }}
       keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="never">
       <TabHeader title="Add" size="title"
-        details={<T token="callout" color={c.inkSecondary}>Type your plans or add a screenshot or PDF. Review the results before saving.</T>} />
+        details={<T token="callout" color={c.inkSecondary}>{Platform.OS === 'web'
+          ? 'Type your plans, drop a screenshot or PDF anywhere on the page, or paste one. Review the results before saving.'
+          : 'Type your plans or add a screenshot or PDF. Review the results before saving.'}</T>} />
       <View style={styles.body}>
         {busy ? <Reading source={busy === 'Message' ? 'your message' : busy === 'Voice' ? 'your voice note' : busy} chart={/\.pdf$/i.test(busy) ? 'term' : 'week'} /> : null}
 

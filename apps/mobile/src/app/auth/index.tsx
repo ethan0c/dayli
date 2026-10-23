@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TextButton } from '@/components/Controls';
 import { navigationButtonOptions } from '@/components/NavButtons';
 import { Button } from '@/components/Sheet';
+import { ACCOUNT_REQUIRED } from '@/lib/web';
 import { T } from '@/components/Text';
 import { SkyHeader } from '@/components/SkyHeader';
 import { Wordmark } from '@/components/Wordmark';
@@ -62,7 +63,7 @@ export default function AuthWelcomeScreen() {
       {/* The hour's sky, the same one Today opens under, so store, welcome and Today read as one place.
           It fades into the paper above the wordmark; the words and buttons sit on the paper. */}
       <SkyHeader time={now.time} />
-      <ScrollView contentContainerStyle={[styles.page, { paddingTop: onboarded ? 24 : insets.top + 24, paddingBottom: Math.max(insets.bottom, 24) }]}>
+      <ScrollView contentContainerStyle={[styles.page, styles.measure, { paddingTop: onboarded ? 24 : insets.top + 24, paddingBottom: Math.max(insets.bottom, 24) }]}>
         <View style={styles.hero}>
           <Animated.View ref={slot} onLayout={onSlotLayout} entering={active ? undefined : enter.rise} style={{ opacity: landed ? 1 : 0 }}>
             <Wordmark width={LOGO} ink={c.inkPrimary} dot={c.accent} />
@@ -76,13 +77,19 @@ export default function AuthWelcomeScreen() {
           {notice ? <T token="callout" color={c.conflict} accessibilityRole="alert" style={styles.center}>{notice}</T> : null}
           {ACCOUNTS_ENABLED && last ? <>
             <Button label={`Continue as ${last.firstName ?? last.maskedEmail ?? 'you'} · ${providerLabel(last.provider)}`} variant="accent" disabled={busy} onPress={() => void continueAs(last)} />
-            <Button label="Get started" variant="secondary" disabled={busy} onPress={leaveAuth} />
+            {ACCOUNT_REQUIRED
+              ? <Button label="Use another account" variant="secondary" disabled={busy} onPress={() => router.push('/auth/login')} />
+              : <Button label="Get started" variant="secondary" disabled={busy} onPress={leaveAuth} />}
             <TextButton label="Not you? Remove" tone="muted" disabled={busy} onPress={() => void forgetAccount()} style={styles.textAction} />
+          </> : ACCOUNT_REQUIRED ? <>
+            {/* The web has no guest plan: a laptop's plan comes from the account. */}
+            <Button label="Create an account" variant="accent" onPress={() => router.push('/auth/signup')} />
+            <TextButton label="I have an account" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} />
           </> : <>
             <Button label="Get started" variant="accent" onPress={leaveAuth} />
             {ACCOUNTS_ENABLED ? <TextButton label="I have an account" tone="muted" onPress={() => router.push('/auth/login')} style={styles.textAction} /> : null}
           </>}
-          <T token="caption" color={c.inkSecondary} style={styles.center}>Free to start. No account needed.</T>
+          <T token="caption" color={c.inkSecondary} style={styles.center}>{ACCOUNT_REQUIRED ? 'Free to start. Your plan stays in sync with the Semli iPhone app.' : 'Free to start. No account needed.'}</T>
         </Animated.View>
       </ScrollView>
       {landed ? null : (
@@ -156,6 +163,8 @@ function useLaunchHandoff() {
 
 const styles = StyleSheet.create({
   page: { flexGrow: 1, paddingHorizontal: SCREEN_GUTTER, gap: 32 },
+  // On a wide web window the sky spans the page and the words and buttons keep a phone's measure.
+  measure: { width: '100%', maxWidth: 520, alignSelf: 'center' },
   launchLogo: { position: 'absolute', top: '50%', left: '50%', width: LOGO, height: LOGO / WORDMARK_RATIO, marginLeft: -LOGO / 2, marginTop: -LOGO / WORDMARK_RATIO / 2 },
   hero: { flex: 1, minHeight: 320, alignItems: 'center', justifyContent: 'center', gap: 32 },
   copy: { gap: 14, maxWidth: 330 },

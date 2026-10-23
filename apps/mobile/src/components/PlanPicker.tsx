@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { dateLocale, fullDate, localParts } from '@dayli/core';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import type { PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
 
 import { StatusPill } from '@/components/Controls';
@@ -243,9 +243,9 @@ export function PlanPicker({ onContinueFree, onComplete, onWelcome, freeImportsL
           style={[styles.cta, { backgroundColor: c.controlFill, opacity: disabled || !selected || previewPlans ? 0.4 : 1 }]}>
           <T token="headline" color={c.controlInk}>{busy ? 'One moment…' : days ? 'Start free trial' : 'Get Semli Plus'}</T>
         </Press>
-        <T token="subhead" color={c.inkPrimary} style={styles.center}>Cancel anytime in Apple Settings.</T>
+        <T token="subhead" color={c.inkPrimary} style={styles.center}>{Platform.OS === 'web' ? 'Cancel anytime from Your plan in You.' : 'Cancel anytime in Apple Settings.'}</T>
         <T token="caption" color={c.inkSecondary} style={styles.center}>
-          {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.billed}. Renews automatically until you cancel in Settings.` : 'Prices are shown before you confirm.'}
+          {selected && current ? `${days ? `${days}-day free trial, then ` : ''}${selected.product.priceString} ${current.billed}. Renews automatically until you cancel${Platform.OS === 'web' ? '' : ' in Settings'}.` : 'Prices are shown before you confirm.'}
         </T>
         {onContinueFree ? (
           <Pressable accessibilityRole="button" disabled={busy} onPress={onContinueFree} style={styles.textBtn}>

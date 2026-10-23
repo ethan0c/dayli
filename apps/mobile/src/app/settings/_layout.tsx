@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { Stack } from 'expo-router';
 
 import { navigationButtonOptions } from '@/components/NavButtons';
@@ -10,6 +11,7 @@ export const unstable_settings = { anchor: 'index' };
 
 /** Settings pushes from You. Every route needs Back, including the first nested route. */
 export default function SettingsLayout() {
+  const { t } = useLingui();
   const { c } = useTheme();
   return (
     <Stack
@@ -24,18 +26,19 @@ export default function SettingsLayout() {
         ...navigationButtonOptions('back'),
         contentStyle: { backgroundColor: c.canvas },
       }}>
-      <Stack.Screen name="index" options={{ title: 'You' }} />
-      <Stack.Screen name="name" options={{ title: 'Name' }} />
-      <Stack.Screen name="reminders" options={{ title: 'Reminders' }} />
-      <Stack.Screen name="appearance" options={{ title: 'Appearance' }} />
-      <Stack.Screen name="major" options={{ title: 'Field of study' }} />
-      <Stack.Screen name="region" options={{ title: 'Region' }} />
+      <Stack.Screen name="index" options={{ title: t`You` }} />
+      <Stack.Screen name="name" options={{ title: t`Name` }} />
+      <Stack.Screen name="reminders" options={{ title: t`Reminders` }} />
+      <Stack.Screen name="appearance" options={{ title: t`Appearance` }} />
+      <Stack.Screen name="major" options={{ title: t`Field of study` }} />
+      <Stack.Screen name="language" options={{ title: t`Language` }} />
+      <Stack.Screen name="region" options={{ title: t`Region` }} />
       <Stack.Screen name="plan" options={{ title: 'Semli Plus', headerTransparent: true, headerStyle: { backgroundColor: 'transparent' }, contentStyle: { backgroundColor: palettes.dark.canvas }, headerTintColor: palettes.dark.inkPrimary, headerTitleStyle: { fontFamily: mobileFonts.medium, color: palettes.dark.inkPrimary, fontSize: 16 } }} />
       <Stack.Screen name="canvas" options={{ title: 'Canvas' }} />
-      <Stack.Screen name="data" options={{ title: 'Your data' }} />
-      <Stack.Screen name="can-do" options={{ title: 'What Semli can do' }} />
-      <Stack.Screen name="plan-status" options={{ title: 'Plan diagnostics' }} />
-      <Stack.Screen name="server" options={{ title: 'Semli server' }} />
+      <Stack.Screen name="data" options={{ title: t`Your data` }} />
+      <Stack.Screen name="can-do" options={{ title: t`What Semli can do` }} />
+      <Stack.Screen name="plan-status" options={{ title: t`Plan diagnostics` }} />
+      <Stack.Screen name="server" options={{ title: t`Semli server` }} />
     </Stack>
   );
 }

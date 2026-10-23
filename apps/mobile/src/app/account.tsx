@@ -15,6 +15,7 @@ import { useNow } from '@/lib/now';
 import { accountOf, useSession } from '@/lib/supabase';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useStore } from '@/store';
+import { THIS_DEVICE } from '@/lib/web';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
 /**
@@ -68,7 +69,7 @@ export default function AccountScreen() {
       <Sheet title="Account settings">
         <ScrollView contentContainerStyle={styles.body}>
           <View style={styles.hero}>
-            <T token="display" accessibilityRole="header">Saved on this iPhone</T>
+            <T token="display" accessibilityRole="header">{`Saved on ${THIS_DEVICE}`}</T>
             <T token="body" color={c.inkSecondary}>Create a free account to back up your plan and access it on a new phone.</T>
           </View>
           <Group>
@@ -94,9 +95,9 @@ export default function AccountScreen() {
         <View style={styles.hero}>
           <T token="display" accessibilityRole="header">{deleting ? 'Delete your account?' : signingOut ? 'Sign out?' : 'Your account.'}</T>
           <T token="body" color={c.inkSecondary}>{deleting
-            ? 'Your plan and your backup will be permanently deleted from Semli’s servers and this iPhone. This can’t be undone.'
+            ? `Your plan and your backup will be permanently deleted from Semli’s servers and ${THIS_DEVICE}. This can’t be undone.`
             : signingOut
-              ? 'We’ll back up your latest changes, then remove your plan from this iPhone. Sign in again to restore it.'
+              ? `We’ll back up your latest changes, then remove your plan from ${THIS_DEVICE}. Sign in again to restore it.`
               : `Signed in with ${user.email ?? 'your Apple or Google account'}`}</T>
           {deleting && isPlus ? <>
             <T token="body" color={c.inkSecondary}>Deleting your account doesn’t cancel your Semli Plus subscription. Manage it separately in your store settings.</T>

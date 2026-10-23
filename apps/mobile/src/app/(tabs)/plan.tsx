@@ -1,12 +1,13 @@
 import { addDays, assessment, conflictIds, diffDays, formatTime, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { router } from 'expo-router';
+import { router, useIsFocused } from 'expo-router';
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { PanResponder, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CategoryDot, IconButton, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
+import { ItemDetail } from '@/components/ItemDetail';
 import { ItemRow } from '@/components/ItemRow';
 import { TimeField } from '@/components/Native';
 import { PlanMonthCalendar, PlanMonthTitle, TodayPill } from '@/components/PlanCalendar';
@@ -18,6 +19,8 @@ import { ChartKey, keyOf, markKey, shapeFor } from '@/components/ChartMark';
 import { WeekChart, type WeekDay } from '@/components/WeekChart';
 import { SHARING_ENABLED } from '@/lib/auth';
 import { feedback } from '@/lib/feedback';
+import { useWebLayout } from '@/lib/layout';
+import { useWebShortcuts } from '@/lib/shortcuts';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { defaultTimes } from '@/lib/times';
@@ -85,10 +88,25 @@ export default function PlanScreen() {
     const { settings, setSettings } = useStore.getState();
     if (!settings.firsts.week) setSettings({ firsts: { ...settings.firsts, week: true } });
   }, []);
+  // A wide web window opens an item beside the list instead of on its own screen.
+  const { twoPane } = useWebLayout();
+  const [openId, setOpenId] = useState<string | null>(null);
+  const openItem = (id: string) => (twoPane ? setOpenId(id) : router.push(`/item/${id}`));
+  const focused = useIsFocused();
   const selectDay = useCallback((date: string) => {
     if (date !== selectedRef.current) feedback('select');
     setSelected(date);
   }, [setSelected]);
+
+  // The web: arrows move by day, Shift+arrows by week, T comes back to today, Esc closes the item.
+  useWebShortcuts({
+    ArrowLeft: () => selectDay(addDays(selectedRef.current, -1)),
+    ArrowRight: () => selectDay(addDays(selectedRef.current, 1)),
+    'Shift+ArrowLeft': () => moveWeek(-1),
+    'Shift+ArrowRight': () => moveWeek(1),
+    t: () => selectDay(now.date),
+    Escape: () => setOpenId(null),
+  }, focused);
 
   // Swipe the chart for the previous or next week, the way the week strip did.
   const swipe = useMemo(() => PanResponder.create({
@@ -170,7 +188,7 @@ export default function PlanScreen() {
         <ListRow title={it.title} sub={it.start ? where(it) : `${where(it)} · No time yet, so no reminder`} chevron={false} last
           leading={<View style={styles.lead}><CategoryDot color={c.category[it.category].ink} /></View>}
           trailing={it.start ? <StatusPill label={formatTime(it.start)} /> : <StatusPill label="Add a time" tone="amber" tabular={false} />}
-          onPress={() => router.push(`/item/${it.id}`)} />
+          onPress={() => openItem(it.id)} />
         <View style={styles.timeRow}>
           {open.start ? (
             <TimeField date={it.date} time={it.start} onChange={(start) => updateItem(it.id, { start })} />
@@ -198,8 +216,8 @@ export default function PlanScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.canvas }}>
-      <ScrollView contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
+    <View style={{ flex: 1, flexDirection: 'row', backgroundColor: c.canvas }}>
+      <ScrollView style={{ flex: 1 }} contentInsetAdjustmentBehavior="never" contentContainerStyle={{ paddingBottom: NAV_INSET }}>
         {header}
         <Animated.View key={weekStart} entering={direction === 'next' ? enter.fromRight : direction === 'prev' ? enter.fromLeft : undefined}
           style={styles.chart} {...swipe.panHandlers}>
@@ -225,7 +243,7 @@ export default function PlanScreen() {
             <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
               {isUntimedEvent(it) || timing[it.id] ? renderShift(it) : (
                 <ItemRow item={it} today={now.date} conflict={conflicts.has(it.id)}
-                  onPress={() => router.push(`/item/${it.id}`)}
+                  onPress={() => openItem(it.id)}
                   onToggle={() => { feedback(it.done ? 'uncomplete' : 'complete'); toggleDone(it.id); }}
                   onDelete={() => removeItem(it.id)} />
               )}
@@ -254,7 +272,7 @@ export default function PlanScreen() {
               <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>
                 <ListRow title={it.title} sub={[where(it), it.isDeadline ? 'Deadline' : null].filter(Boolean).join(' · ')} chevron={false} last={i === rest.length - 1 && !nextWeekPending}
                   trailing={<StatusPill label={`${weekdayShort(it.date)}${it.start ? ` ${formatTime(it.start, true)}` : ''}`} />}
-                  onPress={() => router.push(`/item/${it.id}`)} />
+                  onPress={() => openItem(it.id)} />
               </Animated.View>
             ))}
             {nextWeekPending ? (
@@ -263,12 +281,23 @@ export default function PlanScreen() {
           </Animated.View>
         ) : null}
       </ScrollView>
+      {twoPane ? (
+        <View style={[styles.pane, { borderLeftColor: c.line }]}>
+          {openId ? <ItemDetail key={openId} id={openId} onClose={() => setOpenId(null)} onOpen={setOpenId} /> : (
+            <View style={styles.paneEmpty}>
+              <T token="callout" color={c.inkSecondary}>Choose something on the left to see it here.</T>
+            </View>
+          )}
+        </View>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   chart: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 16 },
+  pane: { width: 420, borderLeftWidth: StyleSheet.hairlineWidth },
+  paneEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },
   legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, gap: 8 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 24, paddingTop: 4 },

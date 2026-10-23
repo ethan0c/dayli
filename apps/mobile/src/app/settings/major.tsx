@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { Group, Row } from '@/components/Settings';
@@ -7,15 +8,16 @@ import { useStore } from '@/store';
 import { SCREEN_GUTTER } from '@/theme';
 
 export default function MajorScreen() {
+  const { t, i18n } = useLingui();
   const major = useStore((s) => s.settings.major);
   const setSettings = useStore((s) => s.setSettings);
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
-      <Group footer="Used for the sample week and the examples Semli shows you. Change it any time.">
+      <Group footer={t`Used for the sample week and the examples Semli shows you. Change it any time.`}>
         {MAJORS.map((m, i) => (
           <Row
             key={m.id}
-            label={m.label}
+            label={i18n._(m.label)}
             selected={(major ?? 'other') === m.id}
             onPress={() => {
               feedback('select');

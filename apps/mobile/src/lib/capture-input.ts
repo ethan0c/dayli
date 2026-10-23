@@ -3,6 +3,7 @@ import { IMPORT_MESSAGES, type ExtractContext, type ExtractRequest } from '@dayl
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
+import { Platform } from 'react-native';
 
 import { useStore } from '@/store';
 import { realRecords } from '@/lib/planner-preview';
@@ -28,8 +29,34 @@ export function extractionContext(): ExtractContext {
   };
 }
 
+type Picked = { input: ExtractRequest['input']; source: string };
+
+/** A browser file as base64, without the `data:` prefix. expo-file-system can't read files on the web. */
+function readBase64(file: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).replace(/^data:[^,]*,/, ''));
+    reader.onerror = () => reject(reader.error ?? new Error('Could not read the file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/** A picked file's contents: the browser's File on the web, the file at `uri` everywhere else. */
+async function contentsOf(asset: { uri: string; file?: Blob }): Promise<string> {
+  if (Platform.OS === 'web' && asset.file) return readBase64(asset.file);
+  return new File(asset.uri).base64();
+}
+
+/** A file dropped or pasted on the web (an image or a PDF) as an import, or null if Semli can't read it. */
+export async function inputFromFile(file: Blob & { name?: string }): Promise<Picked | null> {
+  if (file.size > MAX_BYTES) throw new InputError(IMPORT_MESSAGES.tooLarge);
+  if (file.type === 'application/pdf') return { input: { kind: 'pdf', data: await readBase64(file) }, source: file.name || 'PDF' };
+  if (!(IMAGE_TYPES as readonly string[]).includes(file.type)) return null;
+  return { input: { kind: 'image', mediaType: file.type as ImageType, data: await readBase64(file) }, source: 'Screenshot' };
+}
+
 /** Photo library or camera → image input, or null if the user cancelled. */
-export async function pickImageInput(fromCamera: boolean): Promise<{ input: ExtractRequest['input']; source: string } | null> {
+export async function pickImageInput(fromCamera: boolean): Promise<Picked | null> {
   const perm = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (!perm.granted) {
     throw new InputError(
@@ -44,19 +71,19 @@ export async function pickImageInput(fromCamera: boolean): Promise<{ input: Extr
   const asset = result.assets[0];
   if (!asset) return null;
   if (asset.fileSize && asset.fileSize > MAX_BYTES) throw new InputError(IMPORT_MESSAGES.tooLarge);
-  const data = await new File(asset.uri).base64();
+  const data = await contentsOf(asset);
   const guess = asset.mimeType ?? (asset.uri.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg');
   const mediaType = (IMAGE_TYPES as readonly string[]).includes(guess) ? (guess as ImageType) : 'image/jpeg';
   return { input: { kind: 'image', mediaType, data }, source: fromCamera ? 'Photo' : 'Screenshot' };
 }
 
 /** Files app → PDF input, or null if cancelled. */
-export async function pickPdfInput(): Promise<{ input: ExtractRequest['input']; source: string } | null> {
+export async function pickPdfInput(): Promise<Picked | null> {
   const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', copyToCacheDirectory: true });
   if (result.canceled) return null;
   const asset = result.assets[0];
   if (!asset) return null;
   if (asset.size && asset.size > MAX_BYTES) throw new InputError(IMPORT_MESSAGES.tooLarge);
-  const data = await new File(asset.uri).base64();
+  const data = await contentsOf(asset);
   return { input: { kind: 'pdf', data }, source: asset.name };
 }

@@ -35,6 +35,17 @@ async function hasPlus(appUserId: string | null): Promise<boolean> {
   return !!ent && (ent.expires_date === null || Date.parse(ent.expires_date) > Date.now());
 }
 
+/**
+ * Whose Plus to check. A signed-in account is its own RevenueCat customer (the app logs in with
+ * the Supabase id), so any other id is ignored: it would let a request borrow a paying account's
+ * Plus. A guest has only RevenueCat's own random anonymous id, which can't be guessed.
+ */
+export function purchaserFor(userId: string | null, header: string | null): string | null {
+  if (!header) return null;
+  if (header === userId || header.startsWith('$RCAnonymousID:')) return header;
+  return null;
+}
+
 /** The platform's own header first: a client can prepend anything to x-forwarded-for. */
 function clientIp(request: Request): string {
   return request.headers.get('x-real-ip') || request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
@@ -53,8 +64,9 @@ export async function checkImportAccess(request: Request): Promise<Access> {
 
   const user = await fetch(`${base.url}/auth/v1/user`, { headers: { apikey: base.key, authorization: `Bearer ${token}` } });
   if (!user.ok) return { ok: false, status: 401, error: IMPORT_MESSAGES.session };
+  const userId = ((await user.json().catch(() => null)) as { id?: string } | null)?.id ?? null;
 
-  if (await hasPlus(request.headers.get('x-revenuecat-app-user-id'))) return { ok: true, refund: free };
+  if (await hasPlus(purchaserFor(userId, request.headers.get('x-revenuecat-app-user-id')))) return { ok: true, refund: free };
 
   const allowed = await rpc(base, 'claim_import', { p_limit: FREE_IMPORTS_PER_MONTH, p_start_limit: FREE_IMPORTS_TO_START, p_start_days: START_WINDOW_DAYS }, token);
   if (allowed !== true) return { ok: false, status: 402, error: IMPORT_MESSAGES.quota };

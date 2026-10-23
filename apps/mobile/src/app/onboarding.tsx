@@ -1,6 +1,6 @@
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -224,7 +224,8 @@ export default function OnboardingScreen() {
       )}
       {step === "canvas" && <CanvasStep onConnected={() => go("result")} onInstead={() => go("own", { source: "canvas-instead" })} />}
       {step === "own" && <OwnStep source={source ?? "nowhere"} job={job} onSample={loadSample} />}
-      {step === "result" && <ResultStep sample={!!settings.sampleBatchId} onNext={() => go("remind")} />}
+      {/* Reminders ring on the iPhone, so the web skips the question of when. */}
+      {step === "result" && <ResultStep sample={!!settings.sampleBatchId} onNext={() => go(Platform.OS === "web" ? "plus" : "remind")} />}
       {step === "remind" && <RemindStep onDone={() => go("plus")} />}
       {step === "plus" && <PlusStep onFinish={finish} />}
       </Animated.View>

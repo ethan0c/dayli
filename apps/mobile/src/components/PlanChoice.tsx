@@ -12,6 +12,7 @@ import { friendlyError } from '@/lib/errors';
 import { feedback } from '@/lib/feedback';
 import { enter, exit } from '@/lib/motion';
 import { realRecords } from '@/lib/planner-preview';
+import { THIS_DEVICE, THIS_DEVICE_TITLE } from '@/lib/web';
 import { useStore } from '@/store';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -49,13 +50,13 @@ export function PlanChoice() {
       <View style={styles.copy}>
         <T token="display" accessibilityRole="header">You have two plans.</T>
         <T token="body" color={c.inkSecondary}>
-          {`Your account has a plan${dated(choice.remoteAt ?? planDate(choice.remote.items))}. This iPhone has a plan${dated(planDate(realRecords(Object.values(items))))}. Which one do you want to keep? The other one is replaced.`}
+          {`Your account has a plan${dated(choice.remoteAt ?? planDate(choice.remote.items))}. ${THIS_DEVICE_TITLE} has a plan${dated(planDate(realRecords(Object.values(items))))}. Which one do you want to keep? The other one is replaced.`}
         </T>
         {error ? <T token="callout" color={c.conflict} accessibilityRole="alert">{error}</T> : null}
       </View>
       <View style={styles.actions}>
         <Button label="Keep account plan" disabled={busy} onPress={() => void keep(keepAccountPlan, 'cloud.keep_account_plan')} />
-        <Button label="Keep this iPhone’s plan" variant="secondary" disabled={busy} onPress={() => void keep(keepPhonePlan, 'cloud.keep_phone_plan')} />
+        <Button label={`Keep ${THIS_DEVICE}’s plan`} variant="secondary" disabled={busy} onPress={() => void keep(keepPhonePlan, 'cloud.keep_phone_plan')} />
       </View>
     </Animated.View>
   );

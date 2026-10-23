@@ -1,10 +1,10 @@
 import { localParts } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { useEffect } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
-import { CategoryDot, StatusPill, itemStatus } from '@/components/Controls';
+import { CategoryDot, IconButton, StatusPill, itemStatus } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { SwipeRow } from '@/components/SwipeRow';
 import { T } from '@/components/Text';
@@ -19,7 +19,8 @@ type Props = { item: RowItem; conflict?: boolean; planned?: boolean; today?: str
  * One agenda row: a check (to-dos) or a category dot (events), the title with its context,
  * and a status pill on the right. A class's rows carry its tint as a short bar in the left
  * margin, so a week reads by course at a glance.
- * Swipe right to complete a to-do, left to delete, when the handlers are given.
+ * Swipe right to complete a to-do, left to delete, when the handlers are given. On the web a
+ * pointer can't swipe: the row highlights under it and Delete takes the pill's place.
  */
 export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onDelete, last }: Props) {
   const { c } = useTheme();
@@ -31,11 +32,14 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
   const tint = course ? c.tint[courseTint(courses, course.id) ?? 'lavender'].ink : c.category[item.category].ink;
   const where = course?.code ?? item.employer ?? (item.category === 'school' ? 'Coursework' : item.category === 'work' ? 'Work' : 'Personal');
   const sub = [where, conflict ? 'Overlaps something else' : null, planned ? 'Working on it today' : null].filter(Boolean).join(' · ');
+  const [hover, setHover] = useState(false);
+  const pointer = Platform.OS === 'web';
   return (
     <View>
     {course ? <View style={[styles.courseBar, { backgroundColor: tint, opacity: item.done ? 0.35 : 1 }]} /> : null}
     <SwipeRow onDelete={onDelete} onComplete={!isEvent ? onToggle : undefined} completed={item.done}>
-    <View style={[styles.row, { backgroundColor: c.canvas }, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
+    <View onPointerEnter={pointer ? () => setHover(true) : undefined} onPointerLeave={pointer ? () => setHover(false) : undefined}
+      style={[styles.row, { backgroundColor: hover ? c.row : c.canvas }, !last ? { borderBottomColor: c.line, borderBottomWidth: StyleSheet.hairlineWidth } : null]}>
       {!isEvent ? (
         <Pressable onPress={onToggle} disabled={!onToggle} accessibilityRole="checkbox" hitSlop={8}
           accessibilityLabel={`${item.done ? 'Mark incomplete' : 'Complete'}: ${item.title}`} accessibilityState={{ checked: item.done }} style={styles.checkTarget}>
@@ -51,8 +55,9 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
           <T token="body" color={item.done ? c.inkSecondary : conflict ? c.conflict : c.inkPrimary} numberOfLines={2} style={item.done ? styles.done : undefined}>{item.title}</T>
           <T token="caption" color={c.inkSecondary} numberOfLines={1}>{item.urgent ? <T token="caption" color={item.done ? c.inkSecondary : c.conflict}>Urgent · </T> : null}{sub}</T>
         </View>
-        <StatusPill label={status.label} tone={status.tone} />
+        {hover && onDelete ? null : <StatusPill label={status.label} tone={status.tone} />}
       </Pressable>
+      {hover && onDelete ? <IconButton icon="trash" label={`Delete ${item.title}`} size={36} haptic="remove" onPress={onDelete} /> : null}
     </View>
     </SwipeRow>
     </View>

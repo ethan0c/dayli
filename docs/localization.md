@@ -1,13 +1,15 @@
 # Localization: the markets, the order, the tooling
 
-Status: Oct 21, 2026. **Step 1 is built; Step 2's code is built, its store work is not.** The app's words are still US English only, with a US-dollar paywall and Canvas as the only LMS sync.
+Status: Oct 22, 2026. **Step 1 is built; Step 2's code is built, its store work is not. English and Spanish app localization has started.** The first Spanish slice covers navigation, the You screen, and language, name, field-of-study, appearance, and region settings. Onboarding, planner content, reminders, account flows, and the paywall still need translation. Canvas is the only LMS sync.
 
 What exists now:
 - `packages/core/src/locale.ts`: one `DateLocale` (locale, region, 12/24-hour clock, day-first, semester/quarter) that `formatTime`, `formatRange`, `formatHour`, `monthDay`, `fullDate`, `typicalTermEnd` and the cue parser read. US defaults, so tests and US behaviour are unchanged.
 - `typicalTermEnd(start, region, system)` with calendars for every Tier A, B and C country (teaching end, as the Friday on or before a date), US and Canadian quarters, and a `name` for the review sheet ("autumn term", "semester 1", "winter semester").
 - `apps/mobile/src/lib/locale.ts`: the device's `expo-localization` locale, region and clock, with You → Region on top (region list, semesters or quarters for the US and Canada). Synced into core from the root layout; PostHog person properties `locale`, `region`, `clock`, `term_system`. Region and term system back up with the account.
 - `ExtractContext.locale`/`region` (optional, so older builds still validate), a numeric-date rule in the prompt (`PROMPT_VERSION 2026-10-21.1`), and two eval cases, `text-uk-day-first` and `text-de-day-first`; both pass live (Oct 21).
-- Lingui 6 wired (`lingui.config.ts`, `babel.config.js`, `src/lib/i18n.ts`, `I18nProvider`), catalogs in `apps/mobile/src/locales`, compiled to TypeScript (`npm run i18n --workspace mobile`). `EXPO_PUBLIC_PSEUDO=1` in a dev build shows `pseudo-LOCALE`. Only the Region screen uses `t` so far; every other string is still hard-coded, which the pseudo-locale makes visible.
+- Lingui 6 wired (`lingui.config.ts`, `babel.config.js`, `src/lib/i18n.ts`, `I18nProvider`), English and Spanish catalogs in `apps/mobile/src/locales`, compiled to TypeScript (`npm run i18n --workspace mobile`). `EXPO_PUBLIC_PSEUDO=1` in a dev build shows `pseudo-LOCALE` and takes precedence over the language choice. Navigation and profile preferences use reactive translation lookups; import allowances and trial days use ICU plurals. The plan status can wrap, and settings values have two lines for longer translations.
+- `src/lib/language.ts` matches the first supported device language, including regional Spanish tags such as `es-MX`, `es-ES`, and `es-419`, with English as the fallback. You → Language offers device matching, English, and Español. The choice persists on this device, survives clearing the plan, and does not change the school region, date conventions, or account settings. Language changes apply without restarting.
+- The `expo-localization` config plugin declares `en` and `es` as supported native languages. **A new native build is required for that declaration to reach iOS/Android settings.** Native permission prompts remain English for this first slice. Country names use `Intl.DisplayNames` in the app language; the pseudo-locale intentionally keeps those standardized names in English.
 - `apps/mobile/store.config.json` (EAS Metadata): en-US as in `app-store-connect.md`, plus en-GB, en-AU and en-CA with local words and spelling and no dollar prices. Not pushed. Ireland and Singapore show en-GB, New Zealand en-AU; Apple has no separate English for them.
 - `design/render-screenshots.py --locale en-GB|en-AU|en-CA`: local captions, captures from `raw/<locale>/` when they exist.
 
@@ -58,13 +60,34 @@ Japan sits in B rather than C because of spend and renewal behaviour, but it is 
 | Store listings | **EAS Metadata** (`store.config.json`, `eas metadata:push`) | Every storefront's name, subtitle, keywords, description, promotional text and release notes in one versioned file; no clicking through App Store Connect per language. |
 | Screenshots | `design/render-screenshots.py` with a captions table per locale | The pipeline exists; add a `--locale` that swaps the caption strings and the simulator language (`xcrun simctl` with `-AppleLanguages`). |
 | Keyword research | App Store search suggestions per storefront (free, in the App Store app with the region switched), then one paid tool (AppTweak or Astro) once Tier A listings exist | Student search terms differ by country ("uni planner", "Stundenplan", "時間割"), and the free suggestions are what students actually see. |
-| Translation | Claude with a project glossary and the ICU catalog as input, then **one native-speaker student per market** paid in Plus (a year) to review in the app, not in a spreadsheet | Machine-first is fine for a beta; the reviewer catches what the glossary cannot (the register for "shift", "due", "Plus"). The glossary lives in `docs/localization-glossary.md` when the first locale starts. |
+| Translation | Claude with a project glossary and the ICU catalog as input, then **one native-speaker student per market** paid in Plus (a year) to review in the app, not in a spreadsheet | Machine-first is fine for a beta; the reviewer catches what the glossary cannot (the register for "shift", "due", "Plus"). The initial Spanish glossary is in §4 below; expand it as each flow is translated. |
 | Pseudo-localization | Lingui's `pseudo` locale in dev builds | Finds hard-coded strings, truncation and concatenation before any translator does. Run it before Tier B starts. |
 | Measurement | PostHog person properties `locale` and `region` (next to `role`, `major`, `lms`); App Store Connect per territory | Conversion by storefront decides which Tier B market gets a translation. |
 
 What not to add: a translation-management SaaS (Lokalise, Crowdin). The catalogs are a few hundred strings; a `.po` file in git plus one reviewer per language is enough until there are five languages.
 
 ## 4. Sequence
+
+### First Spanish slice (Oct 22, 2026)
+
+English + Spanish is the chosen first app-language pair. Spanish uses a shared, informal `tú` voice across regions; selecting Spanish does not select Spain or change how a Mexican or US student's documents are interpreted. This is an incremental translation, not a claim that the whole app is available in Spanish. The Language screen states its current coverage.
+
+For the next slice, translate onboarding and its shared import/review controls together, then Today/Plan/School, reminder settings and notifications, account/error flows, and the paywall. Keep user-authored titles, imported text, file names, and brand names unchanged. Add Spanish extraction fixtures and a native-speaker review before advertising Spanish in the store listing.
+
+Working glossary: **plan → plan**, **schedule → horario**, **shift → turno**, **deadline → fecha de entrega**, **to-do → tarea**, **syllabus → programa de la asignatura**, **import → importación**, **backup → copia de seguridad**. Keep **Semli**, **Plus**, **Canvas**, and **App Store** unchanged.
+
+To validate this slice:
+
+```bash
+npm run i18n --workspace mobile
+npm test -- apps/mobile/src/lib/language.test.ts apps/mobile/src/lib/localization.test.ts apps/mobile/src/lib/language-settings.test.ts
+npm run typecheck --workspace mobile
+npm run lint --workspace mobile
+```
+
+On a device, switch between English, Español, and device matching in You → Language; check the native tab labels, settings headers, selected options, longer text, and accessibility labels. Restart to confirm persistence, then change Region to confirm language and school calendars remain independent. Check `EXPO_PUBLIC_PSEUDO=1` in development for truncation and remaining hard-coded strings. Catalog tests fail on missing Spanish translations or changed interpolation variables, even when compilation could fall back to English.
+
+### Market rollout
 
 | Step | Scope | Gate to start | Done when |
 |---|---|---|---|

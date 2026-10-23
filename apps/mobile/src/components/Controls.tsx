@@ -83,7 +83,7 @@ export function Tile({ icon, label, onPress, disabled }: { icon: IconKey; label:
 export type PillTone = 'grey' | 'red' | 'green' | 'amber' | 'redText';
 
 /** Status pill. Red is behind, green is ahead, amber needs input, grey is a time or a neutral state. */
-export function StatusPill({ label, tone = 'grey', tabular = true }: { label: string; tone?: PillTone; tabular?: boolean }) {
+export function StatusPill({ label, tone = 'grey', tabular = true, multiline = false }: { label: string; tone?: PillTone; tabular?: boolean; multiline?: boolean }) {
   const { c } = useTheme();
   const look = {
     grey: { bg: c.row, ink: c.inkPrimary },
@@ -93,8 +93,8 @@ export function StatusPill({ label, tone = 'grey', tabular = true }: { label: st
     amber: { bg: c.changedBg, ink: c.changed },
   }[tone];
   return (
-    <View style={[styles.pill, { backgroundColor: look.bg }]}>
-      <T token="subhead" color={look.ink} tabular={tabular} numberOfLines={1}>
+    <View style={[styles.pill, multiline && styles.pillMultiline, { backgroundColor: look.bg }]}>
+      <T token="subhead" color={look.ink} tabular={tabular} numberOfLines={multiline ? undefined : 1}>
         {label}
       </T>
     </View>
@@ -185,6 +185,7 @@ const styles = StyleSheet.create({
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 40, borderRadius: 999 },
   tile: { flex: 1, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', gap: 4 },
   pill: { height: 28, paddingHorizontal: 10, borderRadius: 14, alignItems: 'center', justifyContent: 'center', maxWidth: 160 },
+  pillMultiline: { height: 'auto', minHeight: 28, paddingVertical: 4, maxWidth: '100%' },
   sectionTitle: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingBottom: 12 },
   groupLabel: { paddingBottom: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingVertical: 8 },

@@ -196,15 +196,18 @@ export const CANVAS_MESSAGES = {
   timeout: 'Canvas took too long to respond. Your items are still here. Please try Sync now again in a moment.',
   rejected: 'Canvas didn’t accept that link. It may have been reset; copy a fresh one from Calendar feed.',
   format: 'Canvas sent something we couldn’t read. Your Canvas items are still here.',
-  web: 'Canvas sync works in the iPhone app.',
 } as const;
 
+/** How the feed is fetched: straight from Canvas on the phone, through Semli's server on the web. */
+export type FeedLoader = (url: string, signal: AbortSignal) => Promise<Response>;
+const direct: FeedLoader = (url, signal) => fetch(url, { signal, headers: { accept: 'text/calendar' } });
+
 /** Fetch and parse the feed. Never throws; failures come back as a message to show. */
-export async function fetchCanvasFeed(url: string, timeoutMs = 20_000): Promise<{ ok: true; entries: CanvasEntry[] } | { ok: false; error: string }> {
+export async function fetchCanvasFeed(url: string, timeoutMs = 20_000, load: FeedLoader = direct): Promise<{ ok: true; entries: CanvasEntry[] } | { ok: false; error: string }> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, { signal: controller.signal, headers: { accept: 'text/calendar' } });
+    const res = await load(url, controller.signal);
     if (!res.ok) {
       reportError('canvas.fetch', { code: 'http_error', status: res.status });
       return { ok: false, error: [401, 403, 404].includes(res.status) ? CANVAS_MESSAGES.rejected : CANVAS_MESSAGES.connection };

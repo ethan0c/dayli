@@ -6,17 +6,29 @@ import Purchases from 'react-native-purchases';
 import { Platform } from 'react-native';
 
 import { ACCOUNTS_ENABLED, AuthUnavailableError, unavailableClient, type AuthClient, type SignInResult } from './auth';
-import { restoreFromCloud, saveToCloud } from './cloud';
+import { restoreFromCloud, saveToCloud, stopSync } from './cloud';
 import { forgetAccount, maskEmail, rememberAccount, type Provider } from './last-account';
 import { reportError } from './errors';
 import { posthog, track } from './analytics';
 import { deleteReplacedGuest, supabase } from './supabase';
+import { APPLE_ON_WEB } from './web';
 import { useStore } from '../store';
 
 WebBrowser.maybeCompleteAuthSession();
 
 /** Only Google uses a redirect; email confirmation and reset use emailed codes. */
 const callbackUrl = () => Linking.createURL('auth/callback');
+
+/**
+ * The web leaves for the provider's page and comes back to /auth/callback, which finishes the
+ * sign-in (a popup would be blocked once the click is a network call behind). Never settles: the
+ * page is navigating away.
+ */
+async function signInByRedirect(provider: 'google' | 'apple'): Promise<null> {
+  const { error } = await supabase!.auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}/auth/callback` } });
+  if (error) throw error;
+  return new Promise<null>(() => undefined);
+}
 
 /** Every sign-in ends here: establish analytics identity before restoring the backed-up plan. */
 async function signedIn(): Promise<SignInResult> {
@@ -94,6 +106,7 @@ const supabaseClient: AuthClient = {
   },
 
   async signInWithGoogle() {
+    if (Platform.OS === 'web') return signInByRedirect('google');
     const redirectTo = callbackUrl();
     const { data, error } = await supabase!.auth.signInWithOAuth({ provider: 'google', options: { redirectTo, skipBrowserRedirect: true } });
     if (error) throw error;
@@ -103,6 +116,7 @@ const supabaseClient: AuthClient = {
   },
 
   async signInWithApple() {
+    if (APPLE_ON_WEB) return signInByRedirect('apple');
     if (Platform.OS !== 'ios') throw new AuthUnavailableError('Apple sign-in is available on iPhone. Try Google or email on this device.');
     const Crypto = await import('expo-crypto');
     // Apple receives the hash; Supabase verifies it against the original, single-use nonce.
@@ -192,6 +206,8 @@ const supabaseClient: AuthClient = {
 
 /** Ends the session and the purchase identity on this phone; the plan is the caller's to keep or clear. */
 async function endSession() {
+  // Sync stops first: the screen clears the plan next, and those removals must never reach the account.
+  stopSync(true);
   const { error } = await supabase!.auth.signOut({ scope: 'local' });
   if (error) throw error;
   track('account_signed_out');
@@ -246,6 +262,8 @@ export const authClient: AuthClient = ACCOUNTS_ENABLED && supabase ? supabaseCli
  * under it, so one tap never lands back on a form.
  */
 export function leaveAuth() {
-  if (useStore.getState().settings.onboarded) router.dismissTo('/');
+  // The web has no cover to dismiss: the callback page, or a typed URL, may be the only screen.
+  if (Platform.OS === 'web') router.replace(useStore.getState().settings.onboarded ? '/' : '/onboarding?step=role');
+  else if (useStore.getState().settings.onboarded) router.dismissTo('/');
   else router.replace('/onboarding?step=role');
 }

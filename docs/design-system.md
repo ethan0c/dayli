@@ -107,6 +107,8 @@ Navigation audit:
 
 - Loading is a progress line, never a spinner or a bouncing-dots box; results fill in as rows.
 
+The web (Oct 22, 2026; `docs/web.md`): under 768 wide it is the phone layout with the floating tab pill. From 768 a sidebar replaces the pill (Add as the one ink pill at the top, then the four tabs with their number keys) and every screen sits in a 720 reading column; the welcome alone runs full width under its sky. From 1200 the sidebar shows labels and the sync line, Today shows the hours beside the list in place of the toggle, and Plan opens an item in a pane beside the day instead of pushing it. No logo in the sidebar, no sky on Today on a wide window. Rows highlight under the pointer, and Delete takes the pill's place there, since a mouse can't swipe.
+
 ## Motion
 Tokens in `packages/tokens/src/motion.ts`, presets in `apps/mobile/src/lib/motion.ts`, rules in `docs/motion.md`. Two springs (snappy 37/380/0.9, gentle 28/190/1), both with at least critical damping and overshoot clamped; three durations (120/220/360), one easing (0.2, 0, 0, 1), press 0.97/0.88, stagger 45ms. Layout and entrances use the bounded timed curve; completion rings stay fixed as their fill and tick grow in. Numbers roll; every wait has a skeleton; one haptic per meaning. Motion settles once, without bounce-back.
 

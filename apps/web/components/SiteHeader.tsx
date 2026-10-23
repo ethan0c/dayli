@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Wordmark } from '@/app/Wordmark';
-import { APP_STORE_LIVE, APP_STORE_URL } from '@/lib/site';
+import { APP_STORE_LIVE, APP_STORE_URL, APP_URL, WEB_APP_LIVE } from '@/lib/site';
 
 export function SiteHeader() {
   const path = usePathname();
@@ -22,6 +22,7 @@ export function SiteHeader() {
           <Link href="/contact" className="nav-contact" aria-current={path === '/contact' ? 'page' : undefined}>
             Contact
           </Link>
+          {WEB_APP_LIVE ? <a href={APP_URL}>Open Semli</a> : null}
           {APP_STORE_LIVE ? (
             <a className="btn" href={APP_STORE_URL}>
               Get the app

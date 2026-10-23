@@ -68,6 +68,24 @@ describe('import limits', () => {
     expect(fetchMock.mock.calls.some(([u]) => String(u).includes('claim_import'))).toBe(false);
   });
 
+  it('never lends another account’s Plus to a signed-in user', async () => {
+    const fetchMock = vi.fn(async (url: string) => url.includes('/auth/v1/user') ? ok({ id: 'u1' })
+      : url.includes('revenuecat') ? ok({ subscriber: { entitlements: { semli_plus: { expires_date: '2999-01-01T00:00:00Z' } } } })
+      : ok(false));
+    vi.stubGlobal('fetch', fetchMock);
+    const res = await POST(withAuth({ authorization: 'Bearer t', 'x-revenuecat-app-user-id': 'someone-who-pays' }));
+    expect(res.status).toBe(402);
+    expect(fetchMock.mock.calls.some(([u]) => String(u).includes('revenuecat'))).toBe(false);
+  });
+
+  it('accepts a guest’s purchase under RevenueCat’s anonymous id', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => url.includes('/auth/v1/user') ? ok({ id: 'anon-1' })
+      : url.includes('revenuecat') ? ok({ subscriber: { entitlements: { semli_plus: { expires_date: null } } } })
+      : ok(false)));
+    const res = await POST(withAuth({ authorization: 'Bearer t', 'x-revenuecat-app-user-id': '$RCAnonymousID:abc123' }));
+    expect(res.status).toBe(200);
+  });
+
   it('stops a free user past the monthly imports before reading', async () => {
     vi.stubGlobal('fetch', vi.fn(async (url: string) => url.includes('/auth/v1/user') ? ok({ id: 'u1' }) : url.includes('revenuecat') ? ok({ subscriber: { entitlements: {} } }) : ok(false)));
     const res = await POST(withAuth({ authorization: 'Bearer t' }));

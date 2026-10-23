@@ -5,6 +5,10 @@
 
 /** The address Vercel serves (the apex 308s here); canonicals, sitemap and structured data must match it. */
 export const SITE_URL = 'https://www.semli.app';
+/** The planner on the web: the Expo app's web build, signed in. */
+export const APP_URL = 'https://app.semli.app';
+/** Flip once the web planner is deployed (docs/web.md); until then the header links nowhere new. */
+export const WEB_APP_LIVE = false;
 export const SITE_NAME = 'Semli';
 /** The App Store record (not live yet); the listing name is "Semli: AI Student Planner". */
 export const APP_STORE_ID = '6824600264';

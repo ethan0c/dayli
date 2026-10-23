@@ -17,6 +17,8 @@ values live in the host, and the `.env.production` file is the copy you push fro
 | `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` | Accounts and backup | same |
 | `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY` | Subscriptions | same |
 | `EXPO_PUBLIC_REVENUECAT_CUSTOMER_CENTER_ENABLED` | Shows the RevenueCat customer center | same |
+| `EXPO_PUBLIC_REVENUECAT_WEB_API_KEY` | Plus on the web planner (RevenueCat Web Billing, Stripe). Unset, the web paywall says it's on its way | `rcb_sb_…` sandbox vs `rcb_…` |
+| `EXPO_PUBLIC_APPLE_WEB_SIGNIN` | `true` shows Sign in with Apple on the web, once its Services ID is set up (`docs/web.md`) | same |
 | `EXPO_PUBLIC_POSTHOG_KEY`, `EXPO_PUBLIC_POSTHOG_HOST` | Analytics | same |
 | `EXPO_PUBLIC_SENTRY_DSN` | Crash reporting, project `semli-mobile` | same |
 | `SENTRY_AUTH_TOKEN` | Build step uploads source maps and dSYMs. Secret. | same |

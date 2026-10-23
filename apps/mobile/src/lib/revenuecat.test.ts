@@ -3,6 +3,7 @@ import type { CustomerInfo } from 'react-native-purchases';
 
 const mocks = vi.hoisted(() => ({
   platform: { OS: 'ios' },
+  session: null as null | { user: { id: string; is_anonymous?: boolean } },
   constants: { executionEnvironment: 'standalone' },
   purchases: {
     setLogLevel: vi.fn().mockResolvedValue(undefined),
@@ -12,6 +13,10 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('react-native', () => ({ Platform: mocks.platform }));
+vi.mock('./supabase', () => ({
+  useSession: { getState: () => ({ session: mocks.session }) },
+  accountOf: (session: { user: { is_anonymous?: boolean } } | null) => (session && !session.user.is_anonymous ? session : null),
+}));
 vi.mock('expo-constants', () => ({
   default: mocks.constants,
   ExecutionEnvironment: { StoreClient: 'storeClient' },
@@ -34,6 +39,7 @@ beforeEach(() => {
   mocks.platform.OS = 'ios';
   mocks.constants.executionEnvironment = 'standalone';
   mocks.purchases.isConfigured.mockResolvedValue(false);
+  mocks.session = null;
 });
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -94,6 +100,27 @@ describe('RevenueCat initialization', () => {
     const { initializePurchases, purchasesUnavailableReason } = await import('./revenuecat');
     expect(purchasesUnavailableReason).toBeTruthy();
     await expect(initializePurchases()).rejects.toThrow();
+    expect(mocks.purchases.configure).not.toHaveBeenCalled();
+  });
+});
+
+describe('RevenueCat on the web', () => {
+  it('sells through Web Billing to the signed-in account', async () => {
+    mocks.platform.OS = 'web';
+    vi.stubEnv('EXPO_PUBLIC_REVENUECAT_WEB_API_KEY', 'rcb_sb_web_key');
+    mocks.session = { user: { id: 'u1' } };
+    const { initializePurchases, purchasesUnavailableReason, usingTestStore } = await import('./revenuecat');
+    expect(purchasesUnavailableReason).toBeNull();
+    expect(usingTestStore).toBe(false);
+    await initializePurchases();
+    expect(mocks.purchases.configure).toHaveBeenCalledWith({ apiKey: 'rcb_sb_web_key', appUserID: 'u1' });
+  });
+
+  it('asks a visitor to sign in before anything is configured', async () => {
+    mocks.platform.OS = 'web';
+    vi.stubEnv('EXPO_PUBLIC_REVENUECAT_WEB_API_KEY', 'rcb_sb_web_key');
+    const { initializePurchases } = await import('./revenuecat');
+    await expect(initializePurchases()).rejects.toMatchObject({ userMessage: 'Sign in to get Semli Plus.' });
     expect(mocks.purchases.configure).not.toHaveBeenCalled();
   });
 });

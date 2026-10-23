@@ -1,5 +1,6 @@
 import type { Course, Item, ScheduleVersion } from '@dayli/schema';
 import { File, Paths } from 'expo-file-system';
+import { Platform } from 'react-native';
 import { reportError } from './errors';
 
 /** Everything that is yours, as one JSON file you can AirDrop, save, or bring to a new phone. */
@@ -46,8 +47,15 @@ function nextDay(date: string): string {
   return `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
 }
 
-/** Writes the text to the cache and opens the system share sheet. False when sharing is unavailable. */
+/** Writes the text to the cache and opens the system share sheet; on the web, downloads it. False when sharing is unavailable. */
 export async function shareText(name: string, text: string, mimeType: string): Promise<boolean> {
+  if (Platform.OS === 'web') {
+    const url = URL.createObjectURL(new Blob([text], { type: mimeType }));
+    const link = Object.assign(document.createElement('a'), { href: url, download: name });
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return true;
+  }
   // Older development builds may not contain ExpoSharing yet. Loading it only on
   // export keeps every other screen usable until the native build is updated.
   let sharing: typeof import('expo-sharing');

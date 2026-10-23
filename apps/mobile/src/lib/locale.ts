@@ -29,13 +29,13 @@ export const REGIONS: { id: string; name: string }[] = [
   { id: 'HK', name: 'Hong Kong' },
 ];
 
-export function regionName(id: string): string {
+export function regionName(id: string, locale = 'en'): string {
   const known = REGIONS.find((r) => r.id === id)?.name;
-  if (known) return known;
+  if (known && (locale === 'en' || locale === 'pseudo-LOCALE')) return known;
   try {
-    return new Intl.DisplayNames(['en'], { type: 'region' }).of(id) ?? id;
+    return new Intl.DisplayNames([locale === 'pseudo-LOCALE' ? 'en' : locale], { type: 'region' }).of(id) ?? known ?? id;
   } catch {
-    return id;
+    return known ?? id;
   }
 }
 

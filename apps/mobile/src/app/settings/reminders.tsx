@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AppState, ScrollView, StyleSheet, View } from 'react-native';
+import { AppState, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { TimeField } from '@/components/Native';
 import { Segmented } from '@/components/Segmented';
@@ -22,11 +22,14 @@ const LEADS: { key: LeadKey; label: string }[] = [
   { key: '60', label: '1 hour' },
 ];
 
+/** Reminders ring on the iPhone; on the web these settings are edited for it. */
+const WEB = Platform.OS === 'web';
+
 export default function RemindersScreen() {
   const { c } = useTheme();
   const prefs = useStore((s) => s.settings.reminders);
   const setSettings = useStore((s) => s.setSettings);
-  const [allowed, setAllowed] = useState<boolean | null>(null);
+  const [allowed, setAllowed] = useState<boolean | null>(WEB ? true : null);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -34,6 +37,7 @@ export default function RemindersScreen() {
 
   // Re-check when the app comes back, since the user may have changed it in iOS Settings.
   useEffect(() => {
+    if (WEB) return;
     const check = () => void notificationsAllowed().then(setAllowed).catch((failure: unknown) => setError(friendlyError(failure, 'We couldn’t check reminder permission. Please try again.', 'reminders.check_permission')));
     check();
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') check(); });
@@ -64,7 +68,7 @@ export default function RemindersScreen() {
 
   const toggle = (key: 'enabled' | 'briefing') => async (on: boolean) => {
     feedback('select');
-    if (on && !(await ensureAllowed())) return;
+    if (on && !WEB && !(await ensureAllowed())) return;
     update({ [key]: on });
     if (key === 'briefing') track('briefing_changed', { briefing: on });
     setError(null);
@@ -83,6 +87,7 @@ export default function RemindersScreen() {
   return (
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
       {error ? <Group footer={error}><Row label="Retry reminder setup" onPress={() => { void syncReminders().then(() => setError(null)).catch(failed); }} last /></Group> : null}
+      {WEB ? <T token="callout" color={c.inkSecondary}>Reminders ring on your iPhone. Changes you make here apply there.</T> : null}
       {allowed === false ? (
         <Group footer="Allow notifications to receive reminders on this iPhone. If prompted, enable them in Settings → Semli → Notifications.">
           <Row label="Turn on reminders" onPress={() => void enable()} last />
@@ -121,7 +126,7 @@ export default function RemindersScreen() {
         <RingingAlarmInfo settings />
       </Group>
 
-      <Group footer={sent ? 'Test reminder scheduled for five seconds from now.' : undefined}>
+      {WEB ? null : <Group footer={sent ? 'Test reminder scheduled for five seconds from now.' : undefined}>
         <Row
           label={sending ? 'Sending…' : 'Send a test reminder'}
           onPress={sending ? undefined : () => {
@@ -135,7 +140,7 @@ export default function RemindersScreen() {
           }}
           last
         />
-      </Group>
+      </Group>}
     </ScrollView>
   );
 }

@@ -39,7 +39,7 @@ export function Row({ label, value, onPress, selected, destructive, last, icon }
       chevron={!!onPress && selected === undefined && !destructive}
       trailing={
         <>
-          {value ? <T token="callout" color={c.inkSecondary} numberOfLines={1} style={{ maxWidth: '55%' }}>{value}</T> : null}
+          {value ? <T token="callout" color={c.inkSecondary} numberOfLines={2} style={{ maxWidth: '55%', flexShrink: 1, textAlign: 'right' }}>{value}</T> : null}
           {selected ? <View style={[styles.radio, { backgroundColor: c.inkPrimary }]}><View style={[styles.radioDot, { backgroundColor: c.onPrimary }]} /></View> : selected === false ? <View style={[styles.radio, { borderWidth: 1.5, borderColor: c.controlOutline }]} /> : null}
         </>
       }

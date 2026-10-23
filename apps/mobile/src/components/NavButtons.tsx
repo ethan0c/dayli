@@ -1,3 +1,5 @@
+import { t } from '@lingui/core/macro';
+import { useLingui } from '@lingui/react/macro';
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
@@ -14,7 +16,7 @@ export function backOrHome() {
 
 /** One native glass item on iOS 26; one circular control on other platforms. */
 export function navigationButtonOptions(kind: 'close' | 'back', onPress: () => void = backOrHome) {
-  const label = kind === 'close' ? 'Close' : 'Back';
+  const label = kind === 'close' ? t`Close` : t`Back`;
   return {
     headerBackVisible: false,
     headerLeft: GLASS ? undefined : () => kind === 'close' ? <CloseButton onPress={onPress} /> : <BackButton onPress={onPress} />,
@@ -31,9 +33,10 @@ export function navigationButtonOptions(kind: 'close' | 'back', onPress: () => v
 
 /** The X on the left of a full-screen cover's native header. */
 export function CloseButton({ onPress }: { onPress?: () => void }) {
+  const { t } = useLingui();
   const { c } = useTheme();
   return (
-    <Press accessibilityRole="button" accessibilityLabel="Close" hitSlop={8} scale={0.9} onPress={onPress ?? backOrHome} style={styles.button}>
+    <Press accessibilityRole="button" accessibilityLabel={t`Close`} hitSlop={8} scale={0.9} onPress={onPress ?? backOrHome} style={styles.button}>
       <GlassCircle size={36}><Icon name="x" size={22} color={c.inkPrimary} /></GlassCircle>
     </Press>
   );
@@ -41,9 +44,10 @@ export function CloseButton({ onPress }: { onPress?: () => void }) {
 
 /** A glass back chevron, including the first screen of a nested stack. */
 export function BackButton({ onPress }: { onPress?: () => void }) {
+  const { t } = useLingui();
   const { c } = useTheme();
   return (
-    <Press accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} scale={0.9} onPress={onPress ?? backOrHome} style={styles.button}>
+    <Press accessibilityRole="button" accessibilityLabel={t`Back`} hitSlop={8} scale={0.9} onPress={onPress ?? backOrHome} style={styles.button}>
       <GlassCircle size={36}><Icon name="chevronLeft" size={22} color={c.inkPrimary} /></GlassCircle>
     </Press>
   );

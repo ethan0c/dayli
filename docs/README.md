@@ -43,8 +43,8 @@ Start with the [repository README](../README.md) for the current implementation 
 
 ## Current implementation decisions
 
-- **Product:** Semli, an iPhone planner for college students. The Next.js website provides marketing, pricing, beta signup, and an import preview/API. A full browser planner, web checkout, and Android release are outside the current launch scope.
-- **Storage and accounts:** The phone holds the working plan. Optional Supabase accounts support Apple, Google, and email sign-in, account deletion, and backup/restore. Backup is not live multi-device sync. Supabase also handles import usage and the waitlist.
+- **Product:** Semli, an iPhone planner for college students. The Next.js website provides marketing, pricing, beta signup, and an import preview/API. The web planner (the Expo app's web build, signed in, with web checkout) is built and follows the iOS launch as a beta; see [web.md](web.md). Android is outside the current scope.
+- **Storage and accounts:** The phone holds the working plan. Optional Supabase accounts support Apple, Google, and email sign-in, account deletion, and backup/restore. Signed-in devices sync record by record ([web.md](web.md#sync)). Supabase also handles import usage and the waitlist.
 - **Subscriptions:** RevenueCat supplies the `semli_plus` entitlement for Semli Plus. Core planning, manual edits, reminders, overlap warnings, and five AI imports to start and then three a month are free. Plus covers unlimited imports, schedule comparisons, ongoing Canvas sync, suggested rescheduling, and supported urgent ringing alarms.
 - **Design:** Shared tokens live in `packages/tokens`: Geist, Regular large headers, an Onest wordmark, ink/paper light appearance, more purple in dark appearance, and green enabled switches. The marketing site has intentional photographic and purple sections.
 - **Sharing:** Public schedule links remain disabled. SMS is outside the current scope.

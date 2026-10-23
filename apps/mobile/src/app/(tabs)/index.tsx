@@ -25,6 +25,7 @@ import { useDevToday } from '@/lib/dev';
 import { feedback } from '@/lib/feedback';
 import { momentFor } from '@/lib/moments';
 import { durations, enter, exit, layout } from '@/lib/motion';
+import { useWebLayout } from '@/lib/layout';
 import { useNow } from '@/lib/now';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { ACCOUNTS_ENABLED } from '@/lib/auth';
@@ -43,6 +44,8 @@ export default function TodayScreen() {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const now = useNow();
+  // The sky is the phone's greeting; a laptop opens on plain paper (docs/headers.md).
+  const { sidebar, twoPane } = useWebLayout();
   const items = useItemList();
   const schedules = useScheduleList();
   const courses = useCourseList();
@@ -153,7 +156,7 @@ export default function TodayScreen() {
   // The number first, then the sentence that finishes it.
   const line = featured && state ? countdownLine(featured, state) : featured?.title ?? null;
   const parts = featured && state ? countdownParts(featured, state) : featured ? { text: featured.title, time: null } : null;
-  const hours = todayView === 'hours';
+  const hours = todayView === 'hours' && !twoPane;
   const viewToggle = (
     <Animated.View key={hours ? 'list' : 'chart'} entering={enter.fade} exiting={exit.fade}>
       <IconButton icon={hours ? 'list' : 'chart'} tone="glass" size={44} haptic="select"
@@ -163,7 +166,7 @@ export default function TodayScreen() {
   );
   const todayDetail = `${todays.length} ${todays.length === 1 ? 'thing' : 'things'}${conflictsToday ? ` · ${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : ''}`;
 
-  return (
+  const list = (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">
       {/* On a moment day the photo runs from the top edge, the moment takes the big number, and the day's header steps down to display size. */}
       {moment ? (
@@ -194,12 +197,12 @@ export default function TodayScreen() {
             </Animated.View>
           ) : null}
         </View>
-      ) : <SkyHeader time={now.time} />}
+      ) : sidebar ? null : <SkyHeader time={now.time} />}
 
       <TabHeader date={now.date} title={featured ? 'Now' : 'Clear'} inset={!moment}
         value={moment ? (big ? <Ticker value={big} token="display" /> : <T token="display" accessibilityRole="header">{featured ? 'Now' : 'Clear'}</T>)
           : big ? <Ticker value={big} token="displayXl" /> : undefined}
-        trailing={moment ? undefined : viewToggle}
+        trailing={moment || twoPane ? undefined : viewToggle}
         onPress={featured ? () => router.push(`/item/${featured.id}`) : undefined}
         accessibilityLabel={featured ? [big, line].filter(Boolean).join(' ') : undefined}
         details={featured ? <>
@@ -346,6 +349,17 @@ export default function TodayScreen() {
       ) : null}
     </ScrollView>
   );
+  if (!twoPane) return list;
+  // A wide web window shows the day by the hour beside the list, so there's nothing to toggle.
+  return (
+    <View style={styles.panes}>
+      <View style={{ flex: 1 }}>{list}</View>
+      <ScrollView style={[styles.hourPane, { borderLeftColor: c.line }]} contentContainerStyle={styles.hourBody}>
+        <SectionTitle title="Hours" detail={todayDetail} />
+        <HourView items={todays} now={now} conflicts={conflictSet} onPress={(it) => router.push(`/item/${it.id}`)} />
+      </ScrollView>
+    </View>
+  );
 }
 
 /** Where the moment's first line starts; its photo has fully faded into the page above this. */
@@ -368,6 +382,9 @@ function SavePlanRow({ onDismiss }: { onDismiss: () => void }) {
 
 const styles = StyleSheet.create({
   bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
+  panes: { flex: 1, flexDirection: 'row' },
+  hourPane: { width: 400, flexGrow: 0, borderLeftWidth: StyleSheet.hairlineWidth },
+  hourBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 28, paddingBottom: 40, gap: 8 },
   hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 18 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 26 },
   disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

@@ -1,12 +1,14 @@
 import { isLocalDate, isLocalTime } from '@dayli/core';
-import { colors } from '@dayli/tokens';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { colors, fontFamily } from '@dayli/tokens';
+import { createElement } from 'react';
+import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon, type IconKey } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { radius, textStyle, useTheme } from '@/theme';
 
-// Fallbacks for web (and any non-iOS platform). The .ios.tsx file uses SwiftUI.
+// Fallbacks for web (and any non-iOS platform). The .ios.tsx file uses SwiftUI; the web's date and
+// time fields are the browser's own pickers.
 
 export interface DateFieldProps {
   date: string | null;
@@ -47,11 +49,33 @@ function Field({ value, placeholder, onChange, valid, width, disabled }: { value
   );
 }
 
+/** The browser's own date or time picker; it only ever reports a complete value. */
+function WebField({ type, value, onChange, disabled, label }: { type: 'date' | 'time'; value: string | null; onChange: (v: string) => void; disabled?: boolean; label: string }) {
+  const { c, dark } = useTheme();
+  return createElement('input', {
+    type,
+    value: value ?? '',
+    disabled,
+    'aria-label': label,
+    onChange: (e: { target: { value: string } }) => {
+      const next = e.target.value;
+      if (type === 'date' ? isLocalDate(next) : isLocalTime(next)) onChange(next);
+    },
+    style: {
+      height: 32, border: 'none', borderRadius: 8, padding: '0 10px', backgroundColor: c.row, color: c.inkPrimary,
+      fontFamily: fontFamily.regular, fontSize: 15, fontVariantNumeric: 'tabular-nums', colorScheme: dark ? 'dark' : 'light',
+      opacity: disabled ? 0.5 : 1,
+    },
+  });
+}
+
 export function DateField({ date, onChange, disabled }: DateFieldProps) {
+  if (Platform.OS === 'web') return <WebField type="date" value={date} onChange={onChange} disabled={disabled} label="Date" />;
   return <Field value={date} placeholder="YYYY-MM-DD" onChange={onChange} valid={!!disabled || isLocalDate(date)} width={112} disabled={disabled} />;
 }
 
 export function TimeField({ time, onChange, disabled }: DateFieldProps) {
+  if (Platform.OS === 'web') return <WebField type="time" value={time} onChange={onChange} disabled={disabled} label="Time" />;
   return <Field value={time} placeholder="HH:MM" onChange={onChange} valid={!!disabled || time === null || isLocalTime(time)} width={68} disabled={disabled} />;
 }
 

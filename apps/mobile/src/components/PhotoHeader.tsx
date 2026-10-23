@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
@@ -31,21 +31,26 @@ export function PhotoHeader({ source, height, to, fadeFrom = 0.45, solidAt, dim 
     if (ready) loaded.value = withTiming(1, { duration: durations.base, easing: ease });
   }, [ready, loaded]);
   const fade = useAnimatedStyle(() => ({ opacity: loaded.value }));
+  // One id per header: on the web every SVG shares the page, and two `#fade`s would resolve to the first.
+  const gradient = `fade-${useId().replace(/:/g, '')}`;
   return (
     <View pointerEvents="none" style={[styles.wrap, { height }]}>
       <Animated.View style={[{ width: '100%', height }, fade]}>
         <Photo source={source} style={{ width: '100%', height }} onLoad={() => setReady(true)} />
       </Animated.View>
       {dim > 0 ? <View style={[StyleSheet.absoluteFill, { backgroundColor: to, opacity: dim }]} /> : null}
-      <Svg style={{ position: 'absolute', left: 0, right: 0, top }} width="100%" height={end - top} preserveAspectRatio="none">
-        <Defs>
-          <LinearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-            {[<Stop key={0} offset={0} stopColor={to} stopOpacity={0} />,
-              ...STOPS.map((t) => <Stop key={t} offset={t} stopColor={to} stopOpacity={smoothstep(t)} />)]}
-          </LinearGradient>
-        </Defs>
-        <Rect x={0} y={0} width="100%" height="100%" fill="url(#fade)" />
-      </Svg>
+      {/* Placed by a View: react-native-web ignores an Svg's own `top`, which left the bottom of the photo unfaded. */}
+      <View style={{ position: 'absolute', left: 0, right: 0, top, height: end - top }}>
+        <Svg width="100%" height={end - top} preserveAspectRatio="none">
+          <Defs>
+            <LinearGradient id={gradient} x1="0" y1="0" x2="0" y2="1">
+              {[<Stop key={0} offset={0} stopColor={to} stopOpacity={0} />,
+                ...STOPS.map((t) => <Stop key={t} offset={t} stopColor={to} stopOpacity={smoothstep(t)} />)]}
+            </LinearGradient>
+          </Defs>
+          <Rect x={0} y={0} width="100%" height="100%" fill={`url(#${gradient})`} />
+        </Svg>
+      </View>
       {end < height ? <View style={{ position: 'absolute', left: 0, right: 0, top: end, bottom: 0, backgroundColor: to }} /> : null}
     </View>
   );
