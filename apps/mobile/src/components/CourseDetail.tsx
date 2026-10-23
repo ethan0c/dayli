@@ -1,5 +1,6 @@
 import { WEEKDAYS, assessment, dateLocale, diffDays, formatTime, isLocalDate, monthDay, weekdayOf, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
+import { COURSE_TINTS, chart, type TintName } from '@dayli/tokens';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -8,6 +9,7 @@ import Animated from 'react-native-reanimated';
 import { CategoryDot, ListRow, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { Icon } from '@/components/Icon';
 import { ItemRow } from '@/components/ItemRow';
+import { Press } from '@/components/Press';
 import { DateField } from '@/components/Native';
 import { Sheet } from '@/components/Sheet';
 import { ChartKey, markKey, shapeFor } from '@/components/ChartMark';
@@ -78,6 +80,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
   const removeItem = useStore((s) => s.removeItem);
   const removeItems = useStore((s) => s.removeItems);
   const removeCourse = useStore((s) => s.removeCourse);
+  const setCourseColor = useStore((s) => s.setCourseColor);
   const [editingEnd, setEditingEnd] = useState(false);
 
   const course = courses.find((k) => k.id === id);
@@ -101,7 +104,8 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
   }
 
   const name = course.code ?? course.title;
-  const tint = c.tint[courseTint(allCourses, course.id) ?? 'lavender'].ink;
+  const tintName = courseTint(allCourses, course.id) ?? 'lavender';
+  const tint = c.tint[tintName].ink;
 
   // The one big number: days until the next undone deadline.
   const deadlines = all.filter((it) => it.isDeadline);
@@ -197,6 +201,19 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
             trailing={batch ? <Icon name="chevronRight" size={16} color={c.inkSecondary} /> : null}>
             <T token="body" style={{ flex: 1 }}>{sourceLine}</T>
           </Row>
+          {/* The course's dot in every list: six tints, the chosen one ringed in ink like a picked mark. */}
+          <View style={styles.row} accessibilityRole="radiogroup" accessibilityLabel="Course color">
+            <T token="body" style={{ flex: 1 }}>Color</T>
+            <View style={styles.swatches}>
+              {COURSE_TINTS.map((name) => (
+                <Press key={name} haptic="select" accessibilityRole="radio" accessibilityLabel={TINT_LABELS[name]} accessibilityState={{ checked: name === tintName }}
+                  hitSlop={6} onPress={() => setCourseColor(course.id, name)}
+                  style={[styles.swatch, name === tintName ? { borderColor: c.inkPrimary } : null]}>
+                  <View style={[styles.swatchDot, { backgroundColor: c.tint[name].ink }]} />
+                </Press>
+              ))}
+            </View>
+          </View>
         </Animated.View>
 
         {showTerm ? (
@@ -234,6 +251,10 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
   );
 }
 
+const SWATCH = 22;
+/** What VoiceOver calls each tint; `rose` is persisted but has looked like clay since Oct 2026. */
+const TINT_LABELS: Record<TintName, string> = { lavender: 'Lavender', sky: 'Sky', rose: 'Clay', butter: 'Butter', mint: 'Mint', apricot: 'Apricot' };
+
 const styles = StyleSheet.create({
   body: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 24 },
   top: { gap: 2 },
@@ -241,6 +262,9 @@ const styles = StyleSheet.create({
   rows: { paddingTop: 18, gap: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 28, paddingHorizontal: 4 },
   pickers: { flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap', paddingHorizontal: 4 },
+  swatches: { flexDirection: 'row', gap: 4 },
+  swatch: { width: SWATCH + (chart.focusGap + chart.now) * 2, height: SWATCH + (chart.focusGap + chart.now) * 2, borderRadius: 999, borderWidth: chart.now, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
+  swatchDot: { width: SWATCH, height: SWATCH, borderRadius: SWATCH / 2 },
   section: { paddingTop: 22 },
   dotWell: { width: 22, alignItems: 'center' },
 });

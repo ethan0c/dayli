@@ -163,6 +163,8 @@ interface State {
   removeItems: (ids: string[], label: string) => void;
   /** Drop a course: the course and every item in it, one Undo. */
   removeCourse: (courseId: string) => void;
+  /** The person's own colour for a course's dot. */
+  setCourseColor: (courseId: string, color: TintName) => void;
   /** Quit a job: upcoming shifts only, or everything including past shifts and the schedules. */
   removeEmployer: (employer: string, scope: 'upcoming' | 'all', today: string) => void;
   addItem: (item: Omit<Item, 'id' | 'createdAt' | 'batchId'>) => string;
@@ -283,6 +285,10 @@ export const useStore = create<State>()(
         track('item_deleted', { deletion_scope: 'multiple', item_count: changes.length });
       },
 
+      setCourseColor: (courseId, color) => {
+        set({ courses: get().courses.map((k) => (k.id === courseId ? { ...k, color } : k)) });
+      },
+
       removeCourse: (courseId) => {
         const course = get().courses.find((k) => k.id === courseId);
         if (!course) return;
@@ -361,7 +367,7 @@ export const useStore = create<State>()(
           : get().schedules;
         const courses = [...get().courses];
         for (const k of [...(extra?.course ? [extra.course] : []), ...(extra?.courses ?? [])]) {
-          courses.push({ ...k, batchId: b.id, color: COURSE_TINTS[courses.length % COURSE_TINTS.length] });
+          courses.push({ ...k, batchId: b.id, color: nextCourseTint(courses) });
         }
         b.source = source;
         set({ items, schedules, courses, batches: [b, ...get().batches], pending: null });
@@ -423,6 +429,12 @@ function batch(label: string, changes: Change[]): Batch {
 }
 
 /** A course's tint; older records without one take the next tint in order. */
+/** The least-used tint, first in `COURSE_TINTS` order on a tie, so a removed course's colour is reused before any repeats. */
+export function nextCourseTint(courses: StoredCourse[]): TintName {
+  const uses = (tint: TintName) => courses.filter((k, i) => (k.color ?? COURSE_TINTS[i % COURSE_TINTS.length]) === tint).length;
+  return COURSE_TINTS.reduce((best, tint) => (uses(tint) < uses(best) ? tint : best));
+}
+
 export function courseTint(courses: StoredCourse[], courseId: string | null | undefined): TintName | null {
   if (!courseId) return null;
   const i = courses.findIndex((k) => k.id === courseId);

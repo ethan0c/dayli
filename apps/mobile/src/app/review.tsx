@@ -10,7 +10,7 @@ import { devAutoConfirmMs } from '@/lib/dev';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { SectionTitle, StatusPill, TextButton } from '@/components/Controls';
+import { CategoryDot, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { DateField, TimeField } from '@/components/Native';
 import { Press } from '@/components/Press';
 import { ReviewDisclosure, ReviewGlyph, ReviewPickerSlot, ReviewPill, ReviewPillRow, ReviewRow } from '@/components/ReviewRow';
@@ -29,7 +29,7 @@ import { noteConfirmedImport } from '@/lib/store-review';
 import { usePlusAccess } from '@/lib/plus-access';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { usePurchases } from '@/providers/PurchasesProvider';
-import { newId, useCourseList, useItemList, useStore } from '@/store';
+import { newId, nextCourseTint, useCourseList, useItemList, useStore } from '@/store';
 import { sampleScheduleExtraction } from '@/store/sample';
 import { SCREEN_GUTTER, useTheme } from '@/theme';
 
@@ -60,6 +60,7 @@ export default function ReviewScreen() {
   const applyPlan = useStore((s) => s.applyPlan);
   const showToast = useStore((s) => s.showToast);
   const courses = useCourseList();
+  const storedCourses = useStore((s) => s.courses);
   const existing = useItemList();
   const today = localParts(new Date()).date;
   const leaving = useRef(false);
@@ -355,7 +356,7 @@ export default function ReviewScreen() {
   }
 
   const note = newCourse
-    ? `Adds the course ${[newCourse.code, newCourse.title].filter(Boolean).join(' · ')}`
+    ? `Adds the course ${[newCourse.code, newCourse.title].filter(Boolean).join(' · ')}. You can change its color on its page.`
     : isUpdate ? 'Reminders move with the shifts.' : 'Nothing is saved until you confirm.';
 
   // ---- Chart -----------------------------------------------------------------------
@@ -526,7 +527,13 @@ export default function ReviewScreen() {
           <T token="callout" color={c.inkSecondary}>{intro}</T>
           <T token="displayXl" tabular>{big}</T>
           <T token="body" style={styles.line}>{line}</T>
-          <T token="callout" color={c.inkSecondary}>{note}</T>
+          {newCourse ? (
+            // The dot the new course will wear in every list, shown where the course is born.
+            <View style={styles.newCourse}>
+              <View style={styles.newCourseDot}><CategoryDot color={c.tint[nextCourseTint(storedCourses)].ink} /></View>
+              <T token="callout" color={c.inkSecondary} style={{ flex: 1 }}>{note}</T>
+            </View>
+          ) : <T token="callout" color={c.inkSecondary}>{note}</T>}
           {explainCompare ? <T token="callout" color={c.inkSecondary} style={{ paddingTop: 8 }}>Semli matched these shifts to your existing schedule. Review the marked changes before saving.</T> : null}
           {total === 0 ? (
             <T token="callout" color={c.inkSecondary} style={{ paddingTop: 8 }}>
@@ -661,6 +668,8 @@ function sourceNoun(source: string): string {
 }
 
 const styles = StyleSheet.create({
+  newCourse: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  newCourseDot: { height: 20, justifyContent: 'center' },
   panes: { flex: 1, flexDirection: 'row' },
   list: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, paddingBottom: 16 },
   hero: { gap: 12 },
