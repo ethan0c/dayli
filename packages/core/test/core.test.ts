@@ -122,6 +122,22 @@ describe('conflicts and overload', () => {
     const o3 = findOverloads([...items, item({ id: 's3', date: '2026-10-26', start: '07:00', end: '08:30' })], { date: '2026-10-24', time: '06:00' });
     expect(o3).toEqual([{ deadlineId: 'exam', freeHours: 2.5 }]);
   });
+  it('gives an event with no end the hour the charts draw', () => {
+    const c = findConflicts([
+      item({ id: 'shift', date: '2026-10-26', start: '09:00', end: '17:00' }),
+      item({ id: 'lunch', date: '2026-10-26', start: '12:00', end: null }),
+      item({ id: 'evening', date: '2026-10-26', start: '17:00', end: null }),
+    ]);
+    expect(c).toEqual([{ a: 'shift', b: 'lunch', minutes: 60 }]);
+  });
+  it('reads an end equal to the start as no end, never 24 hours', () => {
+    const c = findConflicts([
+      item({ id: 'zero', date: '2026-10-26', start: '09:00', end: '09:00' }),
+      item({ id: 'next-day', date: '2026-10-27', start: '08:00', end: '09:00' }),
+      item({ id: 'same-hour', date: '2026-10-26', start: '09:30', end: '10:30' }),
+    ]);
+    expect(c).toEqual([{ a: 'zero', b: 'same-hour', minutes: 30 }]);
+  });
   it('lists dates without a published schedule', () => {
     expect(pendingDates([{ coversFrom: '2026-10-19', coversTo: '2026-10-25' }], '2026-10-24', '2026-10-27')).toEqual([
       '2026-10-26',

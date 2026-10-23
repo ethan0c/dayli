@@ -55,11 +55,12 @@ export type MovableOverlap = { flexible: Item; other: Item };
 
 /**
  * The soonest overlap Semli could resolve: an upcoming flexible event that clashes with another,
- * looking up to a week ahead. Null when every overlap is between fixed plans or already started.
+ * looking up to a week ahead, or on the one day `on` however far out. Null when every overlap is
+ * between fixed plans or already started.
  */
-export function movableOverlap(items: Item[], now: { date: string; time: string }): MovableOverlap | null {
+export function movableOverlap(items: Item[], now: { date: string; time: string }, on?: string): MovableOverlap | null {
   const current = dayNumber(now.date) * 1440 + toMinutes(now.time);
-  const horizon = current + 7 * 1440;
+  const horizon = on ? Infinity : current + 7 * 1440;
   const byId = new Map(items.map((item) => [item.id, item]));
   let best: MovableOverlap | null = null;
   let bestStart = Infinity;
@@ -67,7 +68,7 @@ export function movableOverlap(items: Item[], now: { date: string; time: string 
     for (const [id, otherId] of [[pair.a, pair.b], [pair.b, pair.a]] as const) {
       const item = byId.get(id);
       const other = byId.get(otherId);
-      if (!item || !other || !isFlexibleEvent(item)) continue;
+      if (!item || !other || !isFlexibleEvent(item) || (on && item.date !== on)) continue;
       const start = intervalOf(item)?.start ?? -Infinity;
       if (start <= current || start > horizon || start >= bestStart) continue;
       best = { flexible: item, other };

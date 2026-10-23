@@ -6,14 +6,24 @@ export interface Interval {
   end: number;
 }
 
-/** Absolute interval for a timed event. Overnight shifts (end <= start) roll into the next day. */
+/**
+ * Absolute interval for a timed event. Overnight shifts (end < start) roll into the next day.
+ * An end equal to the start is no end at all, never a 24-hour event.
+ */
 export function intervalOf(item: Pick<Item, 'date' | 'start' | 'end'>): Interval | null {
-  if (!item.start || !item.end) return null;
+  if (!item.start || !item.end || item.end === item.start) return null;
   const base = dayNumber(item.date) * 1440;
   const start = base + toMinutes(item.start);
   let end = base + toMinutes(item.end);
   if (end <= start) end += 1440;
   return { start, end };
+}
+
+/** The time an event holds for overlaps: its own interval, or an hour from its start when it has no end, as the charts draw it. */
+export function eventInterval(item: Pick<Item, 'date' | 'start' | 'end'>): Interval | null {
+  if (!item.start) return null;
+  const start = dayNumber(item.date) * 1440 + toMinutes(item.start);
+  return intervalOf(item) ?? { start, end: start + 60 };
 }
 
 export function overlap(a: Interval, b: Interval): number {

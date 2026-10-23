@@ -120,4 +120,10 @@ describe('the first movable overlap', () => {
     const farStudy = { ...study, id: 'far-study', date: '2026-10-28' };
     expect(movableOverlap([farShift, farStudy], now)).toBeNull();
   });
+  it('finds the overlap on one chosen day, however far out', () => {
+    const farShift = { ...shift, id: 'far-shift', date: '2026-10-28' };
+    const farStudy = { ...study, id: 'far-study', date: '2026-10-28' };
+    expect(movableOverlap([shift, study, farShift, farStudy], now, '2026-10-28')).toEqual({ flexible: farStudy, other: farShift });
+    expect(movableOverlap([shift, study], now, '2026-10-20')).toBeNull();
+  });
 });

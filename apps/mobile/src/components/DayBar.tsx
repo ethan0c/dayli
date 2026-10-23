@@ -1,4 +1,4 @@
-import { dayNumber, findConflicts, intervalOf, toMinutes } from '@dayli/core';
+import { dayNumber, eventInterval, findConflicts, intervalOf, toMinutes } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { chart } from '@dayli/tokens';
 import { StyleSheet, View } from 'react-native';
@@ -41,8 +41,8 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
     .filter((b) => b.width > 0)
     .sort((a, b) => Number(!a.dim) - Number(!b.dim));
   const overlaps = findConflicts(items).filter((pair) => conflicts.has(pair.a) || conflicts.has(pair.b)).flatMap((pair) => {
-    const a = intervalOf(items.find((it) => it.id === pair.a)!)!;
-    const b = intervalOf(items.find((it) => it.id === pair.b)!)!;
+    const a = eventInterval(items.find((it) => it.id === pair.a)!)!;
+    const b = eventInterval(items.find((it) => it.id === pair.b)!)!;
     const start = Math.max(START, Math.max(a.start, b.start) - base);
     const end = Math.min(END, Math.min(a.end, b.end) - base);
     return end > start ? [{ id: `${pair.a}:${pair.b}`, left: (start - START) / SPAN * 100, width: (end - start) / SPAN * 100 }] : [];

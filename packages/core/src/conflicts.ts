@@ -1,6 +1,6 @@
 import type { Item } from '@dayli/schema';
 import { addDays, dayNumber, toMinutes } from './dates';
-import { intervalOf, overlap, union, type Interval } from './intervals';
+import { eventInterval, intervalOf, overlap, union, type Interval } from './intervals';
 
 type Timed = Pick<Item, 'id' | 'kind' | 'date' | 'start' | 'end' | 'done'>;
 
@@ -10,11 +10,11 @@ export interface Conflict {
   minutes: number;
 }
 
-/** Pairs of events whose times overlap. Tasks never conflict. */
+/** Pairs of events whose times overlap. Tasks never conflict; an event with no end holds an hour. */
 export function findConflicts(items: Timed[]): Conflict[] {
   const timed = items
     .filter((i) => i.kind === 'event' && !i.done)
-    .map((i) => ({ id: i.id, iv: intervalOf(i) }))
+    .map((i) => ({ id: i.id, iv: eventInterval(i) }))
     .filter((x): x is { id: string; iv: Interval } => x.iv !== null)
     .sort((x, y) => x.iv.start - y.iv.start);
 

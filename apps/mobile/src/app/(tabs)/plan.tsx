@@ -1,4 +1,4 @@
-import { addDays, assessment, conflictIds, diffDays, formatTime, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount } from '@dayli/core';
+import { addDays, assessment, conflictIds, diffDays, formatRange, formatTime, movableOverlap, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -12,6 +12,7 @@ import { Segmented } from '@/components/Segmented';
 import { WeekBoard } from '@/components/WeekBoard';
 import { ItemRow } from '@/components/ItemRow';
 import { TimeField } from '@/components/Native';
+import { Button } from '@/components/Sheet';
 import { PlanMonthCalendar, PlanMonthTitle, TodayPill } from '@/components/PlanCalendar';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
@@ -26,6 +27,7 @@ import { useWebShortcuts } from '@/lib/shortcuts';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { defaultTimes } from '@/lib/times';
+import { useReschedule } from '@/lib/use-reschedule';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, useTheme } from '@/theme';
 
@@ -38,7 +40,7 @@ function addMinutes(time: string, mins: number): string {
 /** An event's end for the chart: its own end, midnight if it runs overnight, or an hour after it starts. */
 function eventEnd(item: Item): string {
   if (!item.start) return '00:00';
-  if (item.end) return item.end < item.start ? '24:00' : item.end;
+  if (item.end && item.end !== item.start) return item.end < item.start ? '24:00' : item.end;
   return addMinutes(item.start, 60);
 }
 
@@ -156,6 +158,9 @@ export default function PlanScreen() {
   const nextDeadline = useMemo(() => items
     .filter((i) => i.isDeadline && !i.done && diffDays(shown, i.date) >= 1 && diffDays(shown, i.date) <= 2)
     .sort((a, b) => a.date.localeCompare(b.date))[0], [items, shown]);
+  // The day's soonest overlap Semli could resolve: the flexible event moves, the other stays.
+  const move = useMemo(() => movableOverlap(items, now, shown), [items, now, shown]);
+  const reschedule = useReschedule(move?.flexible ?? null, items);
   const starting = items.length === 0 && schedules.length === 0;
   const isToday = shown === now.date;
 
@@ -282,6 +287,23 @@ export default function PlanScreen() {
               </View>
             </Animated.View>
           )}
+          {move ? (
+            <Animated.View key={move.flexible.id} layout={layout} entering={enter.fade} exiting={exit.fade} style={styles.move}>
+              <T token="callout" color={c.inkSecondary}>{`${move.flexible.title} overlaps ${move.other.title}. ${move.other.title} stays at its current time.`}</T>
+              {reschedule.loading && !reschedule.isPlus ? null : !reschedule.isPlus ? (
+                <Button label="Find a time with Plus" variant="secondary" onPress={() => void reschedule.openPlus()} />
+              ) : reschedule.suggestion ? (
+                <Button label={reschedule.busy ? 'Checking…' : `Move to ${reschedule.suggestion.date === move.flexible.date ? formatRange(reschedule.suggestion.start, reschedule.suggestion.end) : reschedule.label}`}
+                  disabled={reschedule.busy} onPress={() => void reschedule.apply()} />
+              ) : (
+                <View>
+                  <T token="callout" color={c.inkSecondary}>No free time found in the next seven days.</T>
+                  <TextButton label={`Choose a time for ${move.flexible.title}`} onPress={() => openItem(move.flexible.id)} style={{ alignSelf: 'flex-start', minHeight: 44 }} />
+                </View>
+              )}
+              {reschedule.notice ? <T token="callout" color={c.conflict} accessibilityRole="alert">{reschedule.notice}</T> : null}
+            </Animated.View>
+          ) : null}
         </Animated.View>
 
         {rest.length || nextWeekPending ? (
@@ -326,6 +348,7 @@ const styles = StyleSheet.create({
   legend: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 8, gap: 8 },
   section: { paddingHorizontal: SCREEN_GUTTER, paddingTop: 22 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 24, paddingTop: 4 },
+  move: { gap: 12, paddingTop: 14 },
   shift: { borderBottomWidth: StyleSheet.hairlineWidth },
   lead: { width: 22, alignItems: 'center', justifyContent: 'center' },
   timeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingLeft: 34, paddingBottom: 14 },

@@ -82,15 +82,16 @@ export type KeyEntry = {
 /**
  * The chart's key: each mark drawn at its real size beside one word, only for marks on
  * screen right now. Always there under a chart that uses more than plain bars, never a tour.
+ * One row, always: on a narrow screen the words shrink a little rather than wrap.
  */
 export function ChartKey({ entries, style }: { entries: KeyEntry[]; style?: ViewStyle }) {
   const { c } = useTheme();
   if (!entries.length) return null;
   return (
-    <View style={[{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 14, rowGap: 6 }, style]} accessibilityRole="text"
+    <View style={[{ flexDirection: 'row', columnGap: 12 }, style]} accessibilityRole="text"
       accessibilityLabel={`Key: ${entries.map((e) => e.label).join(', ')}`}>
       {entries.map((e) => (
-        <View key={e.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <View key={e.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1, minWidth: 0 }}>
           <View style={{ width: KEY, height: KEY, alignItems: 'center', justifyContent: 'center' }}>
             {e.glyph === 'ring' || e.glyph === 'dot' || e.glyph === 'target'
               ? <Mark at={{ y: KEY / 2 }} kind={e.glyph} color={e.color} />
@@ -99,7 +100,8 @@ export function ChartKey({ entries, style }: { entries: KeyEntry[]; style?: View
                 : <View style={[{ width: KEY, height: chart.track, borderRadius: chart.track / 2 },
                   e.glyph === 'block' ? { backgroundColor: e.color } : { borderWidth: 1.5, borderColor: e.color, borderStyle: e.glyph === 'dashed' ? 'dashed' : 'solid', height: chart.track + 2 }]} />}
           </View>
-          <T token="caption" color={c.inkSecondary} style={{ fontSize: 11, lineHeight: 14 }}>{e.label}</T>
+          <T token="caption" color={c.inkSecondary} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}
+            style={{ fontSize: 11, lineHeight: 14, flexShrink: 1 }}>{e.label}</T>
         </View>
       ))}
     </View>
