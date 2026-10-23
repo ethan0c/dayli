@@ -1,4 +1,4 @@
-import { addDays, assessment, conflictIds, diffDays, formatRange, formatTime, movableOverlap, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount , count } from '@dayli/core';
+import { addDays, assessment, conflictIds, diffDays, formatRange, formatTime, movableOverlap, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount, count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -283,7 +283,7 @@ export default function PlanScreen() {
             onWeek={(step) => { feedback('select'); moveWeek(step); }} />
         )}
         <View style={styles.legend}>
-          <Ticker value={`${planCount(weekItems)}${workHours ? ` · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}` : ''}`} token="callout" color={c.inkSecondary}
+          <Ticker value={`${planCount(weekItems)}${workHours ? ` · ${count(workHours, 'work hour')}` : ''}`} token="callout" color={c.inkSecondary}
             direction={direction === 'prev' ? -1 : 1} />
           <ChartKey entries={keyOf([
             // Every glyph on the chart has a line here, including the plain blocks and the now line.
@@ -339,7 +339,7 @@ export default function PlanScreen() {
               ) : (
                 <View>
                   <T token="callout" color={c.inkSecondary}>No free time found in the next seven days.</T>
-                  <TextButton label={`Choose a time for ${move.flexible.title}`} onPress={() => openItem(move.flexible.id)} style={{ alignSelf: 'flex-start', minHeight: 44 }} />
+                  <TextButton label={`Choose a time for ${move.flexible.title}`} onPress={() => openItem(move.flexible.id)} style={{ alignSelf: 'flex-start', minHeight: size.target }} />
                 </View>
               )}
               {reschedule.notice ? <T token="callout" color={c.conflict} accessibilityRole="alert">{reschedule.notice}</T> : null}

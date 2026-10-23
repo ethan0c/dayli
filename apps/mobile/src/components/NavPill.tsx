@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { Icon, type IconKey } from '@/components/Icon';
 import { T } from '@/components/Text';
 import { feedback } from '@/lib/feedback';
-import { radius, useTheme } from '@/theme';
+import { radius, size, useTheme } from '@/theme';
 
 type Props = Omit<TabTriggerSlotProps, 'ref'> & {
   icon: IconKey;
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 3,
-    minHeight: 48,
+    minHeight: size.compact,
     paddingHorizontal: 3,
     borderRadius: radius.pill,
   },

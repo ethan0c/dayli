@@ -205,7 +205,7 @@ export function itemStatus(item: Pick<Item, 'kind' | 'date' | 'start' | 'end' | 
 const styles = StyleSheet.create({
   radio: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   radioDot: { width: 7, height: 7, borderRadius: 4 },
-  textBtn: { minHeight: 44, justifyContent: 'center', paddingHorizontal: space.hair },
+  textBtn: { minHeight: size.target, justifyContent: 'center', paddingHorizontal: space.hair },
   underline: { textDecorationLine: 'underline' },
   chip: { flexDirection: 'row', alignItems: 'center', gap: space.snug, paddingHorizontal: space.sm, height: 40, borderRadius: 999 },
   tile: { flex: 1, height: 64, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', gap: space.xxs },
@@ -214,6 +214,6 @@ const styles = StyleSheet.create({
   detail: { marginLeft: 'auto', flexShrink: 1 },
   sectionTitle: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.xs, paddingBottom: space.sm },
   groupLabel: { paddingBottom: space.hair },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 56, paddingVertical: space.xs },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: size.row, paddingVertical: space.xs },
   rowText: { flex: 1, minWidth: 0, gap: space.hair },
 });

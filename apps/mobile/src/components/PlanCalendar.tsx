@@ -91,7 +91,7 @@ export function PlanMonthCalendar({ selected, today, onSelect }: { selected: str
 }
 
 const styles = StyleSheet.create({
-  title: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: space.xs, alignSelf: 'flex-start' },
+  title: { minHeight: size.target, flexDirection: 'row', alignItems: 'center', gap: space.xs, alignSelf: 'flex-start' },
   pill: { minHeight: size.pill, paddingHorizontal: space.sm, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   calendar: { borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: space.sm, marginBottom: space.sm, gap: space.xs },
   monthRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   weekdays: { flexDirection: 'row', paddingTop: space.xxs },
   weekday: { flex: 1, textAlign: 'center' },
   week: { flexDirection: 'row' },
-  day: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  day: { flex: 1, minHeight: size.target, alignItems: 'center', justifyContent: 'center' },
   dayCircle: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   today: { alignItems: 'center' },
 });

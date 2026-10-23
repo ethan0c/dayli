@@ -33,7 +33,7 @@ import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { accountOf, useSession } from '@/lib/supabase';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, NAV_INSET, radius, useTheme, useTopInset, screen, space } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, radius, useTheme, useTopInset, screen, space, size } from '@/theme';
 
 export default function TodayScreen() {
   const { c } = useTheme();
@@ -409,14 +409,14 @@ const styles = StyleSheet.create({
   hourBody: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xxxl, gap: space.xs },
   hours: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.md },
   section: { paddingHorizontal: SCREEN_GUTTER, ...screen.section },
-  disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  disclosure: { minHeight: size.target, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   inlineAction: { paddingLeft: space.xxl },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.lg },
   sampleLine: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   spread: { paddingTop: space.sm, gap: space.xs },
   empty: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: space.sm },
   spreadRow: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm },
-  pill: { minHeight: 44, paddingHorizontal: space.lg, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  pill: { minHeight: size.target, paddingHorizontal: space.lg, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   moment: { position: 'relative', paddingHorizontal: SCREEN_GUTTER, paddingTop: MOMENT_TEXT_TOP, paddingBottom: space.md, gap: space.hair },
   momentToggle: { position: 'absolute', right: SCREEN_GUTTER },
   momentLine: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.xs, paddingTop: space.snug },
