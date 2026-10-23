@@ -138,7 +138,7 @@ export default function SchoolScreen() {
         <View style={styles.mapHead}>
           <T token="title" accessibilityRole="header" style={{ flexShrink: 1 }}>Next four weeks</T>
           {inMap.length ? (
-            <TextButton label={focus === 'all' ? 'Hide' : `${inMap.length} due`} accessibilityLabel={focus === 'all' ? 'Hide the list' : `Show the ${inMap.length} things due`}
+            <TextButton label={focus === 'all' ? 'Hide' : `${inMap.length} due`} accessibilityLabel={focus === 'all' ? 'Hide the list' : `Show what's due, ${inMap.length}`}
               onPress={() => setFocus(focus === 'all' ? null : 'all')} />
           ) : <T token="caption" color={c.inkSecondary}>Nothing due</T>}
         </View>

@@ -1,4 +1,4 @@
-import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, type CountdownState } from '@dayli/core';
+import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, type CountdownState, planCount } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -171,7 +171,7 @@ export default function TodayScreen() {
         onPress={() => { const view = hours ? 'list' : 'hours'; setSettings({ todayView: view }); track('today_view_changed', { view, timed: timedToday, source: 'toggle' }); profile({ today_view: view, today_view_source: 'toggle' }); }} />
     </Animated.View>
   );
-  const todayDetail = `${todays.length} ${todays.length === 1 ? 'thing' : 'things'}${conflictsToday ? ` · ${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : ''}`;
+  const todayDetail = `${planCount(todays)}${conflictsToday ? ` · ${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : ''}`;
 
   const list = (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">

@@ -101,8 +101,8 @@ describe('planReminders', () => {
       now,
     );
     expect(plan.map((p) => [p.id, p.title, p.body, p.url])).toEqual([
-      ['dl1-2026-10-21', '3 things due Wednesday', 'Reading quiz, Lab report and Problem set.', '/'],
-      ['dl2-2026-10-21', '3 things due today', 'Reading quiz, Lab report and Problem set.', '/'],
+      ['dl1-2026-10-21', '3 due Wednesday', 'Reading quiz, Lab report and Problem set.', '/'],
+      ['dl2-2026-10-21', '3 due today', 'Reading quiz, Lab report and Problem set.', '/'],
     ]);
   });
 

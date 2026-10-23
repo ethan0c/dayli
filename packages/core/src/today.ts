@@ -248,3 +248,33 @@ export function termSummary(items: Item[], today: string): TermSummary {
     first: ahead[0] ?? null,
   };
 }
+
+type Countable = { kind: 'event' | 'task'; category: string; icon?: string | null; isDeadline: boolean };
+
+/** What a counter calls an item: the word a student would use. */
+function countNoun(it: Countable): [string, string] {
+  if (it.icon === 'exam') return ['exam', 'exams'];
+  if (it.kind === 'event' && it.category === 'work') return ['shift', 'shifts'];
+  if (it.kind === 'event' && it.category === 'school') return ['class', 'classes'];
+  if (it.kind === 'event') return ['event', 'events'];
+  return it.isDeadline ? ['due', 'due'] : ['to-do', 'to-dos'];
+}
+const COUNT_ORDER = ['class', 'exam', 'shift', 'due', 'to-do', 'event'];
+
+/**
+ * A count that says what is there: "1 class · 1 exam", "2 classes · 3 shifts". More than three
+ * kinds read as a list nobody parses, so they become "7 plans". Never the word "things".
+ */
+export function planCount(items: Countable[]): string {
+  if (!items.length) return 'Nothing planned';
+  const counts = new Map<string, { n: number; one: string; many: string }>();
+  for (const it of items) {
+    const [one, many] = countNoun(it);
+    const c = counts.get(one) ?? { n: 0, one, many };
+    c.n++;
+    counts.set(one, c);
+  }
+  if (counts.size > 3) return `${items.length} plans`;
+  return [...counts.values()].sort((a, b) => COUNT_ORDER.indexOf(a.one) - COUNT_ORDER.indexOf(b.one))
+    .map((c) => `${c.n} ${c.n === 1 ? c.one : c.many}`).join(' · ');
+}

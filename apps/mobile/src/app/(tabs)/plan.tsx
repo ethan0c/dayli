@@ -1,4 +1,4 @@
-import { addDays, assessment, conflictIds, diffDays, formatTime, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf } from '@dayli/core';
+import { addDays, assessment, conflictIds, diffDays, formatTime, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -240,7 +240,7 @@ export default function PlanScreen() {
           <WeekChart days={days} selected={selected} today={now.date} onWeek={moveWeek} onSelect={selectDay} />
         </Animated.View>
         <View style={styles.legend}>
-          <T token="callout" color={c.inkSecondary} tabular>{`${weekItems.length} ${weekItems.length === 1 ? 'thing' : 'things'} · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}`}</T>
+          <T token="callout" color={c.inkSecondary} tabular>{`${planCount(weekItems)}${workHours ? ` · ${workHours} work ${workHours === 1 ? 'hour' : 'hours'}` : ''}`}</T>
           <ChartKey entries={keyOf([
             days.some((d) => d.blocks.some((b) => b.tone === 'green')) && { glyph: 'block', color: c.added, label: 'Done' },
             days.some((d) => d.blocks.some((b) => b.tone === 'red')) && { glyph: 'block', color: c.conflict, label: 'Overlap' },
@@ -253,7 +253,7 @@ export default function PlanScreen() {
         <Animated.View layout={layout} style={styles.section}>
           <SectionTitle title={isToday ? 'Today' : weekdayLong(shown)}
             detail={isToday
-              ? dayItems.length ? `${dayItems.length} ${dayItems.length === 1 ? 'thing' : 'things'}${dayOverlaps ? ` · ${dayOverlaps} ${dayOverlaps === 1 ? 'overlap' : 'overlaps'}` : ''}` : undefined
+              ? dayItems.length ? `${planCount(dayItems)}${dayOverlaps ? ` · ${dayOverlaps} ${dayOverlaps === 1 ? 'overlap' : 'overlaps'}` : ''}` : undefined
               : relativeDay(now.date, shown)} />
           {dayItems.length ? dayItems.map((it) => (
             <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>

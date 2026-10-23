@@ -294,7 +294,7 @@ export const useStore = create<State>()(
           changes.push({ op: 'delete', before: it, after: null });
         }
         const name = course.code ?? course.title;
-        const b: Batch = { ...batch(`Removed ${name} · ${changes.length} ${changes.length === 1 ? 'thing' : 'things'}`, changes), removedCourses: [course] };
+        const b: Batch = { ...batch(`Removed ${name} · ${changes.length} ${changes.length === 1 ? 'plan' : 'plans'}`, changes), removedCourses: [course] };
         set({ items, courses: get().courses.filter((k) => k.id !== courseId), batches: [b, ...get().batches], toast: { message: `${b.label}.`, batchId: b.id } });
         if (changes.length) track('item_deleted', { deletion_scope: 'course', item_count: changes.length });
       },
