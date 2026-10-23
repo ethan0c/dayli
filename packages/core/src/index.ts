@@ -11,3 +11,4 @@ export * from './errors';
 export * from './cues';
 export * from './notes';
 export * from './assessment';
+export * from './hours';
