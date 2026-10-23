@@ -1,4 +1,4 @@
-import { dateLocale, formatTime, localParts, monthDay, weekdayShort } from '@dayli/core';
+import { dateLocale, formatTime, localParts, monthDay, weekdayShort , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -88,7 +88,7 @@ export default function ImportScreen() {
   const madeCourse = courses.some((k) => k.batchId === batch.id) || (batch.removedCourses?.length ?? 0) > 0;
   const allShifts = created.length > 0 && created.every((it) => it.kind === 'event' && it.category === 'work');
   const noun = allShifts ? (created.length === 1 ? 'shift' : 'shifts') : madeCourse ? (created.length === 1 ? 'date' : 'dates') : created.length === 1 ? 'plan' : 'plans';
-  const big = created.length ? `${created.length} ${noun}` : `${batch.changes.length} ${batch.changes.length === 1 ? 'change' : 'changes'}`;
+  const big = created.length ? `${created.length} ${noun}` : `${count(batch.changes.length, 'change')}`;
 
   const employer = created.find((it) => it.employer)?.employer;
   const course = courses.find((k) => k.batchId === batch.id) ?? courses.find((k) => created.some((it) => it.courseId === k.id));

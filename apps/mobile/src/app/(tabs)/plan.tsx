@@ -1,4 +1,4 @@
-import { addDays, assessment, conflictIds, diffDays, formatRange, formatTime, movableOverlap, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount } from '@dayli/core';
+import { addDays, assessment, conflictIds, diffDays, formatRange, formatTime, movableOverlap, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -267,7 +267,7 @@ export default function PlanScreen() {
         <Animated.View layout={layout} style={styles.section}>
           <SectionTitle title={isToday ? 'Today' : weekdayLong(shown)}
             detail={isToday
-              ? dayItems.length ? `${planCount(dayItems)}${dayOverlaps ? ` · ${dayOverlaps} ${dayOverlaps === 1 ? 'overlap' : 'overlaps'}` : ''}` : undefined
+              ? dayItems.length ? `${planCount(dayItems)}${dayOverlaps ? ` · ${count(dayOverlaps, 'overlap')}` : ''}` : undefined
               : relativeDay(now.date, shown)} />
           {dayItems.length ? dayItems.map((it) => (
             <Animated.View key={it.id} layout={layout} entering={enter.fade} exiting={exit.fade}>

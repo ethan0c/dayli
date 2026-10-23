@@ -1,4 +1,4 @@
-import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, weekendNudge, type CountdownState, planCount, hoursMinutes, andList } from '@dayli/core';
+import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, weekendNudge, type CountdownState, planCount, hoursMinutes, andList , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -139,10 +139,10 @@ export default function TodayScreen() {
 
   function confirmSpread() {
     const days = new Set(spread.map((step) => step.date)).size;
-    const id = spreadTasks(spread.map((step) => ({ id: step.item.id, date: step.date })), `Spread ${spread.length} ${spread.length === 1 ? 'task' : 'tasks'}`);
+    const id = spreadTasks(spread.map((step) => ({ id: step.item.id, date: step.date })), `Spread ${count(spread.length, 'task')}`);
     feedback('success');
     setSpreadOpen(false);
-    showToast(`${spread.length} ${spread.length === 1 ? 'task' : 'tasks'} across ${days} ${days === 1 ? 'day' : 'days'}.`, id);
+    showToast(`${count(spread.length, 'task')} across ${count(days, 'day')}.`, id);
   }
 
   function markAllDone(items: Item[]) {
@@ -169,7 +169,7 @@ export default function TodayScreen() {
         onPress={() => { const view = hours ? 'list' : 'hours'; setSettings({ todayView: view }); track('today_view_changed', { view, timed: timedToday, source: 'toggle' }); profile({ today_view: view, today_view_source: 'toggle' }); }} />
     </Animated.View>
   );
-  const todayDetail = `${planCount(todays)}${conflictsToday ? ` · ${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : ''}`;
+  const todayDetail = `${planCount(todays)}${conflictsToday ? ` · ${count(conflictsToday, 'overlap')}` : ''}`;
 
   const list = (
     <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">
@@ -247,7 +247,7 @@ export default function TodayScreen() {
       ) : null}
 
       <Animated.View layout={layout} style={styles.section}>
-        <SectionTitle title="On your list" onPress={() => router.push('/plan')} detail={conflictsToday ? `${conflictsToday} ${conflictsToday === 1 ? 'overlap' : 'overlaps'}` : undefined} />
+        <SectionTitle title="On your list" onPress={() => router.push('/plan')} detail={conflictsToday ? `${count(conflictsToday, 'overlap')}` : undefined} />
         {openItems.map((item, i) => {
           const planned = item.date !== now.date && workDates[item.id] === now.date;
           return (
@@ -261,7 +261,7 @@ export default function TodayScreen() {
         {openItems.length === 0 && completed.length ? (
           <Animated.View entering={enter.fade} style={{ paddingVertical: 10, gap: 2 }}>
             <T token="headline" color={c.inkPrimary}>No tasks left today.</T>
-            <T token="callout" color={c.inkSecondary}>{`${completed.length} ${completed.length === 1 ? 'task' : 'tasks'} completed.`}</T>
+            <T token="callout" color={c.inkSecondary}>{`${count(completed.length, 'task')} completed.`}</T>
           </Animated.View>
         ) : openItems.length === 0 ? (
           <View style={styles.empty}>

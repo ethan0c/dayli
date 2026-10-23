@@ -1,4 +1,4 @@
-import { addDays, diffDays, formatRange, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekOf, weekdayLong, hoursMinutes, spanMinutes, monthName } from '@dayli/core';
+import { addDays, diffDays, formatRange, formatTime, monthDay, pendingDates, relativeDay, toMinutes, weekOf, weekdayLong, hoursMinutes, spanMinutes, monthName , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -89,7 +89,6 @@ export default function EmployerScreen() {
   const reminderLine = reminders.enabled ? `Reminder ${lead} before each shift` : 'Reminders are off';
 
   const upcomingCount = shifts.filter((it) => it.date >= now.date).length;
-  const count = (n: number) => `${n} ${n === 1 ? 'shift' : 'shifts'}`;
   const remove = (scope: 'upcoming' | 'all') => {
     feedback('remove');
     removeEmployer(name, scope, now.date);
@@ -105,8 +104,8 @@ export default function EmployerScreen() {
           <Animated.View entering={enter.drop} exiting={exit.fade} style={styles.scope}>
             <GroupLabel>{`Remove ${name}?`}</GroupLabel>
             {[
-              { label: 'Upcoming shifts only', value: count(upcomingCount), scope: 'upcoming' as const },
-              { label: 'All shifts, including past shifts', value: count(shifts.length), scope: 'all' as const },
+              { label: 'Upcoming shifts only', value: count(upcomingCount, 'shift'), scope: 'upcoming' as const },
+              { label: 'All shifts, including past shifts', value: count(shifts.length, 'shift'), scope: 'all' as const },
             ].map((o) => (
               <Pressable key={o.scope} accessibilityRole="button" accessibilityLabel={`${o.label}, ${o.value}`} onPress={() => remove(o.scope)}
                 style={({ pressed }) => [styles.scopeRow, { borderBottomColor: c.line }, pressed ? { opacity: fade.pressed } : null]}>

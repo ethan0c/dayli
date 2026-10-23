@@ -1,3 +1,4 @@
+import { count } from '@dayli/core';
 import type { CommitPlan, TermSystem } from '@dayli/core';
 import type { Snapshot } from '@/lib/cloud-snapshot';
 import type { ImportUsage } from '@/lib/plans';
@@ -314,7 +315,7 @@ export const useStore = create<State>()(
           changes.push({ op: 'delete', before: it, after: null });
         }
         const name = course.code ?? course.title;
-        const b: Batch = { ...batch(`Removed ${name} · ${changes.length} ${changes.length === 1 ? 'plan' : 'plans'}`, changes), removedCourses: [course] };
+        const b: Batch = { ...batch(`Removed ${name} · ${count(changes.length, 'plan')}`, changes), removedCourses: [course] };
         set({ items, courses: get().courses.filter((k) => k.id !== courseId), batches: [b, ...get().batches], toast: { message: `${b.label}.`, batchId: b.id } });
         if (changes.length) track('item_deleted', { deletion_scope: 'course', item_count: changes.length });
       },
@@ -330,7 +331,7 @@ export const useStore = create<State>()(
           changes.push({ op: 'delete', before: it, after: null });
         }
         const gone = get().schedules.filter((sch) => sch.employer.trim().toLowerCase() === key && (scope === 'all' || sch.coversTo >= today));
-        const b: Batch = { ...batch(`Removed ${employer} · ${changes.length} ${changes.length === 1 ? 'shift' : 'shifts'}`, changes), removedSchedules: gone };
+        const b: Batch = { ...batch(`Removed ${employer} · ${count(changes.length, 'shift')}`, changes), removedSchedules: gone };
         set({ items, schedules: get().schedules.filter((sch) => !gone.includes(sch)), batches: [b, ...get().batches], toast: { message: `${b.label}.`, batchId: b.id } });
         if (changes.length) track('item_deleted', { deletion_scope: 'employer', item_count: changes.length });
       },

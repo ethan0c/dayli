@@ -273,7 +273,7 @@ export default function ReviewScreen() {
     }
     const label = plan.schedule
       ? `Updated ${plan.schedule.employer} schedule`
-      : `Added ${plan.create.length} ${plan.create.length === 1 ? 'item' : 'items'}`;
+      : `Added ${count(plan.create.length, 'item')}`;
     const courseId = newId();
     const id = applyPlan(buildPlan(courseId) ?? plan, label, {
       source: pending.source,
@@ -627,7 +627,7 @@ function uniqueWeeks(dates: string[]): string[][] {
 /** "36 hours", "7.5 hours", "1 hour"; without the unit when the sentence already has it. */
 function hours(minutes: number, unit = true): string {
   const h = Math.round((minutes / 60) * 10) / 10;
-  return unit ? `${h} ${h === 1 ? 'hour' : 'hours'}` : String(h);
+  return unit ? `${count(h, 'hour')}` : String(h);
 }
 
 function dayNum(date: string): string {

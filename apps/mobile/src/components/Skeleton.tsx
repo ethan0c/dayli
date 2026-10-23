@@ -115,13 +115,13 @@ export function SkeletonReview({ chart = 'week' }: { chart?: 'week' | 'term' }) 
 export function SkeletonShots({ count = 4 }: { count?: number }) {
   return (
     <View style={{ flexDirection: 'row', gap: 8 }} accessible={false}>
-      {Array.from({ length: count }, (_, i) => <Skeleton key={i} width={104} height={150} round={14} />)}
+      {Array.from({ length: count }, (_, i) => <Skeleton key={i} width={104} height={150} round={radius.field} />)}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 72, paddingVertical: 16 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 10 },
   between: { flexDirection: 'row', justifyContent: 'space-between' },
   week: { flexDirection: 'row', gap: 6 },
   weekCol: { flex: 1, alignItems: 'center', gap: 6 },

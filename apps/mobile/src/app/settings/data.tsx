@@ -1,4 +1,4 @@
-import { diffDays, formatTime, localParts, monthDay, relativeDay } from '@dayli/core';
+import { diffDays, formatTime, localParts, monthDay, relativeDay , count } from '@dayli/core';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -56,8 +56,8 @@ export default function DataScreen() {
   const jobs = useMemo(() => new Set(items.map((it) => it.employer?.trim().toLowerCase()).filter(Boolean)).size, [items]);
   const since = useMemo(() => items.map((it) => it.createdAt.slice(0, 10)).sort()[0], [items]);
   const summary = [
-    `${courses.length} ${courses.length === 1 ? 'course' : 'courses'}`,
-    `${jobs} ${jobs === 1 ? 'job' : 'jobs'}`,
+    `${count(courses.length, 'course')}`,
+    `${count(jobs, 'job')}`,
     since ? `since ${monthDay(since)}` : null,
   ].filter(Boolean).join(' · ');
 
@@ -108,7 +108,7 @@ export default function DataScreen() {
     <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
       <View style={styles.top}>
         <T token="callout" color={c.inkSecondary}>{signedIn ? backupStatus : `Saved on ${THIS_DEVICE}`}</T>
-        <T token="displayXl" tabular>{`${items.length} ${items.length === 1 ? 'item' : 'items'}`}</T>
+        <T token="displayXl" tabular>{`${count(items.length, 'item')}`}</T>
         <T token="lead" style={styles.line}>{summary}</T>
       </View>
 

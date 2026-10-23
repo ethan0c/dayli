@@ -24,7 +24,7 @@ import { COLUMN, useWebLayout } from '@/lib/layout';
 import { useNow } from '@/lib/now';
 import { purchaseErrorMessage } from '@/lib/revenuecat';
 import { useStore } from '@/store';
-import { diffDays, localParts, monthDay, relativeDay } from '@dayli/core';
+import { diffDays, localParts, monthDay, relativeDay , count } from '@dayli/core';
 import { NAV_INSET, SCREEN_GUTTER, useTheme } from '@/theme';
 
 /**
@@ -227,7 +227,7 @@ function RecentImports() {
         const at = localParts(new Date(b.createdAt));
         const day = Math.abs(diffDays(at.date, now.date)) <= 1 ? relativeDay(now.date, at.date) : monthDay(at.date);
         const added = b.changes.filter((ch) => ch.op === 'create').length;
-        return <ListRow key={b.id} title={b.source ?? b.label} sub={`${day} · ${added} ${added === 1 ? 'item' : 'items'} added`} last={i === imports.length - 1}
+        return <ListRow key={b.id} title={b.source ?? b.label} sub={`${day} · ${count(added, 'item')} added`} last={i === imports.length - 1}
           onPress={() => router.push(`/import/${b.id}`)} />;
       }) : <T token="callout" color={c.inkSecondary}>Your imports will show here, each with what came in and a way to undo it.</T>}
     </ScrollView>

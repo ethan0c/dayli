@@ -1,4 +1,4 @@
-import { dayNumber, eventInterval, findConflicts, intervalOf, toMinutes } from '@dayli/core';
+import { dayNumber, eventInterval, findConflicts, intervalOf, toMinutes , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { chart } from '@dayli/tokens';
 import { StyleSheet, View } from 'react-native';
@@ -52,7 +52,7 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
   // The now line's canvas halo only where it crosses a block: on the bare track it would notch the sky.
   const nowOnBlock = [...blocks, ...overlaps].some((b) => nowLeft >= b.left && nowLeft <= b.left + b.width);
   return (
-    <View style={styles.wrap} accessible accessibilityLabel={`Day timeline, ${blocks.length} ${blocks.length === 1 ? 'block' : 'blocks'}, ${overlaps.length} ${overlaps.length === 1 ? 'overlap' : 'overlaps'}`}>
+    <View style={styles.wrap} accessible accessibilityLabel={`Day timeline, ${count(blocks.length, 'block')}, ${count(overlaps.length, 'overlap')}`}>
       {/* Ink at low alpha, not the row grey: Today's bar sits on the sky, and a tint reads on cloud and paper alike. */}
       <View style={[styles.track, { backgroundColor: `${c.inkPrimary}${TRACK_ALPHA}` }]}>
         {blocks.map((b) => (

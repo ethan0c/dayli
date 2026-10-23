@@ -1,4 +1,4 @@
-import { WEEKDAYS, assessment, dateLocale, diffDays, formatTime, isLocalDate, monthDay, weekdayOf, weekdayShort, longMonthDay, clockTime, clockPeriod } from '@dayli/core';
+import { WEEKDAYS, assessment, dateLocale, diffDays, formatTime, isLocalDate, monthDay, weekdayOf, weekdayShort, longMonthDay, clockTime, clockPeriod , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { COURSE_TINTS, chart, type TintName } from '@dayli/tokens';
 import { router } from 'expo-router';
@@ -147,7 +147,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
       onClose={onClose}
       footer={
         <>
-          <TextButton label={`Remove ${name} · ${all.length} ${all.length === 1 ? 'item' : 'items'}`} tone="danger" haptic="tap" onPress={remove} />
+          <TextButton label={`Remove ${name} · ${count(all.length, 'item')}`} tone="danger" haptic="tap" onPress={remove} />
           <T token="caption" color={c.inkSecondary} style={{ textAlign: 'center' }}>Removes this course and its lectures, exams and to-dos. Tap Undo in the confirmation message to restore them.</T>
         </>
       }>

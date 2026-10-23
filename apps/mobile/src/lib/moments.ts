@@ -1,4 +1,4 @@
-import { addDays, assessment, diffDays } from '@dayli/core';
+import { addDays, assessment, diffDays , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 
 export interface Break {
@@ -44,8 +44,8 @@ export function momentFor(items: Item[], breaks: Break[], today: string): Moment
     const landing = open.filter((i) => i.isDeadline && i.date >= soonBreak.start && i.date <= soonBreak.end);
     return {
       lead: `${soonBreak.label} in`,
-      big: `${days} ${days === 1 ? 'day' : 'days'}`,
-      line: landing.length ? `${landing.length} ${landing.length === 1 ? 'deadline' : 'deadlines'} during the break.` : 'No deadlines scheduled during the break.',
+      big: `${count(days, 'day')}`,
+      line: landing.length ? `${count(landing.length, 'deadline')} during the break.` : 'No deadlines scheduled during the break.',
       action: landing.length ? { label: 'Plan work before the break', spread: landing.map((i) => i.id), until: soonBreak.start } : undefined,
       image: PHOTOS.break,
     };
@@ -68,7 +68,7 @@ export function momentFor(items: Item[], breaks: Break[], today: string): Moment
     return {
       lead: 'Term starts',
       big: 'Today',
-      line: `${classesToday.length} ${classesToday.length === 1 ? 'class' : 'classes'} today${due ? ` · ${due} ${due === 1 ? 'deadline' : 'deadlines'} on the calendar so far` : ''}.`,
+      line: `${count(classesToday.length, 'class', 'classes')} today${due ? ` · ${count(due, 'deadline')} on the calendar so far` : ''}.`,
       image: PHOTOS.heavy,
     };
   }
@@ -80,7 +80,7 @@ export function momentFor(items: Item[], breaks: Break[], today: string): Moment
       const days = diffDays(today, first.date);
       return {
         lead: 'Deadlines in',
-        big: `${days} ${days === 1 ? 'day' : 'days'}`,
+        big: `${count(days, 'day')}`,
         line: `${cluster.slice(0, 2).map((i) => i.title).join(', ')} and ${cluster.length - 2} more in ${diffDays(first.date, cluster[cluster.length - 1]!.date) + 1} days.`,
         action: { label: 'Plan work across days', spread: cluster.map((i) => i.id) },
         image: PHOTOS.heavy,
@@ -91,7 +91,7 @@ export function momentFor(items: Item[], breaks: Break[], today: string): Moment
   const doneToday = items.filter((i) => i.done && i.isDeadline && i.date === today).length;
   const left = open.filter((i) => i.isDeadline && i.date > today && diffDays(today, i.date) <= 7).length;
   if (doneToday > 0 && left === 0) {
-    return { lead: 'Deadlines left this week', big: '0', line: `${doneToday} ${doneToday === 1 ? 'deadline' : 'deadlines'} completed today.`, image: PHOTOS.done };
+    return { lead: 'Deadlines left this week', big: '0', line: `${count(doneToday, 'deadline')} completed today.`, image: PHOTOS.done };
   }
   // The first quiet day after exams: two or more in the last three days, none in the next two weeks.
   const exams = items.filter((i) => i.isDeadline && assessment(i.title) === 'exam');

@@ -109,6 +109,15 @@ Navigation audit:
 
 The web (Oct 22, 2026; `docs/web.md`): under 768 wide it is the phone layout with the floating tab pill. From 768 a sidebar replaces the pill (Add as the one ink pill at the top, then the four tabs with their number keys) and every screen sits in a 720 reading column; the welcome alone runs full width under its sky. From 1200 the sidebar shows labels and the sync line, Today shows the hours beside the list in place of the toggle, and Plan opens an item in a pane beside the day instead of pushing it. No logo in the sidebar, no sky on Today on a wide window. Rows highlight under the pointer, and Delete takes the pill's place there, since a mouse can't swipe.
 
+## Tokens, not numbers (Oct 23, 2026)
+Every repeated value has a name in `packages/tokens`, re-exported by `apps/mobile/src/theme`; a hand-typed number is a bug unless it is one of a kind.
+- Type: `lead` (18/26) is the sentence under a screen's big number, `titleSm` (20/26) a sheet's or dialog's title, `axis` (11/14) chart axis, day and key labels only. Pushed screens take `headerTitle()` for the system header.
+- Spacing: `screen.settingsBody` for every settings page (16 top, groups 24 apart, 48 to scroll past the end) and `screen.section` for a section on a tab or detail page (24 above). New gaps come from `space`.
+- Sizes: `size.control` 52 for buttons and pill fields, `size.pill` 36 for in-row actions, `size.chip` 28 for status pills, `size.target` 44 the least tap height. Icons from `iconSize`: hero 24, nav 22, row 20, title chevron 18, disclosure chevron 16, inline 14. Every chevron is `disclosureInk`.
+- State: `fade.pressed` 0.6 for a pressed row (rows dim, never shrink), `fade.disabled` 0.4; `Press` shrinks by `motion.press.scale`, or `iconScale` (0.9) for a small round icon button.
+- Floating: `c.backdrop` behind dialogs (darker in dark mode), `shadow.dialog`, `shadow.float` and `shadow.pane`. `c.scrim` stays the site's photo scrim.
+- Shared pieces: `Radio`, `Button`, `CategoryDot` and `Check` in components; `count`, `andList`, `clockTime`/`clockPeriod`, `longMonthDay`, `monthName`, `hoursMinutes` and `spanMinutes` in `@dayli/core`; `sourceName` in `lib/source-name.ts`.
+
 ## Motion
 Tokens in `packages/tokens/src/motion.ts`, presets in `apps/mobile/src/lib/motion.ts`, rules in `docs/motion.md`. Two springs (snappy 37/380/0.9, gentle 28/190/1), both with at least critical damping and overshoot clamped; three durations (120/220/360), one easing (0.2, 0, 0, 1), press 0.97/0.88, stagger 45ms. Layout and entrances use the bounded timed curve; completion rings stay fixed as their fill and tick grow in. Numbers roll; every wait has a skeleton; one haptic per meaning. Motion settles once, without bounce-back.
 

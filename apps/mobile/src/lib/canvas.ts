@@ -1,4 +1,4 @@
-import { iconFor, localParts, normalizeTitle, type CommitPlan } from '@dayli/core';
+import { iconFor, localParts, normalizeTitle, type CommitPlan , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { reportError } from './errors';
 
@@ -183,7 +183,7 @@ export function syncSummary(p: Pick<CanvasPlan, 'added' | 'moved' | 'dropped' | 
   const renamed = p.update.length - p.moved;
   const parts = [
     p.added ? `${p.added} new` : null,
-    p.moved ? `${p.moved} ${p.moved === 1 ? 'date' : 'dates'} moved` : null,
+    p.moved ? `${count(p.moved, 'date')} moved` : null,
     renamed > 0 ? `${renamed} renamed` : null,
     p.dropped ? `${p.dropped} removed` : null,
   ].filter(Boolean);
