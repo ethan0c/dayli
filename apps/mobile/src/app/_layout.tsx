@@ -10,7 +10,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { addDays, localParts } from '@dayli/core';
 import * as Sentry from '@sentry/react-native';
 import * as Application from 'expo-application';
-import { palettes } from '@dayli/tokens';
+import { motion, palettes } from '@dayli/tokens';
 
 import { syncRingingAlarms } from '@/lib/alarms';
 import { AppErrorBoundary, RecoveryScreen } from '@/components/AppErrorBoundary';
@@ -47,6 +47,8 @@ import { posthog, posthogLogs } from '@/lib/analytics';
 if (__DEV__) LogBox.ignoreLogs([/^The action '(PRELOAD|ROUTE_NAMES_CHANGED)'/]);
 
 SplashScreen.preventAutoHideAsync();
+// Fade the white splash out instead of cutting to the first screen (iOS; Android has its own exit).
+SplashScreen.setOptions({ fade: true, duration: motion.duration.slow });
 const SPLASH_FALLBACK_MS = 1500;
 configureNotifications();
 
