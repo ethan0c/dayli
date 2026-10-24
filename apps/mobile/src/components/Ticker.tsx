@@ -27,7 +27,8 @@ export function Ticker({ value, direction, token = 'body', color, style, accessi
   const dir = useDirection(value, direction);
   return (
     <LayoutAnimationConfig skipEntering>
-      <View style={styles.row} accessible accessibilityRole="text" accessibilityLabel={accessibilityLabel ?? value}>
+      {/* Wraps between words when the line outgrows its space, so a long readout is never cut off. */}
+      <View style={styles.line} accessible accessibilityRole="text" accessibilityLabel={accessibilityLabel ?? value}>
         {pieces(value).map((p, i) => (
           <Animated.View key={`${i}-${p.kind}`} layout={layout} entering={enter.fade} exiting={exit.fade}>
             {p.kind === 'number'
@@ -164,6 +165,7 @@ function Leg({ mode, text, dir, line, style, numberOfLines, maxFontSizeMultiplie
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'flex-end' },
+  line: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end' },
   clip: { overflow: 'hidden', flexShrink: 1 },
   staying: { flexShrink: 1 },
   leaving: { position: 'absolute', top: 0, left: 0 },

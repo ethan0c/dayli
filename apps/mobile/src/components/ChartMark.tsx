@@ -1,3 +1,4 @@
+import { formatHour } from '@dayli/core';
 import type { Assessment } from '@dayli/core';
 import { chart } from '@dayli/tokens';
 import { View, type ViewStyle } from 'react-native';
@@ -139,4 +140,12 @@ export function markKey(marks: { kind: MarkShape; tone?: string }[], c: { chartB
     shape('target') && { glyph: 'target', color: c.chartBooked, label: 'Exam' },
     marks.some((m) => m.tone === 'green') && { glyph: 'dot', color: c.added, label: 'Done' },
   ]);
+}
+
+/** An hour on a chart's axis, from minutes since midnight: "Midnight", "Noon", else "9 am" (or "21" on a 24-hour clock). */
+export function axisHour(minutes: number): string {
+  const h = Math.round(minutes / 60);
+  if (h % 24 === 0) return 'Midnight';
+  if (h === 12) return 'Noon';
+  return formatHour(h);
 }

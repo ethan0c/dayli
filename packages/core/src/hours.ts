@@ -46,6 +46,26 @@ export function hourScale(spans: HourSpan[], opts: HourScaleOptions): HourScale 
   return { fromHour, toHour, pxPerHour: Math.max(opts.minPx, Math.min(opts.maxPx, opts.targetHeight / hours)) };
 }
 
+/** The whole day, 6 am to midnight in minutes: what a compact chart covers when it has nothing timed to fit. */
+export const FULL_DAY: readonly [number, number] = [6 * 60, 24 * 60];
+
+/**
+ * The part of the day a compact chart covers (the day bar, the week chart), in minutes: from half
+ * an hour before the first thing to half an hour after the last, on whole hours, at least `minSpan`
+ * hours and inside the day. A short day grows an hour later, then earlier, in turn, like `hourScale`.
+ * Nothing timed: `FULL_DAY`.
+ */
+export function chartRange(spans: { start: number; end: number }[], minSpan: number): [number, number] {
+  if (!spans.length) return [FULL_DAY[0], FULL_DAY[1]];
+  let from = Math.max(0, Math.floor((Math.min(...spans.map((s) => s.start)) - 30) / 60));
+  let to = Math.min(24, Math.ceil((Math.max(...spans.map((s) => s.end)) + 30) / 60));
+  while (to - from < minSpan && (to < 24 || from > 0)) {
+    if (to < 24) to++;
+    if (to - from < minSpan && from > 0) from--;
+  }
+  return [from * 60, to * 60];
+}
+
 export function hourLayout(spans: HourSpan[], scale: HourScale, opts: HourOptions): HourBlock[] {
   const sorted = [...spans].sort((a, b) => a.start - b.start || b.end - a.end);
   // Columns, per cluster of items whose times truly cross. Touching is not crossing.

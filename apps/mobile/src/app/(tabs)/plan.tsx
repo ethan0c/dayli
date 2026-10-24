@@ -1,4 +1,4 @@
-import { addDays, assessment, conflictIds, diffDays, formatRange, formatTime, movableOverlap, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount, count } from '@dayli/core';
+import { addDays, assessment, conflictIds, diffDays, formatRange, formatTime, movableOverlap, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount, count, chartRange } from '@dayli/core';
 import type { Item } from '@dayli/schema';
 import { router, useIsFocused } from 'expo-router';
 import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -72,12 +72,32 @@ function weekDays(start: string, items: Item[], now: Now): WeekDay[] {
   });
 }
 
+/**
+ * The hours the week's chart covers: its blocks and due marks, and now when this is the current
+ * week, so the now line always has a place. At least eight hours, so a light week isn't stretched.
+ */
+function weekRange(days: WeekDay[], now: Now): [number, number] {
+  const spans = days.flatMap((d) => [
+    ...d.blocks.map((b) => ({ start: toMinutes(b.start), end: toMinutes(b.end) })),
+    ...(d.marks ?? []).map((m) => ({ start: toMinutes(m.time), end: toMinutes(m.time) })),
+    ...(d.date === now.date ? [{ start: toMinutes(now.time), end: toMinutes(now.time) }] : []),
+  ]);
+  return chartRange(spans, 8);
+}
+
+/** Minutes of work in a list of items: its timed events in the work category. */
+function workMinutes(list: Item[]): number {
+  return list.filter((i) => i.kind === 'event' && i.category === 'work' && i.start)
+    .reduce((sum, i) => sum + Math.max(0, toMinutes(eventEnd(i)) - toMinutes(i.start!)), 0);
+}
+
 /** One page of the week pager. Memoised, so the weeks either side redraw only when their data does. */
 const PlanWeek = memo(function PlanWeek({ start, items, now, selected, onSelect, onWeek, onScrub }: {
   start: string; items: Item[]; now: Now; selected: string; onSelect: (date: string) => void; onWeek: (step: 1 | -1) => void; onScrub: (active: boolean) => void;
 }) {
   const days = useMemo(() => weekDays(start, items, now), [start, items, now]);
-  return <WeekChart days={days} selected={selected} today={now.date} onWeek={onWeek} onSelect={onSelect} scrub onScrub={onScrub} />;
+  const range = useMemo(() => weekRange(days, now), [days, now]);
+  return <WeekChart days={days} selected={selected} today={now.date} onWeek={onWeek} onSelect={onSelect} scrub onScrub={onScrub} range={range} axis />;
 });
 
 export default function PlanScreen() {
@@ -161,12 +181,18 @@ export default function PlanScreen() {
 
   const weekItems = useMemo(() => items.filter((i) => i.date >= weekStart && i.date <= weekEnd), [items, weekStart, weekEnd]);
   const weekConflicts = useMemo(() => conflictIds(items.filter((i) => i.date >= addDays(weekStart, -1) && i.date <= weekEnd)), [items, weekStart, weekEnd]);
-  const workHours = useMemo(() => Math.round(weekItems
-    .filter((i) => i.kind === 'event' && i.category === 'work' && i.start)
-    .reduce((sum, i) => sum + Math.max(0, toMinutes(eventEnd(i)) - toMinutes(i.start!)), 0) / 60), [weekItems]);
+  const workHours = useMemo(() => Math.round(workMinutes(weekItems) / 60), [weekItems]);
   const days = useMemo(() => weekDays(weekStart, items, now), [weekStart, items, now]);
   // While a finger scrubs the chart, neither the page nor the weeks scroll under it.
   const [scrubbing, setScrubbing] = useState(false);
+  // While it scrubs, the legend reads out the day under the finger; let go and it rolls back to the week.
+  const scrubDirection = useDateDirection(selected);
+  const weekLine = `${planCount(weekItems)}${workHours ? ` · ${count(workHours, 'work hour')}` : ''}`;
+  const dayLine = useMemo(() => {
+    const list = weekItems.filter((i) => i.date === selected);
+    const hours = Math.round(workMinutes(list) / 60);
+    return `${weekdayShort(selected)} ${Number(selected.slice(8))} · ${planCount(list)}${hours ? ` · ${count(hours, 'work hour')}` : ''}`;
+  }, [weekItems, selected]);
   const renderWeek = (start: string) => (
     <View style={styles.chart}>
       <PlanWeek start={start} items={items} now={now} selected={selected} onSelect={selectDay} onWeek={moveWeek} onScrub={setScrubbing} />
@@ -283,8 +309,8 @@ export default function PlanScreen() {
             onWeek={(step) => { feedback('select'); moveWeek(step); }} />
         )}
         <View style={styles.legend}>
-          <Ticker value={`${planCount(weekItems)}${workHours ? ` · ${count(workHours, 'work hour')}` : ''}`} token="callout" color={c.inkSecondary}
-            direction={direction === 'prev' ? -1 : 1} />
+          <Ticker value={scrubbing ? dayLine : weekLine} token="callout" color={c.inkSecondary}
+            direction={scrubbing ? scrubDirection : direction === 'prev' ? -1 : 1} />
           <ChartKey entries={keyOf([
             // Every glyph on the chart has a line here, including the plain blocks and the now line.
             days.some((d) => d.blocks.some((b) => b.tone === 'ink' && b.kind === 'shift')) && { glyph: 'block', color: c.chartBooked, label: 'Work' },

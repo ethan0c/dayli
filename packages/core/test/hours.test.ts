@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hourLayout, hourScale, hourSpan, type HourSpan } from '../src';
+import { FULL_DAY, chartRange, hourLayout, hourScale, hourSpan, type HourSpan } from '../src';
 
 const OPTS = { gap: 3, minHeight: 22, fullAt: 40, titleAt: 16 };
 const SCALE = { minSpan: 6, targetHeight: 560, minPx: 28, maxPx: 44 };
@@ -51,5 +51,24 @@ describe('marks in a week column', () => {
     const merged = mergeMarks([{ y: 100, kind: 'dot' as const }, { y: 104, kind: 'target' as const }, { y: 40, kind: 'ring' as const }], 12);
     expect(merged.map((m) => [m.kind, m.count])).toEqual([['ring', 1], ['target', 2]]);
     expect(mergeMarks([{ y: 10, kind: 'dot' as const }, { y: 13, kind: 'dot' as const, tone: 'red' }], 12)[0]).toMatchObject({ tone: 'red', count: 2 });
+  });
+});
+
+describe('the range a compact chart covers', () => {
+  const at = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
+  const s = (start: string, end: string) => ({ start: at(start), end: at(end) });
+  it('runs from half an hour before the first thing to half an hour after the last, on whole hours', () => {
+    expect(chartRange([s('09:00', '10:15'), s('17:00', '21:00')], 6)).toEqual([8 * 60, 22 * 60]);
+    expect(chartRange([s('09:30', '10:45'), s('13:00', '15:50')], 6)).toEqual([9 * 60, 17 * 60]);
+  });
+  it('is never shorter than the minimum, growing an hour later, then earlier, in turn', () => {
+    expect(chartRange([s('10:00', '11:00')], 6)).toEqual([8 * 60, 14 * 60]);
+    expect(chartRange([s('22:00', '23:30')], 6)).toEqual([18 * 60, 24 * 60]);
+  });
+  it('stays inside the day', () => {
+    expect(chartRange([s('00:10', '23:50')], 6)).toEqual([0, 24 * 60]);
+  });
+  it('covers 6 am to midnight with nothing timed', () => {
+    expect(chartRange([], 6)).toEqual([...FULL_DAY]);
   });
 });

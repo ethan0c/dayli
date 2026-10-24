@@ -1,4 +1,4 @@
-import { mergeMarks, monthDay, toMinutes, weekdayShort } from '@dayli/core';
+import { FULL_DAY, mergeMarks, monthDay, toMinutes, weekdayShort } from '@dayli/core';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
@@ -8,14 +8,10 @@ import { chart, motion } from '@dayli/tokens';
 
 import { durations, ease, enter, springs } from '@/lib/motion';
 
-import { clampY, Mark, NowLine, type MarkShape } from '@/components/ChartMark';
+import { axisHour, clampY, Mark, NowLine, type MarkShape } from '@/components/ChartMark';
 import { Press } from '@/components/Press';
 import { T } from '@/components/Text';
 import { textStyle, useTheme } from '@/theme';
-
-const START = 6 * 60;
-const END = 24 * 60;
-const SPAN = END - START;
 
 export type WeekBlock = {
   id: string;
@@ -50,15 +46,16 @@ export type WeekDay = {
 };
 
 /**
- * The week as seven vertical day bars, 6 am to midnight. The same timeline as DayBar,
- * stood up. Used as the Plan header and in the schedule review.
+ * The week as seven vertical day bars, 6 am to midnight unless given a `range` (Plan fits it to
+ * the week with `chartRange`, and `axis` names its ends beside the first bar). The same timeline
+ * as DayBar, stood up. Used as the Plan header and in the schedule review.
  *
  * One ink pill and one focus ring mark the chosen day and slide between days on the snappy
  * spring, the way a segmented control's thumb does; each day's number turns to the pill's ink
  * exactly as the pill passes under it. Rest a finger on the chart for a moment and drag to scrub:
  * the choice follows the finger a day at a time, each with a selection tick from the caller.
  */
-export function WeekChart({ days, selected, today, onSelect, onWeek, scrub = false, onScrub, height = 120, animate, accessibilityLabel }: {
+export function WeekChart({ days, selected, today, onSelect, onWeek, scrub = false, onScrub, range = FULL_DAY, axis = false, height = 120, animate, accessibilityLabel }: {
   days: WeekDay[]; selected?: string; today: string; onSelect?: (date: string) => void;
   /** Blocks and marks fade in as they are added, for a chart that fills while you watch. */
   animate?: boolean;
@@ -68,6 +65,10 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, scrub = fal
   scrub?: boolean;
   /** True while a finger scrubs the chart, so the page can stop scrolling under it. */
   onScrub?: (active: boolean) => void;
+  /** The part of the day the bars cover, in minutes. */
+  range?: readonly [number, number];
+  /** Label the range's two ends beside the first bar, for a range that isn't the whole day. */
+  axis?: boolean;
   height?: number; accessibilityLabel?: string;
 }) {
   const { c } = useTheme();
@@ -110,9 +111,11 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, scrub = fal
 
   const colW = step - GAP;
   const ringPad = chart.focusGap + chart.now;
-  return (
+  const [from, to] = range;
+  const chartView = (
     <GestureDetector gesture={scrubbing}>
-      <View style={styles.row} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+      {/* Room for the focus ring below the bars and beside the end ones, so no container clips it (the week pages clip). */}
+      <View style={[styles.row, onSelect ? { paddingBottom: ringPad } : null]} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
         accessible={!onSelect} accessibilityRole={onSelect ? undefined : 'image'} accessibilityLabel={accessibilityLabel}>
         {placed && step > 0 ? (
           <>
@@ -121,11 +124,25 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, scrub = fal
           </>
         ) : null}
         {days.map((day, i) => (
-          <DayColumn key={day.date} day={day} index={i} x={x} shown={shown} selected={i === index} today={day.date === today} height={height} animate={animate}
+          <DayColumn key={day.date} day={day} index={i} x={x} shown={shown} selected={i === index} today={day.date === today} from={from} to={to} height={height} animate={animate}
             onSelect={onSelect} onWeek={onWeek} onMeasure={i === 0 ? measure : undefined} />
         ))}
       </View>
     </GestureDetector>
+  );
+  if (!axis) return chartView;
+  // The range's ends stand flush with the bar's ends, beside the first bar; a hidden copy of the
+  // longer label sizes the column, so neither label is ever squeezed.
+  const top = axisHour(from), bottom = axisHour(to);
+  return (
+    <View style={styles.withAxis}>
+      <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.axis, { marginTop: placed?.trackY ?? 0, height: placed?.trackH ?? height, opacity: placed ? 1 : 0 }]}>
+        <T token="axis" style={styles.sizer}>{top.length > bottom.length ? top : bottom}</T>
+        <T token="axis" color={c.inkSecondary} tabular style={[styles.axisLabel, { top: 0 }]}>{top}</T>
+        <T token="axis" color={c.inkSecondary} tabular style={[styles.axisLabel, { bottom: 0 }]}>{bottom}</T>
+      </View>
+      <View style={styles.chartBody}>{chartView}</View>
+    </View>
   );
 }
 
@@ -136,11 +153,12 @@ type Geometry = { numY: number; trackY: number; trackH: number };
 const AnimatedText = Animated.createAnimatedComponent(Text);
 
 // Memoised so a tap re-renders only the two columns whose selection changed.
-const DayColumn = memo(function DayColumn({ day, index, x, shown, selected, today, height, animate, onSelect, onWeek, onMeasure }: {
-  day: WeekDay; index: number; x: SharedValue<number>; shown: SharedValue<number>; selected: boolean; today: boolean; height: number; animate?: boolean;
+const DayColumn = memo(function DayColumn({ day, index, x, shown, selected, today, from, to, height, animate, onSelect, onWeek, onMeasure }: {
+  day: WeekDay; index: number; x: SharedValue<number>; shown: SharedValue<number>; selected: boolean; today: boolean; from: number; to: number; height: number; animate?: boolean;
   onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void; onMeasure?: (geo: Partial<Geometry>) => void;
 }) {
   const { c } = useTheme();
+  const y = (min: number) => ((Math.min(to, Math.max(from, min)) - from) / (to - from)) * height;
   const tones = { ink: c.chartBooked, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
   const labelColor = day.labelTone ? tones[day.labelTone] : c.inkSecondary;
   // How much of the sliding pill is under this number: 1 when it sits here, 0 a column away.
@@ -158,19 +176,19 @@ const DayColumn = memo(function DayColumn({ day, index, x, shown, selected, toda
       <View onLayout={measureTrack} style={[styles.track, { height, backgroundColor: day.unknown ? c.changedBg : c.row, borderWidth: day.unknown ? 1.5 : 0, borderColor: c.changed }]}>
         {day.unknown ? <T token="subhead" color={c.changed} style={{ alignSelf: 'center', marginTop: height / 2 - 9 }}>?</T> : null}
         {day.blocks.map((b) => {
-          const s = Math.max(START, toMinutes(b.start));
-          const e = Math.min(END, Math.max(toMinutes(b.end), s + 15));
+          const s = toMinutes(b.start);
+          const e = Math.max(toMinutes(b.end), s + 15);
           // A seam above and below, so back-to-back blocks read as two, as in the hour view.
-          const top = ((s - START) / SPAN) * height + chart.blockGap / 2;
-          const h = Math.max(3, ((e - s) / SPAN) * height - chart.blockGap);
+          const top = y(s) + chart.blockGap / 2;
+          const h = Math.max(3, y(e) - y(s) - chart.blockGap);
           const color = b.tone === 'ink' && b.kind === 'other' ? c.chartOther : tones[b.tone];
           return (
             <Animated.View key={b.id} entering={animate ? enter.fade : undefined} style={[styles.block, { top, height: h },
               b.outline ? { borderWidth: 1.5, borderColor: color, borderStyle: b.outline } : { backgroundColor: color }]} />
           );
         })}
-        {today ? <NowLine at={{ y: nowTop(height) }} color={c.inkPrimary} inset={selected} /> : null}
-        {mergeMarks((day.marks ?? []).map((m) => ({ ...m, y: ((Math.min(END, Math.max(START, toMinutes(m.time))) - START) / SPAN) * height })), chart.ring).map((m) => {
+        {today ? <NowLine at={{ y: y(nowMinutes()) }} color={c.inkPrimary} inset={selected} /> : null}
+        {mergeMarks((day.marks ?? []).map((m) => ({ ...m, y: y(toMinutes(m.time)) })), chart.ring).map((m) => {
           const mark = <Mark key={m.id} at={{ y: clampY(m.y, height, m.kind) }} kind={m.kind} color={c.chartBooked} />;
           return animate ? <Animated.View key={m.id} entering={enter.fade} pointerEvents="none" style={StyleSheet.absoluteFill}>{mark}</Animated.View> : mark;
         })}
@@ -200,10 +218,9 @@ function blockCount(blocks: WeekBlock[]): string {
   return [shifts && n(shifts, 'shift', 'shifts'), others && n(others, 'other event', 'other events')].filter(Boolean).join(', ') || n(0, 'event', 'events');
 }
 
-function nowTop(height: number): number {
+function nowMinutes(): number {
   const d = new Date();
-  const mins = d.getHours() * 60 + d.getMinutes();
-  return ((Math.min(END, Math.max(START, mins)) - START) / SPAN) * height;
+  return d.getHours() * 60 + d.getMinutes();
 }
 
 /** "4–10p", "9a–3p", "11a–5p": the compact label under a day bar. */
@@ -226,4 +243,9 @@ const styles = StyleSheet.create({
   block: { position: 'absolute', left: 0, right: 0, borderRadius: chart.column },
   focus: { position: 'absolute', borderWidth: chart.now, borderRadius: chart.column + chart.focusGap + chart.now },
   label: { textAlign: 'center' },
+  withAxis: { flexDirection: 'row', gap: GAP },
+  chartBody: { flex: 1, minWidth: 0 },
+  axis: { position: 'relative' },
+  sizer: { opacity: 0 },
+  axisLabel: { position: 'absolute', right: 0 },
 });
