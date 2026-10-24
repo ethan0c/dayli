@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View, type TextStyle } from 'react-native';
 import Animated, { LayoutAnimationConfig, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
@@ -27,7 +27,7 @@ export function Ticker({ value, direction, reserveValues, token = 'body', color,
   reserveValues?: readonly string[];
 }) {
   const { c } = useTheme();
-  const base: TextStyle = { ...textStyle(token, color ?? c.inkPrimary), fontVariant: ['tabular-nums'], ...style };
+  const base = useMemo<TextStyle>(() => ({ ...textStyle(token, color ?? c.inkPrimary), fontVariant: ['tabular-nums'], ...style }), [token, color, c.inkPrimary, style]);
   const line = lineOf(base);
   const dir = useDirection(value, direction);
   const content = (
@@ -54,7 +54,7 @@ export function Ticker({ value, direction, reserveValues, token = 'body', color,
 }
 
 /** Static copies use the ticker's word boundaries and digit boxes, without animation work. */
-function TickerMeasurements({ values, line, style, maxFontSizeMultiplier }: {
+const TickerMeasurements = memo(function TickerMeasurements({ values, line, style, maxFontSizeMultiplier }: {
   values: readonly string[]; line: number; style: TextStyle; maxFontSizeMultiplier?: number;
 }) {
   const [heights, setHeights] = useState<Record<number, number>>({});
@@ -88,7 +88,7 @@ function TickerMeasurements({ values, line, style, maxFontSizeMultiplier }: {
       ))}
     </View>
   );
-}
+});
 
 /**
  * A whole label that slides to its next wording, for pills and short lines with no number to
