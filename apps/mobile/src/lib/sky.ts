@@ -25,7 +25,8 @@ export const SKY_LOOK: Record<SkySlot, { text: 'ink' | 'light'; wash: number; da
   afternoon: { text: 'ink', wash: 0 },
   // A mid-tone sky: too dark for ink without a wash, too light for white text. Until a new photo.
   golden: { text: 'ink', wash: 0.34 },
-  night: { text: 'light', wash: 0, darkTo: 0.65 },
+  // The checker reports darkTo 0.77; 0.72 keeps the bright cloud edge below the day bar's labels.
+  night: { text: 'light', wash: 0, darkTo: 0.72 },
 };
 
 /** True when the header's text over this sky should be light: dark mode, or a dark photo in light mode. */
