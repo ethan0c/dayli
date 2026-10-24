@@ -21,7 +21,11 @@ const smoothstep = (t: number) => t * t * (3 - 2 * t);
  * color is fully opaque from that point down, so text placed below it never sits on the photo,
  * whatever the photo is.
  */
-export function PhotoHeader({ source, height, to, fadeFrom = 0.45, solidAt, dim = 0 }: { source: number; height: number; to: string; fadeFrom?: number; solidAt?: number; dim?: number }) {
+export function PhotoHeader({ source, height, to, fadeFrom = 0.45, solidAt, dim = 0, photoHeight = height }: {
+  source: number; height: number; to: string; fadeFrom?: number; solidAt?: number; dim?: number;
+  /** Draw the photo this tall from the top, cropped to the header: pushes a bright band lower down the frame. */
+  photoHeight?: number;
+}) {
   const top = height * fadeFrom;
   const end = solidAt ?? height;
   // Already decoded before the splash lifted: shown on the first frame, no fade.
@@ -35,8 +39,8 @@ export function PhotoHeader({ source, height, to, fadeFrom = 0.45, solidAt, dim 
   const gradient = `fade-${useId().replace(/:/g, '')}`;
   return (
     <View pointerEvents="none" style={[styles.wrap, { height }]}>
-      <Animated.View style={[{ width: '100%', height }, fade]}>
-        <Photo source={source} style={{ width: '100%', height }} onLoad={() => setReady(true)} />
+      <Animated.View style={[{ width: '100%', height: photoHeight }, fade]}>
+        <Photo source={source} style={{ width: '100%', height: photoHeight }} onLoad={() => setReady(true)} />
       </Animated.View>
       {dim > 0 ? <View style={[StyleSheet.absoluteFill, { backgroundColor: to, opacity: dim }]} /> : null}
       {/* Placed by a View: react-native-web ignores an Svg's own `top`, which left the bottom of the photo unfaded. */}
@@ -57,5 +61,5 @@ export function PhotoHeader({ source, height, to, fadeFrom = 0.45, solidAt, dim 
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', top: 0, left: 0, right: 0 },
+  wrap: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
 });

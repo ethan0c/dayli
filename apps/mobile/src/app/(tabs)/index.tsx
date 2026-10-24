@@ -1,7 +1,9 @@
 import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, weekendNudge, type CountdownState, planCount, hoursMinutes, andList , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { palettes } from '@dayli/tokens';
+import { router, useFocusEffect } from 'expo-router';
+import { setStatusBarStyle } from 'expo-status-bar';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -15,7 +17,7 @@ import { ItemDetail } from '@/components/ItemDetail';
 import { ItemRow } from '@/components/ItemRow';
 import { PhotoHeader } from '@/components/PhotoHeader';
 import { Press, PressRow } from '@/components/Press';
-import { SkyHeader } from '@/components/SkyHeader';
+import { DARK_FADE, SkyHeader } from '@/components/SkyHeader';
 import { T } from '@/components/Text';
 import { Swap, Ticker } from '@/components/Ticker';
 import { TabHeader } from '@/components/TabHeader';
@@ -29,15 +31,16 @@ import { enter, exit, layout } from '@/lib/motion';
 import { COLUMN, useWebLayout } from '@/lib/layout';
 import { useScreenShortcuts } from '@/lib/shortcuts';
 import { useNow } from '@/lib/now';
+import { skySlot, skyTextLight } from '@/lib/sky';
 import { useSettling } from '@/lib/use-settling';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
 import { ACCOUNTS_ENABLED } from '@/lib/auth';
 import { accountOf, useSession } from '@/lib/supabase';
 import { SAMPLE_SOURCE } from '@/store/sample';
-import { SCREEN_GUTTER, NAV_INSET, radius, useTheme, useTopInset, screen, space, size } from '@/theme';
+import { SCREEN_GUTTER, NAV_INSET, radius, useTheme, useTopInset, screen, space, size, ForceAppearance } from '@/theme';
 
 function TodayScreen() {
-  const { c } = useTheme();
+  const { c, dark } = useTheme();
   const topInset = useTopInset();
   const now = useNow();
   // The sky is the phone's greeting; a laptop opens on plain paper (docs/headers.md).
@@ -86,6 +89,18 @@ function TodayScreen() {
   const isSample = items.some((item) => item.sourceId === SAMPLE_SOURCE);
   const devToday = useDevToday();
   const moment = useMemo(() => (__DEV__ && devToday.noMoment ? null : momentFor(items, breaks ?? [], now.date)), [items, breaks, now.date, devToday.noMoment]);
+  // A dark sky under a light page (night): the header and the day bar take the dark palette, the
+  // sky stays dark behind them down to the end of the bar, and the status bar turns light until
+  // the page scrolls past the sky.
+  const skyDark = !moment && !sidebar && !dark && skyTextLight(skySlot(now.time, dark), dark);
+  const [headerEnd, setHeaderEnd] = useState(0);
+  const [barEnd, setBarEnd] = useState(0);
+  const [pastSky, setPastSky] = useState(false);
+  useFocusEffect(useCallback(() => {
+    if (!skyDark || pastSky) return;
+    setStatusBarStyle('light', true);
+    return () => setStatusBarStyle('dark', true);
+  }, [skyDark, pastSky]));
   // A moment that can spread its deadlines shows the start days first; nothing changes until "Sounds good".
   const spreadAction = moment?.action && 'spread' in moment.action ? moment.action : null;
   const spread = useMemo(() => spreadAction ? spreadWork(items, spreadAction.spread, now, workDates, spreadAction.until) : [], [spreadAction, items, now, workDates]);
@@ -171,8 +186,16 @@ function TodayScreen() {
   );
   const todayDetail = `${planCount(todays)}${conflictsToday ? ` · ${count(conflictsToday, 'overlap')}` : ''}`;
 
+  // Over a light sky every line is ink: grey measures 3.2 to 3.9:1 on even the brightest of them.
+  // Over a dark one the header is in the dark palette, whose grey holds 9:1 there.
+  const onSky = !moment && !sidebar;
+  const skyGrey = skyDark ? palettes.dark.inkSecondary : onSky ? c.inkPrimary : c.inkSecondary;
+  const force = skyDark ? 'dark' : null;
+  // Where the dark sky has to reach: the end of the day bar, or of the header when the hours replace the bar.
+  const darkBottom = (hours ? headerEnd : barEnd) || DARK_BOTTOM;
   const list = (
-    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled">
+    <ScrollView style={{ backgroundColor: c.canvas }} contentContainerStyle={{ paddingBottom: NAV_INSET }} contentInsetAdjustmentBehavior="never" keyboardShouldPersistTaps="handled"
+      scrollEventThrottle={16} onScroll={skyDark ? (e) => { const past = e.nativeEvent.contentOffset.y > darkBottom - topInset; if (past !== pastSky) setPastSky(past); } : undefined}>
       {/* On a moment day the photo runs from the top edge, the moment takes the big number, and the day's header steps down to display size. */}
       {moment ? (
         <View style={styles.moment}>
@@ -202,9 +225,11 @@ function TodayScreen() {
             </Animated.View>
           ) : null}
         </View>
-      ) : sidebar ? null : <SkyHeader time={now.time} />}
+      ) : sidebar ? null : <SkyHeader time={now.time} darkBottom={darkBottom} />}
 
-      <TabHeader date={now.date} title={featured ? 'Now' : 'Clear'} inset={!moment}
+      <ForceAppearance.Provider value={force}>
+      <View onLayout={(e) => setHeaderEnd(e.nativeEvent.layout.y + e.nativeEvent.layout.height)}>
+      <TabHeader date={now.date} title={featured ? 'Now' : 'Clear'} inset={!moment} onPhoto={onSky && !skyDark}
         value={moment ? (big ? <Ticker value={big} token="display" /> : <T token="display" accessibilityRole="header">{featured ? 'Now' : 'Clear'}</T>)
           : big ? <Ticker value={big} token="displayXl" /> : undefined}
         trailing={moment || twoPane ? undefined : viewToggle}
@@ -213,11 +238,15 @@ function TodayScreen() {
         details={featured ? <>
           <T token={moment ? 'body' : 'lead'} numberOfLines={2}>{parts?.text}</T>
           {/* The time leads the grey line, so a long title wraps alone and never strands "· 2:45 pm". */}
-          {!moment && (parts?.time || featuredWhere) ? <T token="callout" color={c.inkSecondary} numberOfLines={1}>{[parts?.time, featuredWhere].filter(Boolean).join(' · ')}</T>
+          {!moment && (parts?.time || featuredWhere) ? <T token="callout" color={skyGrey} numberOfLines={1}>{[parts?.time, featuredWhere].filter(Boolean).join(' · ')}</T>
             : moment && parts?.time ? <T token="callout" color={c.inkSecondary}>{parts.time}</T> : null}
-        </> : <T token="callout" color={c.inkSecondary}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>} />
+        </> : <T token="callout" color={skyGrey}>{todays.length ? 'Nothing timed left today.' : 'Nothing scheduled today.'}</T>} />
+      </View>
+      </ForceAppearance.Provider>
+      {/* Room for a dark sky to fade into the page before anything in the page's own ink. */}
+      {skyDark && hours ? <View style={{ height: DARK_FADE }} /> : null}
 
-      <Animated.View layout={layout}>
+      <Animated.View layout={layout} onLayout={(e) => setBarEnd(e.nativeEvent.layout.y + e.nativeEvent.layout.height)}>
         {hours ? (
           <Animated.View key="hours" entering={enter.fade} exiting={exit.fade} style={styles.hours}>
             <SectionTitle title="Today" detail={todayDetail} />
@@ -227,10 +256,13 @@ function TodayScreen() {
           </Animated.View>
         ) : (
           <Animated.View key="list" entering={enter.fade} exiting={exit.fade} style={styles.bar}>
-            <DayBar items={todays} now={now} conflicts={conflictSet} />
+            <ForceAppearance.Provider value={force}>
+              <DayBar items={todays} now={now} conflicts={conflictSet} />
+            </ForceAppearance.Provider>
           </Animated.View>
         )}
       </Animated.View>
+      {skyDark && !hours ? <View style={{ height: DARK_FADE }} /> : null}
 
       {/* One thing explained at the moment it first matters, in place of a tour (see components/Firsts). */}
       <TodayFirst items={items} now={now} timedToday={timedToday} style={styles.section} />
@@ -401,6 +433,9 @@ function SavePlanRow({ onDismiss }: { onDismiss: () => void }) {
     </Animated.View>
   );
 }
+
+/** Where the dark sky reaches before Today has measured its header and day bar. */
+const DARK_BOTTOM = 310;
 
 const styles = StyleSheet.create({
   bar: { paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl },

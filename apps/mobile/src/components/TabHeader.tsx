@@ -11,7 +11,7 @@ import { SCREEN_GUTTER, useTheme, useTopInset, fade, space, size } from '@/theme
  * it. Planner tabs pass `date` for that line; You and Add pass none. `size` keeps 56 for numbers
  * and countdowns and gives word titles 34 (docs/headers.md).
  */
-export function TabHeader({ date, context, title, size = 'number', value, details, trailing, onPress, accessibilityLabel, inset = true }: {
+export function TabHeader({ date, context, title, size = 'number', value, details, trailing, onPress, accessibilityLabel, inset = true, onPhoto = false }: {
   date?: string;
   context?: ReactNode;
   title?: string;
@@ -22,11 +22,13 @@ export function TabHeader({ date, context, title, size = 'number', value, detail
   onPress?: () => void;
   accessibilityLabel?: string;
   inset?: boolean;
+  /** The header sits on a photo (Today's sky): its date line is ink, since grey can't hold 4.5:1 on a sky. */
+  onPhoto?: boolean;
 }) {
   const { c } = useTheme();
   const top = useTopInset();
   const dateLabel = date ? `${weekdayLong(date)}, ${monthDay(date)}` : null;
-  const line = context ?? (dateLabel ? <T token="callout" color={c.inkSecondary} numberOfLines={1}>{dateLabel}</T> : null);
+  const line = context ?? (dateLabel ? <T token="callout" color={onPhoto ? c.inkPrimary : c.inkSecondary} numberOfLines={1}>{dateLabel}</T> : null);
   const content = (
     <>
       {line ? <View style={styles.line}>{line}</View> : null}
