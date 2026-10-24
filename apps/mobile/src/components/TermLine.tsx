@@ -37,7 +37,7 @@ export function TermLine({ from, to, marks, today, scale = 'months', weekLabels,
   const a = dayNumber(from);
   const span = Math.max(1, dayNumber(to) - a);
   const pct = (date: string) => Math.min(100, Math.max(0, ((dayNumber(date) - a) / span) * 100));
-  const tones = { ink: c.chartBooked, green: c.added };
+  const tones = { ink: c.inkPrimary, green: c.added };
   const showToday = !!today && today >= from && today <= to;
   // Dots first, rings over them, red over ink: the mark that matters most is the one you see.
   const ordered = [...marks].sort((x, y) => rank(x) - rank(y));

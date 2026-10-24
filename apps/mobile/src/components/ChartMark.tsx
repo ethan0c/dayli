@@ -130,14 +130,14 @@ export function keyOf(entries: (KeyEntry | false | undefined)[]): KeyEntry[] {
 }
 
 /** The key for marks on a line or in a column: only the shapes and tones on screen, in reading order. */
-export function markKey(marks: { kind: MarkShape; tone?: string }[], c: { chartBooked: string; added: string }): KeyEntry[] {
+export function markKey(marks: { kind: MarkShape; tone?: string }[], c: { inkPrimary: string; added: string }): KeyEntry[] {
   // Shape says what it is, colour says its status: every shape on screen is keyed in ink whatever
   // its tone, and green is keyed once as a colour. Red stays for overlaps, never for a due date.
   const shape = (kind: MarkShape) => marks.some((m) => m.kind === kind);
   return keyOf([
-    shape('dot') && { glyph: 'dot', color: c.chartBooked, label: 'Due' },
-    shape('ring') && { glyph: 'ring', color: c.chartBooked, label: 'Quiz' },
-    shape('target') && { glyph: 'target', color: c.chartBooked, label: 'Exam' },
+    shape('dot') && { glyph: 'dot', color: c.inkPrimary, label: 'Due' },
+    shape('ring') && { glyph: 'ring', color: c.inkPrimary, label: 'Quiz' },
+    shape('target') && { glyph: 'target', color: c.inkPrimary, label: 'Exam' },
     marks.some((m) => m.tone === 'green') && { glyph: 'dot', color: c.added, label: 'Done' },
   ]);
 }

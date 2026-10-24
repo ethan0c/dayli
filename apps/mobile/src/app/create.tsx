@@ -131,7 +131,7 @@ export default function CreateScreen() {
               <Chip label="No course" on={draft.courseId === null} onPress={() => patch({ courseId: null })} />
               {courses.map((course) => {
                 const on = draft.courseId === course.id;
-                const tint = c.tint[courseTint(courses, course.id) ?? 'lavender'];
+                const tint = c.tint[courseTint(courses, course.id) ?? 'sky'];
                 return (
                   <Press key={course.id} accessibilityRole="radio" accessibilityState={{ selected: on }} haptic="select" onPress={() => patch({ courseId: course.id })}
                     style={[styles.courseChip, { backgroundColor: on ? c.inkPrimary : c.row }]}>

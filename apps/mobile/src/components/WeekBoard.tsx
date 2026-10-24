@@ -29,7 +29,7 @@ export function WeekBoard({ week, items, today, conflicts, openId, onOpen }: {
   const allCourses = useStore((s) => s.courses);
   const toggleDone = useStore((s) => s.toggleDone);
   const where = (it: Item) => courses.find((k) => k.id === it.courseId)?.code ?? it.employer ?? (it.category === 'school' ? 'Coursework' : it.category === 'work' ? 'Work' : 'Personal');
-  const tintOf = (it: Item) => (it.courseId ? c.tint[courseTint(allCourses, it.courseId) ?? 'lavender'].ink : c.category[it.category].ink);
+  const tintOf = (it: Item) => (it.courseId ? c.tint[courseTint(allCourses, it.courseId) ?? 'sky'].ink : c.category[it.category].ink);
   return (
     <View style={styles.board}>
       {week.map((date, d) => {

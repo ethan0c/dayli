@@ -20,12 +20,17 @@ type Common = { token?: TypeToken; color?: string; style?: TextStyle; accessibil
  * change slide out and in along the same direction. Digits are tabular, so columns never shift.
  * `direction` sets the way for text with no number to compare, like a month after a swipe.
  */
-export function Ticker({ value, direction, token = 'body', color, style, accessibilityLabel, maxFontSizeMultiplier }: Common & { value: string; direction?: Direction }) {
+export function Ticker({ value, direction, reserveValues, token = 'body', color, style, accessibilityLabel, maxFontSizeMultiplier }: Common & {
+  value: string;
+  direction?: Direction;
+  /** Reserve the tallest of these readouts, keeping surrounding content still as the value changes. */
+  reserveValues?: readonly string[];
+}) {
   const { c } = useTheme();
   const base: TextStyle = { ...textStyle(token, color ?? c.inkPrimary), fontVariant: ['tabular-nums'], ...style };
   const line = lineOf(base);
   const dir = useDirection(value, direction);
-  return (
+  const content = (
     <LayoutAnimationConfig skipEntering>
       {/* Wraps between words when the line outgrows its space, so a long readout is never cut off. */}
       <View style={styles.line} accessible accessibilityRole="text" accessibilityLabel={accessibilityLabel ?? value}>
@@ -38,6 +43,50 @@ export function Ticker({ value, direction, token = 'body', color, style, accessi
         ))}
       </View>
     </LayoutAnimationConfig>
+  );
+  if (!reserveValues?.length) return content;
+  return (
+    <View>
+      <TickerMeasurements key={JSON.stringify(reserveValues)} values={reserveValues} line={line} style={base} maxFontSizeMultiplier={maxFontSizeMultiplier} />
+      <View style={styles.overlaid}>{content}</View>
+    </View>
+  );
+}
+
+/** Static copies use the ticker's word boundaries and digit boxes, without animation work. */
+function TickerMeasurements({ values, line, style, maxFontSizeMultiplier }: {
+  values: readonly string[]; line: number; style: TextStyle; maxFontSizeMultiplier?: number;
+}) {
+  const [heights, setHeights] = useState<Record<number, number>>({});
+  return (
+    <View style={{ opacity: 0, minHeight: Math.max(line, ...Object.values(heights)) }}
+      pointerEvents="none" aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      {values.map((value, index) => (
+        <View key={index} style={[styles.overlaid, styles.line]} onLayout={({ nativeEvent: { layout: { height } } }) => {
+          setHeights((previous) => previous[index] === height ? previous : { ...previous, [index]: height });
+        }}>
+          {pieces(value).map((p, i) => (
+            <View key={`${i}-${p.kind}`}>
+              {p.kind === 'number' ? (
+                <View style={styles.row}>
+                  {[...p.text].map((digit, j) => (
+                    <View key={j} style={{ height: line, overflow: 'hidden' }}>
+                      <Text maxFontSizeMultiplier={maxFontSizeMultiplier} style={[style, { lineHeight: line }]}>{digit}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <View style={styles.clip}>
+                  <View style={styles.staying}>
+                    <Text maxFontSizeMultiplier={maxFontSizeMultiplier} style={[style, { lineHeight: line }]}>{p.text}</Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+      ))}
+    </View>
   );
 }
 
@@ -169,4 +218,5 @@ const styles = StyleSheet.create({
   clip: { overflow: 'hidden', flexShrink: 1 },
   staying: { flexShrink: 1 },
   leaving: { position: 'absolute', top: 0, left: 0 },
+  overlaid: { position: 'absolute', top: 0, left: 0, right: 0 },
 });

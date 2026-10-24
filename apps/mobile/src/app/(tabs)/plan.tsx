@@ -66,7 +66,7 @@ function weekDays(start: string, items: Item[], now: Now): WeekDay[] {
     const blocks = list.filter((i) => i.kind === 'event' && i.start).map((i) => {
       const finish = eventEnd(i);
       const past = date < now.date || (date === now.date && toMinutes(finish) <= nowMin);
-      return { id: i.id, start: i.start!, end: finish, kind: i.category === 'work' || i.employer ? 'shift' as const : 'other' as const, tone: i.done ? 'green' as const : past ? 'grey' as const : conflicts.has(i.id) ? 'red' as const : 'ink' as const };
+      return { id: i.id, start: i.start!, end: finish, kind: i.category === 'work' || i.employer ? 'shift' as const : 'other' as const, tone: past ? 'grey' as const : conflicts.has(i.id) ? 'red' as const : 'ink' as const };
     });
     const marks = list.filter((i) => i.isDeadline && i.start).map((i) => ({ id: i.id, time: i.start!, kind: shapeFor(assessment(i.title)) }));
     return { date, blocks, marks, unknown: list.some(isUntimedEvent) };
@@ -188,11 +188,13 @@ function PlanScreen() {
   // While it scrubs, the legend reads out the day under the finger; let go and it rolls back to the week.
   const scrubDirection = useDateDirection(selected);
   const weekLine = `${planCount(weekItems)}${workHours ? ` · ${count(workHours, 'work hour')}` : ''}`;
-  const dayLine = useMemo(() => {
-    const list = weekItems.filter((i) => i.date === selected);
+  const dayLines = useMemo(() => weekOf(weekStart).map((date) => {
+    const list = weekItems.filter((i) => i.date === date);
     const hours = Math.round(workMinutes(list) / 60);
-    return `${weekdayShort(selected)} ${Number(selected.slice(8))} · ${planCount(list)}${hours ? ` · ${count(hours, 'work hour')}` : ''}`;
-  }, [weekItems, selected]);
+    return `${weekdayShort(date)} ${Number(date.slice(8))} · ${planCount(list)}${hours ? ` · ${count(hours, 'work hour')}` : ''}`;
+  }), [weekItems, weekStart]);
+  const dayLine = dayLines[diffDays(weekStart, selected)]!;
+  const readouts = useMemo(() => [weekLine, ...dayLines], [weekLine, dayLines]);
   const renderWeek = (start: string) => (
     <View style={styles.chart}>
       <PlanWeek start={start} items={items} now={now} selected={selected} onSelect={selectDay} onWeek={moveWeek} onScrub={setScrubbing} />
@@ -309,13 +311,12 @@ function PlanScreen() {
             onWeek={(step) => { feedback('select'); moveWeek(step); }} />
         )}
         <View style={styles.legend}>
-          <Ticker value={scrubbing ? dayLine : weekLine} token="callout" color={c.inkSecondary}
+          <Ticker value={scrubbing ? dayLine : weekLine} reserveValues={readouts} token="callout" color={c.inkSecondary}
             direction={scrubbing ? scrubDirection : direction === 'prev' ? -1 : 1} />
           <ChartKey entries={keyOf([
             // Every glyph on the chart has a line here, including the plain blocks and the now line.
             days.some((d) => d.blocks.some((b) => b.tone === 'ink' && b.kind === 'shift')) && { glyph: 'block', color: c.chartBooked, label: 'Work' },
             days.some((d) => d.blocks.some((b) => b.tone === 'ink' && b.kind === 'other')) && { glyph: 'block', color: c.chartOther, label: 'Other' },
-            days.some((d) => d.blocks.some((b) => b.tone === 'green')) && { glyph: 'block', color: c.added, label: 'Done' },
             days.some((d) => d.blocks.some((b) => b.tone === 'grey')) && { glyph: 'block', color: c.controlOutline, label: 'Past' },
             days.some((d) => d.blocks.some((b) => b.tone === 'red')) && { glyph: 'block', color: c.conflict, label: 'Overlap' },
             ...markKey(days.flatMap((d) => d.marks ?? []), c),

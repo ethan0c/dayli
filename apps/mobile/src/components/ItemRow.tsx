@@ -31,7 +31,7 @@ export function ItemRow({ item, conflict, planned, today, onPress, onToggle, onD
   const isEvent = item.kind === 'event';
   const date = today ?? localParts(new Date()).date;
   const status = itemStatus(item, date, conflict);
-  const tint = course ? c.tint[courseTint(courses, course.id) ?? 'lavender'].ink : c.category[item.category].ink;
+  const tint = course ? c.tint[courseTint(courses, course.id) ?? 'sky'].ink : c.category[item.category].ink;
   const where = course?.code ?? item.employer ?? (item.category === 'school' ? 'Coursework' : item.category === 'work' ? 'Work' : 'Personal');
   const sub = [where, conflict ? 'Overlaps something else' : null, planned ? 'Working on it today' : null].filter(Boolean).join(' · ');
   const [hover, setHover] = useState(false);

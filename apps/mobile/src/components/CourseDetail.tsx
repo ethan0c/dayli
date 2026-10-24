@@ -83,7 +83,7 @@ export function CourseDetail({ id, onClose }: { id?: string; onClose?: () => voi
   }
 
   const name = course.code ?? course.title;
-  const tintName = courseTint(allCourses, course.id) ?? 'lavender';
+  const tintName = courseTint(allCourses, course.id) ?? 'sky';
   const tint = c.tint[tintName].ink;
 
   // The one big number: days until the next undone deadline.

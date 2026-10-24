@@ -189,7 +189,7 @@ const DayColumn = memo(function DayColumn({ day, index, x, shown, selected, toda
         })}
         {today ? <NowLine at={{ y: y(nowMinutes()) }} color={c.inkPrimary} inset={selected} /> : null}
         {mergeMarks((day.marks ?? []).map((m) => ({ ...m, y: y(toMinutes(m.time)) })), chart.ring).map((m) => {
-          const mark = <Mark key={m.id} at={{ y: clampY(m.y, height, m.kind) }} kind={m.kind} color={c.chartBooked} />;
+          const mark = <Mark key={m.id} at={{ y: clampY(m.y, height, m.kind) }} kind={m.kind} color={c.inkPrimary} />;
           return animate ? <Animated.View key={m.id} entering={enter.fade} pointerEvents="none" style={StyleSheet.absoluteFill}>{mark}</Animated.View> : mark;
         })}
       </View>

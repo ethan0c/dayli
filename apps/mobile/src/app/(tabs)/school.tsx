@@ -92,7 +92,7 @@ function SchoolScreen() {
   const labels = weekLabels(now.date);
 
   const capture = (source: 'file' | 'image') => router.navigate({ pathname: '/add', params: { source, at: String(Date.now()) } });
-  const tintOf = (course: StoredCourse) => c.tint[courseTint(allCourses, course.id) ?? 'lavender'].ink;
+  const tintOf = (course: StoredCourse) => c.tint[courseTint(allCourses, course.id) ?? 'sky'].ink;
 
   const days = next ? diffDays(now.date, next.date) : 0;
   const big = !next ? 'Clear' : days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days} days`;

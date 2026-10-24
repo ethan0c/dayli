@@ -14,8 +14,8 @@ const TRACK_ALPHA = '24';
 const MIN_SPAN = 6;
 
 /**
- * The day as a bar: plum for booked work and slate for everything else, green for what is
- * done, grey for what has ended, red where two upcoming things overlap, and a hairline for now.
+ * The day as a bar: plum for booked work and slate for everything else (events, which are
+ * never ticked off), grey for what has ended, red where two upcoming things overlap, and a hairline for now.
  * Semli's chart. With `highlight`, that item keeps its colour and everything else is grey;
  * overlaps stay red, past ones too.
  *
@@ -44,7 +44,7 @@ export function DayBar({ items, now, conflicts, highlight, labels = true }: {
     .map(({ it, start, end }) => {
       const color = highlight
         ? it.id === highlight ? bookedColors(it, c).fill : c.controlOutline
-        : it.done ? c.added : end <= nowMin ? c.controlOutline : bookedColors(it, c).fill;
+        : end <= nowMin ? c.controlOutline : bookedColors(it, c).fill;
       return { id: it.id, left: x(start), width: x(end) - x(start), color, dim: highlight ? it.id !== highlight : false };
     })
     .filter((b) => b.width > 0)

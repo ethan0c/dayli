@@ -444,10 +444,17 @@ function batch(label: string, changes: Change[]): Batch {
 }
 
 /** A course's tint; older records without one take the next tint in order. */
-/** The least-used tint, first in `COURSE_TINTS` order on a tie, so a removed course's colour is reused before any repeats. */
+/**
+ * Lavender is the brand accent, which the design rules keep to five places, so a new course takes
+ * it only after every other tint (Oct 23, 2026). Older courses keep the colour they have:
+ * `COURSE_TINTS` order still decides a record saved without one.
+ */
+const NEW_COURSE_TINTS: TintName[] = [...COURSE_TINTS.filter((t) => t !== 'lavender'), 'lavender'];
+
+/** The least-used tint, first in `NEW_COURSE_TINTS` order on a tie, so a removed course's colour is reused before any repeats. */
 export function nextCourseTint(courses: StoredCourse[]): TintName {
   const uses = (tint: TintName) => courses.filter((k, i) => (k.color ?? COURSE_TINTS[i % COURSE_TINTS.length]) === tint).length;
-  return COURSE_TINTS.reduce((best, tint) => (uses(tint) < uses(best) ? tint : best));
+  return NEW_COURSE_TINTS.reduce((best, tint) => (uses(tint) < uses(best) ? tint : best));
 }
 
 export function courseTint(courses: StoredCourse[], courseId: string | null | undefined): TintName | null {

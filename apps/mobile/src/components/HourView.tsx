@@ -53,9 +53,11 @@ export function HourView({ items, now, conflicts, onPress }: { items: Item[]; no
         const block = blocks.get(it.id);
         if (!block) return null;
         const { top, height: h, size } = block;
-        const conflict = conflicts.has(it.id);
+        const ended = it.end ? toMinutes(it.end) <= nowMin : toMinutes(it.start!) + 60 <= nowMin;
+        // An overlap that is over goes grey with its blocks, as on Plan and the day bar: red is only for what still needs you.
+        const conflict = conflicts.has(it.id) && !ended;
         // Green only for what was marked done; something that simply ended is quiet grey, never ticked.
-        const past = !it.done && (it.end ? toMinutes(it.end) <= nowMin : toMinutes(it.start!) + 60 <= nowMin);
+        const past = !it.done && ended;
         const booked = bookedColors(it, c);
         const bg = conflict ? c.conflict : it.done ? c.addedBg : past || it.kind === 'task' ? c.row : booked.fill;
         const ink = conflict ? c.onPrimary : it.done ? c.added : past ? c.inkSecondary : it.kind === 'task' ? c.inkPrimary : booked.ink;
