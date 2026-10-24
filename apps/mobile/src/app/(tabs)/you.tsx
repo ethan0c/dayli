@@ -1,14 +1,15 @@
 import { useLingui } from '@lingui/react/macro';
-import { useIsFocused, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState, type ComponentType } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { IconButton } from '@/components/Controls';
 import { SettingsHome } from '@/components/SettingsHome';
 import { T } from '@/components/Text';
+import { steadyScreen } from '@/components/SteadyScreen';
 import { COLUMN, useWebLayout } from '@/lib/layout';
 import { SettingsPane, isSettingKey, type SettingKey } from '@/lib/settings-pane';
-import { useWebShortcuts } from '@/lib/shortcuts';
+import { useScreenShortcuts } from '@/lib/shortcuts';
 import { SCREEN_GUTTER, useTheme, space } from '@/theme';
 import AppearanceScreen from '../settings/appearance';
 import CanDoScreen from '../settings/can-do';
@@ -32,11 +33,10 @@ const SCREENS: Record<SettingKey, ComponentType> = {
  * is a split view, as desktop settings are: the list stays put and each setting opens beside it.
  * `?open=data` opens one directly (the sidebar's sync line does).
  */
-export default function YouTab() {
+function YouTab() {
   const { t } = useLingui();
   const { c } = useTheme();
   const { twoPane } = useWebLayout();
-  const focused = useIsFocused();
   const { open: asked } = useLocalSearchParams<{ open?: string }>();
   const [open, setOpen] = useState<SettingKey | null>(isSettingKey(asked) ? asked : null);
   const [lastAsked, setLastAsked] = useState(asked);
@@ -44,7 +44,7 @@ export default function YouTab() {
     setLastAsked(asked);
     if (isSettingKey(asked)) setOpen(asked);
   }
-  useWebShortcuts({ Escape: () => setOpen(null) }, focused && !!open);
+  useScreenShortcuts({ Escape: () => setOpen(null) }, !!open);
 
   if (!twoPane) return <SettingsHome inTab />;
 
@@ -79,3 +79,5 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: space.xs, paddingHorizontal: SCREEN_GUTTER, paddingTop: space.xl, paddingBottom: space.xxs },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SCREEN_GUTTER },
 });
+
+export default steadyScreen(YouTab);

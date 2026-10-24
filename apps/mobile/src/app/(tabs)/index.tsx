@@ -1,6 +1,6 @@
 import { addDays, conflictIds, countdownLine, countdownParts, deadlineReason, deadlineWindow, diffDays, findConflicts, featuredCommitment, overdueTasks, pendingDates, spreadWork, startTodaySuggestions, toMinutes, todayItems, tomorrowSummary, weekdayLong, weekendNudge, type CountdownState, planCount, hoursMinutes, andList , count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { router, useIsFocused } from 'expo-router';
+import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -20,13 +20,14 @@ import { T } from '@/components/Text';
 import { Swap, Ticker } from '@/components/Ticker';
 import { TabHeader } from '@/components/TabHeader';
 import { TodayStart } from '@/components/TodayStart';
+import { steadyScreen } from '@/components/SteadyScreen';
 import { profile, track } from '@/lib/analytics';
 import { useDevToday } from '@/lib/dev';
 import { feedback } from '@/lib/feedback';
 import { momentFor } from '@/lib/moments';
 import { enter, exit, layout } from '@/lib/motion';
 import { COLUMN, useWebLayout } from '@/lib/layout';
-import { useWebShortcuts } from '@/lib/shortcuts';
+import { useScreenShortcuts } from '@/lib/shortcuts';
 import { useNow } from '@/lib/now';
 import { useSettling } from '@/lib/use-settling';
 import { useCourseList, useScheduleList, useItemList, useStore } from '@/store';
@@ -35,7 +36,7 @@ import { accountOf, useSession } from '@/lib/supabase';
 import { SAMPLE_SOURCE } from '@/store/sample';
 import { SCREEN_GUTTER, NAV_INSET, radius, useTheme, useTopInset, screen, space, size } from '@/theme';
 
-export default function TodayScreen() {
+function TodayScreen() {
   const { c } = useTheme();
   const topInset = useTopInset();
   const now = useNow();
@@ -44,8 +45,7 @@ export default function TodayScreen() {
   // A wide web window opens an item in the pane in place of the hours; the X or Esc brings them back.
   const [openId, setOpenId] = useState<string | null>(null);
   const openItem = (id: string) => (twoPane ? setOpenId(id) : router.push(`/item/${id}`));
-  const focused = useIsFocused();
-  useWebShortcuts({ Escape: () => setOpenId(null) }, focused && !!openId);
+  useScreenShortcuts({ Escape: () => setOpenId(null) }, !!openId);
   const items = useItemList();
   const schedules = useScheduleList();
   const courses = useCourseList();
@@ -421,3 +421,5 @@ const styles = StyleSheet.create({
   momentToggle: { position: 'absolute', right: SCREEN_GUTTER },
   momentLine: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.xs, paddingTop: space.snug },
 });
+
+export default steadyScreen(TodayScreen);

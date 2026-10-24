@@ -1,6 +1,6 @@
 import { WEEKDAYS, addDays, assessment, diffDays, formatTime, monthDay, weekdayOf, weekdayShort } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { router, useIsFocused } from 'expo-router';
+import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -13,11 +13,12 @@ import { T } from '@/components/Text';
 import { TabHeader } from '@/components/TabHeader';
 import { ChartKey, markKey, shapeFor } from '@/components/ChartMark';
 import { TermLine, type TermMark } from '@/components/TermLine';
+import { steadyScreen } from '@/components/SteadyScreen';
 import { feedback } from '@/lib/feedback';
 import { enter, exit, layout } from '@/lib/motion';
 import { COLUMN, useWebLayout } from '@/lib/layout';
 import { useNow } from '@/lib/now';
-import { useWebShortcuts } from '@/lib/shortcuts';
+import { useScreenShortcuts } from '@/lib/shortcuts';
 import { courseTint, useCourseList, useItemList, useStore, type StoredCourse } from '@/store';
 import { SCREEN_GUTTER, NAV_INSET, useTheme, screen, space } from '@/theme';
 
@@ -46,14 +47,13 @@ function weekLabels(today: string): string[] {
   });
 }
 
-export default function SchoolScreen() {
+function SchoolScreen() {
   const { c } = useTheme();
   const now = useNow();
   // A wide web window opens a course beside the list instead of on its own screen.
   const { twoPane } = useWebLayout();
   const [openId, setOpenId] = useState<string | null>(null);
-  const focused = useIsFocused();
-  useWebShortcuts({ Escape: () => setOpenId(null) }, focused && !!openId);
+  useScreenShortcuts({ Escape: () => setOpenId(null) }, !!openId);
   const withPane = (list: ReactNode) => !twoPane ? list : (
     <View style={styles.panes}>
       <View style={{ width: COLUMN }}>{list}</View>
@@ -217,3 +217,5 @@ const styles = StyleSheet.create({
   track: { flex: 1, justifyContent: 'center' },
   dotWell: { width: 22, alignItems: 'center' },
 });
+
+export default steadyScreen(SchoolScreen);

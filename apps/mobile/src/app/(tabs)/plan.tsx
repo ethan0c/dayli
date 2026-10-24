@@ -1,6 +1,6 @@
 import { addDays, assessment, conflictIds, diffDays, formatRange, formatTime, movableOverlap, pendingDates, relativeDay, toMinutes, weekdayLong, weekdayShort, weekOf, planCount, count, chartRange } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { router, useIsFocused } from 'expo-router';
+import { router } from 'expo-router';
 import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { PanResponder, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -22,10 +22,11 @@ import { TodayStart } from '@/components/TodayStart';
 import { ChartKey, keyOf, markKey, shapeFor } from '@/components/ChartMark';
 import { WeekChart, type WeekDay } from '@/components/WeekChart';
 import { WeekPager } from '@/components/WeekPager';
+import { steadyScreen } from '@/components/SteadyScreen';
 import { SHARING_ENABLED } from '@/lib/auth';
 import { feedback } from '@/lib/feedback';
 import { COLUMN, useWebLayout } from '@/lib/layout';
-import { useWebShortcuts } from '@/lib/shortcuts';
+import { useScreenShortcuts } from '@/lib/shortcuts';
 import { enter, exit, layout } from '@/lib/motion';
 import { useNow } from '@/lib/now';
 import { defaultTimes } from '@/lib/times';
@@ -100,7 +101,7 @@ const PlanWeek = memo(function PlanWeek({ start, items, now, selected, onSelect,
   return <WeekChart days={days} selected={selected} today={now.date} onWeek={onWeek} onSelect={onSelect} scrub onScrub={onScrub} range={range} axis />;
 });
 
-export default function PlanScreen() {
+function PlanScreen() {
   const { c } = useTheme();
   const now = useNow();
   const items = useItemList();
@@ -153,21 +154,20 @@ export default function PlanScreen() {
   const [view, setView] = useState<'week' | 'board'>('week');
   const board = twoPane && view === 'board';
   const openItem = (id: string) => (twoPane ? setOpenId(id) : router.push(`/item/${id}`));
-  const focused = useIsFocused();
   const selectDay = useCallback((date: string) => {
     if (date !== selectedRef.current) feedback('select');
     setSelected(date);
   }, [setSelected]);
 
   // The web: arrows move by day, Shift+arrows by week, T comes back to today, Esc closes the item.
-  useWebShortcuts({
+  useScreenShortcuts({
     ArrowLeft: () => selectDay(addDays(selectedRef.current, -1)),
     ArrowRight: () => selectDay(addDays(selectedRef.current, 1)),
     'Shift+ArrowLeft': () => moveWeek(-1),
     'Shift+ArrowRight': () => moveWeek(1),
     t: () => selectDay(now.date),
     Escape: () => setOpenId(null),
-  }, focused);
+  });
 
   // A pointer can't page the native week list, so the web keeps a drag-to-swipe on one chart.
   const swipe = useMemo(() => PanResponder.create({
@@ -421,3 +421,5 @@ const styles = StyleSheet.create({
   timeRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.xs, paddingLeft: space.xxl, paddingBottom: space.sm },
   timePill: { height: size.pill, borderRadius: radius.pill, paddingHorizontal: space.sm, alignItems: 'center', justifyContent: 'center' },
 });
+
+export default steadyScreen(PlanScreen);
