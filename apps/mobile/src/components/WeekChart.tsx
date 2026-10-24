@@ -1,5 +1,5 @@
 import { mergeMarks, monthDay, toMinutes, weekdayShort } from '@dayli/core';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSpring, withTiming, type SharedValue } from 'react-native-reanimated';
@@ -72,7 +72,9 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, scrub = fal
 }) {
   const { c } = useTheme();
   const [width, setWidth] = useState(0);
-  const [geo, setGeo] = useState<Geometry | null>(null);
+  const [geo, setGeo] = useState<Partial<Geometry>>({});
+  const measure = useCallback((part: Partial<Geometry>) => setGeo((g) => ({ ...g, ...part })), []);
+  const placed = geo.numY !== undefined && geo.trackY !== undefined && geo.trackH !== undefined ? geo as Geometry : null;
   const step = width > 0 ? (width - GAP * (days.length - 1)) / days.length + GAP : 0;
   const index = days.findIndex((d) => d.date === selected);
 
@@ -112,15 +114,15 @@ export function WeekChart({ days, selected, today, onSelect, onWeek, scrub = fal
     <GestureDetector gesture={scrubbing}>
       <View style={styles.row} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
         accessible={!onSelect} accessibilityRole={onSelect ? undefined : 'image'} accessibilityLabel={accessibilityLabel}>
-        {geo && step > 0 ? (
+        {placed && step > 0 ? (
           <>
-            <Animated.View pointerEvents="none" style={[styles.pill, { top: geo.numY, left: (colW - NUM) / 2, backgroundColor: c.controlFill }, pill]} />
-            <Animated.View pointerEvents="none" style={[styles.focus, { top: geo.trackY - ringPad, left: -ringPad, width: colW + ringPad * 2, height: geo.trackH + ringPad * 2, borderColor: c.inkPrimary }, ring]} />
+            <Animated.View pointerEvents="none" style={[styles.pill, { top: placed.numY, left: (colW - NUM) / 2, backgroundColor: c.controlFill }, pill]} />
+            <Animated.View pointerEvents="none" style={[styles.focus, { top: placed.trackY - ringPad, left: -ringPad, width: colW + ringPad * 2, height: placed.trackH + ringPad * 2, borderColor: c.inkPrimary }, ring]} />
           </>
         ) : null}
         {days.map((day, i) => (
           <DayColumn key={day.date} day={day} index={i} x={x} shown={shown} selected={i === index} today={day.date === today} height={height} animate={animate}
-            onSelect={onSelect} onWeek={onWeek} onMeasure={i === 0 ? setGeo : undefined} />
+            onSelect={onSelect} onWeek={onWeek} onMeasure={i === 0 ? measure : undefined} />
         ))}
       </View>
     </GestureDetector>
@@ -136,7 +138,7 @@ const AnimatedText = Animated.createAnimatedComponent(Text);
 // Memoised so a tap re-renders only the two columns whose selection changed.
 const DayColumn = memo(function DayColumn({ day, index, x, shown, selected, today, height, animate, onSelect, onWeek, onMeasure }: {
   day: WeekDay; index: number; x: SharedValue<number>; shown: SharedValue<number>; selected: boolean; today: boolean; height: number; animate?: boolean;
-  onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void; onMeasure?: (geo: Geometry) => void;
+  onSelect?: (date: string) => void; onWeek?: (step: 1 | -1) => void; onMeasure?: (geo: Partial<Geometry>) => void;
 }) {
   const { c } = useTheme();
   const tones = { ink: c.chartBooked, green: c.added, red: c.conflict, grey: c.controlOutline, amber: c.changed };
@@ -145,20 +147,15 @@ const DayColumn = memo(function DayColumn({ day, index, x, shown, selected, toda
   const number = useAnimatedStyle(() => ({
     color: interpolateColor(Math.max(0, 1 - Math.abs(x.value - index)) * shown.value, [0, 1], [c.inkPrimary, c.controlInk]),
   }));
-  const ys = useRef({ numY: 0, trackY: 0, trackH: 0, got: 0 });
-  const measured = (key: 'num' | 'track') => onMeasure ? (e: LayoutChangeEvent) => {
-    const { y, height: h } = e.nativeEvent.layout;
-    if (key === 'num') ys.current.numY = y; else { ys.current.trackY = y; ys.current.trackH = h; }
-    ys.current.got |= key === 'num' ? 1 : 2;
-    if (ys.current.got === 3) onMeasure({ numY: ys.current.numY, trackY: ys.current.trackY, trackH: ys.current.trackH });
-  } : undefined;
+  const measureNum = onMeasure ? (e: LayoutChangeEvent) => onMeasure({ numY: e.nativeEvent.layout.y }) : undefined;
+  const measureTrack = onMeasure ? (e: LayoutChangeEvent) => onMeasure({ trackY: e.nativeEvent.layout.y, trackH: e.nativeEvent.layout.height }) : undefined;
   const column = (
     <>
       <T token="axis" color={today ? c.accentInk : c.inkSecondary}>{weekdayShort(day.date)}</T>
-      <View style={styles.num} onLayout={measured('num')}>
+      <View style={styles.num} onLayout={measureNum}>
         <AnimatedText style={[textStyle('subhead', c.inkPrimary), { fontSize: 13, fontVariant: ['tabular-nums'] }, number]}>{String(Number(day.date.slice(-2)))}</AnimatedText>
       </View>
-      <View onLayout={measured('track')} style={[styles.track, { height, backgroundColor: day.unknown ? c.changedBg : c.row, borderWidth: day.unknown ? 1.5 : 0, borderColor: c.changed }]}>
+      <View onLayout={measureTrack} style={[styles.track, { height, backgroundColor: day.unknown ? c.changedBg : c.row, borderWidth: day.unknown ? 1.5 : 0, borderColor: c.changed }]}>
         {day.unknown ? <T token="subhead" color={c.changed} style={{ alignSelf: 'center', marginTop: height / 2 - 9 }}>?</T> : null}
         {day.blocks.map((b) => {
           const s = Math.max(START, toMinutes(b.start));

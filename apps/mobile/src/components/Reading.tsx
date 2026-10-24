@@ -6,6 +6,7 @@ import { motion } from '@dayli/tokens';
 
 import { SkeletonReview } from '@/components/Skeleton';
 import { T } from '@/components/Text';
+import { Swap } from '@/components/Ticker';
 import { ease } from '@/lib/motion';
 import { useTheme, space } from '@/theme';
 
@@ -41,7 +42,7 @@ export function Reading({ source, chart = 'week' }: { source: string; chart?: 'w
     <View style={{ gap: space.md }} accessibilityLiveRegion="polite">
       <ProgressLine />
       <View style={{ gap: space.xxs }}>
-        <T token="display">{LINES[line]}…</T>
+        <Swap value={`${LINES[line]}…`} token="display" />
         <T token="callout" color={c.inkSecondary}>
           {source[0]?.toUpperCase() + source.slice(1)} · Nothing is saved until you confirm.
         </T>

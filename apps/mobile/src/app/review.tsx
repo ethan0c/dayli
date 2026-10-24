@@ -1,11 +1,12 @@
 import { WEEKDAYS, assessment, conflictIds, dateLocale, formatTime, isLocalDate, localParts, monthDay, planCommit, toDrafts, weekOf, weekdayLong, weekdayOf, weekdayShort, type CommitPlan, type DatedDraft, type Draft, typicalTermEnd, spanMinutes, count } from '@dayli/core';
 import type { Item } from '@dayli/schema';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { devAutoConfirmMs } from '@/lib/dev';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { AddedMoment } from '@/components/AddedMoment';
 import { CategoryDot, SectionTitle, StatusPill, TextButton } from '@/components/Controls';
 import { DateField, TimeField } from '@/components/Native';
 import { Press } from '@/components/Press';
@@ -65,6 +66,15 @@ export default function ReviewScreen() {
   const { isPlus } = usePurchases();
   const [checkingAccess, setCheckingAccess] = useState(false);
   const [accessError, setAccessError] = useState<string | null>(null);
+  // The first import after onboarding: how many were added, while the "Added" moment plays.
+  const [moment, setMoment] = useState<number | null>(null);
+  const afterMoment = useRef<(() => void) | null>(null);
+  // Stable, so the moment's own timer isn't restarted by a re-render.
+  const finishMoment = useCallback(() => {
+    const next = afterMoment.current;
+    afterMoment.current = null;
+    next?.();
+  }, []);
 
   // Undated drafts start excluded: they are counted as skipped, never block the confirm.
   const [drafts, setDrafts] = useState<Draft[]>(() =>
@@ -130,6 +140,12 @@ export default function ReviewScreen() {
     setSettings({ firsts: { ...settings.firsts, reimport: true } });
   }, [explainCompare]);
 
+  if (moment !== null) return (
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <AddedMoment count={moment} onDone={finishMoment} />
+    </>
+  );
   if (!pending || !ex || !plan) return null;
 
   // ---- What kind of review this is ------------------------------------------------
@@ -288,22 +304,36 @@ export default function ReviewScreen() {
       plan.remove.length ? `${plan.remove.length} removed` : null,
       plan.skipped ? `${plan.skipped} already there` : null,
     ].filter(Boolean);
-    showToast(parts.join(' · ') + '.', id);
     track('review_committed', { created: plan.create.length, updated: plan.update.length, removed: plan.remove.length, type: ex.detected_type });
     const { settings, setSettings } = useStore.getState();
     setPending(null);
     if (!settings.onboarded) {
-      setSettings({ onboardingImportDone: true });
+      // Onboarding ends on its own showcase, so its import counts as the first without the moment.
+      showToast(parts.join(' · ') + '.', id);
+      setSettings({ onboardingImportDone: true, firsts: { ...settings.firsts, added: true } });
       if (router.canGoBack()) router.back();
       else router.replace('/onboarding');
       return;
     }
-    if (!settings.remindersAsked) {
-      setSettings({ remindersAsked: true });
-      void requestNotifications().then((ok) => ok ? syncReminders() : undefined).catch(() => {});
+    // The toast with Undo and the reminders prompt wait until Plan, so neither lands on the moment.
+    const goOn = () => {
+      showToast(parts.join(' · ') + '.', id);
+      const { settings: now, setSettings: save } = useStore.getState();
+      if (!now.remindersAsked) {
+        save({ remindersAsked: true });
+        void requestNotifications().then((ok) => ok ? syncReminders() : undefined).catch(() => {});
+      }
+      router.dismissAll();
+      router.replace('/plan');
+    };
+    // The first import a person adds after onboarding gets the one celebration before Plan.
+    if (!settings.firsts.added && !isUpdate && plan.create.length > 0) {
+      setSettings({ firsts: { ...settings.firsts, added: true } });
+      afterMoment.current = goOn;
+      setMoment(plan.create.length);
+      return;
     }
-    router.dismissAll();
-    router.replace('/plan');
+    goOn();
   };
 
   // ---- Header copy ------------------------------------------------------------------
@@ -478,7 +508,7 @@ export default function ReviewScreen() {
   };
 
   const undatedNoun = undated.length && undated.every((d) => d.icon === 'book') ? ['reading', 'readings'] : ['item', 'items'];
-  const skippedLabel = undated.length ? ` · ${undated.length} ${undated.length === 1 ? undatedNoun[0] : undatedNoun[1]} without a date ${undated.length === 1 ? 'is' : 'are'} skipped` : '';
+  const skippedLabel = undated.length ? ` · ${count(undated.length, undatedNoun[0], undatedNoun[1])} without a date ${undated.length === 1 ? 'is' : 'are'} skipped` : '';
 
   const dateRows = () => {
     const visible = isSyllabus && !listOpen ? exams : nonSeries;

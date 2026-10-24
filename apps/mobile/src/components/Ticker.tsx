@@ -63,24 +63,20 @@ function pieces(value: string): Piece[] {
 
 /** The way the text moved: the given direction, else the first number that changed, else up. */
 function useDirection(value: string, direction?: Direction): Direction {
-  const last = useRef(value);
-  const dir = useRef<Direction>(direction ?? 1);
-  if (last.current !== value) {
-    dir.current = direction ?? numberDirection(last.current, value);
-    last.current = value;
-  }
-  return dir.current;
+  const [last, setLast] = useState({ value, dir: direction ?? 1 as Direction });
+  if (last.value === value) return last.dir;
+  const dir = direction ?? numberDirection(last.value, value);
+  setLast({ value, dir });
+  return dir;
 }
 
 /** Which way an ISO date just moved: 1 when it went later, -1 when earlier. Pass it as a Ticker's `direction`. */
 export function useDateDirection(date: string): Direction {
-  const last = useRef(date);
-  const dir = useRef<Direction>(1);
-  if (last.current !== date) {
-    dir.current = date > last.current ? 1 : -1;
-    last.current = date;
-  }
-  return dir.current;
+  const [last, setLast] = useState({ date, dir: 1 as Direction });
+  if (last.date === date) return last.dir;
+  const dir: Direction = date > last.date ? 1 : -1;
+  setLast({ date, dir });
+  return dir;
 }
 
 function numberDirection(before: string, after: string): Direction {

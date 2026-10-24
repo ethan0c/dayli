@@ -76,11 +76,11 @@ export function PressRow({ style, children, bleed = 0, round = 0, highlight, hap
     <Pressable
       {...rest}
       onPressIn={(e: GestureResponderEvent) => {
-        down.value = withTiming(1, { duration: durations.fast, easing: ease });
+        down.set(withTiming(1, { duration: durations.fast, easing: ease }));
         onPressIn?.(e);
       }}
       onPressOut={(e: GestureResponderEvent) => {
-        down.value = withTiming(0, { duration: durations.base, easing: ease });
+        down.set(withTiming(0, { duration: durations.base, easing: ease }));
         onPressOut?.(e);
       }}
       onPress={(e: GestureResponderEvent) => {

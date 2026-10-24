@@ -21,7 +21,8 @@ export function WeekPager({ weekStart, renderWeek, onWeek, scrollEnabled = true 
   const indexOf = (start: string) => SPAN + Math.round(diffDays(base, start) / 7);
   const list = useRef<FlatList<number>>(null);
   // The page the list is on, as far as this component knows; a swipe and a jump both update it.
-  const at = useRef(indexOf(weekStart));
+  const [first] = useState(() => indexOf(weekStart));
+  const at = useRef(first);
 
   useEffect(() => {
     const target = SPAN + Math.round(diffDays(base, weekStart) / 7);
@@ -54,7 +55,7 @@ export function WeekPager({ weekStart, renderWeek, onWeek, scrollEnabled = true 
         pagingEnabled
         scrollEnabled={scrollEnabled}
         showsHorizontalScrollIndicator={false}
-        initialScrollIndex={at.current}
+        initialScrollIndex={first}
         getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
         initialNumToRender={1}
         maxToRenderPerBatch={2}

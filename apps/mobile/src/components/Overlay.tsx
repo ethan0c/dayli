@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { colors } from '@dayli/tokens';
 import { StyleSheet, View } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
@@ -41,37 +41,37 @@ export function Toast({ offset }: { offset: number }) {
   }, [toast, hide]);
 
   // A new key for every message, so a replacement plays its own entrance.
-  const seen = useRef<{ toast: typeof toast; key: number }>({ toast: null, key: 0 });
-  if (toast && seen.current.toast !== toast) seen.current = { toast, key: seen.current.key + 1 };
+  const [seen, setSeen] = useState<{ toast: typeof toast; key: number }>({ toast: null, key: 0 });
+  if (toast && seen.toast !== toast) setSeen({ toast, key: seen.key + 1 });
 
   const y = useSharedValue(0);
   const away = useSharedValue(1);
   useEffect(() => {
-    y.value = 0;
-    away.value = 1;
+    y.set(0);
+    away.set(1);
   }, [toast, y, away]);
   const drag = usePanGesture({
     onUpdate: (e) => {
       'worklet';
-      y.value = e.translationY > 0 ? e.translationY : e.translationY / 4;
+      y.set(e.translationY > 0 ? e.translationY : e.translationY / 4);
     },
     onDeactivate: (e) => {
       'worklet';
       if (e.translationY > DISMISS.distance || e.velocityY > DISMISS.speed) {
-        y.value = withTiming(y.value + DISMISS.distance, { duration: durations.fast, easing: ease });
-        away.value = withTiming(0, { duration: durations.fast, easing: ease }, (done) => { if (done) scheduleOnRN(hide); });
+        y.set(withTiming(y.get() + DISMISS.distance, { duration: durations.fast, easing: ease }));
+        away.set(withTiming(0, { duration: durations.fast, easing: ease }, (done) => { if (done) scheduleOnRN(hide); }));
       } else {
-        y.value = withSpring(0, { ...springs.snappy, velocity: e.velocityY });
+        y.set(withSpring(0, { ...springs.snappy, velocity: e.velocityY }));
       }
     },
   });
-  const dragged = useAnimatedStyle(() => ({ opacity: away.value, transform: [{ translateY: y.value }] }));
+  const dragged = useAnimatedStyle(() => ({ opacity: away.get(), transform: [{ translateY: y.get() }] }));
 
   const canUndo = !!(toast?.batchId || toast?.doneIds);
   return (
     <View pointerEvents="box-none" style={[styles.lane, { bottom: insets.bottom + offset + 64 }]}>
       {toast ? (
-        <Animated.View key={seen.current.key} entering={enter.rise} exiting={exit.sink} accessibilityLiveRegion="polite" style={styles.slot}>
+        <Animated.View key={seen.key} entering={enter.rise} exiting={exit.sink} accessibilityLiveRegion="polite" style={styles.slot}>
           <GestureDetector gesture={drag}>
             <Animated.View style={[styles.toast, { backgroundColor: c.inkPrimary }, dark ? null : shadow, dragged]}>
               <T token="callout" color={c.canvas} style={styles.message} numberOfLines={2}>{toast.message}</T>
