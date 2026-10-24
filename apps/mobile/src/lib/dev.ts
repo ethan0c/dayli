@@ -52,6 +52,20 @@ export async function devClock(): Promise<string | null> {
   }
 }
 
+/** Development only: `dev-appearance.txt` holds light, dark or system, so a capture can show either appearance. */
+export async function devAppearance(): Promise<'light' | 'dark' | 'system' | null> {
+  if (!__DEV__) return null;
+  if (Platform.OS === 'web') { const v = webParam('appearance'); return v === 'light' || v === 'dark' || v === 'system' ? v : null; }
+  try {
+    const f = new File(Paths.document, 'dev-appearance.txt');
+    if (!f.exists) return null;
+    const v = (await f.text()).trim();
+    return v === 'light' || v === 'dark' || v === 'system' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Development only: when set, the review screen confirms itself after this many milliseconds,
  * so a recording shows the whole import without a tap. Set by the `demo` commands at launch.

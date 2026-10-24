@@ -25,7 +25,7 @@ import { COLUMN, frameStyle, useWebLayout } from '@/lib/layout';
 import { columnHeader } from '@/components/ColumnHeader';
 import { Sidebar } from '@/components/DesktopTabs';
 import { PlanChoice } from '@/components/PlanChoice';
-import { devClock, devCommand, setDevAutoConfirm, setDevToday } from '@/lib/dev';
+import { devAppearance, devClock, devCommand, setDevAutoConfirm, setDevToday } from '@/lib/dev';
 import { i18n } from '@/lib/i18n';
 import { SHOWCASE, SKY, preloadPhotos } from '@/lib/images';
 import { skySlot } from '@/lib/sky';
@@ -143,8 +143,9 @@ function RootLayout() {
   // Development: a command file in Documents seeds a state for screenshots (see lib/dev.ts).
   useEffect(() => {
     if (!ready) return;
-    void Promise.all([devClock(), devCommand()]).then(([clock, cmd]) => {
+    void Promise.all([devClock(), devCommand(), devAppearance()]).then(([clock, cmd, appearance]) => {
       setDevTime(clock);
+      if (appearance) useStore.getState().setSettings({ appearance });
       if (!cmd) return;
       const store = useStore.getState();
       // A clock with a day ("2026-10-19 09:41") seeds the week around that day.
